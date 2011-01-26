@@ -156,21 +156,37 @@ def print_results(query_result):
 
 def test_query():
     """a simple sql query example to play around with"""
-    test_query = curs.execute('''select * from books where pages < 300;''')
+    query_results = curs.execute('''select * from books where pages < 300;''')
     print "select * from books where pages < 300;\n\n"
-    for result in test_query:
-        print result
+    return query_results
 
 
-    
+class Books:
+	""" a Books() instance represents ALL books that were found by a database query """
+	
+	def __init__ (self, query_result):
+		""" 
+		@type query_result: C{sqlite3.Cursor}
+		@param query_result: an sql cursor containing the results from a database query
+		
+		This method generates a list of Book() instances (saved as Books().books), each representing one book from a database query.
+		"""
+		self.books = []
+		for result in query_result:
+			book_item = Book(result)
+			self.books.append(book_item)
+			
 
 class Book:
-    """
-    TABLE books 
-    (titel, year, authors, keywords, lang, plang, pages, target, exercises, examples)
-    """
+    """ a Book() instance represents ONE book from a database query """
     def __init__ (self, db_item):
-        """ fill Book() instance w/ metadata from the db """
+        """
+        fill Book() instance w/ metadata from the db
+
+        @type db_item: C{tuple}
+        @param db_item: an item from the C{sqlite3.Cursor} object that contains
+        the results from the db query.
+        """
         self.title = db_item[col_index("titel")]
         self.year = int(db_item[col_index("year")])
         
