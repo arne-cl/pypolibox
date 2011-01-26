@@ -34,12 +34,8 @@ class Query:
     """ a Query() instance represents one user query to the database """
 
     def __init__ (self, argv):
-        #""" Class initialiser """
-        #pass
-
-    #def parse_commandline(self, argv):
         """ 
-        parses commandline options to construct a database query and stores the resulting sql query in self.query
+        parses commandline options with argparse, constructs a valid sql query and stores the resulting query in self.query
         """
 
         self.queries = []
@@ -61,38 +57,83 @@ class Query:
             help="Should the book contain exercises? 0 = no, 1 = yes")
         parser.add_argument("-c", "--codeexamples",
             help="Should the book contain code examples? 0 = no, 1 = yes")
-        parser.add_argument("-r", "--maxresults", #TODO: currently unused
-            help="show no more than MAXRESULTS books")
+        parser.add_argument("-r", "--minresults", #TODO: currently unused
+            help="show no less than MINRESULTS books")
+            # minresults should trigger a fallback query to the db to get more results
+            # e.g. combine the user's parameters with OR instead of AND:
+            #       use some form of weigths to get the "best" results, e.g.
+            #       keywords * 3 + language * 2 + other_parameters * 1
     
         args = parser.parse_args(argv)
         print args
     
         if args.keywords:
             for keyword in args.keywords:
-                self.queries.append(substring_query("keywords", keyword))
+                self.queries.append(self.substring_query("keywords", keyword))
         if args.language:
-            self.queries.append(string_query("lang", args.language))
+            self.queries.append(self.string_query("lang", args.language))
         if args.proglang:
             for proglang in args.proglang:
-                self.queries.append(string_query("plang", proglang))
+                self.queries.append(self.string_query("plang", proglang))
         if args.pages:
-            self.queries.append(pages_query(args.pages))
+            self.queries.append(self.pages_query(args.pages))
         if args.targetgroup:
             # 0 beginner, 1 intermediate, 2 advanced, 3 professional
             #db fuckup: advanced is encoded as "3"
             assert args.targetgroup in ("0", "1", "2", "3")
-            self.queries.append(equals_query("target", args.targetgroup))
+            self.queries.append(self.equals_query("target", args.targetgroup))
         if args.exercises:
             assert args.exercises in ("0", "1",)
-            self.queries.append(equals_query("exercises", args.exercises))
+            self.queries.append(self.equals_query("exercises", args.exercises))
         if args.codeexamples:
             assert args.codeexamples in ("0", "1")
-            self.queries.append(equals_query("examples", args.codeexamples))
+            self.queries.append(self.equals_query("examples", args.codeexamples))
     
         print "The database will be queried for: {0}".format(self.queries)
-        self.query = construct_commandline_query(self.queries)
+        self.query = self.construct_query(self.queries)
         print "\nThis query will be sent to the database: {0}\n\n".format(self.query)
         #return self.query
+
+    def construct_query(self, queries):
+        """takes a list of queries and combines them into one complex SQL query"""
+        #query_template = "SELECT titel, year FROM books WHERE "
+        query_template = "SELECT * FROM books "
+        where = "WHERE "
+        combined_queries = ""
+        if len(queries) > 1:
+            for query in queries[:-1]: # combine queries with " AND ", but don't append after the last query
+                combined_queries += query + " AND "
+            combined_queries += queries[-1]
+            return query_template + where + combined_queries
+        elif len(queries) == 1: # simple query, no combination needed
+            query = queries[0] # list with one string element --> string
+            print "type(queries): {0}, len(queries): {1}".format(type(queries), len(queries))
+            return query_template + where + query
+        else: #empty query
+            return query_template # query will show all books in the db
+
+    def pages_query(self, length_category):
+        assert length_category in ("0", "1", "2") # short, medium length, long books
+        if length_category == "0":
+            return "pages < 300"
+        if length_category == "1":
+            return "pages >= 300 AND pages < 600"
+        if length_category == "2":
+            return "pages >= 600"
+    
+    def substring_query(self, sql_column, substring):
+        sql_substring = "'%{0}%'".format(substring) # keyword --> '%keyword%' for SQL LIKE queries
+        substring_query = "{0} like {1}".format(sql_column, sql_substring)
+        return substring_query
+    
+    def string_query(self, sql_column, string):
+        """find all database items that completely match a string
+           in a given column, e.g. WHERE lang = 'German' """
+        return "{0} = '{1}'".format(sql_column, string)
+    
+    def equals_query(self, sql_column, string):
+        return "{0} = {1}".format(sql_column, string)
+
 
 class Results:
     """ a Results() instance represents the results of a database query """
@@ -117,58 +158,6 @@ class Results:
         #TODO: this method can only be run once, since it's a 'live' sql cursor
         for book in self.query_result:
             print book
-    
-
-def pages_query(length_category):
-    assert length_category in ("0", "1", "2") # short, medium length, long books
-    if length_category == "0":
-        return "pages < 300"
-    if length_category == "1":
-        return "pages >= 300 AND pages < 600"
-    if length_category == "2":
-        return "pages >= 600"
-
-def substring_query(sql_column, substring):
-    sql_substring = "'%{0}%'".format(substring) # keyword --> '%keyword%' for SQL LIKE queries
-    substring_query = "{0} like {1}".format(sql_column, sql_substring)
-    return substring_query
-
-def string_query(sql_column, string):
-    """find all database items that completely match a string
-       in a given column, e.g. WHERE lang = 'German' """
-    return "{0} = '{1}'".format(sql_column, string)
-
-def equals_query(sql_column, string):
-    return "{0} = {1}".format(sql_column, string)
-
-def construct_query(keywords=[]):
-    """
-    #TODO: unfinished
-    query constructor for non-commandline interface (API, GUI, web etc.)
-    """
-    query_template = "SELECT * FROM books WHERE "
-    print keywords, len(keywords)
-    for key in keywords:
-        sql_substring = "'%{0}%'".format(key)
-        print "keywords like {0}".format(sql_substring)
-
-def construct_commandline_query(queries):
-    """takes a list of queries and combines them into one complex SQL query"""
-    #query_template = "SELECT titel, year FROM books WHERE "
-    query_template = "SELECT * FROM books "
-    where = "WHERE "
-    combined_queries = ""
-    if len(queries) > 1:
-        for query in queries[:-1]: # combine queries with " AND ", but don't append after the last query
-            combined_queries += query + " AND "
-        combined_queries += queries[-1]
-        return query_template + where + combined_queries
-    elif len(queries) == 1: # simple query, no combination needed
-        query = queries[0] # list with one string element --> string
-        print "type(queries): {0}, len(queries): {1}".format(type(queries), len(queries))
-        return query_template + where + query
-    else: #empty query
-        return query_template # query will show all books in the db
 
 
 class Books:
@@ -218,7 +207,7 @@ class Book:
         self.codeexamples = int(db_item[col_index("examples")]) != 0 # 0 -> False, 1 -> True
 
 
-#TODO: move the following functions into pypolibox-utils
+#TODO: move helper functions to utils.py; complete unfinished ones
 
 def col_index(column):
     """returns the index of an sql column given its title"""
@@ -240,11 +229,39 @@ def sql_array_to_set(sql_array):
         item_set.add(i)
     return item_set
 
-def test_query():
+def test_sql():
     """a simple sql query example to play around with"""
     query_results = curs.execute('''select * from books where pages < 300;''')
     print "select * from books where pages < 300;\n\n"
     return query_results
+
+def test_cli():
+    """run several complex queries and print their results to stdout"""
+    argvectors = [ ["-k", "pragmatics"], \
+                   ["-k", "pragmatics", "semantics"], \
+                   ["-l", "German"], \
+                   ["-l", "German", "-p", "Lisp"], \
+                   ["-l", "German", "-p", "Lisp", "-k", "parsing"], \
+                   ["-l", "English", "-s", "0", "-c", "1"], \
+                   ["-l", "English", "-s", "0", "-e", "1", "-k", "discourse"], \
+                ]
+    for argv in argvectors:
+        book_list = Books(Results(Query(argv)))
+        print "{0}:\n\n".format(argv)
+        for book in book_list.books:
+            print book.title, book.year
+
+#def construct_query(keywords=[]):
+    #"""
+    ##TODO: unfinished
+    #query constructor for non-commandline interface (API, GUI, web etc.)
+    #"""
+    #query_template = "SELECT * FROM books WHERE "
+    #print keywords, len(keywords)
+    #for key in keywords:
+        #sql_substring = "'%{0}%'".format(key)
+        #print "keywords like {0}".format(sql_substring)
+
 
 if __name__ == "__main__":
     #commandline_query = parse_commandline(sys.argv[1:])
@@ -252,4 +269,3 @@ if __name__ == "__main__":
     #q.parse_commandline(sys.argv[1:])
     results = Results(q)
     results.print_results()
-
