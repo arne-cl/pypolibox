@@ -206,6 +206,24 @@ class Book:
         self.exercises = int(db_item[col_index("exercises")]) != 0 # 0 -> False, 1 -> True
         self.codeexamples = int(db_item[col_index("examples")]) != 0 # 0 -> False, 1 -> True
 
+class Facts():
+    """ Facts() represents facts about Books (aka a list of Book() instances)"""
+    
+    def __init__ (self, books):
+        """ """
+        self.books = []
+        for index, book in enumerate(books):
+            if index == 0: #first book
+                book_facts = self.generate_facts(book)
+            else: # every other book --> trigger comparison with preceeding book
+                book_facts = self.generate_facts(book, preceeding_book)
+        self.books.append(book_facts)
+    
+    def generate_facts(book, preceeding_book=False):
+        if preceeding_book == False:
+            pass # generate only ID and EXTRA facts (no comparison possible)
+        else:
+            pass # generate all facts, including comparative ones
 
 #TODO: move helper functions to utils.py; complete unfinished ones
 
