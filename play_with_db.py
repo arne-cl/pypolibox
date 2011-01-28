@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+
+#TODO: it might be easier to encode those sqlite unicode strings as DEFAULT_ENCODING than to 
+#      convert everything else to unicode!
 
 #TODO: check why parser.add_argument isn't working correctly w/ type=int (if int = 0)
 
@@ -20,8 +25,10 @@ import sys
 import argparse
 import re # for "utils"
 
-
-
+DEFAULT_ENCODING = 'utf-8' # sqlite stores strings as unicode, 
+                           # but the user input is likely something else
+                           # (e.g. 'latin-1' or 'utf-8')
+                           # change this var if your terminal only supports ascii-based encodings
 
 # TABLE books (titel, year, authors, keywords, lang, plang, pages, target, exercises, examples);
 
@@ -212,8 +219,12 @@ class Book:
         self.codeexamples = int(db_item[col_index("examples")]) != 0 # 0 -> False, 1 -> True
 
 class Facts():
-    """ Facts() represents facts about a Books(), which is a list of Book() instances"""
+    """
+    Facts() represents facts about a Books(), which is a list of Book() instances
     
+    @type b: C{Books}
+    @param b: an instance of the class Books
+    """
     def __init__ (self, b):
         """ """
         self.query_args = b.query_args # originall query args for generating query_facts
@@ -228,6 +239,12 @@ class Facts():
                 self.books[index] = book_facts
     
     def generate_facts(self, index, book, preceeding_book=False):
+        """
+        facts are ultimately retrieved from sqlite3, all strings encoded as <type 'unicode'>, not as <type 'str'>! in order to compare user queries of <type 'str'> to <type 'unicode'> strings from the database, we'll need to convert them.
+        
+        convert <type 'str'> to <type 'unicode'>: some_string.decode(DEFAULT_ENCODING)
+        """
+        
         facts = {}
                 
         facts["id_facts"] = self.generate_id_facts(index, book)
@@ -241,7 +258,9 @@ class Facts():
         return facts
 
     def generate_id_facts(self, index, book):
-        """ returns a dictionary of id facts about the current book """
+        """ 
+        returns a dictionary of id facts about the current book 
+        """
         
         id_facts = {}
         id_facts["title"] = book.title
@@ -259,12 +278,19 @@ class Facts():
     def generate_query_facts(self, index, book):
         """ """
         query_facts = {}
+        query_facts["usermodel_match"] = []
+        query_facts["usermodel_nomatch"] = []
         query_args = self.query_args # typing laziness...
 
         if query_args.keywords:
             for keyword in query_args.keywords:
-                pass
-                #self.queries.append(self.substring_query("keywords", keyword))
+                print keyword
+                if keyword.decode(DEFAULT_ENCODING) in book.keywords:
+                    query_facts["usermodel_match"].append(("keywords", keyword))
+                else:
+                    query_facts["usermodel_nomatch"].append(("keywords", keyword))
+                
+
         #if args.language:
             #self.queries.append(self.string_query("lang", args.language))
         #if args.proglang:
