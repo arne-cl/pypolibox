@@ -152,7 +152,7 @@ class Results:
     def __init__ (self, q):
         """
         initialises a connection to the db, sends an sql query to the db 
-        and and stores the results in self.query_result
+        and and stores the results in self.query_results
         
         @type q: instance of class C{Query}
         @param q: an instance of the class Query()
@@ -164,12 +164,15 @@ class Results:
 
         self.db_columns = self.get_table_header(BOOK_TABLE_NAME) #NOTE: this has to be done BEFORE the actual query, otherwise we'll overwrite the cursor!
         
-        self.query_result = self.curs.execute(q.query)
+        temp_results = self.curs.execute(q.query)
+        self.query_results = []
+        for result in temp_results:
+            self.query_results.append(result) # temp_result is a LIVE SQL cursor, so we need to make the results 'persistant', e.g. by writing them to a list
     
     def print_results(self):
         """a method that prints all items of a query result to stdout"""
         #TODO: this method can only be run once, since it's a 'live' sql cursor
-        for book in self.query_result:
+        for book in self.query_results:
             print book
 
     def get_table_header(self, table_name):
@@ -188,14 +191,14 @@ class Books:
 
     def __init__ (self, results):
         """
-        @type query_result: C{Results}
-        @param query_result: an instance of the class Results() containing the results from a database query
+        @type results: C{Results}
+        @param results: an instance of the class Results() containing the results from a database query
 
         This method generates a list of Book() instances (saved as self.books), each representing one book from a database query.
         """
         self.query_args =  results.query_args # original query arguments for debugging
         self.books = []
-        for result in results.query_result:
+        for result in results.query_results:
             book_item = Book(result)
             self.books.append(book_item)
 
