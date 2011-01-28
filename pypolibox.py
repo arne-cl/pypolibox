@@ -301,17 +301,22 @@ class Facts():
         if query_args.keywords:
             for keyword in query_args.keywords:
                 print keyword
-                if keyword.decode(DEFAULT_ENCODING) in book.keywords:
+                if keyword in book.keywords:
                     query_facts["usermodel_match"].append(("keywords", keyword))
                 else:
                     query_facts["usermodel_nomatch"].append(("keywords", keyword))
                 
-
-        #if args.language:
-            #self.queries.append(self.string_query("lang", args.language))
-        #if args.proglang:
-            #for proglang in args.proglang:
-                #self.queries.append(self.string_query("plang", proglang))
+        if query_args.language:
+            if query_args.language == book.language:
+                query_facts["usermodel_match"].append(("language", query_args.language))
+            else:
+                query_facts["usermodel_nomatch"].append(("language", query_args.language))
+        if query_args.proglang: #TODO: proglang should be a "sql string array", but in our db it's not (there's only one book w/ two programming languages, all other books only have <= 1 proglang)
+            if query_args.proglang == book.proglang:
+                query_facts["usermodel_match"].append(("proglang", query_args.proglang))
+            else:
+                query_facts["usermodel_nomatch"].append(("proglang", query_args.proglang))
+            
         #if args.pages:
             #self.queries.append(self.pages_query(args.pages))
         #if args.targetgroup:
