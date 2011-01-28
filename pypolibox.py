@@ -29,9 +29,10 @@ DEFAULT_ENCODING = 'utf-8' # sqlite stores strings as unicode,
                            # but the user input is likely something else
                            # (e.g. 'latin-1' or 'utf-8')
                            # change this var if your terminal only supports ascii-based encodings
+DB_FILE = 'books.db'
+BOOK_TABLE_NAME = 'books' # name of the table in the database file that contains info about books
 
-# TABLE books (titel, year, authors, keywords, lang, plang, pages, target, exercises, examples);
-
+argv = ["-k", "pragmatics", "parsing"] #TODO: remove after debugging
 
 #conn.commit() # commit changes to db
 #conn.close() # close connection to db. 
@@ -157,18 +158,29 @@ class Results:
         @param q: an instance of the class Query()
         """
         self.query_args = q.query_args # keep original queries for debugging
-        #db_file = "/home/guido/workspace/JPoliboxLocalNotebook/database/books.db"
-        db_file = "books.db"
-        conn = sqlite3.connect(db_file)
-        curs = conn.cursor()
         
-        self.query_result = curs.execute(q.query)
+        conn = sqlite3.connect(DB_FILE)
+        self.curs = conn.cursor() #TODO: i needed to "self" this to make it available in get_table_header(). it might be wise to move connect/cursor to the "global variables" part of the code.
+
+        self.db_columns = self.get_table_header(BOOK_TABLE_NAME) #NOTE: this has to be done BEFORE the actual query, otherwise we'll overwrite the cursor!
+        
+        self.query_result = self.curs.execute(q.query)
     
     def print_results(self):
         """a method that prints all items of a query result to stdout"""
         #TODO: this method can only be run once, since it's a 'live' sql cursor
         for book in self.query_result:
             print book
+
+    def get_table_header(self, table_name):
+        """
+        get the column names (e.g. title, year, authors) and their index from the books table of the db and return them as a dictionary.
+        """
+        table_info = self.curs.execute('PRAGMA table_info({0})'.format(table_name))
+        db_columns = {}
+        for index, name, type, notnull, dflt_value, pk in table_info:
+            db_columns[index] = name.encode(DEFAULT_ENCODING)
+        return db_columns
 
 
 class Books:
@@ -335,7 +347,10 @@ class Facts():
 #TODO: move helper functions to utils.py; complete unfinished ones
 
 def col_index(column):
-    """returns the index of an sql column given its title"""
+    """
+    returns the index of an sql column given its title
+    
+    """
     sql_columns = ["titel", "year", "authors", "keywords", "lang", "plang", "pages", "target", "exercises", "examples"]
     index = sql_columns.index(column)
     return index
