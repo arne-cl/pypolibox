@@ -214,17 +214,17 @@ class Book:
         @param db_item: an item from the C{sqlite3.Cursor} object that contains
         the results from the db query.
         """
-        self.title = db_item[db_columns["titel"]] #TODO: change column name from 'titel' to 'title' in the DB_FILE
+        self.title = db_item[db_columns["titel"]].encode('utf-8') #TODO: change column name from 'titel' to 'title' in the DB_FILE
         self.year = db_item[db_columns["year"]]
 
-        authors_array = db_item[db_columns["authors"]]
+        authors_array = db_item[db_columns["authors"]].encode('utf-8')
         self.authors = sql_array_to_set(authors_array)
 
-        keywords_array = db_item[db_columns["keywords"]]
+        keywords_array = db_item[db_columns["keywords"]].encode('utf-8')
         self.keywords = sql_array_to_set(keywords_array)
 
-        self.language = db_item[db_columns["lang"]]
-        self.proglang = db_item[db_columns["plang"]]
+        self.language = db_item[db_columns["lang"]].encode('utf-8')
+        self.proglang = db_item[db_columns["plang"]].encode('utf-8')
         #TODO: proglang should be an "sql_array" (1 book w/ 2 programming languages),
         #      but there's only one book in the db that is handled that way
         #      all other plang columns in the db are "ordinary" strings (e.g. no '[' or ']')
