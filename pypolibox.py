@@ -167,7 +167,7 @@ class Results:
         temp_results = self.curs.execute(q.query)
         self.query_results = []
         for result in temp_results:
-            self.query_results.append(result) # temp_result is a LIVE SQL cursor, so we need to make the results 'persistant', e.g. by writing them to a list
+            self.query_results.append(result) # temp_result is a LIVE SQL cursor, so we need to make the results 'persistent', e.g. by writing them to a list
     
     def print_results(self):
         """a method that prints all items of a query result to stdout"""
@@ -182,7 +182,7 @@ class Results:
         table_info = self.curs.execute('PRAGMA table_info({0})'.format(table_name))
         db_columns = {}
         for index, name, type, notnull, dflt_value, pk in table_info:
-            db_columns[index] = name.encode(DEFAULT_ENCODING)
+            db_columns[name.encode(DEFAULT_ENCODING)] = index
         return db_columns
 
 
@@ -196,16 +196,17 @@ class Books:
 
         This method generates a list of Book() instances (saved as self.books), each representing one book from a database query.
         """
+        
         self.query_args =  results.query_args # original query arguments for debugging
         self.books = []
         for result in results.query_results:
-            book_item = Book(result)
+            book_item = Book(result, results.db_columns)
             self.books.append(book_item)
 
 
 class Book:
     """ a Book() instance represents ONE book from a database query """
-    def __init__ (self, db_item):
+    def __init__ (self, db_item, db_columns):
         """
         fill Book() instance w/ metadata from the db
 
@@ -213,25 +214,25 @@ class Book:
         @param db_item: an item from the C{sqlite3.Cursor} object that contains
         the results from the db query.
         """
-        self.title = db_item[col_index("titel")]
-        self.year = int(db_item[col_index("year")])
+        self.title = db_item[db_columns["titel"]] #TODO: change column name from 'titel' to 'title' in the DB_FILE
+        self.year = db_item[db_columns["year"]]
 
-        authors_array = db_item[col_index("authors")]
+        authors_array = db_item[db_columns["authors"]]
         self.authors = sql_array_to_set(authors_array)
 
-        keywords_array = db_item[col_index("keywords")]
+        keywords_array = db_item[db_columns["keywords"]]
         self.keywords = sql_array_to_set(keywords_array)
 
-        self.language = db_item[col_index("lang")]
-        self.proglang = db_item[col_index("plang")]
+        self.language = db_item[db_columns["lang"]]
+        self.proglang = db_item[db_columns["plang"]]
         #TODO: proglang should be an "sql_array" (1 book w/ 2 programming languages),
         #      but there's only one book in the db that is handled that way
         #      all other plang columns in the db are "ordinary" strings (e.g. no '[' or ']')
 
-        self.pages = int(db_item[col_index("pages")])
-        self.target = int(db_item[col_index("target")])
-        self.exercises = int(db_item[col_index("exercises")]) != 0 # 0 -> False, 1 -> True
-        self.codeexamples = int(db_item[col_index("examples")]) != 0 # 0 -> False, 1 -> True
+        self.pages = db_item[db_columns["pages"]]
+        self.target = db_item[db_columns["target"]]
+        self.exercises = db_item[db_columns["exercises"]]
+        self.codeexamples = db_item[db_columns["examples"]]
 
 class Facts():
     """
@@ -295,7 +296,7 @@ class Facts():
         query_facts = {}
         query_facts["usermodel_match"] = []
         query_facts["usermodel_nomatch"] = []
-        query_args = self.query_args # typing laziness...
+        query_args = self.query_args # safes me some typing ...
 
         if query_args.keywords:
             for keyword in query_args.keywords:
@@ -349,14 +350,6 @@ class Facts():
 
 #TODO: move helper functions to utils.py; complete unfinished ones
 
-def col_index(column):
-    """
-    returns the index of an sql column given its title
-    
-    """
-    sql_columns = ["titel", "year", "authors", "keywords", "lang", "plang", "pages", "target", "exercises", "examples"]
-    index = sql_columns.index(column)
-    return index
 
 def sql_array_to_set(sql_array):
     """
