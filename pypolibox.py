@@ -5,8 +5,6 @@
 #TODO: it might be easier to encode those sqlite unicode strings as DEFAULT_ENCODING than to 
 #      convert everything else to unicode!
 
-#TODO: check why parser.add_argument isn't working correctly w/ type=int (if int = 0)
-
 #TODO: sqlite: how to save query results for further examination?
 #      alternatively, build a class structure for book items, ignoring SQL for further analysis
 
@@ -32,7 +30,28 @@ DEFAULT_ENCODING = 'utf-8' # sqlite stores strings as unicode,
 DB_FILE = 'books.db'
 BOOK_TABLE_NAME = 'books' # name of the table in the database file that contains info about books
 
-argv = ["-k", "pragmatics", "parsing"] #TODO: remove after debugging
+argv = [ ["-k", "pragmatics"], \
+         ["-k", "pragmatics", "semantics"], \
+         ["-l", "German"], \
+         ["-l", "German", "-p", "Lisp"], \
+         ["-l", "German", "-p", "Lisp", "-k", "parsing"], \
+         ["-l", "English", "-s", "0", "-c", "1"], \
+         ["-l", "English", "-s", "0", "-e", "1", "-k", "discourse"], \
+        ] # list of possible query arguments for debugging purposes
+
+def debug_facts(argv): 
+    """debugging function to check if all facts are created correctly"""
+    facts = []
+    for arg in argv:
+        tmp = Facts(Books(Results(Query(arg))))
+        facts.append(tmp)
+    
+    for f in facts:
+        print "\n\n========================================================="
+        print f.query_args
+        for book in f.books.itervalues():
+            print book["query_facts"]
+    return facts
 
 #conn.commit() # commit changes to db
 #conn.close() # close connection to db. 
@@ -55,18 +74,18 @@ class Query:
             help="Which language should the book have?")
         parser.add_argument("-p", "--proglang", nargs='+',
             help="Which programming language(s) should the book use?")
-        parser.add_argument("-s", "--pages",
+        parser.add_argument("-s", "--pages", type=int,
             help="book length ranges. 0 = less than 300 pages, " \
-                 "1 = between 300 and 600 pages. 2 = more than 600 pages.")
-        parser.add_argument("-t", "--targetgroup",
+                "1 = between 300 and 600 pages. 2 = more than 600 pages.")
+        parser.add_argument("-t", "--target", type=int,
             help="target audience. 0 = beginner, 1 = intermediate" \
                  "2 = advanced, 3 = professional")
-        parser.add_argument("-e", "--exercises",
+        parser.add_argument("-e", "--exercises", type=int,
             help="Should the book contain exercises? 0 = no, 1 = yes")
-        parser.add_argument("-c", "--codeexamples",
+        parser.add_argument("-c", "--codeexamples", type=int,
             help="Should the book contain code examples? 0 = no, 1 = yes")
-        parser.add_argument("-r", "--minresults", #TODO: currently unused
-            help="show no less than MINRESULTS books")
+        parser.add_argument("-r", "--minresults", type=int,
+            help="show no less than MINRESULTS books") #TODO: currently unused
             # minresults should trigger a fallback query to the db to get more results
             # e.g. combine the user's parameters with OR instead of AND:
             #       use some form of weigths to get the "best" results, e.g.
@@ -87,16 +106,16 @@ class Query:
                 self.queries.append(self.string_query("plang", proglang))
         if args.pages:
             self.queries.append(self.pages_query(args.pages))
-        if args.targetgroup:
+        if args.target:
             # 0 beginner, 1 intermediate, 2 advanced, 3 professional
             #db fuckup: advanced is encoded as "3"
-            assert args.targetgroup in ("0", "1", "2", "3")
-            self.queries.append(self.equals_query("target", args.targetgroup))
+            assert args.target in (0, 1, 2, 3)
+            self.queries.append(self.equals_query("target", args.target))
         if args.exercises:
-            assert args.exercises in ("0", "1",)
+            assert args.exercises in (0, 1,)
             self.queries.append(self.equals_query("exercises", args.exercises))
         if args.codeexamples:
-            assert args.codeexamples in ("0", "1")
+            assert args.codeexamples in (0, 1)
             self.queries.append(self.equals_query("examples", args.codeexamples))
     
         print "The database will be queried for: {0}".format(self.queries)
@@ -124,12 +143,12 @@ class Query:
             return query_template # query will show all books in the db
 
     def pages_query(self, length_category):
-        assert length_category in ("0", "1", "2") # short, medium length, long books
-        if length_category == "0":
+        assert length_category in (0, 1, 2) # short, medium length, long books
+        if length_category == 0:
             return "pages < 300"
-        if length_category == "1":
+        if length_category == 1:
             return "pages >= 300 AND pages < 600"
-        if length_category == "2":
+        if length_category == 2:
             return "pages >= 600"
     
     def substring_query(self, sql_column, substring):
@@ -230,6 +249,13 @@ class Book:
         #      all other plang columns in the db are "ordinary" strings (e.g. no '[' or ']')
 
         self.pages = db_item[db_columns["pages"]]
+        if self.pages < 300:
+            self.page_range = 0
+        elif self.pages >= 300 and self.pages < 600:
+            self.page_range = 1
+        elif self.pages >= 600:
+            self.page_range = 2
+            
         self.target = db_item[db_columns["target"]]
         self.exercises = db_item[db_columns["exercises"]]
         self.codeexamples = db_item[db_columns["examples"]]
@@ -250,11 +276,11 @@ class Facts():
                 book_facts = self.generate_facts(index, book)
                 self.books[index] = book_facts
             else: # every other book --> trigger comparison with preceeding book
-                preceeding_book = b.books[index-1]
-                book_facts = self.generate_facts(index, book, preceeding_book)
+                preceding_book = b.books[index-1]
+                book_facts = self.generate_facts(index, book, preceding_book)
                 self.books[index] = book_facts
     
-    def generate_facts(self, index, book, preceeding_book=False):
+    def generate_facts(self, index, book, preceding_book=False):
         """
         facts are ultimately retrieved from sqlite3, all strings encoded as <type 'unicode'>, not as <type 'str'>! in order to compare user queries of <type 'str'> to <type 'unicode'> strings from the database, we'll need to convert them.
         
@@ -264,31 +290,30 @@ class Facts():
         facts = {}
                 
         facts["id_facts"] = self.generate_id_facts(index, book)
-        facts["query_facts"] = self.generate_query_facts(index, book)
         facts["extra_facts"] = self.generate_extra_facts(index, book)
-        
-        if preceeding_book == False: # if this is the first/only book            
+        facts["query_facts"] = self.generate_query_facts(index, book)
+                
+        if preceding_book == False: # if this is the first/only book            
             pass # DON't compare this book to a non-existent preceeding one
         else:
-            facts["lastbook_facts"] = self.generate_lastbook_facts( index, book, preceeding_book) # generate additional facts, comparing the current with the preceeding book        
+            facts["lastbook_facts"] = self.generate_lastbook_facts( index, book, preceding_book) # generate additional facts, comparing the current with the preceeding book        
         return facts
 
     def generate_id_facts(self, index, book):
         """ 
         returns a dictionary of id facts about the current book 
         """
-        
         id_facts = {}
-        id_facts["title"] = book.title
         id_facts["authors"] = book.authors
+        id_facts["codeexamples"] = book.codeexamples
+        id_facts["exercises"] = book.exercises
         id_facts["keywords"] = book.keywords
         id_facts["language"] = book.language
-        id_facts["proglang"] = book.proglang #empty string if not specified in db
         id_facts["pages"] = book.pages
+        id_facts["proglang"] = book.proglang #empty string if not specified in db
+        id_facts["target"] = book.target        
+        id_facts["title"] = book.title
         id_facts["year"] = book.year
-        id_facts["target"] = book.target
-        id_facts["exercises"] = book.exercises
-        id_facts["codeexamples"] = book.codeexamples
         return id_facts
         
     def generate_query_facts(self, index, book):
@@ -311,19 +336,27 @@ class Facts():
                 query_facts["usermodel_match"].append(("language", query_args.language))
             else:
                 query_facts["usermodel_nomatch"].append(("language", query_args.language))
+
+        if query_args.pages:
+            if query_args.pages == book.page_range:
+                query_facts["usermodel_match"].append(("pages", query_args.pages))
+            else:
+                print "************************************** errrrror"
+                print "{0} has type: {1}. {2} has type: {3}".format(query_args.pages, type(query_args.pages), book.page_range, type(book.page_range))
+                query_facts["usermodel_nomatch"].append(("pages", query_args.pages))
+        
         if query_args.proglang: #TODO: proglang should be a "sql string array", but in our db it's not (there's only one book w/ two programming languages, all other books only have <= 1 proglang)
             if query_args.proglang == book.proglang:
                 query_facts["usermodel_match"].append(("proglang", query_args.proglang))
             else:
                 query_facts["usermodel_nomatch"].append(("proglang", query_args.proglang))
-            
-        #if args.pages:
-            #self.queries.append(self.pages_query(args.pages))
-        #if args.targetgroup:
-            ## 0 beginner, 1 intermediate, 2 advanced, 3 professional
-            ##db fuckup: advanced is encoded as "3"
-            #assert args.targetgroup in ("0", "1", "2", "3")
-            #self.queries.append(self.equals_query("target", args.targetgroup))
+
+        if query_args.target:
+            if query_args.target == book.target:
+                query_facts["usermodel_match"].append(("target", query_args.target))
+            else:
+                query_facts["usermodel_nomatch"].append(("target", query_args.target))
+                
         #if args.exercises:
             #assert args.exercises in ("0", "1",)
             #self.queries.append(self.equals_query("exercises", args.exercises))
@@ -346,7 +379,7 @@ class Facts():
 		
 		#if facts and queries don't match: add a UserModelNoMatch Fact()
         
-    def generate_lastbook_facts(self, index, book, preceeding_book):
+    def generate_lastbook_facts(self, index, book, preceding_book):
         pass
     
     def generate_extra_facts(self, index, book):
