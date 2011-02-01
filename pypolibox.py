@@ -27,7 +27,7 @@ DEFAULT_ENCODING = 'utf-8' # sqlite stores strings as unicode,
                            # but the user input is likely something else
                            # (e.g. 'latin-1' or 'utf-8')
                            # change this var if your terminal only supports ascii-based encodings
-DB_FILE = 'books.db'
+DB_FILE = 'pypolibox.sqlite'
 BOOK_TABLE_NAME = 'books' # name of the table in the database file that contains info about books
 
 argv = [ ["-k", "pragmatics"], \
@@ -52,6 +52,9 @@ def debug_facts(argv):
         for book in f.books.itervalues():
             print book["query_facts"]
     return facts
+
+def gen_facts(arg):
+    return Facts(Books(Results(Query(arg))))
 
 #conn.commit() # commit changes to db
 #conn.close() # close connection to db. 
@@ -103,7 +106,7 @@ class Query:
             self.queries.append(self.string_query("lang", args.language))
         if args.proglang:
             for proglang in args.proglang:
-                self.queries.append(self.string_query("plang", proglang))
+                self.queries.append(self.substring_query("plang", proglang))
         if args.pages:
             self.queries.append(self.pages_query(args.pages))
         if args.target:
@@ -233,7 +236,7 @@ class Book:
         @param db_item: an item from the C{sqlite3.Cursor} object that contains
         the results from the db query.
         """
-        self.title = db_item[db_columns["titel"]].encode(DEFAULT_ENCODING) #TODO: change column name from 'titel' to 'title' in the DB_FILE
+        self.title = db_item[db_columns["title"]].encode(DEFAULT_ENCODING)
         self.year = db_item[db_columns["year"]]
 
         authors_array = db_item[db_columns["authors"]].encode(DEFAULT_ENCODING)
@@ -243,7 +246,10 @@ class Book:
         self.keywords = sql_array_to_set(keywords_array)
 
         self.language = db_item[db_columns["lang"]].encode(DEFAULT_ENCODING)
-        self.proglang = db_item[db_columns["plang"]].encode(DEFAULT_ENCODING)
+        
+        proglang_array = db_item[db_columns["plang"]].encode(DEFAULT_ENCODING)
+        self.proglang = sql_array_to_set(proglang_array)
+        
         #TODO: proglang should be an "sql_array" (1 book w/ 2 programming languages),
         #      but there's only one book in the db that is handled that way
         #      all other plang columns in the db are "ordinary" strings (e.g. no '[' or ']')
@@ -323,6 +329,18 @@ class Facts():
         query_facts["usermodel_nomatch"] = []
         query_args = self.query_args # safes me some typing ...
 
+        if query_args.codeexamples:
+            if query_args.codeexamples == book.codeexamples:
+                query_facts["usermodel_match"].append(("codeexamples", query_args.codeexamples))
+            else:
+                query_facts["usermodel_nomatch"].append(("codeexamples", query_args.codeexamples))
+
+        if query_args.exercises:
+            if query_args.exercises == book.exercises:
+                query_facts["usermodel_match"].append(("exercises", query_args.exercises))
+            else:
+                query_facts["usermodel_nomatch"].append(("exercises", query_args.exercises))
+
         if query_args.keywords:
             for keyword in query_args.keywords:
                 print keyword
@@ -341,30 +359,21 @@ class Facts():
             if query_args.pages == book.page_range:
                 query_facts["usermodel_match"].append(("pages", query_args.pages))
             else:
-                print "************************************** errrrror"
-                print "{0} has type: {1}. {2} has type: {3}".format(query_args.pages, type(query_args.pages), book.page_range, type(book.page_range))
                 query_facts["usermodel_nomatch"].append(("pages", query_args.pages))
         
-        if query_args.proglang: #TODO: proglang should be a "sql string array", but in our db it's not (there's only one book w/ two programming languages, all other books only have <= 1 proglang)
-            if query_args.proglang == book.proglang:
-                query_facts["usermodel_match"].append(("proglang", query_args.proglang))
-            else:
-                query_facts["usermodel_nomatch"].append(("proglang", query_args.proglang))
+        if query_args.proglang: 
+            for proglang in query_args.proglang:
+                if proglang in book.proglang:
+                    query_facts["usermodel_match"].append(("proglang", query_args.proglang))
+                else:
+                    query_facts["usermodel_nomatch"].append(("proglang", query_args.proglang))
 
         if query_args.target:
             if query_args.target == book.target:
                 query_facts["usermodel_match"].append(("target", query_args.target))
             else:
                 query_facts["usermodel_nomatch"].append(("target", query_args.target))
-                
-        #if args.exercises:
-            #assert args.exercises in ("0", "1",)
-            #self.queries.append(self.equals_query("exercises", args.exercises))
-        #if args.codeexamples:
-            #assert args.codeexamples in ("0", "1")
-            #self.queries.append(self.equals_query("examples", args.codeexamples))
-
-
+           
         return query_facts
         
 	#queryFacts: compares current book w/ query. Facts will only be built if queried!
