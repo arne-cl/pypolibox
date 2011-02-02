@@ -39,7 +39,7 @@ def debug_facts(argv):
     for f in facts:
         print "\n\n========================================================="
         print f.query_args
-        for book in f.books.itervalues():
+        for book in f.books:
             if book.has_key("lastbook_facts"): # the 1st item doesn't have a preceding one...
                 print book["lastbook_facts"]
     return facts
@@ -267,15 +267,15 @@ class Facts():
     def __init__ (self, b):
         """ """
         self.query_args = b.query_args # originall query args for generating query_facts
-        self.books = {}
+        self.books = []
         for index, book in enumerate(b.books):
             if index == 0: #first book
                 book_facts = self.generate_facts(index, book)
-                self.books[index] = book_facts
+                self.books.append(book_facts)
             else: # every other book --> trigger comparison with preceeding book
                 preceding_book = b.books[index-1]
                 book_facts = self.generate_facts(index, book, preceding_book)
-                self.books[index] = book_facts
+                self.books.append(book_facts)
     
     def generate_facts(self, index, book, preceding_book=False):
         """
