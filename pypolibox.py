@@ -1,18 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
-#TODO: it might be easier to encode those sqlite unicode strings as DEFAULT_ENCODING than to 
-#      convert everything else to unicode!
-
-#TODO: sqlite: how to save query results for further examination?
-#      alternatively, build a class structure for book items, ignoring SQL for further analysis
-
-#DONE: check google books api to fill keywords:
-#      http://books.google.com/books/feeds/volumes?q=0131873210 (search for an
-#      ISBN)
-# http://stackoverflow.com/questions/3287433/how-to-get-book-metadata
-# http://code.google.com/p/gdata-python-client/
+#TODO: fix Facts.generate_lastbook_facts: proglang values w/ set([]) should not generate facts
 
 #TODO: scrape keywords from google book feeds
 #      checked: the gbooks keywords are not part of the API
@@ -452,7 +441,46 @@ class Facts():
         
         return extra_facts
 
+class Propositions():
+    """ 
+    represents proprositions (positive/negative/neutral ratings) generated from a Facts() instance
+    """ 
+    def __init__ (self, facts):
+        """
+        @type facts: I{Facts}
+        """
+        pass
 
+	#Propositions(Facts f): generates a Proposition() for each Fact()
+	
+	#if Fact() is of type:
+		#UserModelMatch: setRating(Rating.Positive)
+		#UserModelNoMatch: Rating.Negative
+		#LastBookMatch: Rating.Neutral // why only neutral? b/c it's not related to usermodel
+		#LastBookNoMatch: Rating.Neutral
+		#Extra: if Year < 1990: setValue("< 1990")
+			      #Year > 2000: setValue("< 2000")
+			   #else:		   setRating(Rating.Neutral)
+			   
+	#idFacts() are handled differently:
+    #they will processed to propostions only if there is no fact of other type with
+    #the same property (Authors, Title, Keywords, Language, ProgLanguage, Pages, Year, TargetGroup, Exercises, Examples, UNDEFINED)
+    
+    #Example: If there is an Extra/UserModelMatch etc. Proposition about "Pages" (e.g. >= 600) or Year, there should be no ID Proposition about the same fact.
+	
+        #for (Fact fact : f) {
+            #if (fact.getType() == Type.ID) {
+                #boolean contains = false;
+                #for (Proposition prop : this) {
+                    #contains |= prop.getProperty() == fact.getProperty();
+                #}
+                #if (contains == false || fact.getProperty() == Property.Keywords) {
+                    #add(new Proposition(fact));
+                #}}}
+	
+	#why does this use "|=" aka "bitwise or"? http://www.roseindia.net/java/master-java/java-bitwise-or.shtml
+		        
+        
 #TODO: move helper functions to utils.py; complete unfinished ones
 
 def sql_array_to_set(sql_array):
