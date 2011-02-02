@@ -29,6 +29,7 @@ DEFAULT_ENCODING = 'utf-8' # sqlite stores strings as unicode,
                            # change this var if your terminal only supports ascii-based encodings
 DB_FILE = 'pypolibox.sqlite'
 BOOK_TABLE_NAME = 'books' # name of the table in the database file that contains info about books
+CURRENT_YEAR = 2011 # TODO: read this from the OS. use this to check if a book is 'fairly recent' 
 
 argv = [ ["-k", "pragmatics"], \
          ["-k", "pragmatics", "semantics"], \
@@ -50,7 +51,8 @@ def debug_facts(argv):
         print "\n\n========================================================="
         print f.query_args
         for book in f.books.itervalues():
-            print book["query_facts"]
+            if book.has_key("lastbook_facts"): # the 1st item doesn't have a preceding one...
+                print book["lastbook_facts"]
     return facts
 
 def gen_facts(arg):
@@ -323,7 +325,7 @@ class Facts():
         return id_facts
         
     def generate_query_facts(self, index, book):
-        """ """
+        """ generate facts that describes if a book matches (parts of) the query"""
         query_facts = {}
         query_facts["usermodel_match"] = []
         query_facts["usermodel_nomatch"] = []
@@ -375,28 +377,83 @@ class Facts():
                 query_facts["usermodel_nomatch"].append(("target", query_args.target))
            
         return query_facts
-        
-	#queryFacts: compares current book w/ query. Facts will only be built if queried!
-		#adds a new Fact(Type.UserModelMatch, Property.Keywords, keywordsMatch) if a book keyword matches a query keyword.
-		
-		#same thing for Language, ProgLanguage, Exercises, Examples
-		
-		#number of pages: 3 ranges that could match (>= 1 && <= 300, >= 300 && <= 600, >= 600)
-		
-		#target groups: range from 0 to 3 (in our db)
-			#if ((book.getTargetGroup() + 1) == (query.getTargetGroup())) #WTF +1 ???
-		
-		#if facts and queries don't match: add a UserModelNoMatch Fact()
-        
+                
     def generate_lastbook_facts(self, index, book, preceding_book):
-        pass
+        
+        lastbook_facts = {}
+        lastbook_facts["lastbook_match"] = []
+        lastbook_facts["lastbook_nomatch"] = []
+
+        if book.codeexamples == preceding_book.codeexamples:
+            lastbook_facts["lastbook_match"].append(("codeexamples", book.codeexamples))
+        else:
+            lastbook_facts["lastbook_nomatch"].append(("codeexamples", book.codeexamples))
+
+        if book.exercises == preceding_book.exercises:
+            lastbook_facts["lastbook_match"].append(("exercises", book.exercises))
+        else:
+            lastbook_facts["lastbook_nomatch"].append(("exercises", book.exercises))
+
+        lastbook_facts["lastbook_match"].append(("keywords", book.keywords.intersection(preceding_book.keywords))) # uses set intersection to check which keywords both books have in common
+        lastbook_facts["lastbook_nomatch"].append(("keywords", book.keywords.symmetric_difference(preceding_book.keywords))) # set symmetric difference, checks which keywords are in the current but not the the preceding book OR which books are in preceding but not in the current book
+        #NOTE: "keywords_current_book_only" and "keywords_preceding_book_only" were not part of JPolibox and might not be necessary
+        lastbook_facts["lastbook_nomatch"].append(("keywords_current_book_only", book.keywords.difference(preceding_book.keywords))) #keywords that this book has but not the preceding one
+        lastbook_facts["lastbook_nomatch"].append(("keywords_preceding_book_only", preceding_book.keywords.difference(book.keywords))) #keywords that the preceding book has but not the current one
+
+        if book.language == preceding_book.language:
+            lastbook_facts["lastbook_match"].append(("language", book.language))
+        else:
+            lastbook_facts["lastbook_nomatch"].append(("language", book.language))
+            #TODO: should 'lastbook_nomatch' also contain preceding_book.language? or do we rant to get that from Books() when we generate document plans?
+
+        if book.page_range == preceding_book.page_range:
+            lastbook_facts["lastbook_match"].append(("page_range", book.page_range))
+        else:
+            if book.pages > preceding_book.pages:
+                page_diff = book.pages - preceding_book.pages
+                lastbook_facts["lastbook_nomatch"].append(("longer", page_diff))
+            else: #current book is shorter
+                page_diff = preceding_book.pages - book.pages
+                lastbook_facts["lastbook_nomatch"].append(("shorter", page_diff))
+        
+        if book.proglang != set([]): #don't create a fact if the current book does not feature at lest one programming language
+            if book.proglang.intersection(preceding_book.proglang) !=  set([]): # don't create a fact if the preceding book does not feat. at least 1 proglang
+                lastbook_facts["lastbook_match"].append(("proglang", book.proglang.intersection(preceding_book.proglang)))
+        lastbook_facts["lastbook_nomatch"].append(("proglang", book.proglang.symmetric_difference(preceding_book.proglang))) # symmetric difference never includes empty sets, so there's no need to check for them
+        
+        if book.target == preceding_book.target:
+            lastbook_facts["lastbook_match"].append(("target", book.target))
+        else:
+            lastbook_facts["lastbook_nomatch"].append(("target", book.target))
+
+        if book.year == preceding_book.year:
+            lastbook_facts["lastbook_match"].append(("year", book.year))
+        else:
+            if book.year > preceding_book.year:
+               years_diff = book.year - preceding_book.year 
+               lastbook_facts["lastbook_nomatch"].append(("newer", years_diff))
+            else:
+                years_diff = preceding_book.year - book.year
+                lastbook_facts["lastbook_nomatch"].append(("older", years_diff))
+                
+        return lastbook_facts
     
     def generate_extra_facts(self, index, book):
-        pass
+        """ compare current book w/ predefined values and generate facts"""
+        extra_facts = {}
+        if book.pages < 100:
+            extra_facts["pages"] = "very short"
+        if book.pages > 600:
+            extra_facts["pages"] = "very long"
+        if (CURRENT_YEAR - 10) < book.year: # newer than 10 years
+            extra_facts["year"] = "recent"
+        if (CURRENT_YEAR - 30) > book.year: # older than 30 years
+            extra_facts["year"] = "old"
         
+        return extra_facts
+
 
 #TODO: move helper functions to utils.py; complete unfinished ones
-
 
 def sql_array_to_set(sql_array):
     """
@@ -433,17 +490,6 @@ def test_cli():
         print "{0}:\n\n".format(argv)
         for book in book_list.books:
             print book.title, book.year
-
-#def construct_query(keywords=[]):
-    #"""
-    ##TODO: unfinished
-    #query constructor for non-commandline interface (API, GUI, web etc.)
-    #"""
-    #query_template = "SELECT * FROM books WHERE "
-    #print keywords, len(keywords)
-    #for key in keywords:
-        #sql_substring = "'%{0}%'".format(key)
-        #print "keywords like {0}".format(sql_substring)
 
 
 if __name__ == "__main__":
