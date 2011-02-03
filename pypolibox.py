@@ -351,28 +351,21 @@ class Facts():
         lastbook_facts = {}
         lastbook_facts["lastbook_match"] = []
         lastbook_facts["lastbook_nomatch"] = []
-
-        if book.codeexamples == preceding_book.codeexamples:
-            lastbook_facts["lastbook_match"].append(("codeexamples", book.codeexamples))
-        else:
-            lastbook_facts["lastbook_nomatch"].append(("codeexamples", book.codeexamples))
-
-        if book.exercises == preceding_book.exercises:
-            lastbook_facts["lastbook_match"].append(("exercises", book.exercises))
-        else:
-            lastbook_facts["lastbook_nomatch"].append(("exercises", book.exercises))
-
+        simple_comparisons = ['codeexamples', 'exercises','language', 'target']
+        
+        for simple_comparison in simple_comparisons:
+            if getattr(book, simple_comparison) == getattr(preceding_book, simple_comparison):
+                match = (simple_comparison, getattr(book, simple_comparison))
+                lastbook_facts["lastbook_match"].append(match)
+            else:
+                nomatch = (simple_comparison, getattr(book, simple_comparison))
+                lastbook_facts["lastbook_nomatch"].append(nomatch)
+                
         lastbook_facts["lastbook_match"].append(("keywords", book.keywords.intersection(preceding_book.keywords))) # uses set intersection to check which keywords both books have in common
         lastbook_facts["lastbook_nomatch"].append(("keywords", book.keywords.symmetric_difference(preceding_book.keywords))) # set symmetric difference, checks which keywords are in the current but not the the preceding book OR which books are in preceding but not in the current book
         #NOTE: "keywords_current_book_only" and "keywords_preceding_book_only" were not part of JPolibox and might not be necessary
         lastbook_facts["lastbook_nomatch"].append(("keywords_current_book_only", book.keywords.difference(preceding_book.keywords))) #keywords that this book has but not the preceding one
         lastbook_facts["lastbook_nomatch"].append(("keywords_preceding_book_only", preceding_book.keywords.difference(book.keywords))) #keywords that the preceding book has but not the current one
-
-        if book.language == preceding_book.language:
-            lastbook_facts["lastbook_match"].append(("language", book.language))
-        else:
-            lastbook_facts["lastbook_nomatch"].append(("language", book.language))
-            #TODO: should 'lastbook_nomatch' also contain preceding_book.language? or do we rant to get that from Books() when we generate document plans?
 
         if book.pagerange == preceding_book.pagerange:
             lastbook_facts["lastbook_match"].append(("pagerange", book.pagerange))
@@ -389,11 +382,6 @@ class Facts():
                 lastbook_facts["lastbook_match"].append(("proglang", book.proglang.intersection(preceding_book.proglang)))
         lastbook_facts["lastbook_nomatch"].append(("proglang", book.proglang.symmetric_difference(preceding_book.proglang))) # symmetric difference never includes empty sets, so there's no need to check for them
         
-        if book.target == preceding_book.target:
-            lastbook_facts["lastbook_match"].append(("target", book.target))
-        else:
-            lastbook_facts["lastbook_nomatch"].append(("target", book.target))
-
         if book.year == preceding_book.year:
             lastbook_facts["lastbook_match"].append(("year", book.year))
         else:
