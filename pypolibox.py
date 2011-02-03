@@ -349,23 +349,51 @@ class Facts():
     def generate_lastbook_facts(self, index, book, preceding_book):
         
         lastbook_facts = {}
-        lastbook_facts["lastbook_match"] = []
-        lastbook_facts["lastbook_nomatch"] = []
+        lastbook_facts['lastbook_match'] = []
+        lastbook_facts['lastbook_nomatch'] = []
         simple_comparisons = ['codeexamples', 'exercises','language', 'target']
+        set_comparisons = ['keywords', 'proglang']
         
         for simple_comparison in simple_comparisons:
             if getattr(book, simple_comparison) == getattr(preceding_book, simple_comparison):
                 match = (simple_comparison, getattr(book, simple_comparison))
-                lastbook_facts["lastbook_match"].append(match)
+                lastbook_facts['lastbook_match'].append(match)
             else:
                 nomatch = (simple_comparison, getattr(book, simple_comparison))
-                lastbook_facts["lastbook_nomatch"].append(nomatch)
+                lastbook_facts['lastbook_nomatch'].append(nomatch)
                 
-        lastbook_facts["lastbook_match"].append(("keywords", book.keywords.intersection(preceding_book.keywords))) # uses set intersection to check which keywords both books have in common
-        lastbook_facts["lastbook_nomatch"].append(("keywords", book.keywords.symmetric_difference(preceding_book.keywords))) # set symmetric difference, checks which keywords are in the current but not the the preceding book OR which books are in preceding but not in the current book
-        #NOTE: "keywords_current_book_only" and "keywords_preceding_book_only" were not part of JPolibox and might not be necessary
-        lastbook_facts["lastbook_nomatch"].append(("keywords_current_book_only", book.keywords.difference(preceding_book.keywords))) #keywords that this book has but not the preceding one
-        lastbook_facts["lastbook_nomatch"].append(("keywords_preceding_book_only", preceding_book.keywords.difference(book.keywords))) #keywords that the preceding book has but not the current one
+        for attribute in set_comparisons:
+            current_attrib = getattr(book, attribute)
+            preceding_attrib = getattr(preceding_book, attribute)
+            if current_attrib == preceding_attrib == set([]):
+                pass # nothing to compare
+            else:
+                shared_values = current_attrib.intersection(preceding_attrib)
+                if shared_values != set([]):
+                    lastbook_facts['lastbook_match'].append((attribute, shared_values))
+                
+                non_shared_values = current_attrib.symmetric_difference(preceding_attrib)
+                lastbook_facts['lastbook_nomatch'].append((attribute, non_shared_values))
+                
+                current_only_values = current_attrib.difference(preceding_attrib)
+                if current_only_values != set([]):
+                    fact_name = attribute + '_current_book_only'
+                    lastbook_facts['lastbook_nomatch'].append((fact_name, current_only_values))
+
+                preceding_only_values = preceding_attrib.difference(current_attrib)
+                if preceding_only_values != set([]):
+                    fact_name = attribute + '_preceding_book_only'
+                    lastbook_facts["lastbook_nomatch"].append((fact_name, preceding_only_values))
+ 
+        if book.year == preceding_book.year:
+            lastbook_facts["lastbook_match"].append(("year", book.year))
+        else:
+            if book.year > preceding_book.year:
+               years_diff = book.year - preceding_book.year 
+               lastbook_facts["lastbook_nomatch"].append(("newer", years_diff))
+            else:
+                years_diff = preceding_book.year - book.year
+                lastbook_facts["lastbook_nomatch"].append(("older", years_diff))
 
         if book.pagerange == preceding_book.pagerange:
             lastbook_facts["lastbook_match"].append(("pagerange", book.pagerange))
@@ -376,21 +404,6 @@ class Facts():
             else: #current book is shorter
                 page_diff = preceding_book.pages - book.pages
                 lastbook_facts["lastbook_nomatch"].append(("shorter", page_diff))
-        
-        if book.proglang != set([]): #don't create a fact if the current book does not feature at lest one programming language
-            if book.proglang.intersection(preceding_book.proglang) !=  set([]): # don't create a fact if the preceding book does not feat. at least 1 proglang
-                lastbook_facts["lastbook_match"].append(("proglang", book.proglang.intersection(preceding_book.proglang)))
-        lastbook_facts["lastbook_nomatch"].append(("proglang", book.proglang.symmetric_difference(preceding_book.proglang))) # symmetric difference never includes empty sets, so there's no need to check for them
-        
-        if book.year == preceding_book.year:
-            lastbook_facts["lastbook_match"].append(("year", book.year))
-        else:
-            if book.year > preceding_book.year:
-               years_diff = book.year - preceding_book.year 
-               lastbook_facts["lastbook_nomatch"].append(("newer", years_diff))
-            else:
-                years_diff = preceding_book.year - book.year
-                lastbook_facts["lastbook_nomatch"].append(("older", years_diff))
                 
         return lastbook_facts
     
