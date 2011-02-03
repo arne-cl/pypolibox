@@ -298,19 +298,22 @@ class Facts():
 
     def generate_id_facts(self, index, book):
         """ 
-        returns a dictionary of id facts about the current book 
+        returns a dictionary of id facts about the current book
+        
+        instead of writing lots of repetitive code like in JPolibox:
+        
+            id_facts["authors"] = book.authors
+            id_facts["codeexamples"] = book.codeexamples ...
+            
+        get all those book attributes at once (getattr) and turn them into dictionary items (__setitem__).
         """
         id_facts = {}
-        id_facts["authors"] = book.authors
-        id_facts["codeexamples"] = book.codeexamples
-        id_facts["exercises"] = book.exercises
-        id_facts["keywords"] = book.keywords
-        id_facts["language"] = book.language
-        id_facts["pages"] = book.pages
-        id_facts["proglang"] = book.proglang #empty string if not specified in db
-        id_facts["target"] = book.target        
-        id_facts["title"] = book.title
-        id_facts["year"] = book.year
+        attributes = ['authors', 'codeexamples', 'exercises', 'keywords', 'language', 'pages', 'proglang', 'target', 'title', 'year']
+        
+        for attribute in attributes:
+            book_attribute = getattr(book, attribute)
+            id_facts.__setitem__(attribute, book_attribute)
+                
         return id_facts
         
     def generate_query_facts(self, index, book):
