@@ -68,7 +68,7 @@ class Query:
             help="Which language should the book have?")
         parser.add_argument("-p", "--proglang", nargs='+',
             help="Which programming language(s) should the book use?")
-        parser.add_argument("-s", "--pages", type=int,
+        parser.add_argument("-s", "--pagerange", type=int,
             help="book length ranges. 0 = less than 300 pages, " \
                 "1 = between 300 and 600 pages. 2 = more than 600 pages.")
         parser.add_argument("-t", "--target", type=int,
@@ -98,8 +98,8 @@ class Query:
         if args.proglang:
             for proglang in args.proglang:
                 self.queries.append(self.substring_query("plang", proglang))
-        if args.pages:
-            self.queries.append(self.pages_query(args.pages))
+        if args.pagerange:
+            self.queries.append(self.pages_query(args.pagerange))
         if args.target:
             # 0 beginner, 1 intermediate, 2 advanced, 3 professional
             #db fuckup: advanced is encoded as "3"
@@ -247,11 +247,11 @@ class Book:
 
         self.pages = db_item[db_columns["pages"]]
         if self.pages < 300:
-            self.page_range = 0
+            self.pagerange = 0
         elif self.pages >= 300 and self.pages < 600:
-            self.page_range = 1
+            self.pagerange = 1
         elif self.pages >= 600:
-            self.page_range = 2
+            self.pagerange = 2
             
         self.target = db_item[db_columns["target"]]
         self.exercises = db_item[db_columns["exercises"]]
@@ -322,52 +322,28 @@ class Facts():
         query_facts["usermodel_match"] = []
         query_facts["usermodel_nomatch"] = []
         query_args = self.query_args # safes me some typing ...
-
-        if query_args.codeexamples:
-            if query_args.codeexamples == book.codeexamples:
-                query_facts["usermodel_match"].append(("codeexamples", query_args.codeexamples))
-            else:
-                query_facts["usermodel_nomatch"].append(("codeexamples", query_args.codeexamples))
-
-        if query_args.exercises:
-            if query_args.exercises == book.exercises:
-                query_facts["usermodel_match"].append(("exercises", query_args.exercises))
-            else:
-                query_facts["usermodel_nomatch"].append(("exercises", query_args.exercises))
-
-        if query_args.keywords:
-            for keyword in query_args.keywords:
-                print keyword
-                if keyword in book.keywords:
-                    query_facts["usermodel_match"].append(("keywords", keyword))
-                else:
-                    query_facts["usermodel_nomatch"].append(("keywords", keyword))
-                
-        if query_args.language:
-            if query_args.language == book.language:
-                query_facts["usermodel_match"].append(("language", query_args.language))
-            else:
-                query_facts["usermodel_nomatch"].append(("language", query_args.language))
-
-        if query_args.pages:
-            if query_args.pages == book.page_range:
-                query_facts["usermodel_match"].append(("pages", query_args.pages))
-            else:
-                query_facts["usermodel_nomatch"].append(("pages", query_args.pages))
+        simple_attributes = ['codeexamples', 'exercises', 'language', 'pagerange', 'target']
+        complex_attributes = ['keywords', 'proglang'] # may contain more than 1 value
         
-        if query_args.proglang: 
-            for proglang in query_args.proglang:
-                if proglang in book.proglang:
-                    query_facts["usermodel_match"].append(("proglang", query_args.proglang))
+        for simple_attribute in simple_attributes:
+            if getattr(query_args, simple_attribute): #if query_args has a non-empty value for this attrib
+                if getattr(query_args, simple_attribute) == getattr(book, simple_attribute):
+                    match = (simple_attribute, getattr(book, simple_attribute))
+                    query_facts["usermodel_match"].append(match)
                 else:
-                    query_facts["usermodel_nomatch"].append(("proglang", query_args.proglang))
+                    nomatch = (simple_attribute, getattr(book, simple_attribute))
+                    query_facts["usermodel_nomatch"].append(nomatch)
+                    
+        for complex_attribute in complex_attributes:
+            if getattr(query_args, complex_attribute): # if query_args has at least one value for this attrib
+                values = getattr(query_args, complex_attribute)
+                for value in values:
+                    print value
+                    if value in getattr(book, complex_attribute):
+                        query_facts["usermodel_match"].append((complex_attribute, value))
+                    else:
+                        query_facts["usermodel_nomatch"].append((complex_attribute, value))
 
-        if query_args.target:
-            if query_args.target == book.target:
-                query_facts["usermodel_match"].append(("target", query_args.target))
-            else:
-                query_facts["usermodel_nomatch"].append(("target", query_args.target))
-           
         return query_facts
                 
     def generate_lastbook_facts(self, index, book, preceding_book):
@@ -398,8 +374,8 @@ class Facts():
             lastbook_facts["lastbook_nomatch"].append(("language", book.language))
             #TODO: should 'lastbook_nomatch' also contain preceding_book.language? or do we rant to get that from Books() when we generate document plans?
 
-        if book.page_range == preceding_book.page_range:
-            lastbook_facts["lastbook_match"].append(("page_range", book.page_range))
+        if book.pagerange == preceding_book.pagerange:
+            lastbook_facts["lastbook_match"].append(("pagerange", book.pagerange))
         else:
             if book.pages > preceding_book.pages:
                 page_diff = book.pages - preceding_book.pages
