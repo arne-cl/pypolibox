@@ -460,22 +460,22 @@ class Propositions():
         returns a C{dict} of propositions for each book from an element of a Facts.books C{list}
         """
         propositions = {}
-        propositions['usermodel_match'] = []
-        propositions['usermodel_nomatch'] = []
-        propositions['lastbook_match'] = []
-        propositions['lastbook_nomatch'] = []
-        propositions['extra'] = []
+        propositions['usermodel_match'] = {}
+        propositions['usermodel_nomatch'] = {}
+        propositions['lastbook_match'] = {}
+        propositions['lastbook_nomatch'] = {}
+        propositions['extra'] = {}
         
-        for fact in book['query_facts']['usermodel_match']:
-            propositions['usermodel_match'].append((fact, 'positive'))
-        for fact in book['query_facts']['usermodel_nomatch']:
-            propositions['usermodel_nomatch'].append((fact, 'negative'))
+        for attribute, value in book['query_facts']['usermodel_match']:
+            propositions['usermodel_match'][attribute] =  (value, 'positive')
+        for attribute, value in book['query_facts']['usermodel_nomatch']:
+            propositions['usermodel_nomatch'][attribute] = (value, 'negative')
             
         if book.has_key('lastbook_facts'): # 1st book doesn't have this
-            for fact in book['lastbook_facts']['lastbook_match']:
-                propositions['lastbook_match'].append((fact, 'neutral')) # neutral (not positive, since it's not related 2 usermodel)
-            for fact in book['lastbook_facts']['lastbook_nomatch']:
-                propositions['lastbook_nomatch'].append((fact, 'neutral'))
+            for attribute, value in book['lastbook_facts']['lastbook_match']:
+                propositions['lastbook_match'][attribute] =  (value, 'neutral') # neutral (not positive, since it's not related 2 usermodel)
+            for attribute, value in book['lastbook_facts']['lastbook_nomatch']:
+                propositions['lastbook_nomatch'][attribute] = (value, 'neutral')
         
         if book['extra_facts'].has_key('year'):
             if book['extra_facts']['year'] == 'recent':
