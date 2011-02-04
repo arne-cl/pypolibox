@@ -20,7 +20,7 @@
         #proglang_array = db_item[db_columns["plang"]].encode(DEFAULT_ENCODING)
     #AttributeError: 'NoneType' object has no attribute 'encode'
 
-#TODO: maybe replace older/newer short/long w/ directive + measure (+/-/=, pages/age)
+#TODO: maybe replace older/newer short/long w/ directive + measure (+/-/=, pages/age), cf. WeatherReporter
 
 #TODO: scrape keywords from google book feeds
 #      checked: the gbooks keywords are not part of the API
@@ -30,14 +30,14 @@ import sqlite3
 import sys
 import argparse
 import re # for "utils"
+import datetime
+import locale
 
-DEFAULT_ENCODING = 'utf-8' # sqlite stores strings as unicode, 
-                           # but the user input is likely something else
-                           # (e.g. 'latin-1' or 'utf-8')
-                           # change this var if your terminal only supports ascii-based encodings
+language, encoding = locale.getlocale()
+DEFAULT_ENCODING = encoding # sqlite stores strings as unicode, but the user input is likely something else
 DB_FILE = 'pypolibox.sqlite'
 BOOK_TABLE_NAME = 'books' # name of the table in the database file that contains info about books
-CURRENT_YEAR = 2011 # TODO: read this from the OS. use this to check if a book is 'fairly recent' 
+CURRENT_YEAR = datetime.datetime.today().year 
 
 argv = [ ["-k", "pragmatics"], \
          ["-k", "pragmatics", "semantics"], \
@@ -358,14 +358,16 @@ class Facts():
         for complex_attribute in complex_attributes:
             if getattr(query_args, complex_attribute): # if query_args has at least one value for this attrib
                 values = getattr(query_args, complex_attribute)
-                matching_values = []
-                nonmatching_values = []
+                matching_values = set()
+                nonmatching_values = set()
                 for value in values:
                     if value in getattr(book, complex_attribute):
-                        matching_values.append(value)
+                        matching_values.add(value)
                     else:
-                        nonmatching_values.append(value)
+                        nonmatching_values.add(value)
+                if matching_values != set(): # if not empty ...
                     query_facts["usermodel_match"][complex_attribute] = matching_values
+                if nonmatching_values != set():
                     query_facts["usermodel_nomatch"][complex_attribute] = nonmatching_values
 
         return query_facts
