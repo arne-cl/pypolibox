@@ -20,6 +20,8 @@
         #proglang_array = db_item[db_columns["plang"]].encode(DEFAULT_ENCODING)
     #AttributeError: 'NoneType' object has no attribute 'encode'
 
+#TODO: maybe replace older/newer short/long w/ directive + measure (+/-/=, pages/age)
+
 #TODO: scrape keywords from google book feeds
 #      checked: the gbooks keywords are not part of the API
 #TODO: how to query lang = ANY in SQLite?
@@ -371,18 +373,16 @@ class Facts():
     def generate_lastbook_facts(self, index, book, preceding_book):
         
         lastbook_facts = {}
-        lastbook_facts['lastbook_match'] = []
-        lastbook_facts['lastbook_nomatch'] = []
+        lastbook_facts['lastbook_match'] = {}
+        lastbook_facts['lastbook_nomatch'] = {}
         simple_comparisons = ['codeexamples', 'exercises','language', 'target']
         set_comparisons = ['keywords', 'proglang']
         
         for simple_comparison in simple_comparisons:
             if getattr(book, simple_comparison) == getattr(preceding_book, simple_comparison):
-                match = (simple_comparison, getattr(book, simple_comparison))
-                lastbook_facts['lastbook_match'].append(match)
+                lastbook_facts['lastbook_match'][simple_comparison] = getattr(book, simple_comparison)
             else:
-                nomatch = (simple_comparison, getattr(book, simple_comparison))
-                lastbook_facts['lastbook_nomatch'].append(nomatch)
+                lastbook_facts['lastbook_nomatch'][simple_comparison] = getattr(book, simple_comparison)
                 
         for attribute in set_comparisons:
             current_attrib = getattr(book, attribute)
@@ -392,40 +392,40 @@ class Facts():
             else:
                 shared_values = current_attrib.intersection(preceding_attrib)
                 if shared_values != set([]):
-                    lastbook_facts['lastbook_match'].append((attribute, shared_values))
+                    lastbook_facts['lastbook_match'][attribute] = shared_values
                 
                 non_shared_values = current_attrib.symmetric_difference(preceding_attrib)
-                lastbook_facts['lastbook_nomatch'].append((attribute, non_shared_values))
+                lastbook_facts['lastbook_nomatch'][attribute] = non_shared_values
                 
                 current_only_values = current_attrib.difference(preceding_attrib)
                 if current_only_values != set([]):
                     fact_name = attribute + '_current_book_only'
-                    lastbook_facts['lastbook_nomatch'].append((fact_name, current_only_values))
+                    lastbook_facts['lastbook_nomatch'][fact_name] = current_only_values
 
                 preceding_only_values = preceding_attrib.difference(current_attrib)
                 if preceding_only_values != set([]):
                     fact_name = attribute + '_preceding_book_only'
-                    lastbook_facts["lastbook_nomatch"].append((fact_name, preceding_only_values))
+                    lastbook_facts["lastbook_nomatch"][fact_name] = preceding_only_values
  
         if book.year == preceding_book.year:
-            lastbook_facts["lastbook_match"].append(("year", book.year))
+            lastbook_facts["lastbook_match"]["year"] = book.year
         else:
             if book.year > preceding_book.year:
                years_diff = book.year - preceding_book.year 
-               lastbook_facts["lastbook_nomatch"].append(("newer", years_diff))
+               lastbook_facts["lastbook_nomatch"]["newer"] = years_diff
             else:
                 years_diff = preceding_book.year - book.year
-                lastbook_facts["lastbook_nomatch"].append(("older", years_diff))
+                lastbook_facts["lastbook_nomatch"]["older"] = years_diff
 
         if book.pagerange == preceding_book.pagerange:
-            lastbook_facts["lastbook_match"].append(("pagerange", book.pagerange))
+            lastbook_facts["lastbook_match"]["pagerange"] = book.pagerange
         else:
             if book.pages > preceding_book.pages:
                 page_diff = book.pages - preceding_book.pages
-                lastbook_facts["lastbook_nomatch"].append(("longer", page_diff))
+                lastbook_facts["lastbook_nomatch"]["longer"] = page_diff
             else: #current book is shorter
                 page_diff = preceding_book.pages - book.pages
-                lastbook_facts["lastbook_nomatch"].append(("shorter", page_diff))
+                lastbook_facts["lastbook_nomatch"]["shorter"] = page_diff
                 
         return lastbook_facts
     
