@@ -65,6 +65,9 @@ def debug_facts(argv):
 def gen_facts(arg):
     return Facts(Books(Results(Query(arg))))
 
+def gen_props(arg):
+    return Propositions(Facts(Books(Results(Query(arg)))))
+    
 #conn.commit() # commit changes to db
 #conn.close() # close connection to db. 
 #               DON't do this before all results are stored in a Book() instance
@@ -353,7 +356,6 @@ class Facts():
         for complex_attribute in complex_attributes:
             if getattr(query_args, complex_attribute): # if query_args has at least one value for this attrib
                 values = getattr(query_args, complex_attribute)
-                print "{0} is in query_args and has these values: {1}".format(complex_attribute, values)
                 matching_values = []
                 nonmatching_values = []
                 for value in values:
@@ -450,10 +452,6 @@ class Propositions():
         @type facts: I{Facts}
         """
         self.propostions = []
-
-	#Propositions(Facts f): generates a Proposition() for each Fact()
-	#Type: ID, Property: Keywords, Value: [parsing, grammar, formal languages, syntax, morphology, pragmatics, generation], Rating: Neutral
-        
         for book in facts.books:
             book_propositions = self.generate_propositions(book)
             self.propostions.append(book_propositions)
@@ -469,15 +467,15 @@ class Propositions():
         propositions['lastbook_nomatch'] = {}
         propositions['extra'] = {}
         
-        for attribute, value in book['query_facts']['usermodel_match']:
+        for attribute, value in book['query_facts']['usermodel_match'].iteritems():
             propositions['usermodel_match'][attribute] =  (value, 'positive')
-        for attribute, value in book['query_facts']['usermodel_nomatch']:
+        for attribute, value in book['query_facts']['usermodel_nomatch'].iteritems():
             propositions['usermodel_nomatch'][attribute] = (value, 'negative')
             
         if book.has_key('lastbook_facts'): # 1st book doesn't have this
-            for attribute, value in book['lastbook_facts']['lastbook_match']:
+            for attribute, value in book['lastbook_facts']['lastbook_match'].iteritems():
                 propositions['lastbook_match'][attribute] =  (value, 'neutral') # neutral (not positive, since it's not related 2 usermodel)
-            for attribute, value in book['lastbook_facts']['lastbook_nomatch']:
+            for attribute, value in book['lastbook_facts']['lastbook_nomatch'].iteritems():
                 propositions['lastbook_nomatch'][attribute] = (value, 'neutral')
         
         if book['extra_facts'].has_key('year'):
