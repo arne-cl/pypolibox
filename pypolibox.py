@@ -81,9 +81,7 @@ class Query:
         """ 
         parses commandline options with argparse, constructs a valid sql query and stores the resulting query in self.query
         """
-
         self.queries = []
-        
         parser = argparse.ArgumentParser()
         
         parser.add_argument("-k", "--keywords", nargs='+', help="Which topic(s) should the book cover?") #nargs='+' handles 1 or more args    
@@ -111,8 +109,7 @@ class Query:
         #TODO: put the if.args stuff into its own method (maybe useful, if
         # there's a WebQuery(Query) class
         args = parser.parse_args(argv)
-        print args
-    
+            
         if args.keywords:
             for keyword in args.keywords:
                 self.queries.append(self.substring_query("keywords", keyword))
@@ -135,11 +132,10 @@ class Query:
             assert args.codeexamples in (0, 1)
             self.queries.append(self.equals_query("examples", args.codeexamples))
     
-        print "The database will be queried for: {0}".format(self.queries)
+        #print "The database will be queried for: {0}".format(self.queries)
         self.query_args = args # we may need these for debugging
         self.query = self.construct_query(self.queries)
-        print "\nThis query will be sent to the database: {0}\n\n".format(self.query)
-
+        #print "\nThis query will be sent to the database: {0}\n\n".format(self.query)
 
     def construct_query(self, queries):
         """takes a list of queries and combines them into one complex SQL query"""
@@ -154,7 +150,7 @@ class Query:
             return query_template + where + combined_queries
         elif len(queries) == 1: # simple query, no combination needed
             query = queries[0] # list with one string element --> string
-            print "type(queries): {0}, len(queries): {1}".format(type(queries), len(queries))
+            #print "type(queries): {0}, len(queries): {1}".format(type(queries), len(queries))
             return query_template + where + query
         else: #empty query
             return query_template # query will show all books in the db
@@ -181,6 +177,8 @@ class Query:
     def equals_query(self, sql_column, string):
         return "{0} = {1}".format(sql_column, string)
 
+    def __str__(self):
+        return "The arguments (parsed from the command line):\n{0}\nhave resulted in the following SQL query:\n{1}".format(q.query_args, q.query)
 
 class Results:
     """ a Results() instance represents the results of a database query """
@@ -194,6 +192,7 @@ class Results:
         @param q: an instance of the class Query()
         """
         self.query_args = q.query_args # keep original queries for debugging
+        self.query = q.query
         
         conn = sqlite3.connect(DB_FILE)
         self.curs = conn.cursor() #TODO: i needed to "self" this to make it available in get_table_header(). it might be wise to move connect/cursor to the "global variables" part of the code.
@@ -203,13 +202,14 @@ class Results:
         temp_results = self.curs.execute(q.query)
         self.query_results = []
         for result in temp_results:
-            self.query_results.append(result) # temp_result is a LIVE SQL cursor, so we need to make the results 'persistent', e.g. by writing them to a list
+            self.query_results.append(result) # temp_result is a LIVE SQL cursor, so we need to make the results 'permanent', e.g. by writing them to a list
     
-    def print_results(self):
+    def __str__(self):
         """a method that prints all items of a query result to stdout"""
-        #TODO: this method can only be run once, since it's a 'live' sql cursor
+        return_string = "The query:\n{0}\n\nreturned the following results:\n\n".format(self.query)
         for book in self.query_results:
-            print book
+            return_string += str(book) + "\n"
+        return return_string
 
     def get_table_header(self, table_name):
         """
@@ -238,6 +238,13 @@ class Books:
         for result in results.query_results:
             book_item = Book(result, results.db_columns)
             self.books.append(book_item)
+    
+    def __str__(self):
+        return_string = ""
+        for index, book in enumerate(self.books):
+            book_string = "index: {0}\n{1}\n".format(index, book.__str__())
+            return_string += book_string
+        return return_string
 
 
 class Book:
@@ -279,6 +286,12 @@ class Book:
         self.target = db_item[db_columns["target"]]
         self.exercises = db_item[db_columns["exercises"]]
         self.codeexamples = db_item[db_columns["examples"]]
+        
+    def __str__(self):
+        return_string = ""
+        for key, value in self.__dict__.iteritems():
+            return_string += "{0}:\t\t{1}\n".format(key, value)
+        return return_string
 
 class Facts():
     """
@@ -498,6 +511,14 @@ class Propositions():
     #Example: If there is an Extra/UserModelMatch etc. Proposition about "Pages" (e.g. >= 600) or Year, there should be no ID Proposition about the same fact.
 	
         return propositions
+
+
+class Messages:
+    """ Class doc """
+    
+    def __init__ (self, propositions):
+        """ Class initialiser """
+        pass
         
 #TODO: move helper functions to utils.py; complete unfinished ones
 
@@ -543,4 +564,4 @@ if __name__ == "__main__":
     q = Query(sys.argv[1:])
     #q.parse_commandline(sys.argv[1:])
     results = Results(q)
-    results.print_results()
+    print results
