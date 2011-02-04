@@ -1,7 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#TODO: fix Facts.generate_lastbook_facts: proglang values w/ set([]) should not generate facts
+#TODO: fix Facts.generate_lastbook_facts: keyword values should not contain ' ', e.g. set([' ', 'pragmatics']) 
+
+#TODO: fix database db_item plang empty fuckup:
+#      introduce sanity checks in sqlite? proglang is a string but must contain either         
+#      nothing or at least a set of brackets '[]'
+#      better way to store string arrays in sqlite? 
+    #>>> f = gen_facts(["-l", "English"])
+    
+    #Traceback (most recent call last):
+      #File "<pyshell#6>", line 1, in <module>
+        #f = gen_facts(["-l", "English"])
+      #File "pypolibox.py", line 48, in gen_facts
+        #return Facts(Books(Results(Query(arg))))
+      #File "pypolibox.py", line 216, in __init__
+        #book_item = Book(result, results.db_columns)
+      #File "pypolibox.py", line 241, in __init__
+        #proglang_array = db_item[db_columns["plang"]].encode(DEFAULT_ENCODING)
+    #AttributeError: 'NoneType' object has no attribute 'encode'
 
 #TODO: scrape keywords from google book feeds
 #      checked: the gbooks keywords are not part of the API
@@ -429,37 +446,55 @@ class Propositions():
         """
         @type facts: I{Facts}
         """
-        pass
+        self.propostions = []
 
 	#Propositions(Facts f): generates a Proposition() for each Fact()
-	
-	#if Fact() is of type:
-		#UserModelMatch: setRating(Rating.Positive)
-		#UserModelNoMatch: Rating.Negative
-		#LastBookMatch: Rating.Neutral // why only neutral? b/c it's not related to usermodel
-		#LastBookNoMatch: Rating.Neutral
-		#Extra: if Year < 1990: setValue("< 1990")
-			      #Year > 2000: setValue("< 2000")
-			   #else:		   setRating(Rating.Neutral)
-			   
-	#idFacts() are handled differently:
+	#Type: ID, Property: Keywords, Value: [parsing, grammar, formal languages, syntax, morphology, pragmatics, generation], Rating: Neutral
+        
+        for book in facts.books:
+            book_propositions = self.generate_propositions(book)
+            self.propostions.append(book_propositions)
+            
+    def generate_propositions(self, book):
+        """
+        returns a C{dict} of propositions for each book from an element of a Facts.books C{list}
+        """
+        propositions = {}
+        propositions['usermodel_match'] = []
+        propositions['usermodel_nomatch'] = []
+        propositions['lastbook_match'] = []
+        propositions['lastbook_nomatch'] = []
+        propositions['extra'] = []
+        
+        for fact in book['query_facts']['usermodel_match']:
+            propositions['usermodel_match'].append((fact, 'positive'))
+        for fact in book['query_facts']['usermodel_nomatch']:
+            propositions['usermodel_nomatch'].append((fact, 'negative'))
+            
+        if book.has_key('lastbook_facts'): # 1st book doesn't have this
+            for fact in book['lastbook_facts']['lastbook_match']:
+                propositions['lastbook_match'].append((fact, 'neutral')) # neutral (not positive, since it's not related 2 usermodel)
+            for fact in book['lastbook_facts']['lastbook_nomatch']:
+                propositions['lastbook_nomatch'].append((fact, 'neutral'))
+        
+        if book['extra_facts'].has_key('year'):
+            if book['extra_facts']['year'] == 'recent':
+                propositions['extra']['year'] = (book['extra_facts']['year'], 'positive')
+            elif book['extra_facts']['year'] == 'old':
+                propositions['extra']['year'] = (book['extra_facts']['year'], 'negative')
+                
+        if book['extra_facts'].has_key('pages'):
+            propositions['extra']['pages'] = (book['extra_facts']['pages'], 'neutral')
+
+        for fact in book['id_facts']:
+            pass
+	#idFacts() are handled DIFFERENTLY:
     #they will processed to propostions only if there is no fact of other type with
     #the same property (Authors, Title, Keywords, Language, ProgLanguage, Pages, Year, TargetGroup, Exercises, Examples, UNDEFINED)
     
     #Example: If there is an Extra/UserModelMatch etc. Proposition about "Pages" (e.g. >= 600) or Year, there should be no ID Proposition about the same fact.
 	
-        #for (Fact fact : f) {
-            #if (fact.getType() == Type.ID) {
-                #boolean contains = false;
-                #for (Proposition prop : this) {
-                    #contains |= prop.getProperty() == fact.getProperty();
-                #}
-                #if (contains == false || fact.getProperty() == Property.Keywords) {
-                    #add(new Proposition(fact));
-                #}}}
-	
-	#why does this use "|=" aka "bitwise or"? http://www.roseindia.net/java/master-java/java-bitwise-or.shtml
-		        
+        return propositions
         
 #TODO: move helper functions to utils.py; complete unfinished ones
 
