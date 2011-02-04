@@ -57,8 +57,9 @@ def debug_facts(argv):
         print "\n\n========================================================="
         print f.query_args
         for book in f.books:
-            if book.has_key("lastbook_facts"): # the 1st item doesn't have a preceding one...
-                print book["lastbook_facts"]
+            print book['query_facts']
+            #if book.has_key("lastbook_facts"): # the 1st item doesn't have a preceding one...
+             #   print book["lastbook_facts"]
     return facts
 
 def gen_facts(arg):
@@ -336,8 +337,8 @@ class Facts():
     def generate_query_facts(self, index, book):
         """ generate facts that describes if a book matches (parts of) the query"""
         query_facts = {}
-        query_facts["usermodel_match"] = []
-        query_facts["usermodel_nomatch"] = []
+        query_facts["usermodel_match"] = {}
+        query_facts["usermodel_nomatch"] = {}
         query_args = self.query_args # safes me some typing ...
         simple_attributes = ['codeexamples', 'exercises', 'language', 'pagerange', 'target']
         complex_attributes = ['keywords', 'proglang'] # may contain more than 1 value
@@ -345,11 +346,9 @@ class Facts():
         for simple_attribute in simple_attributes:
             if getattr(query_args, simple_attribute): #if query_args has a non-empty value for this attrib
                 if getattr(query_args, simple_attribute) == getattr(book, simple_attribute):
-                    match = (simple_attribute, getattr(book, simple_attribute))
-                    query_facts["usermodel_match"].append(match)
+                    query_facts["usermodel_match"][simple_attribute] = getattr(book, simple_attribute)
                 else:
-                    nomatch = (simple_attribute, getattr(book, simple_attribute))
-                    query_facts["usermodel_nomatch"].append(nomatch)
+                    query_facts["usermodel_nomatch"][simple_attribute] = getattr(book, simple_attribute) 
                     
         for complex_attribute in complex_attributes:
             if getattr(query_args, complex_attribute): # if query_args has at least one value for this attrib
@@ -357,9 +356,9 @@ class Facts():
                 for value in values:
                     print value
                     if value in getattr(book, complex_attribute):
-                        query_facts["usermodel_match"].append((complex_attribute, value))
+                        query_facts["usermodel_match"][complex_attribute] = value
                     else:
-                        query_facts["usermodel_nomatch"].append((complex_attribute, value))
+                        query_facts["usermodel_nomatch"][complex_attribute] = value
 
         return query_facts
                 
