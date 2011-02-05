@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>assess_test</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        Module&nbsp;assess_test
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="assess_test-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="assess_test-module.html">Module assess_test</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">re</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Module document_planner=document_planner-module.html"><a title="document_planner" class="py-name" href="#" onclick="return doclink('link-0', 'document_planner', 'link-0');">document_planner</a></tt> <tt class="py-keyword">import</tt> <tt class="py-op">*</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Module MyTree=MyTree-module.html,Class MyTree.MyTree=MyTree.MyTree-class.html"><a title="MyTree
+MyTree.MyTree" class="py-name" href="#" onclick="return doclink('link-1', 'MyTree', 'link-1');">MyTree</a></tt> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-comment">#specification of the rules</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt id="link-2" class="py-name" targets="Variable assess_test.rules=assess_test-module.html#rules"><a title="assess_test.rules" class="py-name" href="#" onclick="return doclink('link-2', 'rules', 'link-2');">rules</a></tt> <tt class="py-op">=</tt> <tt class="py-string">"""</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-string">Conjunction(Message('AverageOpinionMessage') M1, Message('AverageOpinionMessage') M2)</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-string">    (M1.udf_parent == M2.udf_parent and M1.polarity == M2.polarity):ConstituentSet(Conjunction,M1,M2):(2,M1.numOpinions+M2.numOpinions)</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-string"></tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-string">Contrast(Message('AverageOpinionMessage') M1, Message('AverageOpinionMessage') M2)</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-string">    (M1.udf_parent == M2.udf_parent and M1.polarity != M2.polarity):ConstituentSet(Contrast,M1,M2):(3,M1.numOpinions+M2.numOpinions)</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-string"></tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-string">WeakExplanation(Message('AverageOpinionMessage') M1, Message('AverageOpinionMessage') M2)</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-string">    (M1.udf == M2.udf_parent and M1.polarity == M2.polarity):ConstituentSet(WeakExplanation,M1,M2):(5,0)</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-string"></tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-string">StrongExplanation(Message('AverageOpinionMessage') M1, ConstituentSet(relType = 'Conjunction', nucleus=Message('AverageOpinionMessage')) M2)</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-string">    (M1.udf == M2.nucleus.udf_parent and M1.polarity == M2.nucleus.polarity):ConstituentSet(StrongExplanation,M1,M2):(10:0)</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-string"></tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-string">Sequence(Message('AverageOpinionMessage')|ConstituentSet() M1, Message('AverageOpinionMessage')|ConstituentSet() M2)</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"><tt class="py-string">    ():ConstituentSet(Sequence,M1,M2):(1,0)</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"><tt class="py-string">"""</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"><tt class="py-comment">#get the scored from the corpus file</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"><tt class="py-comment">#returns a dict of cfs mapped to a list of scores</tt> </tt>
+<a name="get_scores"></a><div id="get_scores-def"><a name="L27"></a><tt class="py-lineno"> 27</tt> <a class="py-toggle" href="#" id="get_scores-toggle" onclick="return toggle('get_scores');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="assess_test-module.html#get_scores">get_scores</a><tt class="py-op">(</tt><tt class="py-param">infile</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="get_scores-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="get_scores-expanded"><a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line">    <tt class="py-name">ret</tt> <tt class="py-op">=</tt> <tt class="py-op">{</tt><tt class="py-op">}</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-name">l</tt> <tt class="py-keyword">in</tt> <tt class="py-name">infile</tt><tt class="py-op">:</tt> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">l</tt><tt class="py-op">[</tt><tt class="py-op">:</tt><tt class="py-number">3</tt><tt class="py-op">]</tt> <tt class="py-op">==</tt> <tt class="py-string">'[t]'</tt><tt class="py-op">:</tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line">            <tt class="py-keyword">continue</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line">        <tt class="py-name">n</tt> <tt class="py-op">=</tt> <tt class="py-name">l</tt><tt class="py-op">[</tt><tt class="py-op">:</tt><tt class="py-name">l</tt><tt class="py-op">.</tt><tt class="py-name">find</tt><tt class="py-op">(</tt><tt class="py-string">'#'</tt><tt class="py-op">)</tt><tt class="py-op">]</tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">n</tt> <tt class="py-op">==</tt> <tt class="py-string">''</tt><tt class="py-op">:</tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line">            <tt class="py-keyword">continue</tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line">        <tt class="py-name">n</tt><tt class="py-op">=</tt><tt class="py-name">n</tt><tt class="py-op">.</tt><tt class="py-name">split</tt><tt class="py-op">(</tt><tt class="py-string">','</tt><tt class="py-op">)</tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">score</tt> <tt class="py-keyword">in</tt> <tt class="py-name">n</tt><tt class="py-op">:</tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line">            <tt class="py-op">(</tt><tt class="py-name">cf</tt><tt class="py-op">,</tt> <tt class="py-name">opinion</tt><tt class="py-op">)</tt> <tt class="py-op">=</tt> <tt class="py-name">re</tt><tt class="py-op">.</tt><tt class="py-name">findall</tt><tt class="py-op">(</tt><tt class="py-string">'([\w ]+)\[([\+\-]\d)\]'</tt><tt class="py-op">,</tt> <tt class="py-name">score</tt><tt class="py-op">.</tt><tt class="py-name">strip</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line">            <tt class="py-name">ret</tt><tt class="py-op">.</tt><tt class="py-name">setdefault</tt><tt class="py-op">(</tt><tt class="py-name">cf</tt><tt class="py-op">,</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt class="py-name">eval</tt><tt class="py-op">(</tt><tt class="py-name">opinion</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line"> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">ret</tt> </tt>
+</div><a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line">     </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line"><tt class="py-comment">#read the corpus file</tt> </tt>
+<a name="read_scorefile"></a><div id="read_scorefile-def"><a name="L45"></a><tt class="py-lineno"> 45</tt> <a class="py-toggle" href="#" id="read_scorefile-toggle" onclick="return toggle('read_scorefile');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="assess_test-module.html#read_scorefile">read_scorefile</a><tt class="py-op">(</tt><tt class="py-param">infile</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="read_scorefile-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="read_scorefile-expanded"><a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line">    <tt class="py-keyword">with</tt> <tt class="py-name">open</tt><tt class="py-op">(</tt><tt class="py-name">infile</tt><tt class="py-op">,</tt> <tt class="py-string">'r'</tt><tt class="py-op">)</tt> <tt class="py-keyword">as</tt> <tt class="py-name">f</tt><tt class="py-op">:</tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt id="link-3" class="py-name" targets="Function assess_test.get_scores()=assess_test-module.html#get_scores"><a title="assess_test.get_scores" class="py-name" href="#" onclick="return doclink('link-3', 'get_scores', 'link-3');">get_scores</a></tt><tt class="py-op">(</tt><tt class="py-name">f</tt><tt class="py-op">.</tt><tt class="py-name">readlines</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line"> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line"><tt class="py-comment">#merge the dict from get_scores with the hierarchy, so cfs are agregated into udfs</tt> </tt>
+<a name="merge_scores"></a><div id="merge_scores-def"><a name="L50"></a><tt class="py-lineno"> 50</tt> <a class="py-toggle" href="#" id="merge_scores-toggle" onclick="return toggle('merge_scores');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="assess_test-module.html#merge_scores">merge_scores</a><tt class="py-op">(</tt><tt class="py-param">scores</tt><tt class="py-op">,</tt> <tt class="py-param">hierarchy</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="merge_scores-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="merge_scores-expanded"><a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line">    <tt class="py-name">dic</tt> <tt class="py-op">=</tt> <tt class="py-op">{</tt><tt class="py-op">}</tt> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line">     </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">,</tt> <tt class="py-name">vals</tt><tt class="py-op">)</tt> <tt class="py-keyword">in</tt> <tt class="py-name">scores</tt><tt class="py-op">.</tt><tt class="py-name">iteritems</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line">        <tt class="py-name">udfs</tt> <tt class="py-op">=</tt> <tt class="py-name">hierarchy</tt><tt class="py-op">.</tt><tt id="link-4" class="py-name" targets="Method MyTree.MyTree.find_in_buckets()=MyTree.MyTree-class.html#find_in_buckets"><a title="MyTree.MyTree.find_in_buckets" class="py-name" href="#" onclick="return doclink('link-4', 'find_in_buckets', 'link-4');">find_in_buckets</a></tt><tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">)</tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">udf</tt> <tt class="py-keyword">in</tt> <tt class="py-name">udfs</tt><tt class="py-op">:</tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line">            <tt class="py-name">dic</tt><tt class="py-op">.</tt><tt class="py-name">setdefault</tt><tt class="py-op">(</tt><tt class="py-name">udf</tt><tt class="py-op">,</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line">            <tt class="py-name">dic</tt><tt class="py-op">[</tt><tt class="py-name">udf</tt><tt class="py-op">]</tt> <tt class="py-op">+=</tt> <tt class="py-name">vals</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line"> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line">    <tt class="py-name">dic</tt><tt class="py-op">.</tt><tt class="py-name">pop</tt><tt class="py-op">(</tt><tt class="py-string">'Not Placed'</tt><tt class="py-op">)</tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">dic</tt> </tt>
+</div><a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line"> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line"><tt class="py-comment">#create messages from the merged udf scores</tt> </tt>
+<a name="create_messages"></a><div id="create_messages-def"><a name="L63"></a><tt class="py-lineno"> 63</tt> <a class="py-toggle" href="#" id="create_messages-toggle" onclick="return toggle('create_messages');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="assess_test-module.html#create_messages">create_messages</a><tt class="py-op">(</tt><tt class="py-param">scores</tt><tt class="py-op">,</tt> <tt class="py-param">hierarchy</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="create_messages-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="create_messages-expanded"><a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line">    <tt class="py-name">msgs</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">,</tt> <tt class="py-name">vals</tt><tt class="py-op">)</tt> <tt class="py-keyword">in</tt> <tt class="py-name">scores</tt><tt class="py-op">.</tt><tt class="py-name">iteritems</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line">        <tt id="link-5" class="py-name" targets="Variable weather_test.m=weather_test-module.html#m"><a title="weather_test.m" class="py-name" href="#" onclick="return doclink('link-5', 'm', 'link-5');">m</a></tt> <tt class="py-op">=</tt> <tt id="link-6" class="py-name" targets="Class document_planner.Message=document_planner.Message-class.html"><a title="document_planner.Message" class="py-name" href="#" onclick="return doclink('link-6', 'Message', 'link-6');">Message</a></tt><tt class="py-op">(</tt><tt class="py-string">'AverageOpinionMessage'</tt><tt class="py-op">)</tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line">        <tt id="link-7" class="py-name"><a title="weather_test.m" class="py-name" href="#" onclick="return doclink('link-7', 'm', 'link-5');">m</a></tt><tt class="py-op">[</tt><tt class="py-string">'numOpinions'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">vals</tt><tt class="py-op">)</tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line">        <tt id="link-8" class="py-name"><a title="weather_test.m" class="py-name" href="#" onclick="return doclink('link-8', 'm', 'link-5');">m</a></tt><tt class="py-op">[</tt><tt class="py-string">'udf'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">key</tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line">            <tt id="link-9" class="py-name"><a title="weather_test.m" class="py-name" href="#" onclick="return doclink('link-9', 'm', 'link-5');">m</a></tt><tt class="py-op">[</tt><tt class="py-string">'udf_parent'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">hierarchy</tt><tt class="py-op">.</tt><tt id="link-10" class="py-name" targets="Method MyTree.MyTree.get_parent()=MyTree.MyTree-class.html#get_parent"><a title="MyTree.MyTree.get_parent" class="py-name" href="#" onclick="return doclink('link-10', 'get_parent', 'link-10');">get_parent</a></tt><tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt> <tt class="py-name">IndexError</tt><tt class="py-op">:</tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line">            <tt id="link-11" class="py-name"><a title="weather_test.m" class="py-name" href="#" onclick="return doclink('link-11', 'm', 'link-5');">m</a></tt><tt class="py-op">[</tt><tt class="py-string">'udf_parent'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line">        <tt class="py-name">a</tt> <tt class="py-op">=</tt> <tt id="link-12" class="py-name" targets="Function assess_test.avg()=assess_test-module.html#avg"><a title="assess_test.avg" class="py-name" href="#" onclick="return doclink('link-12', 'avg', 'link-12');">avg</a></tt><tt class="py-op">(</tt><tt class="py-name">vals</tt><tt class="py-op">)</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line">        <tt id="link-13" class="py-name"><a title="weather_test.m" class="py-name" href="#" onclick="return doclink('link-13', 'm', 'link-5');">m</a></tt><tt class="py-op">[</tt><tt class="py-string">'valence'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">abs</tt><tt class="py-op">(</tt><tt class="py-name">a</tt><tt class="py-op">)</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">a</tt> <tt class="py-op">&gt;</tt> <tt class="py-number">0</tt><tt class="py-op">:</tt> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line">            <tt id="link-14" class="py-name"><a title="weather_test.m" class="py-name" href="#" onclick="return doclink('link-14', 'm', 'link-5');">m</a></tt><tt class="py-op">[</tt><tt class="py-string">'polarity'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-string">'+'</tt> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line">        <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line">            <tt id="link-15" class="py-name"><a title="weather_test.m" class="py-name" href="#" onclick="return doclink('link-15', 'm', 'link-5');">m</a></tt><tt class="py-op">[</tt><tt class="py-string">'polarity'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-string">'-'</tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line">        <tt class="py-name">msgs</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt id="link-16" class="py-name"><a title="weather_test.m" class="py-name" href="#" onclick="return doclink('link-16', 'm', 'link-5');">m</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">msgs</tt> </tt>
+</div><a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line"> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line"><tt class="py-comment">#returns average value of numbers in list</tt> </tt>
+<a name="avg"></a><div id="avg-def"><a name="L83"></a><tt class="py-lineno"> 83</tt> <a class="py-toggle" href="#" id="avg-toggle" onclick="return toggle('avg');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="assess_test-module.html#avg">avg</a><tt class="py-op">(</tt><tt class="py-param">ls</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="avg-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="avg-expanded"><a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">sum</tt><tt class="py-op">(</tt><tt class="py-name">map</tt><tt class="py-op">(</tt><tt class="py-name">float</tt><tt class="py-op">,</tt> <tt class="py-name">ls</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">/</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">ls</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line"> </tt>
+<a name="main"></a><div id="main-def"><a name="L86"></a><tt class="py-lineno"> 86</tt> <a class="py-toggle" href="#" id="main-toggle" onclick="return toggle('main');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="assess_test-module.html#main">main</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="main-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="main-expanded"><a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line">    <tt class="py-keyword">global</tt> <tt id="link-17" class="py-name"><a title="assess_test.rules" class="py-name" href="#" onclick="return doclink('link-17', 'rules', 'link-2');">rules</a></tt> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">    <tt class="py-name">hier</tt> <tt class="py-op">=</tt> <tt id="link-18" class="py-name"><a title="MyTree
+MyTree.MyTree" class="py-name" href="#" onclick="return doclink('link-18', 'MyTree', 'link-1');">MyTree</a></tt><tt class="py-op">.</tt><tt id="link-19" class="py-name" targets="Function MyTree.read_hierarchy()=MyTree-module.html#read_hierarchy"><a title="MyTree.read_hierarchy" class="py-name" href="#" onclick="return doclink('link-19', 'read_hierarchy', 'link-19');">read_hierarchy</a></tt><tt class="py-op">(</tt><tt class="py-string">'data/apex.gold'</tt><tt class="py-op">)</tt> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line">    <tt class="py-name">scores</tt> <tt class="py-op">=</tt> <tt id="link-20" class="py-name" targets="Function assess_test.read_scorefile()=assess_test-module.html#read_scorefile"><a title="assess_test.read_scorefile" class="py-name" href="#" onclick="return doclink('link-20', 'read_scorefile', 'link-20');">read_scorefile</a></tt><tt class="py-op">(</tt><tt class="py-string">'data/apex.in'</tt><tt class="py-op">)</tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line">    <tt class="py-name">merged</tt> <tt class="py-op">=</tt> <tt id="link-21" class="py-name" targets="Function assess_test.merge_scores()=assess_test-module.html#merge_scores"><a title="assess_test.merge_scores" class="py-name" href="#" onclick="return doclink('link-21', 'merge_scores', 'link-21');">merge_scores</a></tt><tt class="py-op">(</tt><tt class="py-name">scores</tt><tt class="py-op">,</tt> <tt class="py-name">hier</tt><tt class="py-op">)</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line">    <tt class="py-name">msgs</tt> <tt class="py-op">=</tt> <tt id="link-22" class="py-name" targets="Function assess_test.create_messages()=assess_test-module.html#create_messages"><a title="assess_test.create_messages" class="py-name" href="#" onclick="return doclink('link-22', 'create_messages', 'link-22');">create_messages</a></tt><tt class="py-op">(</tt><tt class="py-name">merged</tt><tt class="py-op">,</tt> <tt class="py-name">hier</tt><tt class="py-op">)</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">    <tt id="link-23" class="py-name"><a title="assess_test.rules" class="py-name" href="#" onclick="return doclink('link-23', 'rules', 'link-2');">rules</a></tt> <tt class="py-op">=</tt> <tt id="link-24" class="py-name" targets="Function document_planner.read_rules()=document_planner-module.html#read_rules"><a title="document_planner.read_rules" class="py-name" href="#" onclick="return doclink('link-24', 'read_rules', 'link-24');">read_rules</a></tt><tt class="py-op">(</tt><tt id="link-25" class="py-name"><a title="assess_test.rules" class="py-name" href="#" onclick="return doclink('link-25', 'rules', 'link-2');">rules</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line">    <tt class="py-comment">#rules = read_rules(rules)</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">    <tt class="py-name">plan</tt> <tt class="py-op">=</tt> <tt id="link-26" class="py-name" targets="Function document_planner.bottom_up_plan()=document_planner-module.html#bottom_up_plan"><a title="document_planner.bottom_up_plan" class="py-name" href="#" onclick="return doclink('link-26', 'bottom_up_plan', 'link-26');">bottom_up_plan</a></tt><tt class="py-op">(</tt><tt class="py-name">msgs</tt><tt class="py-op">,</tt> <tt id="link-27" class="py-name"><a title="assess_test.rules" class="py-name" href="#" onclick="return doclink('link-27', 'rules', 'link-2');">rules</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">    <tt class="py-keyword">print</tt> <tt class="py-name">plan</tt> </tt>
+</div><a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line">     </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line"> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line"><tt class="py-keyword">if</tt> <tt class="py-name">__name__</tt> <tt class="py-op">==</tt> <tt class="py-string">'__main__'</tt><tt class="py-op">:</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line">    <tt id="link-28" class="py-name" targets="Function assess_test.main()=assess_test-module.html#main"><a title="assess_test.main" class="py-name" href="#" onclick="return doclink('link-28', 'main', 'link-28');">main</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Mon Nov 29 21:55:46 2010
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
