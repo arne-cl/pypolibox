@@ -126,7 +126,7 @@ class Query:
             assert args.target in (0, 1, 2, 3)
             self.queries.append(self.equals_query("target", args.target))
         if args.exercises:
-            assert args.exercises in (0, 1,)
+            assert args.exercises in (0, 1)
             self.queries.append(self.equals_query("exercises", args.exercises))
         if args.codeexamples:
             assert args.codeexamples in (0, 1)
@@ -223,7 +223,10 @@ class Results:
 
 
 class Books:
-    """ a Books() instance represents ALL books that were found by a database query """
+    """
+    a Books() instance represents ALL books that were found by a database query 
+    as a list of Book() instances saved to self.books 
+    """
 
     def __init__ (self, results):
         """
@@ -236,7 +239,7 @@ class Books:
         self.query_args =  results.query_args # original query arguments for debugging
         self.books = []
         for result in results.query_results:
-            book_item = Book(result, results.db_columns)
+            book_item = Book(result, results.db_columns, results.query_args)
             self.books.append(book_item)
     
     def __str__(self):
@@ -249,14 +252,22 @@ class Books:
 
 class Book:
     """ a Book() instance represents ONE book from a database query """
-    def __init__ (self, db_item, db_columns):
+    def __init__ (self, db_item, db_columns, query_args):
         """
         fill Book() instance w/ metadata from the db
 
         @type db_item: C{tuple}
         @param db_item: an item from the C{sqlite3.Cursor} object that contains
         the results from the db query.
+        
+        @type db_columns: C{dict}
+        @param db_columns: a dictionary of table columns (e.g. title, authors) from the database
+        
+        @type query_args: C{argparse.Namespace}
+        @param query_args: a key/value store containing the original user query
         """
+        self.query_args = query_args #needed for generating query facts later on
+        
         self.title = db_item[db_columns["title"]].encode(DEFAULT_ENCODING)
         self.year = db_item[db_columns["year"]]
 
@@ -293,33 +304,34 @@ class Book:
             return_string += "{0}:\t\t{1}\n".format(key, value)
         return return_string
 
-class Facts():
+class AllFacts():
     """
-    Facts() represents facts about a Books(), which is a list of Book() instances
-    
-    @type b: C{Books}
-    @param b: an instance of the class Books
+    AllFacts() represents facts about a Books() instance, which is a list of Book() instances
     """
     def __init__ (self, b):
-        """ """
+        """ 
+        @type b: C{Books}
+        @param b: an instance of the class Books        
+        """
         self.query_args = b.query_args # originall query args for generating query_facts
         self.books = []
         for index, book in enumerate(b.books):
             if index == 0: #first book
-                book_facts = self.generate_facts(index, book)
+                book_facts = Facts(book, index)
                 self.books.append(book_facts)
             else: # every other book --> trigger comparison with preceeding book
                 preceding_book = b.books[index-1]
-                book_facts = self.generate_facts(index, book, preceding_book)
+                book_facts = Facts(book, index, preceding_book)
                 self.books.append(book_facts)
-    
-    def generate_facts(self, index, book, preceding_book=False):
+
+class Facts():
+    """ Facts() represents facts about a single Book() instance """
+    def __init__ (self, book, index=0, preceding_book=False):
         """
-        facts are ultimately retrieved from sqlite3, all strings encoded as <type 'unicode'>, not as <type 'str'>! in order to compare user queries of <type 'str'> to <type 'unicode'> strings from the database, we'll need to convert them.
+        facts are ultimately retrieved from sqlite3, where all strings are encoded as <type 'unicode'>, not as <type 'str'>! in order to compare user queries of <type 'str'> to <type 'unicode'> strings from the database, we'll need to convert them.
         
         convert <type 'str'> to <type 'unicode'>: some_string.decode(DEFAULT_ENCODING)
         """
-        
         facts = {}
                 
         facts["id_facts"] = self.generate_id_facts(index, book)
@@ -329,8 +341,8 @@ class Facts():
         if preceding_book == False: # if this is the first/only book            
             pass # DON't compare this book to a non-existent preceeding one
         else:
-            facts["lastbook_facts"] = self.generate_lastbook_facts( index, book, preceding_book) # generate additional facts, comparing the current with the preceeding book        
-        return facts
+            facts["lastbook_facts"] = self.generate_lastbook_facts(index, book, preceding_book) # generate additional facts, comparing the current with the preceeding book        
+        self.facts = facts
 
     def generate_id_facts(self, index, book):
         """ 
@@ -357,7 +369,7 @@ class Facts():
         query_facts = {}
         query_facts["usermodel_match"] = {}
         query_facts["usermodel_nomatch"] = {}
-        query_args = self.query_args # safes me some typing ...
+        query_args = book.query_args
         simple_attributes = ['codeexamples', 'exercises', 'language', 'pagerange', 'target']
         complex_attributes = ['keywords', 'proglang'] # may contain more than 1 value
         
@@ -458,6 +470,12 @@ class Facts():
         
         return extra_facts
 
+    def __str__(self):
+        return_string = ""
+        for key, value in self.facts.iteritems():
+                return_string += "{0}:\n\t{1}\n\n".format(key, value)
+        return return_string
+                
 class Propositions():
     """ 
     represents proprositions (positive/negative/neutral ratings) generated from a Facts() instance
