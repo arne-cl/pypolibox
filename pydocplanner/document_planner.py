@@ -3,6 +3,50 @@ import nltk
 import util
 #from inputs import *
 
+#original author: Nicholas FitzGerald
+#cf. "Open-Source Implementation of Document Structuring Algorithm for NLTK"
+
+# filling feature structures using strings
+#
+#>>> print nltk.featstruct.FeatDict('TotalRainMsg[period=june]')
+#[ *type* = 'TotalRainMsg' ]
+#[ period = 'june'         ]
+#
+#>>> fd = nltk.featstruct.FeatDict('TotalRainMsg[period=[month=June, year=2010]]')
+#>>> print fd
+#[ *type* = 'TotalRainMsg'     ]
+#[                             ]
+#[ period = [ month = 'June' ] ]
+#[          [ year  = 2010   ] ]
+#
+# after you've set at least the *type* of your FeatDict in string form:
+# nltk.featstruct.FeatDict('TotalRainMsg'), you can add new features in form 
+# of dictionaries
+#
+#>>> fd.update({'foo': 'bar'})
+#>>> print fd
+#[ *type* = 'TotalRainMsg'     ]
+#[ foo    = 'bar'              ]
+#[                             ]
+#[ period = [ month = 'June' ] ]
+#[          [ year  = 2010   ] ]
+#
+# unfortunately, this doesn't work this easy for complex structures.
+#
+#>>> f = nltk.FeatStruct('MessageName')
+#>>> f1 = nltk.FeatDict([('month', 'june'), ('year', '1996')])
+#>>> print f1 
+#[ month = 'june' ]
+#[ year  = '1996' ]
+#>>> f.update([('period', f1)])
+#>>> print f
+#[ *type* = 'MessageName'      ]
+#[                             ]
+#[ period = [ month = 'june' ] ]
+#[          [ year  = '1996' ] ]
+
+
+
 class DocPlan(nltk.featstruct.FeatDict):
     """
     C{DocPlan} is the output of Document Planning. A DocPlan consistes of an optional title and text, and a child I{ConstituentSet}.
@@ -157,21 +201,22 @@ def read_messages(messages):
     @returns list of Message s
     '''
     ret = []    
-
-    messages = map(lambda x: x.strip('\n'),messages.split('\n\n')) #divide string into individual messages
+    
+    #messages = map(lambda x: x.strip('\n'),messages.split('\n\n'))
+    messages_list = messages.strip('\n').split('\n\n') #divide string into individual messages
     #print len(messages)
 
-    for m in messages:
+    for m in messages_list:
         lines = m.split('\n')
         msgType = lines[0].strip()
         msg = Message(msgType)
-        msg.update(__parse_message_features(lines[1:],1))
+        msg.update(parse_message_features(lines[1:],1))
         ret.append(msg)
 
     return ret
 
 
-def __parse_message_features(lines, tab):
+def parse_message_features(lines, tab):
     '''
     Recursive helper method for read_messages parses message features.
 
@@ -183,14 +228,14 @@ def __parse_message_features(lines, tab):
     while n < len(lines):
         l = lines[n].split()
 
-        if len(l) == 1: # if this is the beginning of a category, recusively call __parse_message_features to create nested FeatDict
+        if len(l) == 1: # if this is the beginning of a category, recusively call parse_message_features to create nested FeatDict
 
             end_of_feat = n + util.first_index(lines[n+1:], lambda x: util.lcount(x, '\t') <= tab)
             r = lines[n+1: end_of_feat+1] #find where this feature's specifying lines end
 
             #print r, n+1, end_of_feat
 
-            ret[l[0]] = __parse_message_features(r, tab+1) #recusively call __parse_message_features
+            ret[l[0]] = parse_message_features(r, tab+1) #recusively call parse_message_features
             n = end_of_feat #skip cursor to after nested featstruct
 
         elif len(l) == 2: #else if this is a regular value
@@ -213,9 +258,10 @@ def read_rules(rules):
     '''
     ret = []
     
-    rules = map(lambda x: x.strip('\n'),rules.split('\n\n'))
-                
-    for rule in rules:
+    #rules = map(lambda x: x.strip('\n'),rules.split('\n\n'))
+    rules_list = rules.strip('\n').split('\n\n')
+    
+    for rule in rules_list:
         rule = rule.split('\n')
         firstLineRegex = '(\w+)\((.+?) *(\w+), *(.+?) *(\w+)\)'
         match = re.findall(firstLineRegex, rule[0])

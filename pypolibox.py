@@ -481,6 +481,7 @@ class Propositions():
         propositions['lastbook_match'] = {}
         propositions['lastbook_nomatch'] = {}
         propositions['extra'] = {}
+        propositions['id'] = {}
         
         for attribute, value in book['query_facts']['usermodel_match'].iteritems():
             propositions['usermodel_match'][attribute] =  (value, 'positive')
@@ -503,21 +504,44 @@ class Propositions():
             propositions['extra']['pages'] = (book['extra_facts']['pages'], 'neutral')
 
         for fact in book['id_facts']:
-            pass
-	#idFacts() are handled DIFFERENTLY:
-    #they will processed to propostions only if there is no fact of other type with
-    #the same property (Authors, Title, Keywords, Language, ProgLanguage, Pages, Year, TargetGroup, Exercises, Examples, UNDEFINED)
-    
-    #Example: If there is an Extra/UserModelMatch etc. Proposition about "Pages" (e.g. >= 600) or Year, there should be no ID Proposition about the same fact.
-	
+            other_propositions = self.do_not_use_twice(propositions)
+            if fact not in other_propositions:
+                propositions['id'][fact] = (book['id_facts'][fact], 'neutral')
+            else:
+                for proposition_type in propositions.keys():
+                    if propositions[proposition_type].has_key(fact):
+                        print "will not generate id fact about '{0}', as this one is already present in {1}, namely: {2}".format(fact, proposition_type, propositions[proposition_type][fact])
+
         return propositions
+
+            
+    def do_not_use_twice(self, propositions):
+        """generates the set of proposition attributes that have been used before
+        
+        (e.g. as usermodel propositions, lastbook propositions, extra propositions) and should therefore not be used again to generate id propositions
+        
+        Example: If there is an Extra/UserModelMatch etc. Proposition about "Pages" (e.g. >= 600) or Year, there should be no ID Proposition about the same fact.
+        """
+        attributes = set()
+        for proposition_type in propositions.keys():
+            attrib_list = propositions[proposition_type].keys()
+            #print "proposition type {0} has these attributes: {1}".format(proposition_type, attrib_list)
+            for attribute in attrib_list:
+                attributes.add(attribute)
+        return attributes
+
 
 
 class Messages:
     """ Class doc """
     
-    def __init__ (self, propositions):
+    def __init__ (self, propositions_list):
         """ Class initialiser """
+        self.messages = []
+        for propositions in propositions_list:
+            self.generate_id_messages(propositions)
+
+    def generate_id_messages(self, propositions):
         pass
         
 #TODO: move helper functions to utils.py; complete unfinished ones
@@ -565,3 +589,4 @@ if __name__ == "__main__":
     #q.parse_commandline(sys.argv[1:])
     results = Results(q)
     print results
+    p = gen_props(argv[2])
