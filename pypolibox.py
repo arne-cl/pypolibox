@@ -494,11 +494,20 @@ class AllPropositions:
         """
         @type facts: I{AllFacts}
         """
-        self.propostions = []
+        self.allpropostions = []
         for book in allfacts.books:
             book_propositions = Propositions(book)
-            self.propostions.append(book_propositions)
-                            
+            self.allpropostions.append(book_propositions)
+
+    def __str__(self):
+        return_string = ""
+        for index, propositions in enumerate(self.allpropostions):
+            return_string += "propositions about book #{0}:\n".format(index) + \
+                             "----------------------------\n" + \
+                             "{0}\n\n".format(propositions)
+        return return_string
+        
+        
 class Propositions():
     """ 
     represents propositions (positive/negative/neutral ratings) of a single book. Propositions() are generated from Facts() about a Book().
@@ -507,6 +516,7 @@ class Propositions():
         """
         @type facts: I{Facts}
         """
+        facts = facts.facts # a Facts() stores its facts in .facts; this line saves some typing
         propositions = {}
         propositions['usermodel_match'] = {}
         propositions['usermodel_nomatch'] = {}
@@ -536,17 +546,17 @@ class Propositions():
             propositions['extra']['pages'] = (facts['extra_facts']['pages'], 'neutral')
 
         for fact in facts['id_facts']:
-            other_propositions = self.do_not_use_twice(propositions)
+            other_propositions = self.__do_not_use_twice(propositions)
             if fact not in other_propositions:
                 propositions['id'][fact] = (facts['id_facts'][fact], 'neutral')
-            else:
-                for proposition_type in propositions.keys():
-                    if propositions[proposition_type].has_key(fact):
-                        print "will not generate id fact about '{0}', as this one is already present in {1}, namely: {2}".format(fact, proposition_type, propositions[proposition_type][fact])
+            #else: #TODO: remove lines after debugging
+                #for proposition_type in propositions.keys():
+                    #if propositions[proposition_type].has_key(fact):
+                        #print "will not generate id fact about '{0}', as this one is already present in {1}, namely: {2}".format(fact, proposition_type, propositions[proposition_type][fact])
 
         self.propositions = propositions
             
-    def do_not_use_twice(self, propositions):
+    def __do_not_use_twice(self, propositions):
         """generates the set of proposition attributes that have been used before
         
         (e.g. as usermodel propositions, lastbook propositions, extra propositions) and should therefore not be used again to generate id propositions
@@ -561,7 +571,13 @@ class Propositions():
                 attributes.add(attribute)
         return attributes
 
-
+    def __str__(self):
+        return_string = ""
+        for key, value in self.propositions.iteritems():
+            return_string += "\n{0}:\n".format(key)
+            for attribute in value.iteritems():
+                return_string += "\t{0}\n".format(attribute)
+        return return_string 
 
 class Messages:
     """ Class doc """
