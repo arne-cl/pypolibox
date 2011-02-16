@@ -323,6 +323,14 @@ class AllFacts():
                 preceding_book = b.books[index-1]
                 book_facts = Facts(book, index, preceding_book)
                 self.books.append(book_facts)
+                
+    def __str__(self):
+        return_string = ""
+        for index, book in enumerate(self.books):
+            return_string += "facts about book #{0}:\n".format(index) + \
+                             "--------------------\n" + \
+                             "{0}\n\n".format(book.__str__())
+        return return_string
 
 class Facts():
     """ Facts() represents facts about a single Book() instance """
@@ -473,8 +481,10 @@ class Facts():
     def __str__(self):
         return_string = ""
         for key, value in self.facts.iteritems():
-                return_string += "{0}:\n\t{1}\n\n".format(key, value)
-        return return_string
+            return_string += "\n{0}:\n".format(key)
+            for attribute in value.iteritems():
+                return_string += "\t{0}\n".format(attribute)
+        return return_string        
                 
 class Propositions():
     """ 
