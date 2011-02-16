@@ -329,7 +329,7 @@ class AllFacts():
         for index, book in enumerate(self.books):
             return_string += "facts about book #{0}:\n".format(index) + \
                              "--------------------\n" + \
-                             "{0}\n\n".format(book.__str__())
+                             "{0}\n\n".format(book)
         return return_string
 
 class Facts():
