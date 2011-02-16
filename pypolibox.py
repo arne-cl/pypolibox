@@ -485,23 +485,27 @@ class Facts():
             for attribute in value.iteritems():
                 return_string += "\t{0}\n".format(attribute)
         return return_string        
-                
+
+class AllPropositions:
+    """
+    contains propositions about ALL the books that were listed in a query result
+    """
+    def __init__ (self, allfacts):
+        """
+        @type facts: I{AllFacts}
+        """
+        self.propostions = []
+        for book in allfacts.books:
+            book_propositions = Propositions(book)
+            self.propostions.append(book_propositions)
+                            
 class Propositions():
     """ 
-    represents proprositions (positive/negative/neutral ratings) generated from a Facts() instance
+    represents propositions (positive/negative/neutral ratings) of a single book. Propositions() are generated from Facts() about a Book().
     """ 
     def __init__ (self, facts):
         """
         @type facts: I{Facts}
-        """
-        self.propostions = []
-        for book in facts.books:
-            book_propositions = self.generate_propositions(book)
-            self.propostions.append(book_propositions)
-            
-    def generate_propositions(self, book):
-        """
-        returns a C{dict} of propositions for each book from an element of a Facts.books C{list}
         """
         propositions = {}
         propositions['usermodel_match'] = {}
@@ -511,37 +515,36 @@ class Propositions():
         propositions['extra'] = {}
         propositions['id'] = {}
         
-        for attribute, value in book['query_facts']['usermodel_match'].iteritems():
+        for attribute, value in facts['query_facts']['usermodel_match'].iteritems():
             propositions['usermodel_match'][attribute] =  (value, 'positive')
-        for attribute, value in book['query_facts']['usermodel_nomatch'].iteritems():
+        for attribute, value in facts['query_facts']['usermodel_nomatch'].iteritems():
             propositions['usermodel_nomatch'][attribute] = (value, 'negative')
             
-        if book.has_key('lastbook_facts'): # 1st book doesn't have this
-            for attribute, value in book['lastbook_facts']['lastbook_match'].iteritems():
+        if facts.has_key('lastbook_facts'): # 1st book doesn't have this
+            for attribute, value in facts['lastbook_facts']['lastbook_match'].iteritems():
                 propositions['lastbook_match'][attribute] =  (value, 'neutral') # neutral (not positive, since it's not related 2 usermodel)
-            for attribute, value in book['lastbook_facts']['lastbook_nomatch'].iteritems():
+            for attribute, value in facts['lastbook_facts']['lastbook_nomatch'].iteritems():
                 propositions['lastbook_nomatch'][attribute] = (value, 'neutral')
         
-        if book['extra_facts'].has_key('year'):
-            if book['extra_facts']['year'] == 'recent':
-                propositions['extra']['year'] = (book['extra_facts']['year'], 'positive')
-            elif book['extra_facts']['year'] == 'old':
-                propositions['extra']['year'] = (book['extra_facts']['year'], 'negative')
+        if facts['extra_facts'].has_key('year'):
+            if facts['extra_facts']['year'] == 'recent':
+                propositions['extra']['year'] = (facts['extra_facts']['year'], 'positive')
+            elif facts['extra_facts']['year'] == 'old':
+                propositions['extra']['year'] = (facts['extra_facts']['year'], 'negative')
                 
-        if book['extra_facts'].has_key('pages'):
-            propositions['extra']['pages'] = (book['extra_facts']['pages'], 'neutral')
+        if facts['extra_facts'].has_key('pages'):
+            propositions['extra']['pages'] = (facts['extra_facts']['pages'], 'neutral')
 
-        for fact in book['id_facts']:
+        for fact in facts['id_facts']:
             other_propositions = self.do_not_use_twice(propositions)
             if fact not in other_propositions:
-                propositions['id'][fact] = (book['id_facts'][fact], 'neutral')
+                propositions['id'][fact] = (facts['id_facts'][fact], 'neutral')
             else:
                 for proposition_type in propositions.keys():
                     if propositions[proposition_type].has_key(fact):
                         print "will not generate id fact about '{0}', as this one is already present in {1}, namely: {2}".format(fact, proposition_type, propositions[proposition_type][fact])
 
-        return propositions
-
+        self.propositions = propositions
             
     def do_not_use_twice(self, propositions):
         """generates the set of proposition attributes that have been used before
