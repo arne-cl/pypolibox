@@ -180,6 +180,7 @@ class Query:
     def __str__(self):
         return "The arguments (parsed from the command line):\n{0}\nhave resulted in the following SQL query:\n{1}".format(q.query_args, q.query)
 
+
 class Results:
     """ a Results() instance represents the results of a database query """
     
@@ -249,7 +250,6 @@ class Books:
             return_string += book_string
         return return_string
 
-
 class Book:
     """ a Book() instance represents ONE book from a database query """
     def __init__ (self, db_item, db_columns, query_args):
@@ -303,6 +303,7 @@ class Book:
         for key, value in self.__dict__.iteritems():
             return_string += "{0}:\t\t{1}\n".format(key, value)
         return return_string
+
 
 class AllFacts():
     """
@@ -479,12 +480,17 @@ class Facts():
         return extra_facts
 
     def __str__(self):
+        """returns a string representation of a Facts() instance, but omits empty values"""
+        signifiers_of_emptyness = [ [], {}, set() ] # lists, dicts, sets can be empty
         return_string = ""
         for key, value in self.facts.iteritems():
-            return_string += "\n{0}:\n".format(key)
-            for attribute in value.iteritems():
-                return_string += "\t{0}\n".format(attribute)
+            if value not in signifiers_of_emptyness:
+                return_string += "\n{0}:\n".format(key)
+                for attribute, val in value.iteritems():
+                    if val not in signifiers_of_emptyness:
+                        return_string += "\t{0}: {1}\n".format(attribute, val)
         return return_string        
+
 
 class AllPropositions:
     """
@@ -506,7 +512,6 @@ class AllPropositions:
                              "----------------------------\n" + \
                              "{0}\n\n".format(propositions)
         return return_string
-        
         
 class Propositions():
     """ 
@@ -580,17 +585,19 @@ class Propositions():
         return return_string 
 
 class Messages:
-    """ Class doc """
+    """
+    represents all Messages generated from Propositions() about a Book()
+    """
     
     def __init__ (self, propositions_list):
         """ Class initialiser """
         self.messages = []
-        for propositions in propositions_list:
-            self.generate_id_messages(propositions)
+
 
     def generate_id_messages(self, propositions):
         pass
         
+
 #TODO: move helper functions to utils.py; complete unfinished ones
 
 def sql_array_to_set(sql_array):
@@ -637,3 +644,4 @@ if __name__ == "__main__":
     results = Results(q)
     print results
     p = gen_props(argv[2])
+    
