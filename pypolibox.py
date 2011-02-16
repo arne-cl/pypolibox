@@ -577,12 +577,17 @@ class Propositions():
         return attributes
 
     def __str__(self):
+        """returns a string representation of a Propositions() instance, but omits empty values"""
+        signifiers_of_emptyness = [ [], {}, set() ] # lists, dicts, sets can be empty
         return_string = ""
         for key, value in self.propositions.iteritems():
-            return_string += "\n{0}:\n".format(key)
-            for attribute in value.iteritems():
-                return_string += "\t{0}\n".format(attribute)
-        return return_string 
+            if value not in signifiers_of_emptyness:
+                return_string += "\n{0}:\n".format(key)
+                for attrib, val in value.iteritems():
+                    if val not in signifiers_of_emptyness:
+                        return_string += "\t{0}: {1}\n".format(attrib, val)
+        return return_string
+
 
 class Messages:
     """
