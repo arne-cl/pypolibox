@@ -40,13 +40,15 @@ BOOK_TABLE_NAME = 'books' # name of the table in the database file that contains
 CURRENT_YEAR = datetime.datetime.today().year 
 
 argv = [ ["-k", "pragmatics"], \
+         ["-k", "pragmatics", "-r", "4"], \
          ["-k", "pragmatics", "semantics"], \
+         ["-k", "pragmatics", "semantics", "-r", "10"], \
          ["-l", "German"], \
          ["-l", "German", "-p", "Lisp"], \
          ["-l", "German", "-p", "Lisp", "-k", "parsing"], \
          ["-l", "English", "-s", "0", "-c", "1"], \
          ["-l", "English", "-s", "0", "-e", "1", "-k", "discourse"], \
-        ] # list of possible query arguments for debugging purposes
+            ] # list of possible query arguments for debugging purposes
 
 def debug_facts(argv): 
     """debugging function to check if all facts are created correctly"""
@@ -65,10 +67,10 @@ def debug_facts(argv):
     return facts
 
 def gen_facts(arg):
-    return Facts(Books(Results(Query(arg))))
+    return AllFacts(Books(Results(Query(arg))))
 
 def gen_props(arg):
-    return Propositions(Facts(Books(Results(Query(arg)))))
+    return AllPropositions(AllFacts(Books(Results(Query(arg)))))
     
 #conn.commit() # commit changes to db
 #conn.close() # close connection to db. 
@@ -76,12 +78,15 @@ def gen_props(arg):
 
 class Query:
     """ a Query() instance represents one user query to the database """
-
     def __init__ (self, argv):
         """ 
         parses commandline options with argparse, constructs a valid sql query and stores the resulting query in self.query
         """
         self.queries = []
+        self.minresults = 1 # return at least one result
+        query_and = " AND "
+        query_or = " OR "
+
         parser = argparse.ArgumentParser()
         
         parser.add_argument("-k", "--keywords", nargs='+', help="Which topic(s) should the book cover?") #nargs='+' handles 1 or more args    
@@ -112,32 +117,38 @@ class Query:
             
         if args.keywords:
             for keyword in args.keywords:
-                self.queries.append(self.substring_query("keywords", keyword))
+                self.queries.append(self.__substring_query("keywords", keyword))
         if args.language:
-            self.queries.append(self.string_query("lang", args.language))
+            self.queries.append(self.__string_query("lang", args.language))
         if args.proglang:
             for proglang in args.proglang:
-                self.queries.append(self.substring_query("plang", proglang))
+                self.queries.append(self.__substring_query("plang", proglang))
         if args.pagerange:
-            self.queries.append(self.pages_query(args.pagerange))
+            self.queries.append(self.__pages_query(args.pagerange))
         if args.target:
             # 0 beginner, 1 intermediate, 2 advanced, 3 professional
             #db fuckup: advanced is encoded as "3"
             assert args.target in (0, 1, 2, 3)
-            self.queries.append(self.equals_query("target", args.target))
+            self.queries.append(self.__equals_query("target", args.target))
         if args.exercises:
             assert args.exercises in (0, 1)
-            self.queries.append(self.equals_query("exercises", args.exercises))
+            self.queries.append(self.__equals_query("exercises", args.exercises))
         if args.codeexamples:
             assert args.codeexamples in (0, 1)
-            self.queries.append(self.equals_query("examples", args.codeexamples))
+            self.queries.append(self.__equals_query("examples", args.codeexamples))
+        if args.minresults:
+            assert args.minresults > 0
+            print "results from your query should contain at least {0} books".format(args.minresults)
+            self.minresults = args.minresults 
+            #TODO: use minresults in Results() and __construct_query()
     
         #print "The database will be queried for: {0}".format(self.queries)
         self.query_args = args # we may need these for debugging
-        self.query = self.construct_query(self.queries)
+        self.and_query = self.__construct_query(self.queries, query_and)
+        self.or_query = self.__construct_query(self.queries, query_or)
         #print "\nThis query will be sent to the database: {0}\n\n".format(self.query)
 
-    def construct_query(self, queries):
+    def __construct_query(self, queries, query_combinator):
         """takes a list of queries and combines them into one complex SQL query"""
         #query_template = "SELECT titel, year FROM books WHERE "
         query_template = "SELECT * FROM books "
@@ -145,7 +156,7 @@ class Query:
         combined_queries = ""
         if len(queries) > 1:
             for query in queries[:-1]: # combine queries with " AND ", but don't append after the last query
-                combined_queries += query + " AND "
+                combined_queries += query + query_combinator
             combined_queries += queries[-1]
             return query_template + where + combined_queries
         elif len(queries) == 1: # simple query, no combination needed
@@ -155,7 +166,7 @@ class Query:
         else: #empty query
             return query_template # query will show all books in the db
 
-    def pages_query(self, length_category):
+    def __pages_query(self, length_category):
         assert length_category in (0, 1, 2) # short, medium length, long books
         if length_category == 0:
             return "pages < 300"
@@ -164,54 +175,66 @@ class Query:
         if length_category == 2:
             return "pages >= 600"
     
-    def substring_query(self, sql_column, substring):
+    def __substring_query(self, sql_column, substring):
         sql_substring = "'%{0}%'".format(substring) # keyword --> '%keyword%' for SQL LIKE queries
         substring_query = "{0} like {1}".format(sql_column, sql_substring)
         return substring_query
     
-    def string_query(self, sql_column, string):
+    def __string_query(self, sql_column, string):
         """find all database items that completely match a string
            in a given column, e.g. WHERE lang = 'German' """
         return "{0} = '{1}'".format(sql_column, string)
     
-    def equals_query(self, sql_column, string):
+    def __equals_query(self, sql_column, string):
         return "{0} = {1}".format(sql_column, string)
 
     def __str__(self):
-        return "The arguments (parsed from the command line):\n{0}\nhave resulted in the following SQL query:\n{1}".format(q.query_args, q.query)
-
+        ret_str = "The arguments (parsed from the command line): " + \
+            "{0}\nhave resulted in the following SQL query:".format(self.query_args) + \
+            "\n{0}\n\nIf the query should return less than ".format(self.and_query) + \
+            "{0} book(s), this query will be used and ranked ".format(self.minresults) + \
+            "according to the number of query parameter matches:\n{0}".format(self.or_query)
+        return ret_str
 
 class Results:
     """ a Results() instance represents the results of a database query """
     
-    def __init__ (self, q):
-        """
-        initialises a connection to the db, sends an sql query to the db 
-        and and stores the results in self.query_results
-        
+    def __init__ (self, query):
+        """initialises a connection to the db
         @type q: instance of class C{Query}
         @param q: an instance of the class Query()
         """
-        self.query_args = q.query_args # keep original queries for debugging
-        self.query = q.query
+        self.and_query_results = []
+        self.or_query_results = []
+        self.query_results = []
+        self.query_args = query.query_args
+        self.and_query = query.and_query
+        self.or_query = query.or_query
+        self.minresults = query.minresults
         
         conn = sqlite3.connect(DB_FILE)
-        self.curs = conn.cursor() #TODO: i needed to "self" this to make it available in get_table_header(). it might be wise to move connect/cursor to the "global variables" part of the code.
-
+        self.curs = conn.cursor()
+        
         self.db_columns = self.get_table_header(BOOK_TABLE_NAME) #NOTE: this has to be done BEFORE the actual query, otherwise we'll overwrite the cursor!
         
-        temp_results = self.curs.execute(q.query)
-        self.query_results = []
-        for result in temp_results:
-            self.query_results.append(result) # temp_result is a LIVE SQL cursor, so we need to make the results 'permanent', e.g. by writing them to a list
-    
-    def __str__(self):
-        """a method that prints all items of a query result to stdout"""
-        return_string = "The query:\n{0}\n\nreturned the following results:\n\n".format(self.query)
-        for book in self.query_results:
-            return_string += str(book) + "\n"
-        return return_string
-
+        and_sql_cursor = self.curs.execute(query.and_query)
+        for result in and_sql_cursor:
+            print result
+            self.and_query_results.append(result)
+        if len(self.and_query_results) >= query.minresults:
+            self.query_results = self.and_query_results
+        else:
+            or_sql_cursor = self.curs.execute(query.or_query)
+            for result in or_sql_cursor:
+                self.or_query_results.append(result)
+            self.query_results = self.get_ranked_results(self.or_query_results)
+            
+    def get_ranked_results(self, query_results):
+        """
+        ranks the results of an 'OR query' based on the number of query parameters they match (e.g. matches programming language and keywords)
+        """        
+        return query_results #TODO: replace dummy w/ real code!
+        
     def get_table_header(self, table_name):
         """
         get the column names (e.g. title, year, authors) and their index from the books table of the db and return them as a dictionary.
@@ -222,7 +245,18 @@ class Results:
             db_columns[name.encode(DEFAULT_ENCODING)] = index
         return db_columns
 
+    def __str__(self):
+        ret_str = "The query:\n{0}\n\nreturned ".format(self.and_query) + \
+            "{0} result(s):\n\n".format(len(self.and_query_results))
+        for book in self.and_query_results:
+            ret_str += str(book) + "\n"
+        if len(self.and_query_results) < self.minresults:
+            ret_str += "\nLess than {0} queries were returned, ".format(self.minresults) + \
+                "therefore the query had to be rephrased:\n{0}\n".format(self.or_query) + \
+                "and returned these results:\n{0}".format(self.or_query_results)
+        return ret_str
 
+        
 class Books:
     """
     a Books() instance represents ALL books that were found by a database query 
@@ -598,7 +632,6 @@ class Messages:
         """ Class initialiser """
         self.messages = []
 
-
     def generate_id_messages(self, propositions):
         pass
         
@@ -627,20 +660,11 @@ def test_sql():
 
 def test_cli():
     """run several complex queries and print their results to stdout"""
-    argvectors = [ ["-k", "pragmatics"], \
-                   ["-k", "pragmatics", "semantics"], \
-                   ["-l", "German"], \
-                   ["-l", "German", "-p", "Lisp"], \
-                   ["-l", "German", "-p", "Lisp", "-k", "parsing"], \
-                   ["-l", "English", "-s", "0", "-c", "1"], \
-                   ["-l", "English", "-s", "0", "-e", "1", "-k", "discourse"], \
-                ]
-    for argv in argvectors:
+    for args in argv:
         book_list = Books(Results(Query(argv)))
         print "{0}:\n\n".format(argv)
         for book in book_list.books:
             print book.title, book.year
-
 
 if __name__ == "__main__":
     #commandline_query = parse_commandline(sys.argv[1:])
