@@ -39,10 +39,11 @@ DB_FILE = 'pypolibox.sqlite'
 BOOK_TABLE_NAME = 'books' # name of the table in the database file that contains info about books
 CURRENT_YEAR = datetime.datetime.today().year 
 
-argv = [ ["-k", "pragmatics"], \
+argv = [ [], \
+         ["-k", "pragmatics"], \
          ["-k", "pragmatics", "-r", "4"], \
          ["-k", "pragmatics", "semantics"], \
-         ["-k", "pragmatics", "semantics", "-r", "10"], \
+         ["-k", "pragmatics", "semantics", "-r", "7"], \
          ["-l", "German"], \
          ["-l", "German", "-p", "Lisp"], \
          ["-l", "German", "-p", "Lisp", "-k", "parsing"], \
@@ -50,6 +51,18 @@ argv = [ ["-k", "pragmatics"], \
          ["-l", "English", "-s", "0", "-e", "1", "-k", "discourse"], \
             ] # list of possible query arguments for debugging purposes
 
+def argvprint():
+    for index, args in enumerate(argv):
+        print index, args
+        
+def maxscoretest():
+    maxscores = []
+    for index, arg in enumerate(argv):
+		r = Results(Query(arg))
+		maxscores.append( "arg #{0}: {1} has maxscore {2}".format(index, arg, r.maxscore) )
+    for maxscore in maxscores:
+        print maxscore
+        
 def debug_facts(argv): 
     """debugging function to check if all facts are created correctly"""
     facts = []
@@ -83,7 +96,7 @@ class Query:
         parses commandline options with argparse, constructs a valid sql query and stores the resulting query in self.query
         """
         self.queries = []
-        self.minresults = 1 # return at least one result
+        self.minresults = 10 #TODO: change value after debugging
         query_and = " AND "
         query_or = " OR "
 
@@ -105,11 +118,7 @@ class Query:
         parser.add_argument("-c", "--codeexamples", type=int,
             help="Should the book contain code examples? 0 = no, 1 = yes")
         parser.add_argument("-r", "--minresults", type=int,
-            help="show no less than MINRESULTS books") #TODO: currently unused
-            # minresults should trigger a fallback query to the db to get more results
-            # e.g. combine the user's parameters with OR instead of AND:
-            #       use some form of weigths to get the "best" results, e.g.
-            #       keywords * 3 + language * 2 + other_parameters * 1
+            help="show no less than MINRESULTS books") 
         
         #TODO: put the if.args stuff into its own method (maybe useful, if
         # there's a WebQuery(Query) class
@@ -138,9 +147,7 @@ class Query:
             self.queries.append(self.__equals_query("examples", args.codeexamples))
         if args.minresults:
             assert args.minresults > 0
-            print "results from your query should contain at least {0} books".format(args.minresults)
             self.minresults = args.minresults 
-            #TODO: use minresults in Results() and __construct_query()
     
         #print "The database will be queried for: {0}".format(self.queries)
         self.query_args = args # we may need these for debugging
@@ -200,7 +207,8 @@ class Results:
     """ a Results() instance represents the results of a database query """
     
     def __init__ (self, query):
-        """initialises a connection to the db
+        """initialises a connection to the db, sends queries and stores results in self.query_results
+        
         @type q: instance of class C{Query}
         @param q: an instance of the class Query()
         """
@@ -211,28 +219,49 @@ class Results:
         self.and_query = query.and_query
         self.or_query = query.or_query
         self.minresults = query.minresults
+        self.maxscore = 0
         
         conn = sqlite3.connect(DB_FILE)
         self.curs = conn.cursor()
         
         self.db_columns = self.get_table_header(BOOK_TABLE_NAME) #NOTE: this has to be done BEFORE the actual query, otherwise we'll overwrite the cursor!
         
-        and_sql_cursor = self.curs.execute(query.and_query)
+        and_sql_cursor = self.curs.execute(self.and_query)
         for result in and_sql_cursor:
-            print result
+            #print result
             self.and_query_results.append(result)
-        if len(self.and_query_results) >= query.minresults:
+        if len(self.and_query_results) >= self.minresults:
+            self.maxscore = self.get_maxscore(self.and_query_results)
             self.query_results = self.and_query_results
         else:
             or_sql_cursor = self.curs.execute(query.or_query)
             for result in or_sql_cursor:
                 self.or_query_results.append(result)
-            self.query_results = self.get_ranked_results(self.or_query_results)
+            self.maxscore = self.get_maxscore(self.or_query_results)
+            self.query_results = self.get_ranked_results(self.or_query_results) #TODO: replace dummy code!
             
+    def get_maxscore(self, query_results):
+        """
+        counts the number of query paramters that could be matched by books from the results set. 
+        example: keywords = pragmatics, keywords = semantics, language = German --> maxscore = 3
+        """
+        maxscore = 0
+        self.params = [param for param in self.query_args.__dict__
+                          if param is not 'minresults'
+                          if self.query_args.__getattribute__(param) is not None]
+        self.values = map(self.query_args.__getattribute__, self.params)
+        #self.items = zip(self.params, self.values)
+        for value in self.values:
+            if type(value) == list:
+                maxscore += len(value)
+            else:
+                maxscore += 1                                    
+        return maxscore
+
     def get_ranked_results(self, query_results):
         """
-        ranks the results of an 'OR query' based on the number of query parameters they match (e.g. matches programming language and keywords)
-        """        
+        ranks the results of an 'OR query' based on the number of query parameters they match (e.g. matches programming language and two of three keywords)
+        """
         return query_results #TODO: replace dummy w/ real code!
         
     def get_table_header(self, table_name):
