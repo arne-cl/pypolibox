@@ -93,7 +93,7 @@ class Query:
     """ a Query() instance represents one user query to the database """
     def __init__ (self, argv):
         """ 
-        parses commandline options with argparse, constructs a valid sql query and stores the resulting query in self.query
+        parses commandline options with argparse, constructs a valid sql query and stores the resulting queries (boolean AND, boolean OR) in self.and_query and self.or_query.
         """
         self.queries = []
         self.minresults = 10 #TODO: change value after debugging
@@ -123,6 +123,7 @@ class Query:
         #TODO: put the if.args stuff into its own method (maybe useful, if
         # there's a WebQuery(Query) class
         args = parser.parse_args(argv)
+        self.args = args #TODO: remove after debugging
             
         if args.keywords:
             for keyword in args.keywords:
