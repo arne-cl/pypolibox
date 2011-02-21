@@ -49,6 +49,7 @@ argv = [ [], \
          ["-l", "German", "-p", "Lisp", "-k", "parsing"], \
          ["-l", "English", "-s", "0", "-c", "1"], \
          ["-l", "English", "-s", "0", "-e", "1", "-k", "discourse"], \
+         ["-k", "syntax", "parsing", "-l", "German", "-p", "Prolog", "Lisp", "-s", "2", "-t", "0", "-e", "1", "-c", "1", "-r", "7"], \
             ] # list of possible query arguments for debugging purposes
 
 def argvprint():
