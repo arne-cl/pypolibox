@@ -211,6 +211,8 @@ class Results:
     def __init__ (self, query):
         """initialises a connection to the db, sends queries and stores results in self.query_results
         
+        if the query (combining query parameters with boolean AND) returns less than query.minresults, a different query will be sent (combining query parameters with boolean OR). in the latter case, a maximum score (maxscore) will be calculated (how many query parameters does a result match). maxscore will be used by Books() to find the n-best matching books.
+        
         @type q: instance of class C{Query}
         @param q: an instance of the class Query()
         """
@@ -230,17 +232,18 @@ class Results:
         
         and_sql_cursor = self.curs.execute(self.and_query)
         for result in and_sql_cursor:
-            #print result
             self.and_query_results.append(result)
         if len(self.and_query_results) >= self.minresults:
             self.maxscore = self.get_maxscore(self.and_query_results)
             self.query_results = self.and_query_results
-        else:
+            self.query_type = 'and'
+        else: # if 'AND query' doesn't return enough results ...
             or_sql_cursor = self.curs.execute(query.or_query)
             for result in or_sql_cursor:
                 self.or_query_results.append(result)
             self.maxscore = self.get_maxscore(self.or_query_results)
-            self.query_results = self.get_ranked_results(self.or_query_results) #TODO: replace dummy code!
+            self.query_results = self.or_query_results
+            self.query_type = 'or'
             
     def get_maxscore(self, query_results):
         """
@@ -259,12 +262,6 @@ class Results:
             else:
                 maxscore += 1                                    
         return maxscore
-
-    def get_ranked_results(self, query_results):
-        """
-        ranks the results of an 'OR query' based on the number of query parameters they match (e.g. matches programming language and two of three keywords)
-        """
-        return query_results #TODO: replace dummy w/ real code!
         
     def get_table_header(self, table_name):
         """
