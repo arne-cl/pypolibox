@@ -344,10 +344,6 @@ class Book:
         proglang_array = db_item[db_columns["plang"]].encode(DEFAULT_ENCODING)
         self.proglang = sql_array_to_set(proglang_array)
         
-        #TODO: proglang should be an "sql_array" (1 book w/ 2 programming languages),
-        #      but there's only one book in the db that is handled that way
-        #      all other plang columns in the db are "ordinary" strings (e.g. no '[' or ']')
-
         self.pages = db_item[db_columns["pages"]]
         if self.pages < 300:
             self.pagerange = 0
@@ -359,6 +355,26 @@ class Book:
         self.target = db_item[db_columns["target"]]
         self.exercises = db_item[db_columns["exercises"]]
         self.codeexamples = db_item[db_columns["examples"]]
+        self.book_score = self.get_book_score()
+
+    def get_book_score(self):
+        book_score = 0
+        simple_attributes = ['codeexamples', 'exercises', 'language', 'pagerange', 'target']
+        complex_attributes = ['keywords', 'proglang'] # may contain more than 1 value
+        
+        for simple_attrib in simple_attributes:
+            print "{0}: {1} vs. {2}".format(simple_attrib, self.query_args.__getattribute__(simple_attrib), getattr(self, simple_attrib))
+            if self.query_args.__getattribute__(simple_attrib) == getattr(self, simple_attrib):
+                book_score += 1
+        for complex_attrib in complex_attributes:
+            if self.query_args.__getattribute__(complex_attrib) is not None:
+                print "{0}: {1} vs. {2}".format(complex_attrib, self.query_args.__getattribute__(complex_attrib), getattr(self, complex_attrib))
+                for value in self.query_args.__getattribute__(complex_attrib):
+                    print "value: {0}".format(value)
+                    if value in getattr(self, complex_attrib):
+                        book_score += 1
+        print "\n"
+        return book_score
         
     def __str__(self):
         return_string = ""
