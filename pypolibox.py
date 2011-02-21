@@ -125,28 +125,28 @@ class Query:
         args = parser.parse_args(argv)
         self.args = args #TODO: remove after debugging
             
-        if args.keywords:
+        if args.keywords is not None:
             for keyword in args.keywords:
                 self.queries.append(self.__substring_query("keywords", keyword))
-        if args.language:
+        if args.language is not None:
             self.queries.append(self.__string_query("lang", args.language))
-        if args.proglang:
+        if args.proglang is not None:
             for proglang in args.proglang:
                 self.queries.append(self.__substring_query("plang", proglang))
-        if args.pagerange:
+        if args.pagerange is not None:
             self.queries.append(self.__pages_query(args.pagerange))
-        if args.target:
+        if args.target is not None:
             # 0 beginner, 1 intermediate, 2 advanced, 3 professional
             #db fuckup: advanced is encoded as "3"
-            assert args.target in (0, 1, 2, 3)
+            assert args.target in (0, 1, 2, 3) #TODO: add exceptions to all asserts
             self.queries.append(self.__equals_query("target", args.target))
-        if args.exercises:
+        if args.exercises is not None:
             assert args.exercises in (0, 1)
             self.queries.append(self.__equals_query("exercises", args.exercises))
-        if args.codeexamples:
+        if args.codeexamples is not None:
             assert args.codeexamples in (0, 1)
             self.queries.append(self.__equals_query("examples", args.codeexamples))
-        if args.minresults:
+        if args.minresults is not None:
             assert args.minresults > 0
             self.minresults = args.minresults 
     
