@@ -1,3 +1,4 @@
+from __future__ import division
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -32,6 +33,7 @@ import argparse
 import re # for "utils"
 import datetime
 import locale
+
 
 language, encoding = locale.getlocale()
 DEFAULT_ENCODING = encoding # sqlite stores strings as unicode, but the user input is likely something else
@@ -298,19 +300,45 @@ class Books:
 
         This method generates a list of Book() instances (saved as self.books), each representing one book from a database query.
         """
-        
-        self.query_args =  results.query_args # original query arguments for debugging
+        self.query_args = results.query_args # original query arguments for debugging
+        self.query_type = results.query_type
         self.books = []
+        sorted_books = []
+
         for result in results.query_results:
             book_item = Book(result, results.db_columns, results.query_args)
             self.books.append(book_item)
-    
+        
+        if self.query_type == 'and':
+            pass #nothing to do here, since all 'AND query' results match all query parameters
+        elif self.query_type == 'or':
+            book_ranks = self.get_book_ranks(results.maxscore)
+            for (score, index) in book_ranks:
+                sorted_books.append( (self.books[index], score) )
+            self.books, self.scores = zip(*sorted_books) #magic unzip / reverse zip function
+                 
+    def get_book_ranks(self, maxscore):
+        """
+        'OR query' results do not match all query parameters, therefore we'll need to rank them
+        """
+        scores = []
+        for index, book in enumerate(self.books):
+            score = float(book.book_score) / float(r.maxscore)
+            scores.append( (score, index) )
+        return sorted(scores, reverse=True) #best (highest) scores first
+
     def __str__(self):
         return_string = ""
-        for index, book in enumerate(self.books):
-            book_string = "index: {0}\n{1}\n".format(index, book.__str__())
-            return_string += book_string
-        return return_string
+        if self.query_type == 'and':
+            for index, book in enumerate(self.books):
+                book_string = "index: {0}\n{1}\n".format(index, book.__str__())
+                return_string += book_string
+            return return_string
+        elif self.query_type == 'or':
+            for index, book in enumerate(self.books):
+                book_string = "index: {0}, score: {1}\n{2}\n".format(index, self.scores[index],  book.__str__())
+                return_string += book_string
+            return return_string
 
 class Book:
     """ a Book() instance represents ONE book from a database query """
@@ -363,17 +391,13 @@ class Book:
         complex_attributes = ['keywords', 'proglang'] # may contain more than 1 value
         
         for simple_attrib in simple_attributes:
-            print "{0}: {1} vs. {2}".format(simple_attrib, self.query_args.__getattribute__(simple_attrib), getattr(self, simple_attrib))
             if self.query_args.__getattribute__(simple_attrib) == getattr(self, simple_attrib):
                 book_score += 1
         for complex_attrib in complex_attributes:
             if self.query_args.__getattribute__(complex_attrib) is not None:
-                print "{0}: {1} vs. {2}".format(complex_attrib, self.query_args.__getattribute__(complex_attrib), getattr(self, complex_attrib))
                 for value in self.query_args.__getattribute__(complex_attrib):
-                    print "value: {0}".format(value)
                     if value in getattr(self, complex_attrib):
                         book_score += 1
-        print "\n"
         return book_score
         
     def __str__(self):
