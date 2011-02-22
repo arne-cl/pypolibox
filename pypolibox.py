@@ -325,7 +325,10 @@ class Books:
         for index, book in enumerate(self.books):
             print book.book_score, results.maxscore
             print float(book.book_score), float(results.maxscore)
-            score = float(book.book_score) / float(results.maxscore)
+            try:
+                score = float(book.book_score) / float(results.maxscore)
+            except ZeroDivisionError:
+                score = 0
             scores.append( (score, index) )
         return sorted(scores, reverse=True) #best (highest) scores first
 
