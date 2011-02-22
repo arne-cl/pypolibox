@@ -323,7 +323,9 @@ class Books:
         """
         scores = []
         for index, book in enumerate(self.books):
-            score = float(book.book_score) / float(r.maxscore)
+            print book.book_score, results.maxscore
+            print float(book.book_score), float(results.maxscore)
+            score = float(book.book_score) / float(results.maxscore)
             scores.append( (score, index) )
         return sorted(scores, reverse=True) #best (highest) scores first
 
