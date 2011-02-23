@@ -3,36 +3,13 @@
 
 #TODO: fix Facts.generate_lastbook_facts: keyword values should not contain ' ', e.g. set([' ', 'pragmatics']) 
 
-#TODO: fix database db_item plang empty fuckup:
-#      introduce sanity checks in sqlite? proglang is a string but must contain either         
-#      nothing or at least a set of brackets '[]'
-#      better way to store string arrays in sqlite? 
-    #>>> f = gen_facts(["-l", "English"])
-    
-    #Traceback (most recent call last):
-      #File "<pyshell#6>", line 1, in <module>
-        #f = gen_facts(["-l", "English"])
-      #File "pypolibox.py", line 48, in gen_facts
-        #return Facts(Books(Results(Query(arg))))
-      #File "pypolibox.py", line 216, in __init__
-        #book_item = Book(result, results.db_columns)
-      #File "pypolibox.py", line 241, in __init__
-        #proglang_array = db_item[db_columns["plang"]].encode(DEFAULT_ENCODING)
-    #AttributeError: 'NoneType' object has no attribute 'encode'
-
-#TODO: maybe replace older/newer short/long w/ directive + measure (+/-/=, pages/age), cf. WeatherReporter
-
-#TODO: scrape keywords from google book feeds
-#      checked: the gbooks keywords are not part of the API
-#TODO: how to query lang = ANY in SQLite?
-
 import sqlite3
 import sys
 import argparse
 import re # for "utils"
 import datetime
 import locale
-from pydocplanner.document_planner import Message
+from pydocplanner.document_planner import Message, Rule
 from nltk import FeatDict
 
 language, encoding = locale.getlocale()
@@ -40,60 +17,7 @@ DEFAULT_ENCODING = encoding # sqlite stores strings as unicode, but the user inp
 DB_FILE = 'pypolibox.sqlite'
 BOOK_TABLE_NAME = 'books' # name of the table in the database file that contains info about books
 CURRENT_YEAR = datetime.datetime.today().year 
-
-argv = [ [], \
-         ["-k", "pragmatics"], \
-         ["-k", "pragmatics", "-r", "4"], \
-         ["-k", "pragmatics", "semantics"], \
-         ["-k", "pragmatics", "semantics", "-r", "7"], \
-         ["-l", "German"], \
-         ["-l", "German", "-p", "Lisp"], \
-         ["-l", "German", "-p", "Lisp", "-k", "parsing"], \
-         ["-l", "English", "-s", "0", "-c", "1"], \
-         ["-l", "English", "-s", "0", "-e", "1", "-k", "discourse"], \
-         ["-k", "syntax", "parsing", "-l", "German", "-p", "Prolog", "Lisp", "-s", "2", "-t", "0", "-e", "1", "-c", "1", "-r", "7"], \
-            ] # list of possible query arguments for debugging purposes
-
-def argvprint():
-    for index, args in enumerate(argv):
-        print index, args
-        
-def maxscoretest():
-    maxscores = []
-    for index, arg in enumerate(argv):
-		r = Results(Query(arg))
-		maxscores.append( "arg #{0}: {1} has maxscore {2}".format(index, arg, r.maxscore) )
-    for maxscore in maxscores:
-        print maxscore
-        
-def testmsg():
-    ap = gen_props(argv[10])
-    for p in ap.allpropostions:
-        try: print Messages(p).messages['extra']
-        except: pass
-                
-def debug_facts(argv): 
-    """debugging function to check if all facts are created correctly"""
-    facts = []
-    for arg in argv:
-        tmp = Facts(Books(Results(Query(arg))))
-        facts.append(tmp)
-    
-    for f in facts:
-        print "\n\n========================================================="
-        print f.query_args
-        for book in f.books:
-            print book['query_facts']
-            #if book.has_key("lastbook_facts"): # the 1st item doesn't have a preceding one...
-             #   print book["lastbook_facts"]
-    return facts
-
-def gen_facts(arg):
-    return AllFacts(Books(Results(Query(arg))))
-
-def gen_props(arg):
-    return AllPropositions(AllFacts(Books(Results(Query(arg)))))
-    
+  
     
 class Query:
     """ a Query() instance represents one user query to the database """
@@ -605,17 +529,17 @@ class AllPropositions:
         """
         @type facts: I{AllFacts}
         """
-        self.allpropostions = []
+        self.books = []
         for book in allfacts.books:
             book_propositions = Propositions(book)
-            self.allpropostions.append(book_propositions)
+            self.books.append(book_propositions)
 
     def __str__(self):
         return_string = ""
-        for index, propositions in enumerate(self.allpropostions):
+        for index, book in enumerate(self.books):
             return_string += "propositions about book #{0}:\n".format(index) + \
                              "----------------------------\n" + \
-                             "{0}\n\n".format(propositions)
+                             "{0}\n\n".format(books)
         return return_string
         
 class Propositions():
@@ -695,6 +619,26 @@ class Propositions():
                         return_string += "\t{0}: {1}\n".format(attrib, val)
         return return_string
 
+class AllMessages:
+    """
+    represents all Messages generated from AllPropositions about all Books() that were returned by a query
+    """
+    def __init__ (self, allpropositions):
+        """
+        @type allpropositions: C{AllPropositions}
+        @param allpropositions: a C{AllPropositions} class instance containing a list of C{Propositions} instances
+        """
+        allpropositions = allpropositions.books
+        self.books = []
+        for propositions in allpropositions:
+            self.books.append(Messages(propositions))
+            
+    def __str__(self):
+        ret_str = ""
+        for index, book in enumerate(self.books):
+            ret_str += "book #{0} is described with these messages:\n".format(index) + \
+                       "==========================================\n\n{0}".format(book)
+        return ret_str
 
 class Messages:
     """
@@ -709,13 +653,17 @@ class Messages:
         """
         propositions = propositions.propositions
         self.messages = {}
-        neutral_propositions = set(('id', 'lastbook_match', 'lastbook_nomatch'))
-        #evaluative_propositions = set(('extra', 'usermodel_match', 'usermodel_nomatch'))
+        simple_propositions = set(('id', 'lastbook_match', 'usermodel_match', 'usermodel_nomatch'))
+        #complex_propositions = set(('extra', 'usermodel_match', 'usermodel_nomatch'))
         
-        for proposition_type in neutral_propositions:
-            self.messages[proposition_type] = self.generate_message(propositions[proposition_type], proposition_type)
-            
-        self.messages['extra'] = self.generate_extra_message(propositions['extra'])
+        for proposition_type in simple_propositions:
+            if propositions[proposition_type]: # if not empty
+                self.messages[proposition_type] = self.generate_message(propositions[proposition_type], proposition_type)
+         
+        if propositions['extra']:
+            self.messages['extra'] = self.generate_extra_message(propositions['extra'])
+        if propositions['lastbook_nomatch']:
+            self.messages['lastbook_nomatch'] = self.generate_lastbook_nomatch(propositions['lastbook_nomatch'])
         
     def generate_message(self, propositions, msg_name):
         msg = Message(msgType=msg_name)
@@ -730,11 +678,8 @@ class Messages:
         msg = Message(msgType='extra')
         for attrib in propositions.iterkeys():
             if attrib == 'year':
-                print "attrib: {0}".format(attrib)
                 description, rating = propositions['year']
-                print "description: {0}, rating: {1}".format(description, rating)
                 recency = FeatDict({'description': description, 'rating': rating})
-                print "FeatDict recency: {0}".format(recency)
                 msg.update({'recency': recency})
             else:
                 value, rating = propositions[attrib]
@@ -743,13 +688,45 @@ class Messages:
                 msg.update({attrib: value})
         return msg 
         
-# which msg_types should have their own generate function?
-# extra, lastbook_nomatch (or remove: keyword_current_book_only, keyword_preceding_book_only; replace oder, shorter w/ substructures)
-#
-# which ones do have non-trivial ratings? id: always neutral; lastbook: neutral; 
-# extra: year (old: -, recent: +), extra: pages (long/short: neutral); usermodel_match: +; usermodel_nomatch: -
+    def generate_lastbook_nomatch(self, propositions):
+        msg = Message(msgType='lastbook_nomatch')
+        for attrib in propositions.iterkeys():
+            if attrib == 'longer':
+                pages, rating = propositions['longer']
+                magnitude = FeatDict({'number': pages, 'unit': 'pages'})
+                length = FeatDict({'type': 'RelativeVariation', 'direction': '+', 'magnitude': magnitude})
+                msg.update({'length': length})
+            elif attrib == 'shorter':
+                pages, rating = propositions['shorter']
+                magnitude = FeatDict({'number': pages, 'unit': 'pages'})
+                length = FeatDict({'type': 'RelativeVariation', 'direction': '-', 'magnitude': magnitude})
+                msg.update({'length': length})
+            elif attrib == 'newer':
+                years, rating = propositions['newer']
+                magnitude = FeatDict({'number': years, 'unit': 'years'})
+                recency = FeatDict({'type': 'RelativeVariation', 'direction': '+', 'magnitude': magnitude})
+                msg.update({'recency': recency})
+            elif attrib == 'older':
+                years, rating = propositions['older']
+                magnitude = FeatDict({'number': years, 'unit': 'years'})
+                recency = FeatDict({'type': 'RelativeVariation', 'direction': '-', 'magnitude': magnitude})
+                msg.update({'recency': recency})
+            else:
+                value, rating = propositions[attrib]
+                if type(value) == set: #keywords, authors are stored as sets, but we might need them as lists
+                    value = list(value)
+                msg.update({attrib: value})
+        return msg
         
-#TODO: move helper functions to utils.py; complete unfinished ones
+    def __str__(self):
+        ret_str = ""
+        for message in self.messages.iterkeys():
+            if self.messages[message]:
+                ret_str += "{0}\n\n".format(self.messages[message])
+        return ret_str
+        
+        
+#TODO: move helper/test functions to utils.py
 
 def sql_array_to_set(sql_array):
     """
@@ -779,11 +756,47 @@ def test_cli():
         for book in book_list.books:
             print book.title, book.year
 
+argv = [ [], \
+         ["-k", "pragmatics"], \
+         ["-k", "pragmatics", "-r", "4"], \
+         ["-k", "pragmatics", "semantics"], \
+         ["-k", "pragmatics", "semantics", "-r", "7"], \
+         ["-l", "German"], \
+         ["-l", "German", "-p", "Lisp"], \
+         ["-l", "German", "-p", "Lisp", "-k", "parsing"], \
+         ["-l", "English", "-s", "0", "-c", "1"], \
+         ["-l", "English", "-s", "0", "-e", "1", "-k", "discourse"], \
+         ["-k", "syntax", "parsing", "-l", "German", "-p", "Prolog", "Lisp", "-s", "2", "-t", "0", "-e", "1", "-c", "1", "-r", "7"], \
+            ] # list of possible query arguments for debugging purposes
+
+def argvprint():
+    for index, args in enumerate(argv):
+        print index, args
+        
+def maxscoretest():
+    maxscores = []
+    for index, arg in enumerate(argv):
+		r = Results(Query(arg))
+		maxscores.append( "arg #{0}: {1} has maxscore {2}".format(index, arg, r.maxscore) )
+    for maxscore in maxscores:
+        print maxscore
+        
+def testmsg(message_type='lastbook_nomatch'):
+    for arg in argv:
+        ap = gen_props(arg)
+        for p in ap.allpropostions:
+            try: print Messages(p).messages[message_type], "\n\n"
+            except: pass
+                
+def genprops(arg=argv[10]):
+    return AllPropositions(AllFacts(Books(Results(Query(arg)))))
+
+
 if __name__ == "__main__":
     #commandline_query = parse_commandline(sys.argv[1:])
     q = Query(sys.argv[1:])
     #q.parse_commandline(sys.argv[1:])
     results = Results(q)
     print results
-    p = gen_props(argv[2])
+    p = genprops(argv[2])
     
