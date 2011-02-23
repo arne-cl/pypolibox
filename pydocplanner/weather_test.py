@@ -1,5 +1,8 @@
 from document_planner import *
 
+#original author: Nicholas FitzGerald
+#cf. "Open-Source Implementation of Document Structuring Algorithm for NLTK"
+
 messages = """
 TotalRainfallMsg
 	period

@@ -1,6 +1,9 @@
 import networkx as nx
 import random, string
 
+#original author: Nicholas FitzGerald
+#cf. "Open-Source Implementation of Document Structuring Algorithm for NLTK"
+
 OUTINDENT = '  '
 OUTSPACER = ' '
 

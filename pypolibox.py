@@ -1,4 +1,3 @@
-from __future__ import division
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -33,7 +32,8 @@ import argparse
 import re # for "utils"
 import datetime
 import locale
-
+from pydocplanner.document_planner import Message
+from nltk import FeatDict
 
 language, encoding = locale.getlocale()
 DEFAULT_ENCODING = encoding # sqlite stores strings as unicode, but the user input is likely something else
@@ -66,6 +66,12 @@ def maxscoretest():
     for maxscore in maxscores:
         print maxscore
         
+def testmsg():
+    ap = gen_props(argv[10])
+    for p in ap.allpropostions:
+        try: print Messages(p).messages['extra']
+        except: pass
+                
 def debug_facts(argv): 
     """debugging function to check if all facts are created correctly"""
     facts = []
@@ -88,10 +94,7 @@ def gen_facts(arg):
 def gen_props(arg):
     return AllPropositions(AllFacts(Books(Results(Query(arg)))))
     
-#conn.commit() # commit changes to db
-#conn.close() # close connection to db. 
-#               DON't do this before all results are stored in a Book() instance
-
+    
 class Query:
     """ a Query() instance represents one user query to the database """
     def __init__ (self, argv):
@@ -323,7 +326,7 @@ class Books:
         """
         scores = []
         for index, book in enumerate(self.books):
-            score = float(book.book_score) / float(r.maxscore)
+            score = float(book.book_score) / float(maxscore)
             scores.append( (score, index) )
         return sorted(scores, reverse=True) #best (highest) scores first
 
@@ -680,13 +683,15 @@ class Propositions():
 
     def __str__(self):
         """returns a string representation of a Propositions() instance, but omits empty values"""
-        signifiers_of_emptyness = [ [], {}, set() ] # lists, dicts, sets can be empty
+        #signifiers_of_emptyness = [ [], {}, set() ] # lists, dicts, sets can be empty
         return_string = ""
         for key, value in self.propositions.iteritems():
-            if value not in signifiers_of_emptyness:
+            if value: # if value is not empty
+            #if value not in signifiers_of_emptyness:
                 return_string += "\n{0}:\n".format(key)
                 for attrib, val in value.iteritems():
-                    if val not in signifiers_of_emptyness:
+                    if val:
+                    #if val not in signifiers_of_emptyness:
                         return_string += "\t{0}: {1}\n".format(attrib, val)
         return return_string
 
@@ -696,14 +701,54 @@ class Messages:
     represents all Messages generated from Propositions() about a Book()
     """
     
-    def __init__ (self, propositions_list):
-        """ Class initialiser """
-        self.messages = []
-
-    def generate_id_messages(self, propositions):
-        pass
+    def __init__ (self, propositions):
+        """reads propositions and calls message generation functions 
         
-
+        @type propositions: C{Propositions}
+        @param propositions: a C{Propositions} class instance
+        """
+        propositions = propositions.propositions
+        self.messages = {}
+        neutral_propositions = set(('id', 'lastbook_match', 'lastbook_nomatch'))
+        #evaluative_propositions = set(('extra', 'usermodel_match', 'usermodel_nomatch'))
+        
+        for proposition_type in neutral_propositions:
+            self.messages[proposition_type] = self.generate_message(propositions[proposition_type], proposition_type)
+            
+        self.messages['extra'] = self.generate_extra_message(propositions['extra'])
+        
+    def generate_message(self, propositions, msg_name):
+        msg = Message(msgType=msg_name)
+        for attrib in propositions.iterkeys():
+            value, rating = propositions[attrib]
+            if type(value) == set: #keywords, authors are stored as sets, but we might need them as lists
+                value = list(value)
+            msg.update({attrib: value})
+        return msg 
+             
+    def generate_extra_message(self, propositions):
+        msg = Message(msgType='extra')
+        for attrib in propositions.iterkeys():
+            if attrib == 'year':
+                print "attrib: {0}".format(attrib)
+                description, rating = propositions['year']
+                print "description: {0}, rating: {1}".format(description, rating)
+                recency = FeatDict({'description': description, 'rating': rating})
+                print "FeatDict recency: {0}".format(recency)
+                msg.update({'recency': recency})
+            else:
+                value, rating = propositions[attrib]
+                if type(value) == set: #keywords, authors are stored as sets, but we might need them as lists
+                    value = list(value)
+                msg.update({attrib: value})
+        return msg 
+        
+# which msg_types should have their own generate function?
+# extra, lastbook_nomatch (or remove: keyword_current_book_only, keyword_preceding_book_only; replace oder, shorter w/ substructures)
+#
+# which ones do have non-trivial ratings? id: always neutral; lastbook: neutral; 
+# extra: year (old: -, recent: +), extra: pages (long/short: neutral); usermodel_match: +; usermodel_nomatch: -
+        
 #TODO: move helper functions to utils.py; complete unfinished ones
 
 def sql_array_to_set(sql_array):

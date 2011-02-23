@@ -44,7 +44,17 @@ import util
 #[                             ]
 #[ period = [ month = 'june' ] ]
 #[          [ year  = '1996' ] ]
-
+#
+# or simpler:
+#>>> m = Message(msgType='MsgName') # aka nltk.FeatStruct('MsgName')
+#>>> m['magnitude'] = nltk.FeatDict({'number': 4, 'unit': 'inches'})
+#>>> m
+#ID msg[magnitude=[number=4, unit='inches']]
+#>>> print m
+#[ *msgType* = 'ID msg'              ]
+#[                                   ]
+#[ magnitude = [ number = 4        ] ]
+#[             [ unit   = 'inches' ] ]
 
 
 class DocPlan(nltk.featstruct.FeatDict):
@@ -73,9 +83,12 @@ class ConstituentSet(nltk.featstruct.FeatDict):
         @param aux: Auxiliary constituent. C{Message} or C{ConstituentSet}.
         @type aux: Message or ConstituentSet
         """
-        if relType: self[nltk.featstruct.Feature('relType',display='prefix')] = relType
-        if nucleus: self[nltk.featstruct.Feature('nucleus',display='prefix')] = nucleus
-        if aux: self[nltk.featstruct.Feature('aux',display='prefix')] = aux
+        if relType: 
+            self[nltk.featstruct.Feature('relType',display='prefix')] = relType
+        if nucleus: 
+            self[nltk.featstruct.Feature('nucleus',display='prefix')] = nucleus
+        if aux: 
+            self[nltk.featstruct.Feature('aux',display='prefix')] = aux
 
 class Message(nltk.featstruct.FeatDict):
     """
@@ -89,7 +102,8 @@ class Message(nltk.featstruct.FeatDict):
         """
         I{msgType} is only specified for the C{nltk.featstruct.FeatDict} if it is specified by the user.
         """
-        if msgType: self[nltk.featstruct.Feature('msgType',display='prefix')] = msgType
+        if msgType: 
+            self[nltk.featstruct.Feature('msgType',display='prefix')] = msgType
 
 class Rule(object):
     """
