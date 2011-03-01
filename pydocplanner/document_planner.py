@@ -60,15 +60,15 @@ import itertools
 def compare_options(rules, messages): #TODO: remove after debugging
     for i, rule in enumerate(rules):
         print "****BEGIN COMPARISON {0}******************".format(i)
-        print "comparing old vs. new type_groups for rule {0}".format(i)
+        print "comparing old vs. new  for rule {0}".format(i)
         rule.get_options(messages)
-        old = rule.before
+        old = rule.after_alternative
         new = rule.after
         if old == new:
-            print "\n\nSAME: old and new have the same type_group value for rule {0}:".format(i)
+            print "\n\nSAME: old and new have the same value for rule {0}:".format(i)
             print "\ttype_group: {0}\n".format(old)
         else:
-            print "\n\nDIFFERENT: old and new have different type_group values for rule {0}".format(i)
+            print "\n\nDIFFERENT: old and new have different values for rule {0}".format(i)
             print "\told: ", old, "\n"
             print "\tnew: ", new, "\n"
         print "####END COMPARISON {0}##################\n\n".format(i)
@@ -192,18 +192,18 @@ class Rule(object):
             name_list.append(name)
             type_groups.append( self.type_groups_filter(messages, condition) )
                     
-        #print 'TYPE GROUPS:', type_groups, '\n' #for debugging
-        
-        
-        #groups = util.index_sets(type_groups)
         groups = list(itertools.product(*type_groups)) #get all possible combinations of inputs (cartesian product of all element of type_groups)
         
-        self.before = groups
         groups = filter(lambda x: len(x) == len(set(x)), groups) #remove groups which contain duplicates (necessary, since cartesian product produces duplicates)
-        self.after = groups
         
         groups = map(lambda x: zip(name_list, x), groups) #match names to messages
+        
+        self.before = groups
         groups = filter(lambda g: all(map(lambda cond: self.__name_eval(cond, g), self.conditions)), groups) #remove groups which do not satisfy conditions
+        groups_alternative = self.get_satisfactory_groups(groups)
+        self.after = groups
+        self.after_alternative = groups_alternative
+        
         if [] in groups: groups.remove([]) #fitzgerald mistake: this only removes the first '[]'
         #print 'GROUPS:', groups, '\n' #for debugging        
         
@@ -230,6 +230,19 @@ class Rule(object):
         return messages_list
         #return filter(lambda x: cond.subsumes(x), messages) #fitzgerald
         
+    def get_satisfactory_groups(self, groups):    
+        satisfactory_groups = []
+        for group in groups:
+            if all(self.get_conditions(group)) is True:
+                satisfactory_groups.append(group)
+        return satisfactory_groups
+        
+    def get_conditions(self, group):
+        results = []
+        for condition in self.conditions:
+            results.append( self.__name_eval(condition, group) )
+        return results
+                
     def __name_eval(self, string, group):
         '''
         Evaluate I{string} using the name-mappings provided by I{group}
