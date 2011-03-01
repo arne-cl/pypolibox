@@ -197,14 +197,10 @@ class Rule(object):
         groups = filter(lambda x: len(x) == len(set(x)), groups) #remove groups which contain duplicates (necessary, since cartesian product produces duplicates)
         
         groups = map(lambda x: zip(name_list, x), groups) #match names to messages
+
+        groups = self.get_satisfactory_groups(groups) #remove groups which do not satisfy conditions
         
-        self.before = groups
-        groups = filter(lambda g: all(map(lambda cond: self.__name_eval(cond, g), self.conditions)), groups) #remove groups which do not satisfy conditions
-        groups_alternative = self.get_satisfactory_groups(groups)
-        self.after = groups
-        self.after_alternative = groups_alternative
-        
-        if [] in groups: groups.remove([]) #fitzgerald mistake: this only removes the first '[]'
+        groups = [group for group in groups if group != [] ] # remove empty groups
         #print 'GROUPS:', groups, '\n' #for debugging        
         
         options_list = []
