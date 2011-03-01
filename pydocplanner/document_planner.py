@@ -56,10 +56,26 @@ import util
 #[ magnitude = [ number = 4        ] ]
 #[             [ unit   = 'inches' ] ]
 
+def compare_options(rules, messages): #TODO: remove after debugging
+    for i, rule in enumerate(rules):
+        print "****BEGIN COMPARISON {0}******************".format(i)
+        print "comparing old vs. new return for rule {0}".format(i)
+        rule.get_options(messages)
+        b4ret = rule.groups_before_return
+        old = rule.oldschool_return(b4ret)
+        new = rule.newschool_return(b4ret)
+        if old == new:
+            print "\n\nSAME: old and new have the same return value for rule {0}:".format(i)
+            print "\treturn value: {0}\n".format(old)
+        else:
+            print "\n\nDIFFERENT: old and new have different return values for rule {0}".format(i)
+            print "\told: ", old, "\n"
+            print "\tnew: ", new, "\n"
+        print "####END COMPARISON {0}##################\n\n".format(i)
 
 class DocPlan(nltk.featstruct.FeatDict):
     """
-    C{DocPlan} is the output of Document Planning. A DocPlan consistes of an optional title and text, and a child I{ConstituentSet}.
+    C{DocPlan} is the output of Document Planning. A DocPlan consists of an optional title and text, and a child I{ConstituentSet}.
     """
     def __init__(self, dtype = 'DocPlan', text = None, children = None):
         self[nltk.featstruct.Feature('type',display='prefix')] = 'DPDocument'
@@ -158,6 +174,17 @@ class Rule(object):
             inputs - is the list of inputs (C{Message}s or C{ConstituentSets} used in this application of the rule
 
         The planner can then select one of these possible applications of the Rule to use.
+
+        @type messages: list of C{Message} objects
+        @param messages: a list of C{Message} objects, each containing one message about a book
+        
+        @rtype: list containing one C{tuple} of (C{int}, C{ConstituentSet}, C{list}), where C{list} consists of C{Message} or C{ConstituentSet} objects 
+        @return: a 3-tuple (score, C{ConstituentSet}, inputs}) where:
+            score - is the evaluated heuristic score for this application of the Rule
+            const_set - is the new C{ConstituentSet} returned by the application of the Rule
+            inputs - is the list of inputs (C{Message}s or C{ConstituentSets} used in this application of the rule
+            
+        Why is the return value a list w/ lenght 1 that contains the 3-tuple described above? --> It's the result of a map() function!        
         """
         #print self.ruleType
 
@@ -166,23 +193,46 @@ class Rule(object):
 
         for (name, cond) in self.inputs:
             name_list.append(name)
-            type_groups.append(filter(lambda x: cond.subsumes(x), messages)) # add all messages which are subsumed by the input proto-type
-
+            type_groups.append(filter(lambda x: cond.subsumes(x), messages)) # add all messages which are subsumed by the input proto-type. filter returns an empty list if none of the messages is subsumed by cond!
+            
+        #self.type_groups = type_groups #TODO: delete after debugging
+        
         #print 'TYPE GROUPS:', type_groups, '\n' #for debugging
 
-        groups = util.index_sets(type_groups)                           #get all possible combinations of inputs
-        groups = filter(lambda x: len(x) == len(set(x)), groups)        #remove groups which contain duplicates
-        groups = map(lambda x: zip(name_list, x), groups)               #match names to messages
+        groups = util.index_sets(type_groups) #get all possible combinations of inputs
+        groups = filter(lambda x: len(x) == len(set(x)), groups) #remove groups which contain duplicates
+        groups = map(lambda x: zip(name_list, x), groups) #match names to messages
         groups = filter(lambda g: all(map(lambda cond: self.__name_eval(cond, g), self.conditions)), groups) #remove groups which do not satisfy conditions
         if [] in groups: groups.remove([])
 
         #print 'GROUPS:', groups, '\n' #for debugging
+        
+        self.groups_before_return = groups #TODO: delete after debugging
+        
+        return self.newschool_return(groups)
 
-        if len(groups) > 0: 
+    def newschool_return(self, groups):
+        if len(groups) > 0: #fitzgerald: too complicated!
             ret = map(lambda x: (self.__name_eval(self.heuristic, x), self.__get_return(x), map(lambda (y,z): z, x)), groups) #create 3-tuple
             return ret
         else:
             return []
+
+    def oldschool_return(self, groups):
+        options_list = []
+        inputs = []
+        print "len(groups): {0}".format(len(groups))
+        for i, group in enumerate(groups):
+            print "\tgroup {0} contains {1} element(s):\n".format(i, len(group))
+            for message in group:
+                print "\t{0}\n\n".format(message)
+            score = self.__name_eval(self.heuristic, group)
+            constituent_set = self.__get_return(group)
+            for message_tuple in group: #a group might contain more than one message!
+                name, message = message_tuple
+                inputs.append(message)
+            options_list.append( (score, constituent_set, inputs) )
+        return options_list            
 
     def __name_eval(self, string, group):
         '''
