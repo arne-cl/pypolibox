@@ -59,16 +59,15 @@ import util
 def compare_options(rules, messages): #TODO: remove after debugging
     for i, rule in enumerate(rules):
         print "****BEGIN COMPARISON {0}******************".format(i)
-        print "comparing old vs. new return for rule {0}".format(i)
+        print "comparing old vs. new type_groups for rule {0}".format(i)
         rule.get_options(messages)
-        b4ret = rule.groups_before_return
-        old = rule.oldschool_return(b4ret)
-        new = rule.newschool_return(b4ret)
+        old = rule.type_groups_classic
+        new = rule.type_groups_lambda
         if old == new:
-            print "\n\nSAME: old and new have the same return value for rule {0}:".format(i)
-            print "\treturn value: {0}\n".format(old)
+            print "\n\nSAME: old and new have the same type_group value for rule {0}:".format(i)
+            print "\ttype_group: {0}\n".format(old)
         else:
-            print "\n\nDIFFERENT: old and new have different return values for rule {0}".format(i)
+            print "\n\nDIFFERENT: old and new have different type_group values for rule {0}".format(i)
             print "\told: ", old, "\n"
             print "\tnew: ", new, "\n"
         print "####END COMPARISON {0}##################\n\n".format(i)
@@ -186,16 +185,21 @@ class Rule(object):
             returns an empty list if I{get_options} can't find a way to to apply the I{Rule}.
         """
         name_list = [] # a list containing the inputs names in order
-        type_groups = [] # a list where each index is a list of all the input Messages which are subsumed by the input proto-type 
+        type_groups_lambda = [] # a list where each index is a list of all the input Messages which are subsumed by the input proto-type 
+        type_groups_classic = []
 
         for (name, cond) in self.inputs:
             name_list.append(name)
-            type_groups.append(filter(lambda x: cond.subsumes(x), messages)) # add all messages which are subsumed by the input proto-type. filter returns an empty list if none of the messages is subsumed by cond!
+            type_groups_lambda.append( self.type_groups_filter_lambda(messages, cond) )
+            type_groups_classic.append( self.type_groups_filter_classic(messages, cond) )
             
-        #self.type_groups = type_groups #TODO: delete after debugging        
+            
+        self.type_groups_lambda = type_groups_lambda #TODO: delete after debugging        
+        self.type_groups_classic = type_groups_classic
         #print 'TYPE GROUPS:', type_groups, '\n' #for debugging
 
-        groups = util.index_sets(type_groups) #get all possible combinations of inputs
+        groups = util.index_sets(type_groups_lambda) #get all possible combinations of inputs
+        
         groups = filter(lambda x: len(x) == len(set(x)), groups) #remove groups which contain duplicates
         groups = map(lambda x: zip(name_list, x), groups) #match names to messages
         groups = filter(lambda g: all(map(lambda cond: self.__name_eval(cond, g), self.conditions)), groups) #remove groups which do not satisfy conditions
@@ -222,6 +226,16 @@ class Rule(object):
                 inputs.append(message)
             options_list.append( (score, constituent_set, inputs) )
         return options_list            
+
+    def type_groups_filter_classic(self, messages, cond):
+        messages_list = []
+        for message in messages:
+            if cond.subsumes(message):
+                messages_list.append(message)
+        return messages_list
+
+    def type_groups_filter_lambda(self, messages, cond):
+        return filter(lambda x: cond.subsumes(x), messages) # add all messages which are subsumed by the input proto-type. filter returns an empty list if none of the messages is subsumed by cond!
 
     def __name_eval(self, string, group):
         '''
