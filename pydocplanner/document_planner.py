@@ -1,6 +1,7 @@
 import string, re
 import nltk
 import util
+import itertools
 #from inputs import *
 
 #original author: Nicholas FitzGerald
@@ -61,8 +62,8 @@ def compare_options(rules, messages): #TODO: remove after debugging
         print "****BEGIN COMPARISON {0}******************".format(i)
         print "comparing old vs. new type_groups for rule {0}".format(i)
         rule.get_options(messages)
-        old = rule.type_groups_classic
-        new = rule.type_groups_lambda
+        old = rule.before
+        new = rule.after
         if old == new:
             print "\n\nSAME: old and new have the same type_group value for rule {0}:".format(i)
             print "\ttype_group: {0}\n".format(old)
@@ -185,40 +186,30 @@ class Rule(object):
             returns an empty list if I{get_options} can't find a way to to apply the I{Rule}.
         """
         name_list = [] # a list containing the inputs names in order
-        type_groups_lambda = [] # a list where each index is a list of all the input Messages which are subsumed by the input proto-type 
-        type_groups_classic = []
+        type_groups = [] # a list where each index is a list of all the input Messages which are subsumed by the input proto-type 
 
-        for (name, cond) in self.inputs:
+        for (name, condition) in self.inputs:
             name_list.append(name)
-            type_groups_lambda.append( self.type_groups_filter_lambda(messages, cond) )
-            type_groups_classic.append( self.type_groups_filter_classic(messages, cond) )
-            
-            
-        self.type_groups_lambda = type_groups_lambda #TODO: delete after debugging        
-        self.type_groups_classic = type_groups_classic
+            type_groups.append( self.type_groups_filter(messages, condition) )
+                    
         #print 'TYPE GROUPS:', type_groups, '\n' #for debugging
-
-        groups = util.index_sets(type_groups_lambda) #get all possible combinations of inputs
         
-        groups = filter(lambda x: len(x) == len(set(x)), groups) #remove groups which contain duplicates
+        
+        #groups = util.index_sets(type_groups)
+        groups = list(itertools.product(*type_groups)) #get all possible combinations of inputs (cartesian product of all element of type_groups)
+        
+        self.before = groups
+        groups = filter(lambda x: len(x) == len(set(x)), groups) #remove groups which contain duplicates (necessary, since cartesian product produces duplicates)
+        self.after = groups
+        
         groups = map(lambda x: zip(name_list, x), groups) #match names to messages
         groups = filter(lambda g: all(map(lambda cond: self.__name_eval(cond, g), self.conditions)), groups) #remove groups which do not satisfy conditions
         if [] in groups: groups.remove([]) #fitzgerald mistake: this only removes the first '[]'
         #print 'GROUPS:', groups, '\n' #for debugging        
         
-        #if len(groups) > 0: #fitzgerald: too complicated!
-            #ret = map(lambda x: (self.__name_eval(self.heuristic, x), self.__get_return(x), map(lambda (y,z): z, x)), groups) #create 3-tuple
-            #return ret
-        #else:
-            #return []
-
         options_list = []
         inputs = []
-#        print "len(groups): {0}".format(len(groups))
         for i, group in enumerate(groups):
-#            print "\tgroup {0} contains {1} element(s):\n".format(i, len(group))
-#            for message in group:
-#                print "\t{0}\n\n".format(message)
             score = self.__name_eval(self.heuristic, group)
             constituent_set = self.__get_return(group)
             for message_tuple in group: #a group might contain more than one message!
@@ -227,16 +218,18 @@ class Rule(object):
             options_list.append( (score, constituent_set, inputs) )
         return options_list            
 
-    def type_groups_filter_classic(self, messages, cond):
+    def type_groups_filter(self, messages, condition):
+        """
+        @rtype: C{list}
+        @return: a list containing all input messages which are subsumed by the input prototype
+        """
         messages_list = []
         for message in messages:
-            if cond.subsumes(message):
+            if condition.subsumes(message):
                 messages_list.append(message)
         return messages_list
-
-    def type_groups_filter_lambda(self, messages, cond):
-        return filter(lambda x: cond.subsumes(x), messages) # add all messages which are subsumed by the input proto-type. filter returns an empty list if none of the messages is subsumed by cond!
-
+        #return filter(lambda x: cond.subsumes(x), messages) #fitzgerald
+        
     def __name_eval(self, string, group):
         '''
         Evaluate I{string} using the name-mappings provided by I{group}

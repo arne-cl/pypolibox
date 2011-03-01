@@ -44,6 +44,8 @@ Sequence(Message('MonthlyTemperatureMsg')|ConstituentSet(nucleus=Message('Monthl
 	() : ConstituentSet(Sequence, M1, M2) : 1
 """
 
+
+
 m = read_messages(messages)
 r = read_rules(ruleset)
 print bottom_up_plan(m,r)

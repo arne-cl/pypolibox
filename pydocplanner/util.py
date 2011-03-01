@@ -8,7 +8,10 @@ def all_words(ls):
 
     return words
 
-def index_sets(a):
+def index_sets(a): #TODO: delete
+    """
+    cartesian product (reimplementation of itertools.product)
+    """
     r=[[]]
     for x in a:
         t = []
