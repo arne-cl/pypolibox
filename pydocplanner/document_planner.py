@@ -173,7 +173,7 @@ class Rule(object):
             const_set - is the new C{ConstituentSet} returned by the application of the Rule
             inputs - is the list of inputs (C{Message}s or C{ConstituentSets} used in this application of the rule
 
-        The planner can then select one of these possible applications of the Rule to use.
+        The planner can then select -- with the __bottom_up_search function -- one of these possible applications of the Rule to use.
 
         @type messages: list of C{Message} objects
         @param messages: a list of C{Message} objects, each containing one message about a book
@@ -192,7 +192,7 @@ class Rule(object):
             name_list.append(name)
             type_groups.append( self.type_groups_filter(messages, condition) )
                     
-        groups = list(itertools.product(*type_groups)) #get all possible combinations of inputs (cartesian product of all element of type_groups)
+        groups = list(itertools.product(*type_groups)) #get all possible combinations of inputs (a list containing the cartesian product of all elements of type_groups)
         
         groups = filter(lambda x: len(x) == len(set(x)), groups) #remove groups which contain duplicates (necessary, since cartesian product produces duplicates)
         
@@ -201,7 +201,9 @@ class Rule(object):
         groups = self.get_satisfactory_groups(groups) #remove groups which do not satisfy conditions
         
         groups = [group for group in groups if group != [] ] # remove empty groups
-        #print 'GROUPS:', groups, '\n' #for debugging        
+
+        #print 'GROUPS:', groups, '\n' #TODO: remove after debugging
+        self.groups = groups #TODO: remove after debugging
         
         options_list = []
         inputs = []
@@ -216,17 +218,31 @@ class Rule(object):
 
     def type_groups_filter(self, messages, condition):
         """
-        @rtype: C{list}
-        @return: a list containing all input messages which are subsumed by the input prototype
+        takes a list of messages and returns only those with the right message type (as specified in Rule.inputs)
+        
+        @type messages: C{list} of C{Message}s
+        @param messages: a list of C{Message} objects, each containing one message about a book
+
+        @param inputs: a C{Message} or C{ConstituentSet}
+        @type inputs: C{Message} or C{ConstituentSet}
+
+        @rtype: C{list} of C{Message}s
+        @return: a list containing all messages which are subsumed by the input message type (self.inputs) -- if a rule should only be applied to UserModelMatch and UserModelNoMatch messages, the return value contains a list of messages with these types. 
         """
         messages_list = []
         for message in messages:
             if condition.subsumes(message):
                 messages_list.append(message)
         return messages_list
-        #return filter(lambda x: cond.subsumes(x), messages) #fitzgerald
         
     def get_satisfactory_groups(self, groups):    
+        '''
+        @type groups: C{list} of C{list}'s of C{tuple}'s of (C{str}, C{Message} or C{ConstituentSet})
+        @param groups: a list of group elements. each group contains a list which contains one or more message tuples of the form (message name, message)
+        
+        @rtype: C{list} of C{list}'s of C{tuple}'s of (C{str}, C{Message} or C{ConstituentSet})
+        @return: a list of group elements. contains only those groups which meet all the conditions specified in self.conditions        
+        '''
         satisfactory_groups = []
         for group in groups:
             if all(self.get_conditions(group)) is True:
@@ -234,30 +250,68 @@ class Rule(object):
         return satisfactory_groups
         
     def get_conditions(self, group):
+        '''applies __name_eval to all conditions a Rule has, i.e. checks if a group meets all conditions
+        
+        @type group: C{list} of C{tuple}'s of (C{str}, C{Message} or C{ConstituentSet})
+        @param group: a list of message tuples of the form (message name, message)
+
+        @rtype: C{list} of C{bool}
+        @return: a list of truth values, each of which tells if a group met all conditions specified in self.conditions
+        '''
         results = []
         for condition in self.conditions:
             results.append( self.__name_eval(condition, group) )
         return results
                 
-    def __name_eval(self, string, group):
+    def __name_eval(self, condition, group):
+        '''Evaluate if I{condition} is met by the C{message}s in I{group}
+        
+        @type condition: C{str}
+        @param condition: a python statement that can be evaluated to True or False, encoded as a string
+        
+        @type group: C{list} of C{tuple}'s of (C{str}, C{Message} or C{ConstituentSet})
+        @param group: a list of message tuples of the form (message name, message)
+        
+        C{Message}s and C{ConstituentSet}s are C{FeatDict}s, which can be queried just like normal C{dict}s.
+        
+        @rtype: C{bool}
+        @return: True if the condition is met by the C{Message}s in I{group}
+        
+        Example:
+        condition1: "M1.get(('attribute', 'direction')) == M2.get(('attribute', 'direction'))"
+        group1 contains two message tuples: 
+            ('M1', MonthlyRainfallMsg[attribute=[direction='+', magnitude=[number=2, unit='inches'], type='RelativeVariation'], period=[month=6, year=1996]]), 
+            ('M2', TotalRainfallMsg[attribute=[direction='+', magnitude=[number=4, unit='inches'], type='RelativeVariation'], period=[month=6, year=1996]])                
+
+        After adding the messages 'M1' and 'M2' to the local namespace, we can check if both have the same direction (as specified in condition1):
+            M1.get(('attribute', 'direction')) == M2.get(('attribute', 'direction'))
+        or:    
+            M1['attribute']['direction'] == M2['attribute']['direction']            
         '''
-        Evaluate I{string} using the name-mappings provided by I{group}
-        '''
-        for (name, msg) in group:
-            locals()[name] = msg
+        for (name, message) in group: # for message_tuple in group ...
+            locals()[name] = message # write messages to the local namespace so a condition can be evaluated them
+            #Note: the contents of locals() should NOT be modified; changes may not affect the values of local and free variables used by the interpreter. http://docs.python.org/library/functions.html#locals
+
         try:
-            #print group
-            ret = eval(string)
+            ret = eval(condition)
         except AttributeError:
             ret = False
         return ret
 
     def __get_return(self, group):
+        '''constructs a ConstituentSet returned by I{get_options}
+
+        @type group: C{list} of C{tuple}'s of (C{str}, C{Message} or C{ConstituentSet})
+        @param group: a list of message tuples of the form (message name, message) that will be combined into a constituent set.
+
+        @rtype: C{ConstituentSet}
+        @return: a C{ConstituentSet}, which combines a nucleus and aux. both can either be a C{Message} or C{ConstituentSet}
         '''
-        Construct the ConstituentSet returned by I{get_options}
-        '''
-        nucleus = self.__name_eval(self.nucleus, group)
-        aux = self.__name_eval(self.aux, group)
+        message_dict = {}
+        for (name, message) in group:
+            message_dict[name] = message
+        nucleus = message_dict[self.nucleus]
+        aux = message_dict[self.aux]
 
         return ConstituentSet(relType = self.ruleType, nucleus=nucleus, aux=aux)
 
