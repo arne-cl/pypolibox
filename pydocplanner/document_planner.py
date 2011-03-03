@@ -289,8 +289,8 @@ class Rule(object):
             M1['attribute']['direction'] == M2['attribute']['direction']            
         '''
         for (name, message) in group: # for message_tuple in group ...
-            locals()[name] = message # write messages to the local namespace so a condition can be evaluated them
-            #Note: the contents of locals() should NOT be modified; changes may not affect the values of local and free variables used by the interpreter. http://docs.python.org/library/functions.html#locals
+            locals()[name] = message # write messages to the local namespace so a condition can evaluate them
+            #UGLY HACK: the contents of locals() should NOT be modified; changes may not affect the values of local and free variables used by the interpreter. http://docs.python.org/library/functions.html#locals
 
         try:
             ret = eval(condition)
@@ -439,29 +439,42 @@ def __replace_names(string, names):
 
 def bottom_up_plan(messages, rules, dtype = None, text= None):
     '''
-    The main method implementing the Bottom-Up document structuring algorithm from "Building Natural Language Generation Systems" figure 4.17, pg 108.
+    The main method implementing the Bottom-Up document structuring algorithm from "Building Natural Language Generation Systems" figure 4.17, p. 108.
 
     The method takes a list of C{Message}s and a set of C{Rule}s and creates a document plan by repeatedly applying the highest-scoring Rule-application (according to the Rule's heuristic score) until a full tree is created. This is returned as a C{DocPlan} with the tree set as I{children}.
 
     If no plan is reached using bottom-up, I{None} is returned.
 
-    @input messages: a list of C{Message}s which have been selected during content selection for inclusion in the DocPlan
-    @type messages: list of Message
-    @input rule: a list of C{Rule}s specifying relationships which can hold between the messages
-    @type rule: list of Rule
-    @input dtype: an optional type for the document
+    @param messages: a list of C{Message}s which have been selected during content selection for inclusion in the DocPlan
+    @type messages: list of C{Message}s
+    
+    @param rules: a list of C{Rule}s specifying relationships which can hold between the messages
+    @type rules: list of C{Rule}s
+    
+    @param dtype: an optional type for the document
     @type dtype: string
-    @input text: an optional text string describing the document
+    
+    @param text: an optional text string describing the document
     @type text: string
+    
+    @return: a document plan. if no plan could be created: return None
+    @rtype: C{DocPlan} or C{NoneType}
     '''
-    map(lambda x: x.freeze(),messages)
-
-    ConstituentSets = set(messages)
-  
+    plan = nltk.FeatDict() #TODO: remove after debugging
+    
+    plan.messages_mutable = messages
+    map(lambda x: x.freeze(),messages) # make all messages (C{FeatDict}s) immutable
+    plan.messages_immutable = messages
+    
+    ConstituentSets = set(messages) # remove duplicate messages
+    plan.messages_set = ConstituentSets #TODO: change name!
+    
     ret = __bottom_up_search(ConstituentSets, rules)
+    plan.ret_before_pop = ret
 
-    if ret:
+    if ret: # if __bottom_up_search has found a valid plan ...
         children =  ret.pop()
+        plan.ret_after_pop = children
         return DocPlan(dtype=dtype, text=text, children=children)
     else:
         return None
@@ -473,6 +486,16 @@ Returns the first valid plan reached by best-first-search.
 Returns None if no valid plan is possible.
 '''
 def __bottom_up_search(plans, rules):
+    '''
+    @param plans: a set of C{Message}s and/or C{ConstituentSet}s
+    @type plans: C{set} of C{Message}s or C{ConstituentSet}s
+    
+    @param rules: a list of C{Rule}s specifying relationships which can hold between the messages
+    @type rules: C{list} of C{Rule}s
+        
+    @return: a set containing one C{Message}. returns None if no valid plan is found.
+    @rtype: C{NoneType} or a C{set} of (C{Message}s or C{ConstituentSet}s)
+    '''
     if len(plans) == 1:
         return plans
     elif len(plans) < 1:
@@ -480,16 +503,21 @@ def __bottom_up_search(plans, rules):
     else:
         options = map(lambda x: x.get_options(plans), rules)
         options = util.flatten(options)
-        map(lambda (x,y,z): (x,y.freeze(),z),options)
-
-        if options == []:
+        #map(lambda (x,y,z): (x,y.freeze(),z),options) #fitzgerald: mistake. we can't assign x,y,z to options AND apply y.freeze() at the same time. this results in y always returning None!
+        # corrected: map(lambda (x,y,z): ( (x,y,z), y.freeze() ),options)
+        options_list = []
+        for option in options:
+            x, y, z = option
+            y.freeze()
+            options_list.append( (x, y, z) )
+            
+        if options_list == []:
             return None
 
-        for (score, new, removes) in sorted(options, key = lambda (x,y,z): x, reverse=True):
+        for (score, new, removes) in sorted(options_list, key = lambda (x,y,z): x, reverse=True):
             testSet = plans - set(removes)
             testSet |= set([new])
             ret = __bottom_up_search(testSet, rules)
             if ret: 
                 return ret
         return None
-       
