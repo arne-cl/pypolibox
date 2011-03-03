@@ -662,8 +662,8 @@ class Messages:
         msg = Message(msgType=msg_name)
         for attrib in propositions.iterkeys():
             value, rating = propositions[attrib]
-            if type(value) == set: #keywords, authors are stored as sets, but we might need them as lists
-                value = list(value)
+            if type(value) == set: #keywords, authors and proglangs are stored as sets, but we need frozensets (hashable) when creating rules and checking for duplicate messages
+                value = frozenset(value)
             msg.update({attrib: value})
         return msg 
              
@@ -676,8 +676,8 @@ class Messages:
                 msg.update({'recency': recency})
             else:
                 value, rating = propositions[attrib]
-                if type(value) == set: #keywords, authors are stored as sets, but we might need them as lists
-                    value = list(value)
+                if type(value) == set: 
+                    value = frozenset(value)
                 msg.update({attrib: value})
         return msg 
         
@@ -706,8 +706,8 @@ class Messages:
                 msg.update({'recency': recency})
             else:
                 value, rating = propositions[attrib]
-                if type(value) == set: #keywords, authors are stored as sets, but we might need them as lists
-                    value = list(value)
+                if type(value) == set: 
+                    value = frozenset(value)
                 msg.update({attrib: value})
         return msg
         
