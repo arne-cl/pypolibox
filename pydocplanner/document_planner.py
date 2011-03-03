@@ -83,7 +83,7 @@ class DocPlan(nltk.featstruct.FeatDict):
         self['children'] = children
 
 class ConstituentSet(nltk.featstruct.FeatDict):
-    """"
+    """
     C{ConstituentSet} is the contstuction built up by applying C{Rules} to a set of C{ConstituentSet}s and C{Message}s. Each C{ConstituentSet} is of a specific I{relType}, and has two constituents, one which is designated the I{nucleus} and one which is designated I{aux}. These C{ConstituentSet}s can then be combined with other C{ConstituentSet}s or C{Message}s.
 
     C{ConstituentSet} is based on C{nltk.featstruct.FeatDict}.
@@ -167,11 +167,9 @@ class Rule(object):
         return ret
 
     def get_options(self, messages):
-        """
-        This is the main method used for document planning. From the list of C{Messages}, I{get_options} selects all possible ways the Rule could be applied. The method returns a 3-tuple: (score, const_set, inputs) where:
-            score - is the evaluated heuristic score for this application of the Rule
-            const_set - is the new C{ConstituentSet} returned by the application of the Rule
-            inputs - is the list of inputs (C{Message}s or C{ConstituentSets} used in this application of the rule
+        """the main method used for document planning 
+        
+        From the list of C{Messages}, I{get_options} selects all possible ways the Rule could be applied.
 
         The planner can then select -- with the __bottom_up_search function -- one of these possible applications of the Rule to use.
 
@@ -295,6 +293,8 @@ class Rule(object):
         try:
             ret = eval(condition)
         except AttributeError:
+            ret = False
+        except NameError: #TODO: test. non-existing messages should evaluate to False
             ret = False
         return ret
 
@@ -479,21 +479,16 @@ def bottom_up_plan(messages, rules, dtype = None, text= None):
     else:
         return None
 
-'''
-Helper method for bottom_up_plan which performs recursive best-first-search
-
-Returns the first valid plan reached by best-first-search.
-Returns None if no valid plan is possible.
-'''
 def __bottom_up_search(plans, rules):
-    '''
+    '''helper method for bottom_up_plan which performs recursive best-first-search
+
     @param plans: a set of C{Message}s and/or C{ConstituentSet}s
     @type plans: C{set} of C{Message}s or C{ConstituentSet}s
     
     @param rules: a list of C{Rule}s specifying relationships which can hold between the messages
     @type rules: C{list} of C{Rule}s
         
-    @return: a set containing one C{Message}. returns None if no valid plan is found.
+    @return: a set containing one C{Message}, i.e. the first valid plan reached by best-first-search. returns None if no valid plan is found.
     @rtype: C{NoneType} or a C{set} of (C{Message}s or C{ConstituentSet}s)
     '''
     if len(plans) == 1:

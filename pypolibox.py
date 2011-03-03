@@ -10,6 +10,7 @@ import re # for "utils"
 import datetime
 import locale
 from pydocplanner.document_planner import Message, Rule
+import pydocplanner.weather_test #TODO: remove after debugging
 from nltk import FeatDict
 
 language, encoding = locale.getlocale()
@@ -583,10 +584,6 @@ class Propositions():
             other_propositions = self.__do_not_use_twice(propositions)
             if fact not in other_propositions:
                 propositions['id'][fact] = (facts['id_facts'][fact], 'neutral')
-            #else: #TODO: remove lines after debugging
-                #for proposition_type in propositions.keys():
-                    #if propositions[proposition_type].has_key(fact):
-                        #print "will not generate id fact about '{0}', as this one is already present in {1}, namely: {2}".format(fact, proposition_type, propositions[proposition_type][fact])
 
         self.propositions = propositions
             
@@ -600,22 +597,18 @@ class Propositions():
         attributes = set()
         for proposition_type in propositions.keys():
             attrib_list = propositions[proposition_type].keys()
-            #print "proposition type {0} has these attributes: {1}".format(proposition_type, attrib_list)
             for attribute in attrib_list:
                 attributes.add(attribute)
         return attributes
 
     def __str__(self):
-        """returns a string representation of a Propositions() instance, but omits empty values"""
-        #signifiers_of_emptyness = [ [], {}, set() ] # lists, dicts, sets can be empty
+        """returns a string representation of a Propositions() instance omitting empty values"""
         return_string = ""
         for key, value in self.propositions.iteritems():
             if value: # if value is not empty
-            #if value not in signifiers_of_emptyness:
                 return_string += "\n{0}:\n".format(key)
                 for attrib, val in value.iteritems():
                     if val:
-                    #if val not in signifiers_of_emptyness:
                         return_string += "\t{0}: {1}\n".format(attrib, val)
         return return_string
 
