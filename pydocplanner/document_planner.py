@@ -460,21 +460,13 @@ def bottom_up_plan(messages, rules, dtype = None, text= None):
     @return: a document plan. if no plan could be created: return None
     @rtype: C{DocPlan} or C{NoneType}
     '''
-    plan = nltk.FeatDict() #TODO: remove after debugging
+    map(lambda x: x.freeze(),messages) # make all messages (C{FeatDict}s) immutable    
+    constituent_sets = set(messages) # remove duplicate messages #TODO: change name!
     
-    plan.messages_mutable = messages
-    map(lambda x: x.freeze(),messages) # make all messages (C{FeatDict}s) immutable
-    plan.messages_immutable = messages
-    
-    ConstituentSets = set(messages) # remove duplicate messages
-    plan.messages_set = ConstituentSets #TODO: change name!
-    
-    ret = __bottom_up_search(ConstituentSets, rules)
-    plan.ret_before_pop = ret
+    ret = __bottom_up_search(constituent_sets, rules)
 
     if ret: # if __bottom_up_search has found a valid plan ...
         children =  ret.pop()
-        plan.ret_after_pop = children
         return DocPlan(dtype=dtype, text=text, children=children)
     else:
         return None
@@ -498,8 +490,7 @@ def __bottom_up_search(plans, rules):
     else:
         options = map(lambda x: x.get_options(plans), rules)
         options = util.flatten(options)
-        #map(lambda (x,y,z): (x,y.freeze(),z),options) #fitzgerald: mistake. we can't assign x,y,z to options AND apply y.freeze() at the same time. this results in y always returning None!
-        # corrected: map(lambda (x,y,z): ( (x,y,z), y.freeze() ),options)
+        #fitzgerald corrected: map(lambda (x,y,z): ( (x,y,z), y.freeze() ),options)
         options_list = []
         for option in options:
             x, y, z = option
