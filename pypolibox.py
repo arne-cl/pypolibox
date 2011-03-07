@@ -784,6 +784,17 @@ def testmsg(message_type='lastbook_nomatch'):
 def genprops(arg=argv[10]):
     return AllPropositions(AllFacts(Books(Results(Query(arg)))))
 
+def testdocplan():
+    '''return: messages, inputs, rules'''
+    messages = [msg for (name, msg) in AllMessages(genprops()).books[0].messages.items()]
+
+    inputs = [('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
+
+    usermodel_contrast = Rule("UserModelContrast", inputs, ['id is not None'], 'usermodel_match', 'usermodel_nomatch', 1)
+
+    rules = [usermodel_contrast]
+    #pydocplanner.document_planner.bottom_up_plan(messages, rules)
+    return messages, inputs, rules
 
 if __name__ == "__main__":
     #commandline_query = parse_commandline(sys.argv[1:])

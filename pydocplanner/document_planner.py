@@ -176,7 +176,7 @@ class Rule(object):
         @type messages: list of C{Message} objects
         @param messages: a list of C{Message} objects, each containing one message about a book
         
-        @rtype: list containing one C{tuple} of (C{int}, C{ConstituentSet}, C{list}), where C{list} consists of C{Message} or C{ConstituentSet} objects 
+        @rtype: empty list or a list containing one C{tuple} of (C{int}, C{ConstituentSet}, C{list}), where C{list} consists of C{Message} or C{ConstituentSet} objects 
         @return: a list containing one 3-tuple (score, C{ConstituentSet}, inputs}) where:
             score - is the evaluated heuristic score for this application of the Rule
             const_set - is the new C{ConstituentSet} returned by the application of the Rule
@@ -290,6 +290,7 @@ class Rule(object):
             locals()[name] = message # write messages to the local namespace so a condition can evaluate them
             #UGLY HACK: the contents of locals() should NOT be modified; changes may not affect the values of local and free variables used by the interpreter. http://docs.python.org/library/functions.html#locals
 
+        print condition #TODO: remove after debugging
         try:
             ret = eval(condition)
         except AttributeError:
@@ -460,7 +461,8 @@ def bottom_up_plan(messages, rules, dtype = None, text= None):
     @return: a document plan. if no plan could be created: return None
     @rtype: C{DocPlan} or C{NoneType}
     '''
-    map(lambda x: x.freeze(),messages) # make all messages (C{FeatDict}s) immutable    
+    for message in messages:
+        message.freeze() # make all messages (C{FeatDict}s) immutable
     constituent_sets = set(messages) # remove duplicate messages #TODO: change name!
     
     ret = __bottom_up_search(constituent_sets, rules)
@@ -474,7 +476,7 @@ def bottom_up_plan(messages, rules, dtype = None, text= None):
 def __bottom_up_search(plans, rules):
     '''helper method for bottom_up_plan which performs recursive best-first-search
 
-    @param plans: a set of C{Message}s and/or C{ConstituentSet}s
+    @param plans: a set containing C{Message}s and/or C{ConstituentSet}s
     @type plans: C{set} of C{Message}s or C{ConstituentSet}s
     
     @param rules: a list of C{Rule}s specifying relationships which can hold between the messages
