@@ -505,7 +505,8 @@ def __bottom_up_search(plans, rules):
 
         for (score, new, removes) in sorted(options_list, key = lambda (x,y,z): x, reverse=True):
             testSet = plans - set(removes)
-            testSet |= set([new])
+            #fitzgerald: testSet |= set([new])
+            testSet = testSet.union(set([new]))
             ret = __bottom_up_search(testSet, rules)
             if ret: 
                 return ret
