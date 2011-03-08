@@ -206,8 +206,8 @@ class Rule(object):
         options_list = []
         inputs = []
         for i, group in enumerate(groups):
-                #score = self.__name_eval(self.heuristic, group) #fitzgerald: weird str -> int
-                score = self.heuristic
+            #score = self.__name_eval(self.heuristic, group) #fitzgerald: weird str -> int
+            score = self.heuristic
             constituent_set = self.__get_return(group)
             for message_tuple in group: #a group might contain more than one message!
                 name, message = message_tuple
