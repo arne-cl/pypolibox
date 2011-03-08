@@ -491,7 +491,8 @@ def __bottom_up_search(plans, rules):
     elif len(plans) < 1:
         raise Exception('ERROR')
     else:
-        options = map(lambda x: x.get_options(plans), rules)
+        #options = map(lambda x: x.get_options(plans), rules)
+        options = [rule.get_options(plans) for rule in rules]
         options = util.flatten(options)
         #fitzgerald corrected: map(lambda (x,y,z): ( (x,y,z), y.freeze() ),options)
         options_list = []
