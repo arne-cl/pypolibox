@@ -785,7 +785,11 @@ def genprops(arg=argv[10]):
     return AllPropositions(AllFacts(Books(Results(Query(arg)))))
 
 def testdocplan():
-    '''return: messages, inputs, rules'''
+    '''return: messages, inputs, rules
+    Rule(ruleType, inputs, conditions, nucleus, aux, heuristic)
+
+    CONTRAST usermodel_match with usermodel_nomatch
+    '''
     messages = [msg for (name, msg) in AllMessages(genprops()).books[0].messages.items()]
 
     inputs = [('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]

@@ -146,8 +146,8 @@ class Rule(object):
         @type nucleus: string
         @param aux: string specifying name of input used for aux
         @type aux: string
-        @param heuristic: string which will be evaluated to provide the heuristic value used to rank potential ConstituentSets
-        @type heuristic: string
+        @param heuristic: an integer used to rank potential ConstituentSets. 
+        @type heuristic: C{int}
         """
 
         self.ruleType = ruleType
@@ -206,7 +206,8 @@ class Rule(object):
         options_list = []
         inputs = []
         for i, group in enumerate(groups):
-            score = self.__name_eval(self.heuristic, group)
+                #score = self.__name_eval(self.heuristic, group) #fitzgerald: weird str -> int
+                score = self.heuristic
             constituent_set = self.__get_return(group)
             for message_tuple in group: #a group might contain more than one message!
                 name, message = message_tuple
@@ -420,7 +421,7 @@ def read_rules(rules):
                 i1 = i[0]
                 i2 = i[1]
                 inputs = [(input1name, i1), (input2name, i2)]
-                ret.append(Rule(relType, inputs, condition, nucleus, aux, heuristic))
+                ret.append(Rule(relType, inputs, condition, nucleus, aux, int(heuristic)))
 
     return ret
 
