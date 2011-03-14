@@ -9,7 +9,7 @@ import argparse
 import re # for "utils"
 import datetime
 import locale
-from pydocplanner.document_planner import Message, Rule
+from pydocplanner.document_planner import Message, ConstituentSet, Rule
 import pydocplanner.weather_test #TODO: remove after debugging
 from nltk import FeatDict
 
@@ -792,13 +792,17 @@ def testdocplan():
     '''
     messages = [msg for (name, msg) in AllMessages(genprops()).books[0].messages.items()]
 
-    inputs = [('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
+    um_inputs = [('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
 
-    usermodel_contrast = Rule("UserModelContrast", inputs, ['id is not None'], 'usermodel_match', 'usermodel_nomatch', 1)
+    usermodel_contrast = Rule("UserModelContrast", um_inputs, ['id is not None'], 'usermodel_match', 'usermodel_nomatch', 2)
+    
+    id_inputs = [('id', Message('id')), ('UserModelContrast', ConstituentSet('UserModelContrast'))]
+    
+    id_sequence = Rule("IDsequence", id_inputs, ['id is not None'], 'id', 'UserModelContrast', 2)
 
-    rules = [usermodel_contrast]
+    rules = [usermodel_contrast, id_sequence]
     #pydocplanner.document_planner.bottom_up_plan(messages, rules)
-    return messages, inputs, rules
+    return messages, rules
 
 if __name__ == "__main__":
     #commandline_query = parse_commandline(sys.argv[1:])
