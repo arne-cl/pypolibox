@@ -296,8 +296,6 @@ class Rule(object):
             ret = eval(condition)
         except AttributeError:
             ret = False
-        except NameError: #TODO: test. non-existing messages should evaluate to False
-            ret = False
         return ret
 
     def __get_return(self, group):
@@ -316,6 +314,25 @@ class Rule(object):
         aux = message_dict[self.aux]
 
         return ConstituentSet(relType = self.ruleType, nucleus=nucleus, aux=aux)
+
+def exists(thing, namespace):
+    '''checks if a variable/object/instance exists in the given namespace
+    
+    @type thing: C{str}
+    @param thing: the name of a variable, objects, class instance etc.
+    
+    @type namespace: C{dict}
+    @param namespace: a namespace (dictionary), e.g. locals() or globals()
+    
+    @rtype: C{bool}
+    @return: True, if 'thing' exists in 'namespace'. Otherwise returns False.
+    '''
+    if namespace.has_key(thing):
+        return True
+    else:
+        print "{0} is not in {1}".format(thing, namespace)
+        return False
+
 
 def read_messages(messages):
     '''
@@ -518,3 +535,4 @@ def __bottom_up_search(plans, rules):
                 return ret
         print "Sorry, none of the rules could be applied to any of these options:\n{1}\n".format(rules, sorted_options) #TODO:remove
         return None
+

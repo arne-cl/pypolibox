@@ -718,7 +718,30 @@ class Messages:
                 ret_str += "{0}\n\n".format(self.messages[message])
         return ret_str
         
+class Rules:
+    """creates Rule() instances
+    
+    Rule(ruleType, inputs, conditions, nucleus, aux, heuristic)
+    """
+    
+    def __init__ (self):
+        """calls methods to generate rules and saves these in self.rules"""
+        self.rules = [self.usermodel_contrast(), self.id_sequence()]
         
+    def usermodel_contrast(self):
+        '''CONTRAST usermodel_match with usermodel_nomatch'''
+        inputs = [('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
+        return Rule("UserModelContrast", inputs, ['id is not None'], 'usermodel_match', 'usermodel_nomatch', 2)
+    
+    def id_sequence(self):
+        inputs = [('id', Message('id')), ('UserModelContrast', ConstituentSet('UserModelContrast'))]
+        return Rule("IDsequence", inputs, ['id is not None'], 'id', 'UserModelContrast', 2)
+
+#IDEA: id_core msg + id_additional
+#messages = [msg for (name, msg) in AllMessages(genprops()).books[0].messages.items()]    
+        
+
+
 #TODO: move helper/test functions to utils.py
 
 def sql_array_to_set(sql_array):
@@ -784,25 +807,7 @@ def testmsg(message_type='lastbook_nomatch'):
 def genprops(arg=argv[10]):
     return AllPropositions(AllFacts(Books(Results(Query(arg)))))
 
-def testdocplan():
-    '''return: messages, inputs, rules
-    Rule(ruleType, inputs, conditions, nucleus, aux, heuristic)
 
-    CONTRAST usermodel_match with usermodel_nomatch
-    '''
-    messages = [msg for (name, msg) in AllMessages(genprops()).books[0].messages.items()]
-
-    um_inputs = [('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
-
-    usermodel_contrast = Rule("UserModelContrast", um_inputs, ['id is not None'], 'usermodel_match', 'usermodel_nomatch', 2)
-    
-    id_inputs = [('id', Message('id')), ('UserModelContrast', ConstituentSet('UserModelContrast'))]
-    
-    id_sequence = Rule("IDsequence", id_inputs, ['id is not None'], 'id', 'UserModelContrast', 2)
-
-    rules = [usermodel_contrast, id_sequence]
-    #pydocplanner.document_planner.bottom_up_plan(messages, rules)
-    return messages, rules
 
 if __name__ == "__main__":
     #commandline_query = parse_commandline(sys.argv[1:])
