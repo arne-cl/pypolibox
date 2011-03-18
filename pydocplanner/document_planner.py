@@ -531,8 +531,8 @@ def __bottom_up_search(plans, rules):
             testSet = testSet.union(set([new])) # a set containing a ConstituentSet and one or more Messages that haven't been integrated into a structure yet
             ret = __bottom_up_search(testSet, rules)
             if ret:
-                print "When applying the rules to these plans:\n{1}\n, this is the result set:\n{2}\n".format(rules, testSet, ret) #TODO: remove 
+                #print "When applying the rules to these plans:\n{1}\n, this is the result set:\n{2}\n".format(rules, testSet, ret) #TODO: remove 
                 return ret
-        print "Sorry, none of the rules could be applied to any of these options:\n{1}\n".format(rules, sorted_options) #TODO:remove
+        #print "Sorry, none of the rules could be applied to any of these options:\n{1}\n".format(rules, sorted_options) #TODO:remove
         return None
 

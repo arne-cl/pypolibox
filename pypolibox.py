@@ -621,9 +621,9 @@ class AllMessages:
         @type allpropositions: C{AllPropositions}
         @param allpropositions: a C{AllPropositions} class instance containing a list of C{Propositions} instances
         """
-        allpropositions = allpropositions.books
+        propositions_list = allpropositions.books
         self.books = []
-        for propositions in allpropositions:
+        for propositions in propositions_list:
             self.books.append(Messages(propositions))
             
     def __str__(self):
@@ -646,12 +646,14 @@ class Messages:
         """
         propositions = propositions.propositions
         self.messages = {}
-        simple_propositions = set(('id', 'lastbook_match', 'usermodel_match', 'usermodel_nomatch'))
-        #complex_propositions = set(('extra', 'usermodel_match', 'usermodel_nomatch'))
+        simple_propositions = set(('lastbook_match', 'usermodel_match', 'usermodel_nomatch'))
         
         for proposition_type in simple_propositions:
             if propositions[proposition_type]: # if not empty
                 self.messages[proposition_type] = self.generate_message(propositions[proposition_type], proposition_type)
+        
+        self.messages['id_core'] = self.generate_id_core_message(propositions['id'])
+        self.messages['id_additional'] = self.generate_id_additional_message(propositions['id'])
          
         if propositions['extra']:
             self.messages['extra'] = self.generate_extra_message(propositions['extra'])
@@ -666,6 +668,24 @@ class Messages:
                 value = frozenset(value)
             msg.update({attrib: value})
         return msg 
+
+    def generate_id_core_message(self, propositions):
+        msg = Message(msgType='id_core')
+        names, rating = propositions['authors']
+        title, rating = propositions['title']
+        msg.update({'authors': frozenset(names)})
+        msg.update({'title': title})
+        return msg
+
+    def generate_id_additional_message(self, propositions):
+        msg = Message(msgType='id_additional')
+        for attrib in propositions.iterkeys():
+            if attrib not in ('authors', 'title'):
+                value, rating = propositions[attrib]
+                if type(value) == set:
+                    value = frozenset(value)
+                msg.update({attrib: value})
+        return msg
              
     def generate_extra_message(self, propositions):
         msg = Message(msgType='extra')
@@ -723,19 +743,88 @@ class Rules:
     
     Rule(ruleType, inputs, conditions, nucleus, aux, heuristic)
     """
-    
+    #TODO: change Rule() class, so we can use rule templates, i.e it should accept rules with boolean OR ( nucleus = (ConstSet(nuc='id_core') | nuc=ConstSet(nuc='id_complete')) )
     def __init__ (self):
         """calls methods to generate rules and saves these in self.rules"""
-        self.rules = [self.usermodel_contrast(), self.id_sequence()]
+        self.rules = [ self.id_eleborate(), self.id_extra_sequence(), \
+                       self.pos_eval(), self.neg_eval(), self.complete_seq1(), \
+                       self.complete_seq2(), self.complete_seq3(), \
+                       self.complete_seq4(), self.complete_seq5(), \
+                       self.complete_seq6(), self.complete_seq7(), \
+                       self.complete_seq8() ]
         
-    def usermodel_contrast(self):
-        '''CONTRAST usermodel_match with usermodel_nomatch'''
+    def id_eleborate(self):
+        '''combine id_core and id_additional'''
+        inputs = [('id_core', Message('id_core')), ('id_additional', Message('id_additional'))]
+        return Rule('Elaboration', inputs, [], 'id_core', 'id_additional', 5)
+        
+    def id_extra_sequence(self):
+        '''add an additional "sentence" about extra facts after the id messages'''
+        inputs = [('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('extra', Message('extra'))]
+        return Rule('Sequence', inputs, ['exists("extra", locals())'], 'id_complete', 'extra', 2)
+        
+    def pos_eval(self):
+        #TODO: do we need to check for usermodel_match/nomatch existence
+        '''if there are no books to compare this one to, check if it has more usermodel matches than usermodel non-matches.
+        
+        Meaning: Although this book doesn't fulfill all your requirements (features x and y), it covers most of them (feat. a,b,c & d). It's therefore suitable for you.'''
         inputs = [('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
-        return Rule("UserModelContrast", inputs, ['id is not None'], 'usermodel_match', 'usermodel_nomatch', 2)
+        return Rule("Concession", inputs, ['len(usermodel_match) > len(usermodel_nomatch)'], 'usermodel_match', 'usermodel_nomatch', 2)
+
+    def neg_eval(self):
+        #TODO: write conditions for exists(usermodel_match/nomatch)
+        #TODO: check if conditions are always necessary (if inputs are well specified)
+        '''if there are no books to compare this one to, return a negative evaluation if it has less usermodel matches than nonmatches.
+        
+        Meaning: Although this book fulfills some of your requirements, it doesn't match most of them. Therefore, this book might not be the best choice.'''
+        inputs = [('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
+        return Rule("Concession", inputs, ['len(usermodel_match) < len(usermodel_nomatch)'], 'usermodel_nomatch', 'usermodel_match', 2)
+        
+    def complete_seq1(self):
+        inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('pos_eval', ConstituentSet(nucleus=Message('usermodel_match'))) ]
+        return Rule("Sequence", inputs, [], 'id_extra_sequence', 'pos_eval', 5)
+        
+    def complete_seq2(self):
+        inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('neg_eval', ConstituentSet(nucleus=Message('usermodel_nomatch'))) ]
+        return Rule("Sequence", inputs, [], 'id_extra_sequence', 'neg_eval', 5)
+
+    def complete_seq3(self):
+        inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('pos_eval', ConstituentSet(nucleus=Message('usermodel_match'))) ]
+        return Rule("Sequence", inputs, [], 'id_complete', 'pos_eval', 4)
+
+    def complete_seq4(self):
+        inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('neg_eval', ConstituentSet(nucleus=Message('usermodelno_match'))) ]
+        return Rule("Sequence", inputs, [], 'id_complete', 'neg_eval', 4)
+
+    def complete_seq5(self):
+        inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('usermodel_match', Message('usermodel_match')) ]
+        conditions = ['exists("usermodel_match", locals())', 'exists("usermodel_nomatch", locals()) is False']
+        return Rule("Sequence", inputs, conditions, 'id_extra_sequence', 'usermodel_match', 3)
+
+    def complete_seq6(self):
+        inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('usermodel_nomatch', Message('usermodel_nomatch')) ]
+        conditions = ['exists("usermodel_nomatch", locals())', 'exists("usermodel_match", locals()) is False']
+        return Rule("Sequence", inputs, conditions, 'id_extra_sequence', 'usermodel_nomatch', 3)
+
+    def complete_seq7(self):
+        inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('usermodel_match', Message('usermodel_match')) ]
+        conditions = ['exists("usermodel_match", locals())', 'exists("usermodel_nomatch", locals()) is False']
+        return Rule("Sequence", inputs, conditions, 'id_complete', 'usermodel_match', 3)
+
+    def complete_seq8(self):
+        inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('usermodel_nomatch', Message('usermodel_nomatch')) ]
+        conditions = ['exists("usermodel_nomatch", locals())', 'exists("usermodel_match", locals()) is False']
+        return Rule("Sequence", inputs, conditions, 'id_complete', 'usermodel_nomatch', 3)
+
+        
+    #def usermodel_contrast(self):
+        #'''CONTRAST usermodel_match with usermodel_nomatch'''
+        #inputs = [('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
+        #return Rule("UserModelContrast", inputs, ['id is not None'], 'usermodel_match', 'usermodel_nomatch', 2)
     
-    def id_sequence(self):
-        inputs = [('id', Message('id')), ('UserModelContrast', ConstituentSet('UserModelContrast'))]
-        return Rule("IDsequence", inputs, ['id is not None'], 'id', 'UserModelContrast', 2)
+    #def id_sequence(self):
+        #inputs = [('id', Message('id')), ('UserModelContrast', ConstituentSet('UserModelContrast'))]
+        #return Rule("IDsequence", inputs, ['id is not None'], 'id', 'UserModelContrast', 2)
 
 #IDEA: id_core msg + id_additional
 #messages = [msg for (name, msg) in AllMessages(genprops()).books[0].messages.items()]    
