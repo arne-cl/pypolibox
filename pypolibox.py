@@ -865,9 +865,10 @@ class Rules:
         inputs = [ ('lastbook_concession', ConstituentSet(aux=Message('lastbook_match'))), ('usermodel_concession', ConstituentSet(nucleus=Message('usermodel_match'))) ]
         return Rule("Sequence", inputs, [], 'lastbook_concession', 'usermodel_concession', 2)
         
-#    def genrule_additional_extra_sequence(self): #TODO: replace this (temporary) rule
-#        inputs = [ ('lastbook_usermodel_sequence', ConstituentSet(relType='Sequence')), ('extra',Message('extra') )]
-        #TODO: unfinished Rule()
+    def genrule_additional_extra_sequence(self): #TODO: replace this (temporary) rule
+        # works, but too general: ConstituentSet(relType='Sequence')
+        inputs = [ ('lastbook_usermodel_sequence', ConstituentSet(nucleus=ConstituentSet(aux=Message('lastbook_match')))), ('extra',Message('extra') )]
+        return Rule("Sequence", inputs, [], 'lastbook_usermodel_sequence', 'extra', 1)
         
    #def concession_extra_sequence(self):
         #'''Meaning: add 'extra' message to a concession_books() ConstituentSet. More or less an afterthought. #TODO: find better options'''
@@ -992,6 +993,24 @@ def enumprint(obj):
 def msgtypes(messages):
 	for i, message in enumerate(messages):
 		print i, message[Feature("msgType")]
+        
+def findrule(rules, ruletype="", attribute="", value=""):
+    '''debugging: find rules that have a certain ruleType and some attribute-value pair
+    
+    findrule(rules, "Concession", "nucleus", "usermodel_match") finds rules of type 'Concession' where rule.nucleus == 'usermodel_match'
+    '''
+    if ruletype == "":
+        for i, rule in enumerate(rules):
+            if getattr(rule, attribute) is value:
+                print "rule {0}:\n{1}".format(i, rule)
+    elif attribute == "":
+        for i, rule in enumerate(rules):
+            if rule.ruleType is ruletype:
+                print "rule {0}:\n{1}".format(i, rule)
+    else:
+        for i, rule in enumerate(rules):
+            if rule.ruleType is ruletype and getattr(rule, attribute) is value:
+                print "rule {0}:\n{1}".format(i, rule)
 
 if __name__ == "__main__":
     #commandline_query = parse_commandline(sys.argv[1:])
