@@ -620,11 +620,23 @@ class AllMessages:
         """
         @type allpropositions: C{AllPropositions}
         @param allpropositions: a C{AllPropositions} class instance containing a list of C{Propositions} instances
+        
+        This will genenerate a C{Messages} instance (containing all C{Message}s about a book) for each C{Propositions} instance. It also adds a special 'lastbook_id_core' C{Message}, containing the title and author(s) of the preceding book (migth be used by the sentence planner to refer to the last book by name etc.).
         """
         propositions_list = allpropositions.books
         self.books = []
-        for propositions in propositions_list:
-            self.books.append(Messages(propositions))
+        for i, thisbook in enumerate(propositions_list):
+            if i == 0: # 1st book, no other book to compare it to...
+                self.books.append(Messages(thisbook))
+            else: # all remaining books; can be compared w/ their predecessor
+                lastbook = propositions_list[i-1]
+                lastbook_authors = lastbook.propositions["id"]["authors"]
+                lastbook_title = lastbook.propositions["id"]["title"]
+                thisbook.propositions["lastbook_id_core"] = {}
+                thisbook.propositions["lastbook_id_core"]["authors"] = lastbook_authors
+                thisbook.propositions["lastbook_id_core"]["title"] = lastbook_title
+                self.books.append(Messages(thisbook))
+                #print thisbook.propositions #TODO: remove after debugging
             
     def __str__(self):
         ret_str = ""
@@ -652,9 +664,11 @@ class Messages:
             if propositions[proposition_type]: # if not empty
                 self.messages[proposition_type] = self.generate_message(propositions[proposition_type], proposition_type)
         
-        self.messages['id_core'] = self.generate_id_core_message(propositions['id'])
+        self.messages['id_core'] = self.generate_id_core_message(propositions['id'], 'id_core')
         self.messages['id_additional'] = self.generate_id_additional_message(propositions['id'])
          
+        if propositions.has_key('lastbook_id_core'): #TODO: move geration of 'lastbook_id_core' from AllMessages() to AllPropositions or even AllFacts(), so we don't have to treat it differently here
+            self.messages['lastbook_id_core'] = self.generate_id_core_message(propositions['lastbook_id_core'], 'lastbook_id_core')
         if propositions['extra']:
             self.messages['extra'] = self.generate_extra_message(propositions['extra'])
         if propositions['lastbook_nomatch']:
@@ -669,8 +683,8 @@ class Messages:
             msg.update({attrib: value})
         return msg 
 
-    def generate_id_core_message(self, propositions):
-        msg = Message(msgType='id_core')
+    def generate_id_core_message(self, propositions, msg_name):
+        msg = Message(msgType=msg_name)
         names, rating = propositions['authors']
         title, rating = propositions['title']
         msg.update({'authors': frozenset(names)})
@@ -751,7 +765,11 @@ class Rules:
                        self.complete_seq2(), self.complete_seq3(), \
                        self.complete_seq4(), self.complete_seq5(), \
                        self.complete_seq6(), self.complete_seq7(), \
-                       self.complete_seq8() ]
+                       self.complete_seq8(), self.elaborate_differences(), \
+                       self.contrast_books(), self.concession_books(), \
+                       self.concession_extra_sequence() ]
+
+# Rule() instances for books without a preceding book to compare them to  
         
     def id_eleborate(self):
         '''combine id_core and id_additional'''
@@ -816,18 +834,48 @@ class Rules:
         conditions = ['exists("usermodel_nomatch", locals())', 'exists("usermodel_match", locals()) is False']
         return Rule("Sequence", inputs, conditions, 'id_complete', 'usermodel_nomatch', 3)
 
-        
-    #def usermodel_contrast(self):
-        #'''CONTRAST usermodel_match with usermodel_nomatch'''
-        #inputs = [('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
-        #return Rule("UserModelContrast", inputs, ['id is not None'], 'usermodel_match', 'usermodel_nomatch', 2)
-    
-    #def id_sequence(self):
-        #inputs = [('id', Message('id')), ('UserModelContrast', ConstituentSet('UserModelContrast'))]
-        #return Rule("IDsequence", inputs, ['id is not None'], 'id', 'UserModelContrast', 2)
+# Rule() instances for books that have a preceding book to compare them to
+#TODO: where to put 'id_additional', 'extra'?
 
-#IDEA: id_core msg + id_additional
-#messages = [msg for (name, msg) in AllMessages(genprops()).books[0].messages.items()]    
+    def elaborate_differences(self): #checked
+        '''Meaning: This book id_eleborate() differs in terms of (these) features (from the preceding book). Used in conjunction with contrast_books().'''
+        inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('lastbook_nomatch', Message('lastbook_nomatch')) ]
+        conditions = ['exists("lastbook_nomatch", locals())']
+        nucleus = 'id_complete'
+        aux = 'lastbook_nomatch'
+        return Rule("Elaboration", inputs, conditions, nucleus, aux, 3)
+
+    def contrast_books(self): #checked
+        '''Meaning: In contrast to the other book (author, title), this book (author, title) has differing features. Used in conjunction with elaborate_differences().'''
+        inputs = [ ('lastbook_id_core', Message('lastbook_id_core')), ('book_differences', ConstituentSet(aux=Message('lastbook_nomatch')) ) ]
+        return Rule("Contrast", inputs, ['exists("lastbook_id_core", locals())'], 'lastbook_id_core', 'book_differences', 3)
+        
+    def concession_books(self): #checked
+        '''Meaning: nucleus = contrast_books(), aux = Nevertheless, both books share some features: ...'''
+        inputs = [ ('contrast_books', ConstituentSet(nucleus=Message('lastbook_id_core')) ), ('lastbook_match', Message('lastbook_match')) ]
+        conditions = ['exists("lastbook_match", locals())']
+        return Rule("Concession", inputs, conditions, 'contrast_books', 'lastbook_match', 3)
+        
+    def usermodel_concession(self): #TODO: replace this (temporary) rule
+        inputs = [ ('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
+        conditions = ['exists("usermodel_match", locals())', 'exists("usermodel_nomatch", locals())']
+        return Rule("Concession", inputs, conditions, 'usermodel_match', 'usermodel_nomatch', 2)
+
+    def lastbook_usermodel_sequence(self): #TODO: replace this (temporary) rule
+        inputs = [ ('lastbook_concession', ConstituentSet(aux=Message('lastbook_match'))), ('usermodel_concession', ConstituentSet(nucleus=Message('usermodel_match'))) ]
+        return Rule("Sequence", inputs, [], 'lastbook_concession', 'usermodel_concession', 2)
+        
+    def additional_extra_sequence(self): #TODO: replace this (temporary) rule
+        inputs = [ ('lastbook_usermodel_sequence', ConstituentSet(relType='Sequence')), ('extra',Message('extra') )]
+        
+   #def concession_extra_sequence(self):
+        #'''Meaning: add 'extra' message to a concession_books() ConstituentSet. More or less an afterthought. #TODO: find better options'''
+        #inputs = [ ('concession_books', ConstituentSet(aux=Message('lastbook_match'))), ('extra', Message('extra')) ]
+        #conditions = ['exists("lastbook_match", locals())', 'exists("extra", locals())']
+        #return Rule("Sequence", inputs, conditions, 'concession_books', 'extra', 1)
+        
+    #TODO: add Rule()s for Messages() w/out 'extra', 'lastbook_match/nomatch', 'usermodel_match/nomatch'
+    #TODO: all Rule() to combine usermodel_match/nomatch with lastbook stuff
         
 
 
@@ -895,8 +943,16 @@ def testmsg(message_type='lastbook_nomatch'):
                 
 def genprops(arg=argv[10]):
     return AllPropositions(AllFacts(Books(Results(Query(arg)))))
+    
+def genmessages(arg=argv[10], booknumber=1):
+    am = AllMessages(AllPropositions(AllFacts(Books(Results(Query(arg))))))
+    messages = am.books[booknumber].messages.values()
+    for m in messages: m.freeze()
+    return messages
 
-
+def enumprint(obj):
+    for index, item in enumerate(obj):
+        print "{0}: {1}\n".format(index, item)
 
 if __name__ == "__main__":
     #commandline_query = parse_commandline(sys.argv[1:])
