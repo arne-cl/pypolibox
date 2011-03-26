@@ -925,14 +925,39 @@ argv = [ [],
 error_argv = [ ["-k", "cheeseburger"], # keyword does not exist
                ["-k", "Pragmatics"], # keyword does exist, but only in lower case
                ["-l", "Luxembourgish"], # db has no books in this language
-               ["-l", "Luxembourgish", "-k", "syntax"], # db has no books in this language
+               ["-l", "Luxembourgish", "-k", "syntax"],
                ["-l", "English", "German"], # our db only lists monolingual books
                ["-p", ""], # should list all books that have no programming language associated with them
                ["-t", "5"], # --target should be a numerical value (int) in range 0..3
-               ["-t", "-2"], # --target should be a numerical value (int) in range 0..3
-               ["-t", "1.0"], # --target should be a numerical value (int) in range 0..3
-               ["-t", "4.6"], # --target should be a numerical value (int) in range 0..3
-               ["-t", "foobar"] # --target should be a numerical value
+               ["-t", "-2"],
+               ["-t", "1.0"],
+               ["-t", "4.6"],
+               ["-t", "foobar"], # --target should be a numerical value
+               ["-t", ""],
+               ["-s", "5"], # --pagerange should be a numerical value (int) in range 0..2
+               ["-s", "-2"],
+               ["-s", "1.0"],
+               ["-s", "4.6"],
+               ["-s", "foobar"], # --pagerange should be a numerical value
+               ["-s", ""],
+               ["-e", "5"], # --exercises should be 0 or 1
+               ["-e", "-2"],
+               ["-e", "1.0"],
+               ["-e", "4.6"],
+               ["-e", "foobar"],
+               ["-e", ""],
+               ["-c", "5"], # --codeexamples should be 0 or 1
+               ["-c", "-2"],
+               ["-c", "1.0"],
+               ["-c", "4.6"],
+               ["-c", "foobar"],
+               ["-c", ""],
+               ["-r", "5"], # --minresults should be 0 or a positive integer
+               ["-r", "-2"],
+               ["-r", "1.0"],
+               ["-r", "4.6"],
+               ["-r", "foobar"],
+               ["-r", ""],
         ] # list of (im)possible query arguments for debugging purposes. TODO: which ones behave unexpectedly?
         
 def maxscoretest():
