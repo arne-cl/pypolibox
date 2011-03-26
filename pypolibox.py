@@ -12,6 +12,7 @@ import locale
 from pydocplanner.document_planner import Message, ConstituentSet, Rule
 import pydocplanner.weather_test #TODO: remove after debugging
 from nltk import FeatDict
+from nltk.featstruct import Feature
 
 language, encoding = locale.getlocale()
 DEFAULT_ENCODING = encoding # sqlite stores strings as unicode, but the user input is likely something else
@@ -855,10 +856,10 @@ class Rules:
         conditions = ['exists("lastbook_match", locals())']
         return Rule("Concession", inputs, conditions, 'contrast_books', 'lastbook_match', 3)
         
-    def genrule_usermodel_concession(self): #TODO: replace this (temporary) rule
-        inputs = [ ('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
-        conditions = ['exists("usermodel_match", locals())', 'exists("usermodel_nomatch", locals())']
-        return Rule("Concession", inputs, conditions, 'usermodel_match', 'usermodel_nomatch', 2)
+    #def genrule_usermodel_concession(self): #checked. TODO: replace this (temporary) rule
+        #inputs = [ ('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
+        #conditions = ['exists("usermodel_match", locals())', 'exists("usermodel_nomatch", locals())']
+        #return Rule("Concession", inputs, conditions, 'usermodel_match', 'usermodel_nomatch', 2)
 
     def genrule_lastbook_usermodel_sequence(self): #TODO: replace this (temporary) rule
         inputs = [ ('lastbook_concession', ConstituentSet(aux=Message('lastbook_match'))), ('usermodel_concession', ConstituentSet(nucleus=Message('usermodel_match'))) ]
@@ -987,6 +988,10 @@ def genmessages(arg=argv[10], booknumber=0):
 def enumprint(obj):
     for index, item in enumerate(obj):
         print "{0}: {1}\n".format(index, item)
+
+def msgtypes(messages):
+	for i, message in enumerate(messages):
+		print i, message[Feature("msgType")]
 
 if __name__ == "__main__":
     #commandline_query = parse_commandline(sys.argv[1:])

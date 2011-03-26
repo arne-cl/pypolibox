@@ -329,7 +329,7 @@ def exists(thing, namespace):
     if namespace.has_key(thing):
         return True
     else:
-        print "{0} is not in {1}".format(thing, namespace)
+        #print "{0} is not in {1}".format(thing, namespace)
         return False
 
 
@@ -517,7 +517,7 @@ def __bottom_up_search(plans, rules):
             options_list.append( (x, y, z) )
             
         if options_list == []:
-            print "There's no rule that can be applied to these plans:\n{0}\n".format(plans) #TODO:remove
+            #print "There's no rule that can be applied to these plans:\n{0}\n".format(plans) #TODO:remove
             return None
 
         sorted_options = sorted(options_list, key = lambda (x,y,z): x, reverse=True) # sort all options by their score, beginning with the highest one
