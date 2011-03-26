@@ -291,7 +291,6 @@ class Rule(object):
             locals()[name] = message # write messages to the local namespace so a condition can evaluate them
             #UGLY HACK: the contents of locals() should NOT be modified; changes may not affect the values of local and free variables used by the interpreter. http://docs.python.org/library/functions.html#locals
 
-        print condition #TODO: remove after debugging
         try:
             ret = eval(condition)
         except AttributeError:
