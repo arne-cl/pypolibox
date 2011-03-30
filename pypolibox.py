@@ -870,15 +870,6 @@ class Rules:
         inputs = [ ('lastbook_usermodel_sequence', ConstituentSet(nucleus=ConstituentSet(aux=Message('lastbook_match')))), ('extra',Message('extra') )]
         return Rule("Sequence", inputs, [], 'lastbook_usermodel_sequence', 'extra', 1)
         
-   #def concession_extra_sequence(self):
-        #'''Meaning: add 'extra' message to a concession_books() ConstituentSet. More or less an afterthought. #TODO: find better options'''
-        #inputs = [ ('concession_books', ConstituentSet(aux=Message('lastbook_match'))), ('extra', Message('extra')) ]
-        #conditions = ['exists("lastbook_match", locals())', 'exists("extra", locals())']
-        #return Rule("Sequence", inputs, conditions, 'concession_books', 'extra', 1)
-        
-    #TODO: add Rule()s for Messages() w/out 'extra', 'lastbook_match/nomatch', 'usermodel_match/nomatch'
-    #TODO: all Rule() to combine usermodel_match/nomatch with lastbook stuff
-        
 
 
 #TODO: move helper/test functions to utils.py
@@ -985,6 +976,15 @@ def genmessages(arg=argv[10], booknumber=0):
     messages = am.books[booknumber].messages.values()
     for m in messages: m.freeze()
     return messages
+    
+def gendocplans(arg):
+	r = Rules().rules
+	dplans = []
+	am = AllMessages(AllPropositions(AllFacts(Books(Results(Query(arg))))))
+	for book in am.books:
+		m = book.messages.values()
+		dplans.append( pydocplanner.document_planner.bottom_up_plan(m, r) )
+	return dplans
 
 def enumprint(obj):
     for index, item in enumerate(obj):
