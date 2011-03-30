@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#TODO: fix Facts.generate_lastbook_facts: keyword values should not contain ' ', e.g. set([' ', 'pragmatics']) 
-
 import sqlite3
 import sys
 import argparse
 import re # for "utils"
 import datetime
+from time import time
 import locale
-from pydocplanner.document_planner import Message, ConstituentSet, Rule
-import pydocplanner.weather_test #TODO: remove after debugging
+from pydocplanner.document_planner import Message, ConstituentSet, Rule, bottom_up_plan
+#import pydocplanner.weather_test #TODO: remove after debugging
 from nltk import FeatDict
 from nltk.featstruct import Feature
 
@@ -870,6 +869,27 @@ class Rules:
         inputs = [ ('lastbook_usermodel_sequence', ConstituentSet(nucleus=ConstituentSet(aux=Message('lastbook_match')))), ('extra',Message('extra') )]
         return Rule("Sequence", inputs, [], 'lastbook_usermodel_sequence', 'extra', 1)
         
+class DocumentPlans:
+    """generates all C{DocumentPlan}s for an C{AllMessages} instance, i.e. one DocumentPlan for each book that is returned as a result of the user's database query"""
+    
+    def __init__ (self, allmessages):
+        """ Class initialiser """
+        rules = Rules().rules # generate all C{Rule}s that the C{Message}s will be checked against
+        self.document_plans = []
+        for index, book in enumerate(allmessages.books):
+            before = time()
+            messages = book.messages.values() # all messages about a single book
+            plan = bottom_up_plan(messages, rules)
+            after = time()
+            time_diff = after - before
+            self.document_plans.append(plan)
+            print "Plan {0}: generated in {1} seconds.\n".format(index, time_diff, plan)
+            if index > 0:
+                print "Comparing '{0}' with '{1}':\n\n{2}".format(book.messages['id_core']['title'], book.messages['lastbook_id_core']['title'], plan)
+            else:
+                print "Describing '{0}':\n\n{1}".format(book.messages['id_core']['title'], plan)
+            
+
 
 
 #TODO: move helper/test functions to utils.py
@@ -893,14 +913,6 @@ def test_sql():
     query_results = curs.execute('''select * from books where pages < 300;''')
     print "select * from books where pages < 300;\n\n"
     return query_results
-
-def test_cli():
-    """run several complex queries and print their results to stdout"""
-    for args in argv:
-        book_list = Books(Results(Query(argv)))
-        print "{0}:\n\n".format(argv)
-        for book in book_list.books:
-            print book.title, book.year
 
 argv = [ [],
          ["-k", "pragmatics"],
@@ -952,6 +964,15 @@ error_argv = [ ["-k", "cheeseburger"], # keyword does not exist
                ["-r", "foobar"],
                ["-r", ""],
         ] # list of (im)possible query arguments for debugging purposes. TODO: which ones behave unexpectedly?
+
+def test_cli(query_arguments=argv):
+    """run several complex queries and print their results to stdout"""
+    for arg in query_arguments:
+        book_list = Books(Results(Query(arg)))
+        print "{0}:\n\n".format(arg)
+        for book in book_list.books:
+            print book.title, book.year
+
         
 def maxscoretest():
     maxscores = []
@@ -991,8 +1012,13 @@ def enumprint(obj):
         print "{0}: {1}\n".format(index, item)
 
 def msgtypes(messages):
-	for i, message in enumerate(messages):
-		print i, message[Feature("msgType")]
+    if isinstance(messages, Messages):
+        for i, message in enumerate(messages.messages.values()):
+            print i, message[Feature("msgType")]
+    
+    else: # if messages is a list of C{Message} instances
+        for i, message in enumerate(messages):
+            print i, message[Feature("msgType")]
         
 def findrule(rules, ruletype="", attribute="", value=""):
     '''debugging: find rules that have a certain ruleType and some attribute-value pair

@@ -503,7 +503,7 @@ def __bottom_up_search(plans, rules):
     @rtype: C{NoneType} or a C{set} of (C{Message}s or C{ConstituentSet}s)
     '''
     if len(plans) == 1:
-        print "There's only one plan, so we'll use it:\n{0}\n".format(plans) #TODO: remove
+        #print "There's only one plan, so we'll use it:\n{0}\n".format(plans) #TODO: remove
         return plans
     elif len(plans) < 1:
         raise Exception('ERROR')
@@ -517,7 +517,7 @@ def __bottom_up_search(plans, rules):
             options_list.append( (x, y, z) )
             
         if options_list == []:
-            print "There's no rule that can be applied to these plans:\n{0}\n".format(plans) #TODO:remove
+            #print "There's no rule that can be applied to these plans:\n{0}\n".format(plans) #TODO:remove
             return None
 
         sorted_options = sorted(options_list, key = lambda (x,y,z): x, reverse=True) # sort all options by their score, beginning with the highest one
