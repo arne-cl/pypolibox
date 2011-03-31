@@ -762,27 +762,31 @@ class Rules:
     def __init__ (self):
         """calls methods to generate rules and saves these in self.rules"""
         self.rules = []
+        self.rule_dict = {} #not necessary, but handy. cf. findrules()
         methods_list = dir(self) #lists all methods of Rules()
         for method_name in methods_list:
             if method_name.startswith('genrule_'):
                 method = 'self.' + method_name + '()'
-                self.rules.append( eval(method) ) # calls all methods that generate rules and appends those rules to self.rules
+                rule = eval(method) # calls the method that generates a rule
+                self.rules.append(rule)
+                self.rule_dict[method_name] = rule
                 
 # Rule() instances for books without a preceding book to compare them to  
         
-    def genrule_id_eleborate(self):
-        '''combine id_core and id_additional'''
+    def genrule_id_complete(self):
+        '''id_complete = Elaboration(id_core, id_additional)'''
         inputs = [('id_core', Message('id_core')), ('id_additional', Message('id_additional'))]
         return Rule('Elaboration', inputs, [], 'id_core', 'id_additional', 5)
         
     def genrule_id_extra_sequence(self):
-        '''add an additional "sentence" about extra facts after the id messages'''
+        '''id_extra_sequence = Sequence(id_complete, extra), if 'extra' exists:
+        
+        adds an additional "sentence" about extra facts after the id messages'''
         inputs = [('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('extra', Message('extra'))]
         return Rule('Sequence', inputs, ['exists("extra", locals())'], 'id_complete', 'extra', 2)
         
-    def genrule_pos_eval(self):
-        #TODO: do we need to check for usermodel_match/nomatch existence
-        '''if there are no books to compare this one to, check if it has more usermodel matches than usermodel non-matches.
+    def genrule_pos_eval(self): #TODO: do we need to check for usermodel_match/nomatch existence?
+        '''pos_eval = Concession(usermodel_match, usermodel_nomatch), if len(usermodel_match) >= len(usermodel_nomatch)
         
         Meaning: Although this book doesn't fulfill all your requirements (features x and y), it covers most of them (feat. a,b,c & d). It's therefore suitable for you.'''
         inputs = [('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
@@ -791,12 +795,13 @@ class Rules:
     def genrule_neg_eval(self):
         #TODO: write conditions for exists(usermodel_match/nomatch)
         #TODO: check if conditions are always necessary (if inputs are well specified)
-        '''if there are no books to compare this one to, return a negative evaluation if it has less usermodel matches than nonmatches.
+        '''neg_eval = Concession(usermodel_nomatch, usermodel_match), if len(usermodel_match) < len(usermodel_nomatch)
         
         Meaning: Although this book fulfills some of your requirements, it doesn't match most of them. Therefore, this book might not be the best choice.'''
         inputs = [('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
         return Rule("Concession", inputs, ['len(usermodel_match) < len(usermodel_nomatch)'], 'usermodel_nomatch', 'usermodel_match', 2)
-        
+    
+    # rules genrule_complete_seq 1 .. 4: complete_without_lastbook = Sequence(id_complete/id_extra_sequence, pos_eval/neg_eval)    
     def genrule_complete_seq1(self):
         inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('pos_eval', ConstituentSet(nucleus=Message('usermodel_match'))) ]
         return Rule("Sequence", inputs, [], 'id_extra_sequence', 'pos_eval', 5)
@@ -812,7 +817,8 @@ class Rules:
     def genrule_complete_seq4(self):
         inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('neg_eval', ConstituentSet(nucleus=Message('usermodelno_match'))) ]
         return Rule("Sequence", inputs, [], 'id_complete', 'neg_eval', 4)
-
+    
+    # rules genrule_complete_seq 5 .. 8: complete_with_particial_usermodel_without_lastbook = Sequence(id_complete/id_extra_sequence, usermodel_match/usermodel_match)    
     def genrule_complete_seq5(self):
         inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('usermodel_match', Message('usermodel_match')) ]
         conditions = ['exists("usermodel_match", locals())', 'exists("usermodel_nomatch", locals()) is False']
@@ -836,8 +842,10 @@ class Rules:
 # Rule() instances for books that have a preceding book to compare them to
 #TODO: where to put 'id_additional', 'extra'?
 
-    def genrule_elaborate_differences(self): #checked
-        '''Meaning: This book id_eleborate() differs in terms of (these) features (from the preceding book). Used in conjunction with contrast_books().'''
+    def genrule_book_differences(self): #checked
+        '''book_differences = Elaboration(id_complete, lastbook_nomatch), if lastbook_nomatch exists
+        
+        Meaning: This book id_eleborate() differs in terms of (these) features (from the preceding book). Used in conjunction with contrast_books().'''
         inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('lastbook_nomatch', Message('lastbook_nomatch')) ]
         conditions = ['exists("lastbook_nomatch", locals())']
         nucleus = 'id_complete'
@@ -845,22 +853,22 @@ class Rules:
         return Rule("Elaboration", inputs, conditions, nucleus, aux, 3)
 
     def genrule_contrast_books(self): #checked
-        '''Meaning: In contrast to the other book (author, title), this book (author, title) has differing features. Used in conjunction with elaborate_differences().'''
+        '''contrast_books = Contrast(lastbook_id_core, book_differences), if lastbook_id_core exists
+        
+        Meaning: In contrast to the other book (author, title), this book (author, title) has differing features. Used in conjunction with elaborate_differences().'''
         inputs = [ ('lastbook_id_core', Message('lastbook_id_core')), ('book_differences', ConstituentSet(aux=Message('lastbook_nomatch')) ) ]
         return Rule("Contrast", inputs, ['exists("lastbook_id_core", locals())'], 'lastbook_id_core', 'book_differences', 3)
         
     def genrule_concession_books(self): #checked
-        '''Meaning: nucleus = contrast_books(), aux = Nevertheless, both books share some features: ...'''
+        '''concession_books = Concession(contrast_books, lastbook_match), if lastbook_match exists
+        
+        Meaning: nucleus = contrast_books(), aux = Nevertheless, both books share some features: ...'''
         inputs = [ ('contrast_books', ConstituentSet(nucleus=Message('lastbook_id_core')) ), ('lastbook_match', Message('lastbook_match')) ]
         conditions = ['exists("lastbook_match", locals())']
         return Rule("Concession", inputs, conditions, 'contrast_books', 'lastbook_match', 3)
         
-    #def genrule_usermodel_concession(self): #checked. TODO: replace this (temporary) rule
-        #inputs = [ ('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
-        #conditions = ['exists("usermodel_match", locals())', 'exists("usermodel_nomatch", locals())']
-        #return Rule("Concession", inputs, conditions, 'usermodel_match', 'usermodel_nomatch', 2)
-
     def genrule_lastbook_usermodel_sequence(self): #TODO: replace this (temporary) rule
+        '''lastbook_usermodel_sequence = Sequence(concession_books, )'''
         inputs = [ ('lastbook_concession', ConstituentSet(aux=Message('lastbook_match'))), ('usermodel_concession', ConstituentSet(nucleus=Message('usermodel_match'))) ]
         return Rule("Sequence", inputs, [], 'lastbook_concession', 'usermodel_concession', 2)
         
@@ -1026,17 +1034,17 @@ def findrule(rules, ruletype="", attribute="", value=""):
     findrule(rules, "Concession", "nucleus", "usermodel_match") finds rules of type 'Concession' where rule.nucleus == 'usermodel_match'
     '''
     if ruletype == "":
-        for i, rule in enumerate(rules):
+        for name, rule in rules.iteritems():
             if getattr(rule, attribute) is value:
-                print "rule {0}:\n{1}".format(i, rule)
+                print "rule {0}:\n{1}".format(name, rule)
     elif attribute == "":
-        for i, rule in enumerate(rules):
+        for name, rule in rules.iteritems():
             if rule.ruleType is ruletype:
-                print "rule {0}:\n{1}".format(i, rule)
+                print "rule {0}:\n{1}".format(name, rule)
     else:
-        for i, rule in enumerate(rules):
+        for name, rule in rules.iteritems():
             if rule.ruleType is ruletype and getattr(rule, attribute) is value:
-                print "rule {0}:\n{1}".format(i, rule)
+                print "rule {0}:\n{1}".format(name, rule)
 
 if __name__ == "__main__":
     #commandline_query = parse_commandline(sys.argv[1:])
