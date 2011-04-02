@@ -2,6 +2,7 @@ import string, re
 import nltk
 import util
 import itertools
+from nltk.featstruct import Feature
 #from inputs import *
 
 #original author: Nicholas FitzGerald
@@ -183,8 +184,9 @@ class Rule(object):
             inputs - is the list of inputs (C{Message}s or C{ConstituentSets} used in this application of the rule
             returns an empty list if I{get_options} can't find a way to to apply the I{Rule}.
         """
+        self.messages = messages
         name_list = [] # a list containing the inputs names in order
-        type_groups = [] # a list where each index is a list of all the input Messages which are subsumed by the input proto-type 
+        type_groups = [] # a list where each index is a list of all the input Messages which are subsumed by the corresponding input proto-type 
 
         for (name, condition) in self.inputs:
             name_list.append(name)
@@ -287,8 +289,12 @@ class Rule(object):
         or:    
             M1['attribute']['direction'] == M2['attribute']['direction']            
         '''
-        for (name, message) in group: # for message_tuple in group ...
-            locals()[name] = message # write messages to the local namespace so a condition can evaluate them
+        for message in self.messages:
+            if message.has_key(Feature("msgType")): #if it's a C{Message} and not a C{ConstituentSet}
+                message_name = message[Feature("msgType")]
+                locals()[message_name] = message
+#        for (name, message) in group: # for message_tuple in group ...
+#            locals()[name] = message # write messages to the local namespace so a condition can evaluate them
             #UGLY HACK: the contents of locals() should NOT be modified; changes may not affect the values of local and free variables used by the interpreter. http://docs.python.org/library/functions.html#locals
 
         try:

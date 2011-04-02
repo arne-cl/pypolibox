@@ -800,6 +800,15 @@ class Rules:
         conditions = ['exists("usermodel_nomatch", locals()) is False']
         return Rule('Elaboration', inputs, conditions, 'id_complete', 'usermodel_match', 4)
         
+    def genrule_id_usermodelmatch_extra(self):
+        '''id_usermodelmatch_extra = Elaboration(id_usermodelmatch, extra), if there's an extra message but no usermodel_nomatch
+        
+        Meaning: nucleus = id_usermodelmatch, aux = It is also a rather short/long/old/new book.'''
+        inputs = [ ('id_usermodelmatch', ConstituentSet(aux=Message('usermodel_match'))), ('extra', Message('extra')) ]
+        conditions = ['exists("usermodel_nomatch", locals()) is False', 'exists("extra", locals())']
+        return Rule('Elaboration', inputs, conditions, 'id_usermodelmatch', 'extra', 4)
+        
+    
     def genrule_pos_eval(self): #TODO: do we need to check for usermodel_match/nomatch existence?
         '''pos_eval = Concession(usermodel_match, usermodel_nomatch), if len(usermodel_match) >= len(usermodel_nomatch)
         
@@ -857,15 +866,22 @@ class Rules:
 # Rule() instances for books that have a preceding book to compare them to
 #TODO: where to put 'id_additional', 'extra'?
 
-    def genrule_book_differences(self):
-        '''book_differences = Elaboration(id_complete, lastbook_nomatch), if lastbook_nomatch exists
+    def genrule_book_differences1(self):
+        '''book_differences1 = Elaboration(id_complete, lastbook_nomatch), if lastbook_nomatch exists
         
         Meaning: This book id_complete() differs in terms of (these) features. Used in conjunction with contrast_books().'''
         inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('lastbook_nomatch', Message('lastbook_nomatch')) ]
         conditions = ['exists("lastbook_nomatch", locals())']
-        nucleus = 'id_complete'
-        aux = 'lastbook_nomatch'
-        return Rule("Elaboration", inputs, conditions, nucleus, aux, 3)
+        return Rule("Elaboration", inputs, conditions, 'id_complete', 'lastbook_nomatch', 3)
+
+    def genrule_book_differences2(self):
+        '''book_differences2 = Elaboration(id_usermodelmatch, lastbook_nomatch), if lastbook_nomatch exists, if there's no usermodel_nomatch and if there are less usermodel matches than non-matches
+        
+        Meaning: nucleus = [id_usermodelmatch(): This book fulfills all your requirements. It was written in ... and...], aux = It differs in terms of (these) features. Used in conjunction with contrast_books().'''
+        inputs = [ ('id_usermodelmatch', ConstituentSet(aux=Message('usermodel_match'))), ('lastbook_nomatch', Message('lastbook_nomatch')) ]
+        conditions = ['exists("lastbook_nomatch", locals())', 'exists("usermodel_nomatch", locals()) is False', 'len(lastbook_match) < len(lastbook_nomatch)']
+        return Rule("Elaboration", inputs, conditions, 'id_usermodelmatch', 'lastbook_nomatch', 3)
+
 
     def genrule_contrast_books(self):
         '''contrast_books = Contrast(lastbook_id_core, book_differences), if lastbook_id_core exists
