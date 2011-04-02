@@ -771,6 +771,14 @@ class Rules:
                 self.rules.append(rule)
                 self.rule_dict[method_name] = rule
                 
+    def __str__(self):
+        ret_str = ""
+        for name, rule in self.rule_dict.iteritems():
+            rule_summary = "{0}({1}, {2})".format(rule.ruleType, rule.nucleus, rule.aux)
+            ret_str += "{0}: {1}\n\n".format(name, rule_summary)
+            ret_str += "{0}\n\n".format(str(rule))
+        return ret_str
+                
 # Rule() instances for books without a preceding book to compare them to  
         
     def genrule_id_complete(self):
@@ -783,7 +791,7 @@ class Rules:
         
         adds an additional "sentence" about extra facts after the id messages'''
         inputs = [('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('extra', Message('extra'))]
-        return Rule('Sequence', inputs, ['exists("extra", locals())'], 'id_complete', 'extra', 2)
+        return Rule('Sequence', inputs, ['exists("extra", locals())'], 'id_complete', 'extra', 5)
         
     def genrule_pos_eval(self): #TODO: do we need to check for usermodel_match/nomatch existence?
         '''pos_eval = Concession(usermodel_match, usermodel_nomatch), if len(usermodel_match) >= len(usermodel_nomatch)
@@ -845,7 +853,7 @@ class Rules:
     def genrule_book_differences(self):
         '''book_differences = Elaboration(id_complete, lastbook_nomatch), if lastbook_nomatch exists
         
-        Meaning: This book id_complete() differs in terms of (these) features (from the preceding book). Used in conjunction with contrast_books().'''
+        Meaning: This book id_complete() differs in terms of (these) features. Used in conjunction with contrast_books().'''
         inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('lastbook_nomatch', Message('lastbook_nomatch')) ]
         conditions = ['exists("lastbook_nomatch", locals())']
         nucleus = 'id_complete'
@@ -855,7 +863,7 @@ class Rules:
     def genrule_contrast_books(self):
         '''contrast_books = Contrast(lastbook_id_core, book_differences), if lastbook_id_core exists
         
-        Meaning: In contrast to the other book (author, title), this book (author, title) has differing features. Used in conjunction with book_differences().'''
+        Meaning: nucleus = "In contrast to the other book (author, title)", aux = [book_differences(): this book (author, title) has differing features. Used in conjunction with book_differences()].'''
         inputs = [ ('lastbook_id_core', Message('lastbook_id_core')), ('book_differences', ConstituentSet(aux=Message('lastbook_nomatch')) ) ]
         return Rule("Contrast", inputs, ['exists("lastbook_id_core", locals())'], 'lastbook_id_core', 'book_differences', 3)
         
@@ -876,7 +884,7 @@ class Rules:
         return Rule("Sequence", inputs, conditions, 'contrast_books', 'neg_eval', 2)
 
     def genrule_no_lastbookmatch_pos_usermodel_concession(self):
-        '''no_lastbookmatch_pos_usermodel_concession = Concession(lastbook_nomatch, pos_eval)
+        '''no_lastbookmatch_pos_usermodel_concession = Concession(lastbook_nomatch, pos_eval), if there's no lastbook_match
         
         Meaning: This book hasn't got anything in common with the last book. Nevertheless, it matches many of your requirements'''
         inputs = [ ('lastbook_nomatch', Message('lastbook_nomatch')), ('pos_eval', ConstituentSet(nucleus=Message('usermodel_match'))) ]
@@ -884,7 +892,7 @@ class Rules:
         return Rule("Concession", inputs, conditions, 'lastbook_nomatch', 'pos_eval', 2)
 
     def genrule_no_lastbookmatch_neg_usermodel_concession(self):
-        '''no_lastbookmatch_neg_usermodel_concession = Elaboration(lastbook_nomatch, neg_eval)
+        '''no_lastbookmatch_neg_usermodel_concession = Elaboration(lastbook_nomatch, neg_eval), if there's no lastbook_match
         
         Meaning: This book hasn't got anything in common with the last book. In addition, it does only match a few of your requirements'''
         inputs = [ ('lastbook_nomatch', Message('lastbook_nomatch')), ('neg_eval', ConstituentSet(nucleus=Message('usermodel_nomatch'))) ]

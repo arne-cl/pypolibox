@@ -57,21 +57,21 @@ import itertools
 #[ magnitude = [ number = 4        ] ]
 #[             [ unit   = 'inches' ] ]
 
-def compare_options(rules, messages): #TODO: remove after debugging
-    for i, rule in enumerate(rules):
-        print "****BEGIN COMPARISON {0}******************".format(i)
-        print "comparing old vs. new  for rule {0}".format(i)
-        rule.get_options(messages)
-        old = rule.after_alternative
-        new = rule.after
-        if old == new:
-            print "\n\nSAME: old and new have the same value for rule {0}:".format(i)
-            print "\ttype_group: {0}\n".format(old)
-        else:
-            print "\n\nDIFFERENT: old and new have different values for rule {0}".format(i)
-            print "\told: ", old, "\n"
-            print "\tnew: ", new, "\n"
-        print "####END COMPARISON {0}##################\n\n".format(i)
+#def compare_options(rules, messages): #TODO: remove after debugging
+    #for i, rule in enumerate(rules):
+        #print "****BEGIN COMPARISON {0}******************".format(i)
+        #print "comparing old vs. new  for rule {0}".format(i)
+        #rule.get_options(messages)
+        #old = rule.after_alternative
+        #new = rule.after
+        #if old == new:
+            #print "\n\nSAME: old and new have the same value for rule {0}:".format(i)
+            #print "\ttype_group: {0}\n".format(old)
+        #else:
+            #print "\n\nDIFFERENT: old and new have different values for rule {0}".format(i)
+            #print "\told: ", old, "\n"
+            #print "\tnew: ", new, "\n"
+        #print "####END COMPARISON {0}##################\n\n".format(i)
 
 class DocPlan(nltk.featstruct.FeatDict):
     """
@@ -149,7 +149,7 @@ class Rule(object):
         @param heuristic: an integer used to rank potential ConstituentSets. 
         @type heuristic: C{int}
         """
-
+        
         self.ruleType = ruleType
         self.inputs = inputs
         self.conditions = conditions
@@ -162,7 +162,7 @@ class Rule(object):
         This is just a simple string output for the rule which is mainly used for debugging.
         """
         ret = ''
-        for (key, val) in self.__dict__.items():
+        for (key, val) in self.__dict__.iteritems():
             ret += str(key) + ' - ' + str(val) + '\n'
         return ret
 
@@ -318,142 +318,136 @@ def exists(thing, namespace):
     '''checks if a variable/object/instance exists in the given namespace
     
     @type thing: C{str}
-    @param thing: the name of a variable, objects, class instance etc.
-    
     @type namespace: C{dict}
-    @param namespace: a namespace (dictionary), e.g. locals() or globals()
-    
     @rtype: C{bool}
-    @return: True, if 'thing' exists in 'namespace'. Otherwise returns False.
     '''
     if namespace.has_key(thing):
         return True
     else:
-        #print "{0} is not in {1}".format(thing, namespace)
         return False
 
 
-def read_messages(messages):
-    '''
-    Read messages from a string formatted according to the tab-deliniated format specified in the manual.
+#def read_messages(messages):
+    #'''
+    #Read messages from a string formatted according to the tab-deliniated format specified in the manual.
 
-    @input messages: string representation of messages in format specified in manual
-    @type messages: string
-    @returns list of Message s
-    '''
-    ret = []    
+    #@input messages: string representation of messages in format specified in manual
+    #@type messages: string
+    #@returns list of Message s
+    #'''
+    #ret = []    
     
-    #messages = map(lambda x: x.strip('\n'),messages.split('\n\n'))
-    messages_list = messages.strip('\n').split('\n\n') #divide string into individual messages
-    #print len(messages)
+    ##messages = map(lambda x: x.strip('\n'),messages.split('\n\n'))
+    #messages_list = messages.strip('\n').split('\n\n') #divide string into individual messages
+    ##print len(messages)
 
-    for m in messages_list:
-        lines = m.split('\n')
-        msgType = lines[0].strip()
-        msg = Message(msgType)
-        msg.update(parse_message_features(lines[1:],1))
-        ret.append(msg)
+    #for m in messages_list:
+        #lines = m.split('\n')
+        #msgType = lines[0].strip()
+        #msg = Message(msgType)
+        #msg.update(parse_message_features(lines[1:],1))
+        #ret.append(msg)
 
-    return ret
+    #return ret
 
 
-def parse_message_features(lines, tab):
-    '''
-    Recursive helper method for read_messages parses message features.
+#def parse_message_features(lines, tab):
+    #'''
+    #Recursive helper method for read_messages parses message features.
 
-    @returns a C{nltk.featstruct.FeatDict} corresponding to the input string
-    '''
-    ret = nltk.featstruct.FeatDict()
+    #@returns a C{nltk.featstruct.FeatDict} corresponding to the input string
+    #'''
+    #ret = nltk.featstruct.FeatDict()
 
-    n = 0
-    while n < len(lines):
-        l = lines[n].split()
+    #n = 0
+    #while n < len(lines):
+        #l = lines[n].split()
 
-        if len(l) == 1: # if this is the beginning of a category, recusively call parse_message_features to create nested FeatDict
+        #if len(l) == 1: # if this is the beginning of a category, recusively call parse_message_features to create nested FeatDict
 
-            end_of_feat = n + util.first_index(lines[n+1:], lambda x: util.lcount(x, '\t') <= tab)
-            r = lines[n+1: end_of_feat+1] #find where this feature's specifying lines end
+            #end_of_feat = n + util.first_index(lines[n+1:], lambda x: util.lcount(x, '\t') <= tab)
+            #r = lines[n+1: end_of_feat+1] #find where this feature's specifying lines end
 
-            #print r, n+1, end_of_feat
+            ##print r, n+1, end_of_feat
 
-            ret[l[0]] = parse_message_features(r, tab+1) #recusively call parse_message_features
-            n = end_of_feat #skip cursor to after nested featstruct
+            #ret[l[0]] = parse_message_features(r, tab+1) #recusively call parse_message_features
+            #n = end_of_feat #skip cursor to after nested featstruct
 
-        elif len(l) == 2: #else if this is a regular value
-            #print key, value
-            ret[l[0]] = eval(l[1])
+        #elif len(l) == 2: #else if this is a regular value
+            ##print key, value
+            #ret[l[0]] = eval(l[1])
 
-        else:
-            raise Exception('MESSAGE READ ERROR')
-        n += 1
+        #else:
+            #raise Exception('MESSAGE READ ERROR')
+        #n += 1
 
-    return ret
+    #return ret
 
-def read_rules(rules):
-    '''
-    Read rules from a string formatted according to the tab-deliniated format specified in the manual.
+#def read_rules(rules):
+    #'''
+    #Read rules from a string formatted according to the tab-deliniated format specified in the manual.
 
-    @input rules: string representation of rules in format specified in manual
-    @type rules: string
-    @returns list of Rule s
-    '''
-    ret = []
+    #@input rules: string representation of rules in format specified in manual
+    #@type rules: string
+    #@returns list of Rule s
+    #'''
+    #ret = []
     
-    #rules = map(lambda x: x.strip('\n'),rules.split('\n\n'))
-    rules_list = rules.strip('\n').split('\n\n')
+    ##rules = map(lambda x: x.strip('\n'),rules.split('\n\n'))
+    #rules_list = rules.strip('\n').split('\n\n')
     
-    for rule in rules_list:
-        rule = rule.split('\n')
-        firstLineRegex = '(\w+)\((.+?) *(\w+), *(.+?) *(\w+)\)'
-        match = re.findall(firstLineRegex, rule[0])
-        if len(match) == 1:
-            (name, input1type, input1name, input2type, input2name) = match[0]
+    #for rule in rules_list:
+        #rule = rule.split('\n')
+        #firstLineRegex = '(\w+)\((.+?) *(\w+), *(.+?) *(\w+)\)'
+        #match = re.findall(firstLineRegex, rule[0])
+        #if len(match) == 1:
+            #(name, input1type, input1name, input2type, input2name) = match[0]
 
-            #print input1type
-            #print input2type
+            ##print input1type
+            ##print input2type
 
-            input1s = map(eval, input1type.split('|'))            
-            input2s = map(eval, input2type.split('|'))
+            #input1s = map(eval, input1type.split('|'))            
+            #input2s = map(eval, input2type.split('|'))
 
-            inputs = util.index_sets([input1s,input2s])
-        else:
-            raise Exception('ERROR')
+            #inputs = util.index_sets([input1s,input2s])
+        #else:
+            #raise Exception('ERROR')
 
-        for line in rule[1:]:
-            line = line.strip()
-            lineregex = re.compile('\((.*)\) *: *ConstituentSet\((.+) *, *(\w+), *(\w+)\) *: *(.+) *')
-            match = re.findall(lineregex, line)
-            if match:
-                (condition, relType, nucleus, aux, heuristic) = match[0]
-                #print condition
-                condition = [__replace_names(condition, [input1name, input2name])]
-                heuristic = __replace_names(heuristic, [input1name, input2name])
-                if '' in condition: condition.remove('') #UGLY HACK
-            else:
-                #print line
-                raise Exception('blah')
+        #for line in rule[1:]:
+            #line = line.strip()
+            #lineregex = re.compile('\((.*)\) *: *ConstituentSet\((.+) *, *(\w+), *(\w+)\) *: *(.+) *')
+            #match = re.findall(lineregex, line)
+            #if match:
+                #(condition, relType, nucleus, aux, heuristic) = match[0]
+                ##print condition
+                #condition = [__replace_names(condition, [input1name, input2name])]
+                #heuristic = __replace_names(heuristic, [input1name, input2name])
+                #if '' in condition: condition.remove('') #UGLY HACK
+            #else:
+                ##print line
+                #raise Exception('blah')
 
-            for i in inputs:
-                i1 = i[0]
-                i2 = i[1]
-                inputs = [(input1name, i1), (input2name, i2)]
-                ret.append(Rule(relType, inputs, condition, nucleus, aux, int(heuristic)))
+            #for i in inputs:
+                #i1 = i[0]
+                #i2 = i[1]
+                #inputs = [(input1name, i1), (input2name, i2)]
+                #ret.append(Rule(relType, inputs, condition, nucleus, aux, int(heuristic)))
 
-    return ret
+    #return ret
 
-def __replace_names(string, names):
-    '''
-    Helper method for read_rules replaces dot-indexed references to message values in string representation of rules into the get() statements required for Message s
-    '''
+#def __replace_names(string, names):
+    #'''
+    #Helper method for read_rules replaces dot-indexed references to message values in string representation of rules into the get() statements required for Message s
+    #'''
     
-    for n in names:
+    #for n in names:
 
-        matches = re.findall('(%s(?:(?:\.\w+)*))'%(n), string)
-        for m in matches:
-            r = m.split('.')
-            r = r[0]+'.get('+str(tuple(r[1:]))+')'
-            string = string.replace(m,r)
-    return string
+        #matches = re.findall('(%s(?:(?:\.\w+)*))'%(n), string)
+        #for m in matches:
+            #r = m.split('.')
+            #r = r[0]+'.get('+str(tuple(r[1:]))+')'
+            #string = string.replace(m,r)
+    #return string
 
 def bottom_up_plan(messages, rules, dtype = None, text= None):
     '''
