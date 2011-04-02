@@ -767,7 +767,7 @@ class Rules:
         for method_name in methods_list:
             if method_name.startswith('genrule_'):
                 method = 'self.' + method_name + '()'
-                rule = eval(method) # calls the method that generates a rule
+                rule = eval(method) # calls a method that generates a rule
                 self.rules.append(rule)
                 self.rule_dict[method_name] = rule
                 
@@ -778,9 +778,8 @@ class Rules:
             ret_str += "{0}: {1}\n\n".format(name, rule_summary)
             ret_str += "{0}\n\n".format(str(rule))
         return ret_str
-                
-# Rule() instances for books without a preceding book to compare them to  
-        
+
+      
     def genrule_id_complete(self):
         '''id_complete = Elaboration(id_core, id_additional)'''
         inputs = [('id_core', Message('id_core')), ('id_additional', Message('id_additional'))]
@@ -792,6 +791,14 @@ class Rules:
         adds an additional "sentence" about extra facts after the id messages'''
         inputs = [('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('extra', Message('extra'))]
         return Rule('Sequence', inputs, ['exists("extra", locals())'], 'id_complete', 'extra', 5)
+
+    def genrule_id_usermodelmatch(self):
+        '''id_usermodelmatch = Elaboration(id_complete, usermodel_match), if there's no usermodel_nomatch
+        
+        Meaning: This book fulfills ALL your requirments. It was written in ..., contains these features ... and ... etc'''
+        inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('usermodel_match', Message('usermodel_match')) ]
+        conditions = ['exists("usermodel_nomatch", locals()) is False']
+        return Rule('Elaboration', inputs, conditions, 'id_complete', 'usermodel_match', 4)
         
     def genrule_pos_eval(self): #TODO: do we need to check for usermodel_match/nomatch existence?
         '''pos_eval = Concession(usermodel_match, usermodel_nomatch), if len(usermodel_match) >= len(usermodel_nomatch)
@@ -1045,7 +1052,7 @@ def testmsg(message_type='lastbook_nomatch'):
 def genprops(arg=argv[10]):
     return AllPropositions(AllFacts(Books(Results(Query(arg)))))
     
-def genmessages(arg=argv[10], booknumber=0):
+def genmessages(booknumber=0, arg=argv[10]):
     am = AllMessages(AllPropositions(AllFacts(Books(Results(Query(arg))))))
     messages = am.books[booknumber].messages.values()
     for m in messages: m.freeze()
@@ -1100,6 +1107,23 @@ def findrule(rules, ruletype="", attribute="", value=""):
         for index, (name, rule) in enumerate(rules.iteritems()):
             if rule.ruleType is ruletype and getattr(rule, attribute) is value:
                 print "rule {0} - {1}:\n{2}".format(index, name, rule)
+
+def update_messages(messages, rule_name):
+    '''debugging: take a rule and apply it to your list of messages. 
+    
+    the resulting C{ConstituentSet} will be added to the list, while the messages involved in its construction will be removed.
+    repeat this step until you've found an erroneous/missing rule'''
+    options = Rules().rule_dict[rule_name].get_options(messages)
+    if options:
+        for option in options:
+            score, constitutent_set, removes = option
+            messages.append(constitutent_set)
+            for message in removes:
+                messages.remove(message)
+            for message in messages:
+                message.freeze()
+    else:
+        print "Sorry, this rule could not be applied to your messages."
 
 if __name__ == "__main__":
     #commandline_query = parse_commandline(sys.argv[1:])
