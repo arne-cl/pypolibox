@@ -141,7 +141,7 @@ class Results:
     def __init__ (self, query):
         """initialises a connection to the db, sends queries and stores results in self.query_results
         
-        if the query (combining query parameters with boolean AND) returns less than query.minresults, a different query will be sent (combining query parameters with boolean OR). in the latter case, a maximum score (maxscore) will be calculated (how many query parameters does a result match). maxscore will be used by Books() to find the n-best matching books.
+        if the query (combining query parameters with boolean AND) returns less than query.minresults, a different query will be sent (combining query parameters with boolean OR). in the latter case, a maximum score (possible_matches) will be calculated (how many query parameters does a result match). possible_matches will be used by Books() to find the n-best matching books.
         
         @type q: instance of class C{Query}
         @param q: an instance of the class Query()
@@ -153,7 +153,7 @@ class Results:
         self.and_query = query.and_query
         self.or_query = query.or_query
         self.minresults = query.minresults
-        self.maxscore = 0
+        self.possible_matches = 0
         
         conn = sqlite3.connect(DB_FILE)
         self.curs = conn.cursor()
@@ -164,23 +164,23 @@ class Results:
         for result in and_sql_cursor:
             self.and_query_results.append(result)
         if len(self.and_query_results) >= self.minresults:
-            self.maxscore = self.get_maxscore(self.and_query_results)
+            self.possible_matches = self.get_number_of_possible_matches(self.and_query_results)
             self.query_results = self.and_query_results
             self.query_type = 'and'
         else: # if 'AND query' doesn't return enough results ... TODO: this should only be executed if the and_query has too few results AND that query consists of more than one parameter -- otherwise, it won't improve results in this case.
             or_sql_cursor = self.curs.execute(query.or_query)
             for result in or_sql_cursor:
                 self.or_query_results.append(result)
-            self.maxscore = self.get_maxscore(self.or_query_results)
+            self.possible_matches = self.get_number_of_possible_matches(self.or_query_results)
             self.query_results = self.or_query_results
             self.query_type = 'or'
             
-    def get_maxscore(self, query_results):
+    def get_number_of_possible_matches(self, query_results):
         """
         counts the number of query paramters that could be matched by books from the results set. 
-        example: keywords = pragmatics, keywords = semantics, language = German --> maxscore = 3
+        example: keywords = pragmatics, keywords = semantics, language = German --> possible_matches = 3
         """
-        maxscore = 0
+        possible_matches = 0
         self.params = [param for param in self.query_args.__dict__
                           if param is not 'minresults'
                           if self.query_args.__getattribute__(param) is not None]
@@ -188,10 +188,10 @@ class Results:
         #self.items = zip(self.params, self.values)
         for value in self.values:
             if type(value) == list:
-                maxscore += len(value)
+                possible_matches += len(value)
             else:
-                maxscore += 1                                    
-        return maxscore
+                possible_matches += 1                                    
+        return possible_matches
         
     def get_table_header(self, table_name):
         """
@@ -240,18 +240,18 @@ class Books:
         if self.query_type == 'and':
             pass #nothing to do here, since all 'AND query' results match all query parameters
         elif self.query_type == 'or':
-            book_ranks = self.get_book_ranks(results.maxscore)
+            book_ranks = self.get_book_ranks(results.possible_matches)
             for (score, index) in book_ranks:
                 sorted_books.append( (self.books[index], score) )
             self.books, self.scores = zip(*sorted_books) #magic unzip / reverse zip function
                  
-    def get_book_ranks(self, maxscore):
+    def get_book_ranks(self, possible_matches):
         """
         'OR query' results do not match all query parameters, therefore we'll need to rank them
         """
         scores = []
         for index, book in enumerate(self.books):
-            score = float(book.book_score) / float(maxscore)
+            score = float(book.book_score) / float(possible_matches)
             scores.append( (score, index) )
         return sorted(scores, reverse=True) #best (highest) scores first
 
@@ -540,7 +540,7 @@ class AllPropositions:
         for index, book in enumerate(self.books):
             return_string += "propositions about book #{0}:\n".format(index) + \
                              "----------------------------\n" + \
-                             "{0}\n\n".format(books)
+                             "{0}\n\n".format(book)
         return return_string
         
 class Propositions():
