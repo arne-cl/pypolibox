@@ -972,8 +972,10 @@ class DocumentPlans:
         self.document_plans = []
         for index, book in enumerate(allmessages.books):
             before = time()
+            
             messages = book.messages.values() # all messages about a single book
-            plan = bottom_up_plan(messages, rules)
+            plan = bottom_up_plan(messages, rules, book.book_score)
+            
             after = time()
             time_diff = after - before
             self.document_plans.append(plan)

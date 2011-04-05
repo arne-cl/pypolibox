@@ -78,9 +78,9 @@ class DocPlan(nltk.featstruct.FeatDict):
     """
     C{DocPlan} is the output of Document Planning. A DocPlan consists of an optional title and text, and a child I{ConstituentSet}.
     """
-    def __init__(self, dtype = 'DocPlan', text = None, children = None):
+    def __init__(self, book_score = None, dtype = 'DocPlan', text = None, children = None):
         self[nltk.featstruct.Feature('type',display='prefix')] = 'DPDocument'
-        self['title'] = nltk.featstruct.FeatDict({'type': dtype, 'text':text})
+        self['title'] = nltk.featstruct.FeatDict({'type': dtype, 'text':text, 'book score': book_score})
         self['children'] = children
 
 class ConstituentSet(nltk.featstruct.FeatDict):
@@ -455,7 +455,7 @@ def exists(thing, namespace):
             #string = string.replace(m,r)
     #return string
 
-def bottom_up_plan(messages, rules, dtype = None, text= None):
+def bottom_up_plan(messages, rules, book_score = None, dtype = None, text= None):
     '''
     The main method implementing the Bottom-Up document structuring algorithm from "Building Natural Language Generation Systems" figure 4.17, p. 108.
 
@@ -486,7 +486,7 @@ def bottom_up_plan(messages, rules, dtype = None, text= None):
 
     if ret: # if __bottom_up_search has found a valid plan ...
         children =  ret.pop() # pop returns an 'arbitrary' set element (there's only one)
-        return DocPlan(dtype=dtype, text=text, children=children)
+        return DocPlan(book_score=book_score, dtype=dtype, text=text, children=children)
     else:
         return None
 
