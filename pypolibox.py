@@ -663,7 +663,9 @@ class Messages:
         @type propositions: C{Propositions}
         @param propositions: a C{Propositions} class instance
         """
+        self.book_score = propositions.book_score
         propositions = propositions.propositions
+        
         self.messages = {}
         simple_propositions = set(('lastbook_match', 'usermodel_match', 'usermodel_nomatch'))
         
@@ -754,6 +756,7 @@ class Messages:
         
     def __str__(self):
         ret_str = ""
+        ret_str += "book score: {0}\n\n".format(self.book_score)
         for message in self.messages.iterkeys():
             if self.messages[message]:
                 ret_str += "{0}\n\n".format(self.messages[message])
