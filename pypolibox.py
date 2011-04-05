@@ -237,8 +237,8 @@ class Books:
             book_item = Book(result, results.db_columns, results.query_args)
             self.books.append(book_item)
         
-        if self.query_type == 'and':
-            pass #nothing to do here, since all 'AND query' results match all query parameters
+        if self.query_type == 'and': #since all 'AND query' results match all query parameters, there score will always be 1.0
+            self.scores = [1.0 for book in range(len(self.books))]
         elif self.query_type == 'or':
             book_ranks = self.get_book_ranks(results.possible_matches)
             for (score, index) in book_ranks:
@@ -346,13 +346,16 @@ class AllFacts():
         """
         self.query_args = b.query_args # originall query args for generating query_facts
         self.books = []
+        self.book_scores = b.scores
+        
         for index, book in enumerate(b.books):
+            book_score = self.book_scores[index]
             if index == 0: #first book
-                book_facts = Facts(book, index)
+                book_facts = Facts(book, book_score, index)
                 self.books.append(book_facts)
             else: # every other book --> trigger comparison with preceeding book
                 preceding_book = b.books[index-1]
-                book_facts = Facts(book, index, preceding_book)
+                book_facts = Facts(book, book_score, index, preceding_book)
                 self.books.append(book_facts)
                 
     def __str__(self):
@@ -365,7 +368,7 @@ class AllFacts():
 
 class Facts():
     """ Facts() represents facts about a single Book() instance """
-    def __init__ (self, book, index=0, preceding_book=False):
+    def __init__ (self, book, book_score, index=0, preceding_book=False):
         """
         facts are ultimately retrieved from sqlite3, where all strings are encoded as <type 'unicode'>, not as <type 'str'>! in order to compare user queries of <type 'str'> to <type 'unicode'> strings from the database, we'll need to convert them.
         
@@ -375,7 +378,7 @@ class Facts():
                 
         facts["id_facts"] = self.generate_id_facts(index, book)
         facts["extra_facts"] = self.generate_extra_facts(index, book)
-        facts["query_facts"] = self.generate_query_facts(index, book)
+        facts["query_facts"] = self.generate_query_facts(index, book, book_score)
                 
         if preceding_book == False: # if this is the first/only book            
             pass # DON't compare this book to a non-existent preceeding one
@@ -403,9 +406,10 @@ class Facts():
                 
         return id_facts
         
-    def generate_query_facts(self, index, book):
+    def generate_query_facts(self, index, book, book_score):
         """ generate facts that describes if a book matches (parts of) the query"""
         query_facts = {}
+        query_facts["book_score"] = book_score
         query_facts["usermodel_match"] = {}
         query_facts["usermodel_nomatch"] = {}
         query_args = book.query_args
@@ -511,7 +515,7 @@ class Facts():
 
     def __str__(self):
         """returns a string representation of a Facts() instance, but omits empty values"""
-        signifiers_of_emptyness = [ [], {}, set() ] # lists, dicts, sets can be empty
+        signifiers_of_emptyness = [ [], {}, set() ] # lists, dicts, sets can be empty (we can't simply say "if val:", since this this would not only exclude emtpy lists/dicts/sets but also "0")
         return_string = ""
         for key, value in self.facts.iteritems():
             if value not in signifiers_of_emptyness:
