@@ -251,7 +251,7 @@ class Books:
         """
         scores = []
         for index, book in enumerate(self.books):
-            score = float(book.book_score) / float(possible_matches)
+            score = float(book.book_matches) / float(possible_matches)
             scores.append( (score, index) )
         return sorted(scores, reverse=True) #best (highest) scores first
 
@@ -311,22 +311,22 @@ class Book:
         self.target = db_item[db_columns["target"]]
         self.exercises = db_item[db_columns["exercises"]]
         self.codeexamples = db_item[db_columns["examples"]]
-        self.book_score = self.get_book_score()
+        self.book_matches = self.get_number_of_book_matches()
 
-    def get_book_score(self):
-        book_score = 0
+    def get_number_of_book_matches(self):
+        book_matches = 0
         simple_attributes = ['codeexamples', 'exercises', 'language', 'pagerange', 'target']
         complex_attributes = ['keywords', 'proglang'] # may contain more than 1 value
         
         for simple_attrib in simple_attributes:
             if self.query_args.__getattribute__(simple_attrib) == getattr(self, simple_attrib):
-                book_score += 1
+                book_matches += 1
         for complex_attrib in complex_attributes:
             if self.query_args.__getattribute__(complex_attrib) is not None:
                 for value in self.query_args.__getattribute__(complex_attrib):
                     if value in getattr(self, complex_attrib):
-                        book_score += 1
-        return book_score
+                        book_matches += 1
+        return book_matches
         
     def __str__(self):
         return_string = ""
