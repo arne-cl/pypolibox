@@ -257,7 +257,7 @@ class Books:
 
     def __str__(self):
         return_string = ""
-        if self.query_type == 'and':
+        if self.query_type == 'and': #since all 'AND query' results match all query parameters, the score is always 1.0
             for index, book in enumerate(self.books):
                 book_string = "index: {0}\n{1}\n".format(index, book.__str__())
                 return_string += book_string
@@ -880,6 +880,14 @@ class Rules:
         Meaning: nucleus = [id_usermodelmatch(): This book fulfills all your requirements. It was written in ... and...], aux = It differs in terms of (these) features. Used in conjunction with contrast_books().'''
         inputs = [ ('id_usermodelmatch', ConstituentSet(aux=Message('usermodel_match'))), ('lastbook_nomatch', Message('lastbook_nomatch')) ]
         conditions = ['exists("lastbook_nomatch", locals())', 'exists("usermodel_nomatch", locals()) is False', 'len(lastbook_match) < len(lastbook_nomatch)']
+        return Rule("Elaboration", inputs, conditions, 'id_usermodelmatch', 'lastbook_nomatch', 3)
+
+    def genrule_book_similarities(self): #TODO: does this make sense in conjunction w/ contrast_books()?
+        '''book_similarities = Elaboration(id_usermodelmatch, lastbook_nomatch), if lastbook_nomatch exists, if there's no usermodel_nomatch and if there are the same number or more usermodel matches than non-matches
+        
+        Meaning: nucleus = [id_usermodelmatch(): This book fulfills all your requirements. It was written in ... and...], aux = Both books share these features.'''
+        inputs = [ ('id_usermodelmatch', ConstituentSet(aux=Message('usermodel_match'))), ('lastbook_nomatch', Message('lastbook_nomatch')) ]
+        conditions = ['exists("lastbook_nomatch", locals())', 'exists("usermodel_nomatch", locals()) is False', 'len(lastbook_match) >= len(lastbook_nomatch)']
         return Rule("Elaboration", inputs, conditions, 'id_usermodelmatch', 'lastbook_nomatch', 3)
 
 
