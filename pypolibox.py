@@ -556,6 +556,8 @@ class Propositions():
         @type facts: I{Facts}
         """
         facts = facts.facts # a Facts() stores its facts in .facts; this line saves some typing
+
+        self.book_score = facts['query_facts']['book_score']
         propositions = {}
         propositions['usermodel_match'] = {}
         propositions['usermodel_nomatch'] = {}
@@ -608,6 +610,7 @@ class Propositions():
     def __str__(self):
         """returns a string representation of a Propositions() instance omitting empty values"""
         return_string = ""
+        return_string += "book score: {0}\n".format(self.book_score)
         for key, value in self.propositions.iteritems():
             if value: # if value is not empty
                 return_string += "\n{0}:\n".format(key)
