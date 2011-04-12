@@ -509,7 +509,12 @@ def __bottom_up_search(plans, rules):
         raise Exception('ERROR')
     else:
         #fitzgerald: options = map(lambda x: x.get_options(plans), rules)
-        options = [rule.get_options(plans) for rule in rules]
+        try:
+            options = [rule.get_options(plans) for rule in rules]
+        except:
+            raise Exception('EPIC FAIL: Rule {0} had trouble with these plans: {1}'.format(rule, plans))
+            print "BOO"
+            
         options = util.flatten(options)
         options_list = []
         for x, y, z in options:

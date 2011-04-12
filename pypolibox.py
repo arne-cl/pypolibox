@@ -8,7 +8,7 @@ import re # for "utils"
 import datetime
 from time import time
 import locale
-from pydocplanner.document_planner import Message, ConstituentSet, Rule, bottom_up_plan
+from pydocplanner.document_planner import Message, ConstituentSet, Rule, bottom_up_plan, __bottom_up_search
 #import pydocplanner.weather_test #TODO: remove after debugging
 from nltk import FeatDict
 from nltk.featstruct import Feature
