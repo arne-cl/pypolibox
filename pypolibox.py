@@ -827,8 +827,6 @@ class Rules:
         return Rule("Concession", inputs, ['len(usermodel_match) >= len(usermodel_nomatch)'], 'usermodel_match', 'usermodel_nomatch', 2)
 
     def genrule_neg_eval(self):
-        #TODO: write conditions for exists(usermodel_match/nomatch)
-        #TODO: check if conditions are always necessary (if inputs are well specified)
         '''neg_eval = Concession(usermodel_nomatch, usermodel_match), if len(usermodel_match) < len(usermodel_nomatch)
         
         Meaning: Although this book fulfills some of your requirements, it doesn't match most of them. Therefore, this book might not be the best choice.'''
@@ -885,21 +883,26 @@ class Rules:
         return Rule("Elaboration", inputs, conditions, 'id_complete', 'lastbook_nomatch', 3)
 
     def genrule_book_differences2(self):
-        '''book_differences2 = Elaboration(id_usermodelmatch, lastbook_nomatch), if lastbook_nomatch exists, if there's no usermodel_nomatch and if there are less usermodel matches than non-matches
+        '''book_differences2 = Elaboration(id_usermodelmatch, lastbook_nomatch), if lastbook_match and lastbook_nomatch exist, if there's no usermodel_nomatch and if there are less lastbook matches than non-matches
         
         Meaning: nucleus = [id_usermodelmatch(): This book fulfills all your requirements. It was written in ... and...], aux = It differs in terms of (these) features. Used in conjunction with contrast_books().'''
         inputs = [ ('id_usermodelmatch', ConstituentSet(aux=Message('usermodel_match'))), ('lastbook_nomatch', Message('lastbook_nomatch')) ]
-        conditions = ['exists("lastbook_nomatch", locals())', 'exists("usermodel_nomatch", locals()) is False', 'len(lastbook_match) < len(lastbook_nomatch)']
+        conditions = ['exists("lastbook_match", locals())', 'exists("lastbook_nomatch", locals())', 'exists("usermodel_nomatch", locals()) is False', 'len(lastbook_match) < len(lastbook_nomatch)']
         return Rule("Elaboration", inputs, conditions, 'id_usermodelmatch', 'lastbook_nomatch', 3)
 
     def genrule_book_similarities(self): #TODO: does this make sense in conjunction w/ contrast_books()?
-        '''book_similarities = Elaboration(id_usermodelmatch, lastbook_nomatch), if lastbook_nomatch exists, if there's no usermodel_nomatch and if there are the same number or more usermodel matches than non-matches
+        '''book_similarities = Elaboration(id_usermodelmatch, lastbook_nomatch), if lastbook_match and lastbook_nomatch exist, if there's no usermodel_nomatch and if there are the same number or more lastbook matches than non-matches
         
         Meaning: nucleus = [id_usermodelmatch(): This book fulfills all your requirements. It was written in ... and...], aux = Both books share these features.'''
         inputs = [ ('id_usermodelmatch', ConstituentSet(aux=Message('usermodel_match'))), ('lastbook_nomatch', Message('lastbook_nomatch')) ]
-        conditions = ['exists("lastbook_nomatch", locals())', 'exists("usermodel_nomatch", locals()) is False', 'len(lastbook_match) >= len(lastbook_nomatch)']
+        conditions = ['exists("lastbook_match", locals())', 'exists("lastbook_nomatch", locals())', 'exists("usermodel_nomatch", locals()) is False', 'len(lastbook_match) >= len(lastbook_nomatch)']
         return Rule("Elaboration", inputs, conditions, 'id_usermodelmatch', 'lastbook_nomatch', 3)
 
+    def genrule_no_lastbookmatch_statement(self):
+        '''no_lastbookmatch_statement = List(lastbook_id_core, lastbook_nomatch), iff there's no lastbook_match but a lastbook_nomatch (i.e. there is a preceding book, but it shares no features with the current one)'''
+        inputs = [ ('lastbook_id_core', Message('lastbook_id_core')), ('lastbook_nomatch', Message('lastbook_nomatch')) ]
+        conditions = ['exists("lastbook_nomatch", locals())', 'exists("lastbook_match", locals()) is False']
+        return Rule("List", inputs, conditions, 'lastbook_id_core', 'lastbook_nomatch', 5)
 
     def genrule_contrast_books(self):
         '''contrast_books = Contrast(lastbook_id_core, book_differences), if lastbook_id_core exists
@@ -915,6 +918,19 @@ class Rules:
         inputs = [ ('contrast_books', ConstituentSet(nucleus=Message('lastbook_id_core')) ), ('lastbook_match', Message('lastbook_match')) ]
         conditions = ['exists("lastbook_match", locals())']
         return Rule("Concession", inputs, conditions, 'contrast_books', 'lastbook_match', 3)
+
+    def genrule_no_similarities_concession1(self):
+        '''no_similarities_concession = Concession(id_complete, no_lastbookmatch_statement)'''
+        inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('no_lastbookmatch_statment', ConstituentSet(nucleus=Message('lastbook_id_core')))]
+        conditions = ['exists("lastbook_match", locals()) is False', 'exists("extra", locals()) is False']
+        return Rule("Concession", inputs, conditions, 'id_complete', 'no_lastbookmatch_statement', 5)
+        
+    def genrule_no_similarities_concession2(self):
+        '''no_similarities_concession = Concession(id_extra_sequence, no_lastbookmatch_statement)'''
+        inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('no_lastbookmatch_statment', ConstituentSet(nucleus=Message('lastbook_id_core')))]
+        conditions = ['exists("lastbook_match", locals()) is False', 'exists("extra", locals())']
+        return Rule("Concession", inputs, conditions, 'id_extra_sequence', 'no_lastbookmatch_statement', 5)
+
 
     def genrule_contrast_books_neg_eval(self):
         '''contrast_books_neg_eval = Sequence(contrast_books, neg_eval), if there's no lastbook_match
@@ -1100,8 +1116,18 @@ def gendocplans(arg):
 	am = AllMessages(AllPropositions(AllFacts(Books(Results(Query(arg))))))
 	for book in am.books:
 		m = book.messages.values()
-		dplans.append( pydocplanner.document_planner.bottom_up_plan(m, r) )
+		dplans.append( bottom_up_plan(m, r) )
 	return dplans
+    
+def test_all_docplans():
+	all_docplans = []
+	for arg in argv:
+		docplans = gendocplans(arg)
+		all_docplans.append(docplans)
+	for i, docplans in enumerate(all_docplans):
+		for j, docplan in enumerate(docplans):
+			if docplan == None:
+				print "When using query argument {0}, no docplan could be generated for book {1}".format(i,j)
 
 def enumprint(obj):
     for index, item in enumerate(obj):
@@ -1122,8 +1148,11 @@ def msgtypes(messages):
 def find_applicable_rules(messages):
     #'''debugging: find out which rules are directly (i.e. without forming ConstituentSets first) applicable to your messages'''
     for name, rule in Rules().rule_dict.iteritems():
-        if rule.get_options(messages) != []:
-			print "{0} is directly applicable\n\t{1}\n\n".format(name, rule.get_options(messages))
+        try:
+            if rule.get_options(messages) != []:
+                print "{0} is directly applicable\n\t{1}\n\n".format(name, rule.get_options(messages))
+        except:
+            print "ERROR: Could not check if rule {0} is applicable. Possible solution: test if the rule's conditions are specified appropriately.\n\n".format(name)
 
         
 def findrule(rules, ruletype="", attribute="", value=""):
