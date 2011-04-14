@@ -585,8 +585,8 @@ class Propositions():
             propositions['extra']['pages'] = (facts['extra_facts']['pages'], 'neutral')
 
         for fact in facts['id_facts']:
-            other_propositions = self.__do_not_use_twice(propositions)
-            if fact not in other_propositions:
+            already_used_propositions = self.__do_not_use_twice(propositions)
+            if fact not in already_used_propositions:
                 propositions['id'][fact] = (facts['id_facts'][fact], 'neutral')
 
         self.propositions = propositions
