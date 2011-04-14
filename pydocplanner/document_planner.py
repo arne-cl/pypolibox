@@ -186,28 +186,28 @@ class Rule(object):
         """
         self.messages = messages
         name_list = [] # a list containing the inputs names in order
-        type_groups = [] # a list where each index is a list of all the input Messages which are subsumed by the corresponding input proto-type 
+        message_types = [] # a list where each index is a list of all the input Messages which are subsumed by the corresponding input proto-type 
 
         for (name, condition) in self.inputs:
             name_list.append(name)
-            type_groups.append( self.type_groups_filter(messages, condition) )
+            message_types.append( self.message_types_filter(messages, condition) )
                     
-        groups = list(itertools.product(*type_groups)) #get all possible combinations of inputs (a list containing the cartesian product of all elements of type_groups)
+        possible_msg_combinations = list(itertools.product(*message_types)) #get all possible combinations of inputs (a list containing the cartesian product of all elements of message_types)
         
-        groups = filter(lambda x: len(x) == len(set(x)), groups) #remove groups which contain duplicates (necessary, since cartesian product produces duplicates)
+        duplicate_free_msg_combinations = filter(lambda x: len(x) == len(set(x)), possible_msg_combinations) #remove message combinations which contain duplicates (necessary, since cartesian product produces duplicates)
         
-        groups = map(lambda x: zip(name_list, x), groups) #match names to messages
+        message_name_tuples = map(lambda x: zip(name_list, x), duplicate_free_msg_combinations) #match names to messages
 
-        groups = self.get_satisfactory_groups(groups) #remove groups which do not satisfy conditions
+        condition_matching_msgs = self.get_satisfactory_groups(message_name_tuples) #remove messages which do not satisfy conditions
         
-        groups = [group for group in groups if group != [] ] # remove empty groups
+        non_empty_messages = [msgs for msgs in condition_matching_msgs if msgs != [] ] # remove empty messages
 
         #print 'GROUPS:', groups, '\n' #TODO: remove after debugging
-        self.groups = groups #TODO: remove after debugging
+        self.groups = non_empty_messages #TODO: remove after debugging
         
         options_list = []
         inputs = []
-        for i, group in enumerate(groups):
+        for i, group in enumerate(non_empty_messages):
             #score = self.__name_eval(self.heuristic, group) #fitzgerald: weird str -> int
             score = self.heuristic
             constituent_set = self.__get_return(group)
@@ -217,7 +217,7 @@ class Rule(object):
             options_list.append( (score, constituent_set, inputs) )
         return options_list            
 
-    def type_groups_filter(self, messages, condition):
+    def message_types_filter(self, messages, condition):
         """
         takes a list of messages and returns only those with the right message type (as specified in Rule.inputs)
         
@@ -261,7 +261,11 @@ class Rule(object):
         '''
         results = []
         for condition in self.conditions:
-            results.append( self.__name_eval(condition, group) )
+            try:
+                results.append( self.__name_eval(condition, group) )
+            except NameError:
+                '''__name_eval can check for the existence of an object, but it will fail "do something" with a nonexisting object, e.g. "len(lastbook_match) < 5" would raise an error if lastbook_match doesn't exist'''
+                results.append(False)
         return results
                 
     def __name_eval(self, condition, group):

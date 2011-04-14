@@ -8,8 +8,7 @@ import re # for "utils"
 import datetime
 from time import time
 import locale
-from pydocplanner.document_planner import Message, ConstituentSet, Rule, bottom_up_plan, __bottom_up_search
-#import pydocplanner.weather_test #TODO: remove after debugging
+from pydocplanner.document_planner import Message, ConstituentSet, Rule, bottom_up_plan, __bottom_up_search #TODO: remove __bottom_up_search after debugging
 from nltk import FeatDict
 from nltk.featstruct import Feature
 
@@ -387,8 +386,7 @@ class Facts():
         self.facts = facts
 
     def generate_id_facts(self, index, book):
-        """ 
-        returns a dictionary of id facts about the current book
+        """ returns a dictionary of id facts about the current book
         
         instead of writing lots of repetitive code like in JPolibox:
         
@@ -921,13 +919,13 @@ class Rules:
 
     def genrule_no_similarities_concession1(self):
         '''no_similarities_concession = Concession(id_complete, no_lastbookmatch_statement)'''
-        inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('no_lastbookmatch_statment', ConstituentSet(nucleus=Message('lastbook_id_core')))]
+        inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('no_lastbookmatch_statement', ConstituentSet(nucleus=Message('lastbook_id_core')))]
         conditions = ['exists("lastbook_match", locals()) is False', 'exists("extra", locals()) is False']
         return Rule("Concession", inputs, conditions, 'id_complete', 'no_lastbookmatch_statement', 5)
         
     def genrule_no_similarities_concession2(self):
         '''no_similarities_concession = Concession(id_extra_sequence, no_lastbookmatch_statement)'''
-        inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('no_lastbookmatch_statment', ConstituentSet(nucleus=Message('lastbook_id_core')))]
+        inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('no_lastbookmatch_statement', ConstituentSet(nucleus=Message('lastbook_id_core')))]
         conditions = ['exists("lastbook_match", locals()) is False', 'exists("extra", locals())']
         return Rule("Concession", inputs, conditions, 'id_extra_sequence', 'no_lastbookmatch_statement', 5)
 
