@@ -1090,8 +1090,8 @@ def test_cli(query_arguments=argv):
 def maxscoretest():
     maxscores = []
     for index, arg in enumerate(argv):
-		r = Results(Query(arg))
-		maxscores.append( "arg #{0}: {1} has maxscore {2}".format(index, arg, r.maxscore) )
+        r = Results(Query(arg))
+        maxscores.append( "arg #{0}: {1} has maxscore {2}".format(index, arg, r.maxscore) )
     for maxscore in maxscores:
         print maxscore
         
@@ -1110,24 +1110,27 @@ def genmessages(booknumber=0, querynumber=10):
     for message in am.books[booknumber].messages.values(): message.freeze() #freeze messages, so Rule()s can be tested against them
     return am.books[booknumber]
     
-def gendocplans(arg):
-	r = Rules().rules
-	dplans = []
-	am = AllMessages(AllPropositions(AllFacts(Books(Results(Query(arg))))))
-	for book in am.books:
-		m = book.messages.values()
-		dplans.append( bottom_up_plan(m, r) )
-	return dplans
+def gendocplans(querynumber):
+    docplans = []
+    rules = Rules().rules
+    am = AllMessages(AllPropositions(AllFacts(Books(Results(Query(argv[querynumber]))))))
+    print len(am.books)
+    for book in am.books:
+        messages = book.messages.values()
+        docplan = bottom_up_plan(messages, rules)
+        print docplan
+        docplans.append(docplan)
+    return docplans
     
 def test_all_docplans():
-	all_docplans = []
-	for arg in argv:
-		docplans = gendocplans(arg)
-		all_docplans.append(docplans)
-	for i, docplans in enumerate(all_docplans):
-		for j, docplan in enumerate(docplans):
-			if docplan == None:
-				print "When using query argument {0}, no docplan could be generated for book {1}".format(i,j)
+    all_docplans = []
+    for arg in argv:
+        docplans = gendocplans(arg)
+        all_docplans.append(docplans)
+    for i, docplans in enumerate(all_docplans):
+        for j, docplan in enumerate(docplans):
+            if docplan == None:
+                print "When using query argument {0}, no docplan could be generated for book {1}".format(i,j)
 
 def enumprint(obj):
     for index, item in enumerate(obj):
