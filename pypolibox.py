@@ -921,13 +921,13 @@ class Rules:
 
 
     def genrule_no_similarities_concession1(self):
-        '''no_similarities_concession = Concession(id_complete, no_lastbookmatch_statement)'''
+        '''no_similarities_concession1 = Concession(id_complete, no_lastbookmatch_statement)'''
         inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('no_lastbookmatch_statement', ConstituentSet(nucleus=Message('lastbook_id_core')))]
         conditions = ['exists("lastbook_match", locals()) is False', 'exists("extra", locals()) is False']
         return Rule("Concession", inputs, conditions, 'id_complete', 'no_lastbookmatch_statement', 5)
         
     def genrule_no_similarities_concession2(self):
-        '''no_similarities_concession = Concession(id_extra_sequence, no_lastbookmatch_statement)'''
+        '''no_similarities_concession2 = Concession(id_extra_sequence, no_lastbookmatch_statement)'''
         inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('no_lastbookmatch_statement', ConstituentSet(nucleus=Message('lastbook_id_core')))]
         conditions = ['exists("lastbook_match", locals()) is False', 'exists("extra", locals())']
         return Rule("Concession", inputs, conditions, 'id_extra_sequence', 'no_lastbookmatch_statement', 5)
