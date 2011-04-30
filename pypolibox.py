@@ -1102,14 +1102,13 @@ def testmsg(message_type='lastbook_nomatch'):
             try: print Messages(p).messages[message_type], "\n\n"
             except: pass
                 
-def genprops(arg=argv[10]):
-    return AllPropositions(AllFacts(Books(Results(Query(arg)))))
+def genprops(querynumber=10):
+    return AllPropositions(AllFacts(Books(Results(Query(argv[querynumber])))))
     
-def genmessages(booknumber=0, arg=argv[10]):
-    am = AllMessages(AllPropositions(AllFacts(Books(Results(Query(arg))))))
-    messages = am.books[booknumber].messages.values()
-    for m in messages: m.freeze()
-    return messages
+def genmessages(booknumber=0, querynumber=10):
+    am = AllMessages(AllPropositions(AllFacts(Books(Results(Query(argv[querynumber]))))))  
+    for message in am.books[booknumber].messages.values(): message.freeze() #freeze messages, so Rule()s can be tested against them
+    return am.books[booknumber]
     
 def gendocplans(arg):
 	r = Rules().rules
@@ -1132,7 +1131,7 @@ def test_all_docplans():
 
 def enumprint(obj):
     for index, item in enumerate(obj):
-        print "{0}: {1}\n".format(index, item)
+        print "{0}:\n{1}\n".format(index, item)
 
 def msgtypes(messages):
     if isinstance(messages, Messages):
@@ -1197,5 +1196,5 @@ if __name__ == "__main__":
     #q.parse_commandline(sys.argv[1:])
     results = Results(q)
     print results
-    p = genprops(argv[2])
+    p = genprops(querynumber=2)
     
