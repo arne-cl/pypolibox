@@ -665,17 +665,17 @@ class Messages:
         propositions = propositions.propositions
         
         self.messages = {}
-        simple_propositions = set(('lastbook_match', 'usermodel_match', 'usermodel_nomatch'))
+        simple_propositions = set(('id','lastbook_match', 'usermodel_match', 'usermodel_nomatch'))
         
         for proposition_type in simple_propositions:
             if propositions[proposition_type]: # if not empty
                 self.messages[proposition_type] = self.generate_message(propositions[proposition_type], proposition_type)
         
-        self.messages['id_core'] = self.generate_id_core_message(propositions['id'], 'id_core')
-        self.messages['id_additional'] = self.generate_id_additional_message(propositions['id'])
+#        self.messages['id_core'] = self.generate_id_core_message(propositions['id'], 'id_core')
+#        self.messages['id_additional'] = self.generate_id_additional_message(propositions['id'])
          
-        if propositions.has_key('lastbook_id_core'): #TODO: move geration of 'lastbook_id_core' from AllMessages() to AllPropositions or even AllFacts(), so we don't have to treat it differently here
-            self.messages['lastbook_id_core'] = self.generate_id_core_message(propositions['lastbook_id_core'], 'lastbook_id_core')
+        #if propositions.has_key('lastbook_id_core'): #TODO: move geration of 'lastbook_id_core' from AllMessages() to AllPropositions or even AllFacts(), so we don't have to treat it differently here
+            #self.messages['lastbook_id_core'] = self.generate_id_core_message(propositions['lastbook_id_core'], 'lastbook_id_core')
         if propositions['extra']:
             self.messages['extra'] = self.generate_extra_message(propositions['extra'])
         if propositions['lastbook_nomatch']:
@@ -690,23 +690,23 @@ class Messages:
             msg.update({attrib: value})
         return msg 
 
-    def generate_id_core_message(self, propositions, msg_name):
-        msg = Message(msgType=msg_name)
-        names, rating = propositions['authors']
-        title, rating = propositions['title']
-        msg.update({'authors': frozenset(names)})
-        msg.update({'title': title})
-        return msg
+    #def generate_id_core_message(self, propositions, msg_name):
+        #msg = Message(msgType=msg_name)
+        #names, rating = propositions['authors']
+        #title, rating = propositions['title']
+        #msg.update({'authors': frozenset(names)})
+        #msg.update({'title': title})
+        #return msg
 
-    def generate_id_additional_message(self, propositions):
-        msg = Message(msgType='id_additional')
-        for attrib in propositions.iterkeys():
-            if attrib not in ('authors', 'title'):
-                value, rating = propositions[attrib]
-                if type(value) == set:
-                    value = frozenset(value)
-                msg.update({attrib: value})
-        return msg
+    #def generate_id_additional_message(self, propositions):
+        #msg = Message(msgType='id_additional')
+        #for attrib in propositions.iterkeys():
+            #if attrib not in ('authors', 'title'):
+                #value, rating = propositions[attrib]
+                #if type(value) == set:
+                    #value = frozenset(value)
+                #msg.update({attrib: value})
+        #return msg
              
     def generate_extra_message(self, propositions):
         msg = Message(msgType='extra')
