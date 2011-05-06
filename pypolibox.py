@@ -1158,23 +1158,30 @@ def find_applicable_rules(messages):
             print "ERROR: Could not check if rule {0} is applicable. Possible solution: test if the rule's conditions are specified appropriately.\n\n".format(name)
 
         
-def findrule(rules, ruletype="", attribute="", value=""):
+def findrule(ruletype="", attribute="", value=""):
     '''debugging: find rules that have a certain ruleType and some attribute-value pair
     
-    findrule(rules, "Concession", "nucleus", "usermodel_match") finds rules of type 'Concession' where rule.nucleus == 'usermodel_match'
+    findrule("Concession", "nucleus", "usermodel_match") finds rules of type 'Concession' where rule.nucleus == 'usermodel_match'
     '''
+    rules = Rules().rule_dict
+    matching_rules = {}
+    
     if ruletype == "":
         for index, (name, rule) in enumerate(rules.iteritems()):
             if getattr(rule, attribute) is value:
                 print "rule {0} - {1}:\n{2}".format(index, name, rule)
+                matching_rules[name] = rule
     elif attribute == "":
         for index, (name, rule) in enumerate(rules.iteritems()):
             if rule.ruleType is ruletype:
                 print "rule {0} - {1}:\n{2}".format(index, name, rule)
+                matching_rules[name] = rule
     else:
         for index, (name, rule) in enumerate(rules.iteritems()):
             if rule.ruleType is ruletype and getattr(rule, attribute) is value:
                 print "rule {0} - {1}:\n{2}".format(index, name, rule)
+                matching_rules[name] = rule
+    return matching_rules
 
 def update_messages(messages, rule_name):
     '''debugging: take a rule and apply it to your list of messages. 
