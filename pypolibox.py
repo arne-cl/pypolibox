@@ -668,7 +668,7 @@ class Messages:
         simple_propositions = set(('id','lastbook_match', 'usermodel_match', 'usermodel_nomatch'))
         
         for proposition_type in simple_propositions:
-            if propositions[proposition_type]: # if not empty
+            if propositions[proposition_type]: # if proposition type exists and is not empty
                 self.messages[proposition_type] = self.generate_message(propositions[proposition_type], proposition_type)
         
 #        self.messages['id_core'] = self.generate_id_core_message(propositions['id'], 'id_core')
@@ -676,77 +676,83 @@ class Messages:
          
         #if propositions.has_key('lastbook_id_core'): #TODO: move geration of 'lastbook_id_core' from AllMessages() to AllPropositions or even AllFacts(), so we don't have to treat it differently here
             #self.messages['lastbook_id_core'] = self.generate_id_core_message(propositions['lastbook_id_core'], 'lastbook_id_core')
+
         if propositions['extra']:
             self.messages['extra'] = self.generate_extra_message(propositions['extra'])
         if propositions['lastbook_nomatch']:
             self.messages['lastbook_nomatch'] = self.generate_lastbook_nomatch(propositions['lastbook_nomatch'])
         
-    def generate_message(self, propositions, msg_name):
+    def generate_message(self, proposition_dict, msg_name):
         msg = Message(msgType=msg_name)
-        for attrib in propositions.iterkeys():
-            value, rating = propositions[attrib]
+        for attrib in proposition_dict.iterkeys():
+            value, rating = proposition_dict[attrib]
             if type(value) == set: #keywords, authors and proglangs are stored as sets, but we need frozensets (hashable) when creating rules and checking for duplicate messages
                 value = frozenset(value)
             msg.update({attrib: value})
+        if msg_name is not 'id':
+            # title, authors, lastbook_title, lastbook_authors
+            #msg.update({attrib: value})
+            #if proposition_dict.has_key('lastbook_id_core'):
+                #msg.update({attrib: value})
         return msg 
 
-    #def generate_id_core_message(self, propositions, msg_name):
+    #def generate_id_core_message(self, proposition_dict, msg_name):
         #msg = Message(msgType=msg_name)
-        #names, rating = propositions['authors']
-        #title, rating = propositions['title']
+        #names, rating = proposition_dict['authors']
+        #title, rating = proposition_dict['title']
         #msg.update({'authors': frozenset(names)})
         #msg.update({'title': title})
         #return msg
 
-    #def generate_id_additional_message(self, propositions):
+    #def generate_id_additional_message(self, proposition_dict):
         #msg = Message(msgType='id_additional')
-        #for attrib in propositions.iterkeys():
+        #for attrib in proposition_dict.iterkeys():
             #if attrib not in ('authors', 'title'):
-                #value, rating = propositions[attrib]
+                #value, rating = proposition_dict[attrib]
                 #if type(value) == set:
                     #value = frozenset(value)
                 #msg.update({attrib: value})
         #return msg
              
-    def generate_extra_message(self, propositions):
+    def generate_extra_message(self, proposition_dict):
         msg = Message(msgType='extra')
-        for attrib in propositions.iterkeys():
+        for attrib in proposition_dict.iterkeys():
             if attrib == 'year':
-                description, rating = propositions['year']
+                description, rating = proposition_dict['year']
                 recency = FeatDict({'description': description, 'rating': rating})
                 msg.update({'recency': recency})
             else:
-                value, rating = propositions[attrib]
+                value, rating = proposition_dict[attrib]
                 if type(value) == set: 
                     value = frozenset(value)
                 msg.update({attrib: value})
         return msg 
         
-    def generate_lastbook_nomatch(self, propositions):
+    def generate_lastbook_nomatch(self, proposition_dict):
         msg = Message(msgType='lastbook_nomatch')
-        for attrib in propositions.iterkeys():
+        for attrib in proposition_dict.iterkeys():
             if attrib == 'longer':
-                pages, rating = propositions['longer']
+                pages, rating = proposition_dict['longer']
                 magnitude = FeatDict({'number': pages, 'unit': 'pages'})
                 length = FeatDict({'type': 'RelativeVariation', 'direction': '+', 'magnitude': magnitude})
                 msg.update({'length': length})
             elif attrib == 'shorter':
-                pages, rating = propositions['shorter']
+                pages, rating = proposition_dict['shorter']
                 magnitude = FeatDict({'number': pages, 'unit': 'pages'})
                 length = FeatDict({'type': 'RelativeVariation', 'direction': '-', 'magnitude': magnitude})
                 msg.update({'length': length})
             elif attrib == 'newer':
-                years, rating = propositions['newer']
+                years, rating = proposition_dict['newer']
                 magnitude = FeatDict({'number': years, 'unit': 'years'})
                 recency = FeatDict({'type': 'RelativeVariation', 'direction': '+', 'magnitude': magnitude})
                 msg.update({'recency': recency})
             elif attrib == 'older':
-                years, rating = propositions['older']
+                years, rating = proposition_dict['older']
                 magnitude = FeatDict({'number': years, 'unit': 'years'})
                 recency = FeatDict({'type': 'RelativeVariation', 'direction': '-', 'magnitude': magnitude})
                 msg.update({'recency': recency})
             else:
-                value, rating = propositions[attrib]
+                value, rating = proposition_dict[attrib]
                 if type(value) == set: 
                     value = frozenset(value)
                 msg.update({attrib: value})
