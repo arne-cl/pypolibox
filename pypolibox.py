@@ -630,18 +630,21 @@ class AllMessages:
         """
         propositions_list = allpropositions.books
         self.books = []
-        for i, thisbook in enumerate(propositions_list):
-            if i == 0: # 1st book, no other book to compare it to...
-                self.books.append(Messages(thisbook))
-            else: # all remaining books; can be compared w/ their predecessor
-                lastbook = propositions_list[i-1]
-                lastbook_authors = lastbook.propositions["id"]["authors"]
-                lastbook_title = lastbook.propositions["id"]["title"]
-                thisbook.propositions["lastbook_id_core"] = {}
-                thisbook.propositions["lastbook_id_core"]["authors"] = lastbook_authors
-                thisbook.propositions["lastbook_id_core"]["title"] = lastbook_title
-                self.books.append(Messages(thisbook))
-                #print thisbook.propositions #TODO: remove after debugging
+
+        for book in propositions_list:
+            self.books.append(Messages(book))
+        #for i, thisbook in enumerate(propositions_list):
+            #if i == 0: # 1st book, no other book to compare it to...
+                #self.books.append(Messages(thisbook))
+            #else: # all remaining books; can be compared w/ their predecessor
+                #lastbook = propositions_list[i-1]
+                #lastbook_authors = lastbook.propositions["id"]["authors"]
+                #lastbook_title = lastbook.propositions["id"]["title"]
+                #thisbook.propositions["lastbook_id_core"] = {}
+                #thisbook.propositions["lastbook_id_core"]["authors"] = lastbook_authors
+                #thisbook.propositions["lastbook_id_core"]["title"] = lastbook_title
+                #self.books.append(Messages(thisbook))
+                ##print thisbook.propositions #TODO: remove after debugging
             
     def __str__(self):
         ret_str = ""
@@ -696,6 +699,7 @@ class Messages:
         return msg 
 
     def add_identification_to_message(self, proposition_dict, message, id_type):
+        print "proposition_dict.keys() = {0}".format(proposition_dict.keys()) #TODO: remove after debugging
         if id_type is 'thisbook':
             for attrib in ('title', 'authors'):
                 value, rating = proposition_dict['id'][attrib]
