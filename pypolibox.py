@@ -640,18 +640,6 @@ class AllMessages:
 
         for book in propositions_list:
             self.books.append(Messages(book))
-        #for i, thisbook in enumerate(propositions_list):
-            #if i == 0: # 1st book, no other book to compare it to...
-                #self.books.append(Messages(thisbook))
-            #else: # all remaining books; can be compared w/ their predecessor
-                #lastbook = propositions_list[i-1]
-                #lastbook_authors = lastbook.propositions["id"]["authors"]
-                #lastbook_title = lastbook.propositions["id"]["title"]
-                #thisbook.propositions["lastbook_id_core"] = {}
-                #thisbook.propositions["lastbook_id_core"]["authors"] = lastbook_authors
-                #thisbook.propositions["lastbook_id_core"]["title"] = lastbook_title
-                #self.books.append(Messages(thisbook))
-                ##print thisbook.propositions #TODO: remove after debugging
             
     def __str__(self):
         ret_str = ""
@@ -701,24 +689,23 @@ class Messages:
         if msg_name in descriptive_messages:
             msg = self.add_identification_to_message(msg, 'thisbook')
         elif msg_name in comparative_messages:
-            if proposition_dict.has_key('lastbook_id_core'): # no comparison if it's the 1st book
+            if self.propositions.has_key('lastbook_id_core'): # no comparison if it's the 1st book
                 msg = self.add_identification_to_message(msg, 'thisbook_and_lastbook')
         return msg 
 
     def add_identification_to_message(self, message, id_type):
-        if id_type is 'thisbook':
-            for attrib in ('title', 'authors'):
-                value, rating = self.propositions['id'][attrib]
-                if type(value) == set: 
+        for attrib in ('title', 'authors'):
+            value, rating = self.propositions['id'][attrib]
+            if type(value) == set: 
+                value = frozenset(value)
+            message.update({attrib: value})
+
+        if id_type is 'thisbook_and_lastbook':
+            for attrib, value in self.propositions['lastbook_id_core'].iteritems():
+                if type(value) == set:
                     value = frozenset(value)
                 message.update({attrib: value})
-
-        elif id_type is 'thisbook_and_lastbook':
-            pass
-            # title, authors, lastbook_title, lastbook_authors
-            #msg.update({attrib: value})
-            #if proposition_dict.has_key('lastbook_id_core'):
-                #msg.update({attrib: value})
+        
         return message
              
     def generate_extra_message(self, proposition_dict):
