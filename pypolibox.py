@@ -665,18 +665,12 @@ class Messages:
         propositions = propositions.propositions
         
         self.messages = {}
-        simple_propositions = set(('id','lastbook_match', 'usermodel_match', 'usermodel_nomatch'))
-        
+        simple_propositions = set(('id','lastbook_match', 'usermodel_match', 'usermodel_nomatch')) # propositions that can be turned into messages without further 'calculations'
+                
         for proposition_type in simple_propositions:
             if propositions[proposition_type]: # if proposition type exists and is not empty
                 self.messages[proposition_type] = self.generate_message(propositions[proposition_type], proposition_type)
         
-#        self.messages['id_core'] = self.generate_id_core_message(propositions['id'], 'id_core')
-#        self.messages['id_additional'] = self.generate_id_additional_message(propositions['id'])
-         
-        #if propositions.has_key('lastbook_id_core'): #TODO: move geration of 'lastbook_id_core' from AllMessages() to AllPropositions or even AllFacts(), so we don't have to treat it differently here
-            #self.messages['lastbook_id_core'] = self.generate_id_core_message(propositions['lastbook_id_core'], 'lastbook_id_core')
-
         if propositions['extra']:
             self.messages['extra'] = self.generate_extra_message(propositions['extra'])
         if propositions['lastbook_nomatch']:
@@ -684,35 +678,38 @@ class Messages:
         
     def generate_message(self, proposition_dict, msg_name):
         msg = Message(msgType=msg_name)
+        
+        descriptive_messages = set(('usermodel_match', 'usermodel_nomatch', 'extra'))
+        comparative_messages = set(('lastbook_match', 'lastbook_nomatch'))
+
         for attrib in proposition_dict.iterkeys():
             value, rating = proposition_dict[attrib]
             if type(value) == set: #keywords, authors and proglangs are stored as sets, but we need frozensets (hashable) when creating rules and checking for duplicate messages
                 value = frozenset(value)
             msg.update({attrib: value})
-        if msg_name is not 'id':
+
+        if msg_name in descriptive_messages:
+            msg = self.add_identification_to_message(proposition_dict, msg, 'thisbook')
+        elif msg_name in comparative_messages:
+            if proposition_dict.has_key('lastbook_id_core'): # no comparison if it's the 1st book
+                msg = self.add_identification_to_message(proposition_dict, msg, 'thisbook_and_lastbook')
+        return msg 
+
+    def add_identification_to_message(self, proposition_dict, message, id_type):
+        if id_type is 'thisbook':
+            for attrib in ('title', 'authors'):
+                value, rating = proposition_dict['id'][attrib]
+                if type(value) == set: 
+                    value = frozenset(value)
+            message.update({attrib: value})
+                
+        elif id_type is 'thisbook_and_lastbook':
+            pass
             # title, authors, lastbook_title, lastbook_authors
             #msg.update({attrib: value})
             #if proposition_dict.has_key('lastbook_id_core'):
                 #msg.update({attrib: value})
-        return msg 
-
-    #def generate_id_core_message(self, proposition_dict, msg_name):
-        #msg = Message(msgType=msg_name)
-        #names, rating = proposition_dict['authors']
-        #title, rating = proposition_dict['title']
-        #msg.update({'authors': frozenset(names)})
-        #msg.update({'title': title})
-        #return msg
-
-    #def generate_id_additional_message(self, proposition_dict):
-        #msg = Message(msgType='id_additional')
-        #for attrib in proposition_dict.iterkeys():
-            #if attrib not in ('authors', 'title'):
-                #value, rating = proposition_dict[attrib]
-                #if type(value) == set:
-                    #value = frozenset(value)
-                #msg.update({attrib: value})
-        #return msg
+        return message
              
     def generate_extra_message(self, proposition_dict):
         msg = Message(msgType='extra')
