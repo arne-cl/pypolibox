@@ -534,8 +534,15 @@ class AllPropositions:
         """
         self.books = []
         for book in allfacts.books:
-            book_propositions = Propositions(book)
-            self.books.append(book_propositions)
+            self.books.append(Propositions(book))
+        
+        for index, book in enumerate(self.books):
+            if index > 0:
+                lastbook = self.books[index-1]
+                book.propositions['lastbook_id_core'] = {}                
+                for attrib in ('title', 'authors'):
+                    value, rating = lastbook.propositions['id'][attrib]
+                    book.propositions['lastbook_id_core']['lastbook_'+attrib] = value
 
     def __str__(self):
         return_string = ""
@@ -704,8 +711,8 @@ class Messages:
                 value, rating = self.propositions['id'][attrib]
                 if type(value) == set: 
                     value = frozenset(value)
-            message.update({attrib: value})
-                
+                message.update({attrib: value})
+
         elif id_type is 'thisbook_and_lastbook':
             pass
             # title, authors, lastbook_title, lastbook_authors
