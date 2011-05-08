@@ -679,29 +679,29 @@ class Messages:
         self.messages = {}
 
         for proposition_type in self.propositions.iterkeys():
-            self.messages[proposition_type] = self.generate_message(proposition_type)
+            if self.propositions[proposition_type]: # don't generate a message if there are no propositions about its content (e.g. about 'extra')
+                self.messages[proposition_type] = self.generate_message(proposition_type)
 
     def generate_message(self, proposition_type):
         message = Message(msgType = proposition_type)
         proposition_dict = self.propositions[proposition_type]
         simple_propositions = set(('id','lastbook_match', 'usermodel_match', 'usermodel_nomatch')) 
         # simple_propositions can be turned into messages without further 'calculations'
-                
+        
         if proposition_type in simple_propositions:
-            if proposition_dict: # if not empty
                 for attrib in proposition_dict.iterkeys():
                     value, rating = proposition_dict[attrib]
                     if type(value) == set: 
                         #keywords, authors and proglangs are stored as sets, but we need frozensets (hashable) when creating rules and checking for duplicate messages
                         value = frozenset(value)
                     message.update({attrib: value})
-        
+    
         if proposition_type is 'extra':
             message = self.generate_extra_message(proposition_dict)
-
+    
         if proposition_type is 'lastbook_nomatch':
             message = self.generate_lastbook_nomatch_message(proposition_dict)
-
+    
         if message[Feature("msgType")] is not 'id':
             message = self.add_identification_to_message(message)
 
