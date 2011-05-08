@@ -625,35 +625,21 @@ class AllMessages:
         @type allpropositions: C{AllPropositions}
         @param allpropositions: a C{AllPropositions} class instance containing a list of C{Propositions} instances
         
-        This will genenerate a C{Messages} instance (containing all C{Message}s about a book) for each C{Propositions} instance. It also adds a special 'lastbook_id_core' C{Message}, containing the title and author(s) of the preceding book (migth be used by the sentence planner to refer to the last book by name etc.).
+        This will genenerate a C{Messages} instance (containing all C{Message}s about a book) for each C{Propositions} instance. It also adds a 'lastbook_title' and 'lastbook_author' to C{Message}s that compare the current and the preceding book
         """
         propositions_list = allpropositions.books
         self.books = []
-
-        for book in propositions_list:
-            self.books.append(Messages(book))
-
-#        if message[Feature("msgType")] in ('lastbook_match', 'lastbook_nomatch'):
-#            message = self.add_identification_to_message(message)
-        #elif msg_name in comparative_messages:
-            #if self.propositions.has_key('lastbook_id_core'): # no comparison if it's the 1st book
-                #msg = self.add_identification_to_message(msg, 'thisbook_and_lastbook')
-
-
-    #def add_lastbook_id_to_messages(self):
-        #lastbook_id_messages = ['lastbook_match', 'lastbook_nomatch']
-        #for index, book in enumerate(self.books):            
-            #for proposition_type in lastbook_id_messages:
-                #pass
-                ##book.propositions[proposition_type]['title'] = book.propositions['id']['title']
-                ##book.propositions[proposition_type]['authors'] = book.propositions['id']['authors']
-            ##if index > 0:
-                ##lastbook = self.books[index-1]
-                ##title, title_rating = lastbook.propositions['id']['title']
-                ##authors, authors_rating = lastbook.propositions['id']['authors']
-                ##for proposition_type in add_lastbook_id:
-                    ##book.propositions[proposition_type]['lastbook_title'] = (title, 'neutral')
-                    ##book.propositions[proposition_type]['lastbook_authors'] = (authors, 'neutral')
+        lastbook_id_messages = ['lastbook_match', 'lastbook_nomatch']
+        
+        for index, book in enumerate(propositions_list):
+            if index == 0:
+                self.books.append(Messages(book))
+            else:
+                lastbook = propositions_list[index-1]
+                for message_type in lastbook_id_messages:
+                    book.propositions[message_type]['lastbook_title'] = lastbook.propositions['id']['title']
+                    book.propositions[message_type]['lastbook_authors'] = lastbook.propositions['id']['authors']
+                self.books.append(Messages(book))
 
             
     def __str__(self):
