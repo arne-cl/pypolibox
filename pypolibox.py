@@ -535,24 +535,6 @@ class AllPropositions:
         self.books = []
         for book in allfacts.books:
             self.books.append(Propositions(book))
-        self.add_identification_to_propositions()
-
-
-    def add_identification_to_propositions(self):
-        add_id = ['extra', 'usermodel_match', 'usermodel_nomatch', 'lastbook_match', 'lastbook_nomatch']
-        add_lastbook_id = ['lastbook_match', 'lastbook_nomatch']
-        
-        for index, book in enumerate(self.books):            
-            for proposition_type in add_id:
-                book.propositions[proposition_type]['title'] = book.propositions['id']['title']
-                book.propositions[proposition_type]['authors'] = book.propositions['id']['authors']
-            if index > 0:
-                lastbook = self.books[index-1]
-                title, title_rating = lastbook.propositions['id']['title']
-                authors, authors_rating = lastbook.propositions['id']['authors']
-                for proposition_type in add_lastbook_id:
-                    book.propositions[proposition_type]['lastbook_title'] = (title, 'neutral')
-                    book.propositions[proposition_type]['lastbook_authors'] = (authors, 'neutral')
 
     def __str__(self):
         return_string = ""
@@ -650,6 +632,29 @@ class AllMessages:
 
         for book in propositions_list:
             self.books.append(Messages(book))
+
+#        if message[Feature("msgType")] in ('lastbook_match', 'lastbook_nomatch'):
+#            message = self.add_identification_to_message(message)
+        #elif msg_name in comparative_messages:
+            #if self.propositions.has_key('lastbook_id_core'): # no comparison if it's the 1st book
+                #msg = self.add_identification_to_message(msg, 'thisbook_and_lastbook')
+
+
+    #def add_lastbook_id_to_messages(self):
+        #lastbook_id_messages = ['lastbook_match', 'lastbook_nomatch']
+        #for index, book in enumerate(self.books):            
+            #for proposition_type in lastbook_id_messages:
+                #pass
+                ##book.propositions[proposition_type]['title'] = book.propositions['id']['title']
+                ##book.propositions[proposition_type]['authors'] = book.propositions['id']['authors']
+            ##if index > 0:
+                ##lastbook = self.books[index-1]
+                ##title, title_rating = lastbook.propositions['id']['title']
+                ##authors, authors_rating = lastbook.propositions['id']['authors']
+                ##for proposition_type in add_lastbook_id:
+                    ##book.propositions[proposition_type]['lastbook_title'] = (title, 'neutral')
+                    ##book.propositions[proposition_type]['lastbook_authors'] = (authors, 'neutral')
+
             
     def __str__(self):
         ret_str = ""
@@ -671,56 +676,37 @@ class Messages:
         """
         self.book_score = propositions.book_score
         self.propositions = propositions.propositions
-        
         self.messages = {}
 
+        for proposition_type in self.propositions.iterkeys():
+            self.messages[proposition_type] = self.generate_message(proposition_type)
 
-
-        #simple_propositions = set(('id','lastbook_match', 'usermodel_match', 'usermodel_nomatch')) # propositions that can be turned into messages without further 'calculations'
+    def generate_message(self, proposition_type):
+        message = Message(msgType = proposition_type)
+        proposition_dict = self.propositions[proposition_type]
+        simple_propositions = set(('id','lastbook_match', 'usermodel_match', 'usermodel_nomatch')) 
+        # simple_propositions can be turned into messages without further 'calculations'
                 
-        #for proposition_type in simple_propositions:
-            #if self.propositions[proposition_type]: # if proposition type exists and is not empty
-                #self.messages[proposition_type] = self.generate_message(self.propositions[proposition_type], proposition_type)
+        if proposition_type in simple_propositions:
+            if proposition_dict: # if not empty
+                for attrib in proposition_dict.iterkeys():
+                    value, rating = proposition_dict[attrib]
+                    if type(value) == set: 
+                        #keywords, authors and proglangs are stored as sets, but we need frozensets (hashable) when creating rules and checking for duplicate messages
+                        value = frozenset(value)
+                    message.update({attrib: value})
         
-        #if self.propositions['extra']:
-            #self.messages['extra'] = self.generate_extra_message(self.propositions['extra'])
-        #if self.propositions['lastbook_nomatch']:
-            #self.messages['lastbook_nomatch'] = self.generate_lastbook_nomatch_message(self.propositions['lastbook_nomatch'])
-        
-    #def generate_message(self, proposition_dict, msg_name):
-        #msg = Message(msgType=msg_name)
-        
-        #descriptive_messages = set(('usermodel_match', 'usermodel_nomatch', 'extra'))
-        #comparative_messages = set(('lastbook_match', 'lastbook_nomatch'))
+        if proposition_type is 'extra':
+            message = self.generate_extra_message(proposition_dict)
 
-        #for attrib in proposition_dict.iterkeys():
-            #value, rating = proposition_dict[attrib]
-            #if type(value) == set: #keywords, authors and proglangs are stored as sets, but we need frozensets (hashable) when creating rules and checking for duplicate messages
-                #value = frozenset(value)
-            #msg.update({attrib: value})
+        if proposition_type is 'lastbook_nomatch':
+            message = self.generate_lastbook_nomatch_message(proposition_dict)
 
-        #if msg_name in descriptive_messages:
-            #msg = self.add_identification_to_message(msg, 'thisbook')
-        #elif msg_name in comparative_messages:
-            #if self.propositions.has_key('lastbook_id_core'): # no comparison if it's the 1st book
-                #msg = self.add_identification_to_message(msg, 'thisbook_and_lastbook')
-        #return msg 
+        if message[Feature("msgType")] is not 'id':
+            message = self.add_identification_to_message(message)
 
-    #def add_identification_to_message(self, message, id_type):
-        #for attrib in ('title', 'authors'):
-            #value, rating = self.propositions['id'][attrib]
-            #if type(value) == set: 
-                #value = frozenset(value)
-            #message.update({attrib: value})
-
-        #if id_type is 'thisbook_and_lastbook':
-            #for attrib, value in self.propositions['lastbook_id_core'].iteritems():
-                #if type(value) == set:
-                    #value = frozenset(value)
-                #message.update({attrib: value})
-        
-        #return message
-             
+        return message
+                             
     def generate_extra_message(self, proposition_dict):
         msg = Message(msgType='extra')
         for attrib in proposition_dict.iterkeys():
@@ -764,6 +750,14 @@ class Messages:
                     value = frozenset(value)
                 msg.update({attrib: value})
         return msg
+
+    def add_identification_to_message(self, message):
+        for attrib in ('title', 'authors'):
+            value, rating = self.propositions['id'][attrib]
+            if type(value) == set: 
+                value = frozenset(value)
+            message.update({attrib: value})
+        return message
         
     def __str__(self):
         ret_str = ""
