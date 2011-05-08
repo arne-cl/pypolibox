@@ -259,7 +259,7 @@ class Rule(object):
 
 
 class NewRule(object):
-    """
+    '''
     C{Rules} are the elements which specify relationships which hold between elements of the document. These elements can be I{Message}s or I{ConstituentSet}s.
 
     Each I{Rule} specifies a list of I{inputs}, which are is a minimal specification of a C{Message} or C{ConstituentSet}. To be a valid input to this Rule, a given C{Message} or C{ConstituentSet} must subsume one of the specified I{input}s.
@@ -269,29 +269,29 @@ class NewRule(object):
     Each I{Rule} specifies a heuristic, which will be evaluated to provide a score by which to rank the order in which rules should be applied.
 
     Each I{Rule} specifies which of the inputs will be the I{nucleus} and which will be the I{aux} of the output C{ConstituentSet}.
-    """
+    '''
 
-    def __init__(self, ruleType, inputs, conditions, nucleus, aux, heuristic):
-        """
+    def __init__(self, ruleType, conditions, nucleus, satellite, heuristic):
+        '''
         @param ruleType: The name of the relationship type this Rule specifies.
         @type ruleTupe: string
-        @param inputs: A list of tuples containing (name, input), where I{name} is a string specifying the name used for the input in the conditions and heuristic, and where input is Message or ConstituentSet
-        @type inputs: list of tuples: (string, C{Message} or C{ConstituentSet})
+            
         @param conditions: a list of strings which will be evaluated as conditions for applying the rule. These should return True or False when evaluated
         @type conditions: list of strings
-        @param nucleus: string specifying name of input used for nucleus
-        @type nucleus: string
-        @param aux: string specifying name of input used for aux
-        @type aux: string
+      
+        @param nucleus: A list of tuples containing (name, input). I{name} is a string specifying the name used for the nucleus message of the RST relation. The name is used to refer to this message in the I{conditions} and I{heuristic}. I{input} is a C{Message} or C{ConstituentSet}. There can be only one nucleus in a RST relation, so the planner has to choose from the list.
+        @type nucleus: list of tuples: (string, C{Message} or C{ConstituentSet})
+      
+        @param satellite: same as I{nucleus}, but represents a list of possible satellite messages of a RST relation. Again, there can be only one satellite in a RST relation, so the planner has to choose from the list.
+        
         @param heuristic: an integer used to rank potential ConstituentSets. 
         @type heuristic: C{int}
-        """
+        '''
         
         self.ruleType = ruleType
-        self.inputs = inputs
         self.conditions = conditions
         self.nucleus = nucleus
-        self.aux = aux
+        self.satellite = satellite
         self.heuristic = heuristic
 
     def __str__(self):
