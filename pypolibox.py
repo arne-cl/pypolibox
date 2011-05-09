@@ -8,7 +8,7 @@ import re # for "utils"
 import datetime
 from time import time
 import locale
-from pydocplanner.document_planner import Message, ConstituentSet, NewRule, bottom_up_plan, __bottom_up_search #TODO: remove __bottom_up_search, replace NewRule w/ Rule
+from pydocplanner.document_planner import Message, ConstituentSet, Rule, bottom_up_plan, __bottom_up_search #TODO: remove __bottom_up_search
 from nltk import FeatDict
 from nltk.featstruct import Feature
 
@@ -780,14 +780,7 @@ class Rules:
             ret_str += "{0}\n\n".format(str(rule))
         return ret_str
 
-    # NewRule() examples. TODO: remove after debugging
     # def __init__(self, ruleType, nucleus, satellite, conditions, heuristic):
-    #def genrule_fake_message(self):
-        #'''lots of possible combinations'''
-        #nucleus = [('id', Message('id')), ('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
-        #satellite = [('lastbook_match', Message('lastbook_match')), ('lastbook_nomatch', Message('lastbook_nomatch'))]
-        #conditions = ['exists("lastbook_match", locals())', 'exists("lastbook_nomatch", locals())', 'exists("usermodel_match", locals())', 'exists("usermodel_nomatch", locals())']
-        #return NewRule('Sequence', nucleus, satellite, conditions, 5)
 
     def genrule_id_extra_sequence(self):
         '''id_extra_sequence = Sequence(id_complete, extra), if 'extra' exists:
@@ -796,7 +789,7 @@ class Rules:
         nucleus = [('id', Message('id'))]
         satellite = [('extra', Message('extra'))]
         conditions = ['exists("extra", locals())']
-        return NewRule('Sequence', nucleus, satellite, conditions, 5)
+        return Rule('Sequence', nucleus, satellite, conditions, 10)
     
     def genrule_id_usermodelmatch(self):
         '''id_usermodelmatch = Elaboration({id, id_extra_sequence}, usermodel_match), if there's no usermodel_nomatch
@@ -805,7 +798,7 @@ class Rules:
         nucleus = [('id', Message('id')), ('id_extra_sequence', ConstituentSet(nucleus=Message('id')))] 
         satellite = [('usermodel_match', Message('usermodel_match'))]
         conditions = ['exists("usermodel_nomatch", locals()) is False', 'exists("usermodel_match", locals()) is True']    
-        return NewRule('Elaboration', nucleus, satellite, conditions, 4)
+        return Rule('Elaboration', nucleus, satellite, conditions, 4)
 
         
 class DocumentPlans:
@@ -1028,13 +1021,6 @@ def update_messages(messages, rule_name):
     else:
         print "Sorry, this rule could not be applied to your messages."
 
-def test_newrule(booknumber=2, querynumber=10, rulenumber=0): #TODO: remove after debugging
-    m = genmessages(booknumber, querynumber)
-    messages = m.messages.values()
-    rule = Rules().rules[rulenumber]
-    return messages, rule, rule.get_options(messages)
-
-#fake_messages_list = [Message('id'), Message('extra'), Message('usermodel_match')] #TODO: remove
 
 if __name__ == "__main__":
     #commandline_query = parse_commandline(sys.argv[1:])
