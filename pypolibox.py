@@ -8,7 +8,7 @@ import re # for "utils"
 import datetime
 from time import time
 import locale
-from pydocplanner.document_planner import Message, ConstituentSet, Rule, bottom_up_plan, __bottom_up_search #TODO: remove __bottom_up_search after debugging
+from pydocplanner.document_planner import Message, ConstituentSet, NewRule, bottom_up_plan, __bottom_up_search #TODO: remove __bottom_up_search, replace NewRule w/ Rule
 from nltk import FeatDict
 from nltk.featstruct import Feature
 
@@ -775,202 +775,228 @@ class Rules:
     def __str__(self):
         ret_str = ""
         for name, rule in self.rule_dict.iteritems():
-            rule_summary = "{0}({1}, {2})".format(rule.ruleType, rule.nucleus, rule.aux)
+            rule_summary = "{0}({1}, {2})".format(rule.ruleType, rule.nucleus, rule.satellite)
             ret_str += "{0}: {1}\n\n".format(name, rule_summary)
             ret_str += "{0}\n\n".format(str(rule))
         return ret_str
 
-      
-    def genrule_id_complete(self):
-        '''id_complete = Elaboration(id_core, id_additional)'''
-        inputs = [('id_core', Message('id_core')), ('id_additional', Message('id_additional'))]
-        return Rule('Elaboration', inputs, [], 'id_core', 'id_additional', 5)
-        
+    # NewRule() examples. TODO: remove after debugging
+    # def __init__(self, ruleType, nucleus, satellite, conditions, heuristic):
+    def genrule_fake_message(self):
+        '''lots of possible combinations'''
+        nucleus = [('id', Message('id')), ('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
+        satellite = [('lastbook_match', Message('lastbook_match')), ('lastbook_nomatch', Message('lastbook_nomatch'))]
+        conditions = ['exists("lastbook_match", locals())', 'exists("lastbook_nomatch", locals())', 'exists("usermodel_match", locals())', 'exists("usermodel_nomatch", locals())']
+        return NewRule('Sequence', nucleus, satellite, conditions, 5)
+
     def genrule_id_extra_sequence(self):
         '''id_extra_sequence = Sequence(id_complete, extra), if 'extra' exists:
         
         adds an additional "sentence" about extra facts after the id messages'''
-        inputs = [('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('extra', Message('extra'))]
-        return Rule('Sequence', inputs, ['exists("extra", locals())'], 'id_complete', 'extra', 5)
-
+        nucleus = [('id', Message('id'))]
+        satellite = [('extra', Message('extra'))]
+        conditions = ['exists("extra", locals())']
+        return NewRule('Sequence', nucleus, satellite, conditions, 5)
+    
     def genrule_id_usermodelmatch(self):
         '''id_usermodelmatch = Elaboration(id_complete, usermodel_match), if there's no usermodel_nomatch
         
         Meaning: This book fulfills ALL your requirments. It was written in ..., contains these features ... and ... etc'''
-        inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('usermodel_match', Message('usermodel_match')) ]
-        conditions = ['exists("usermodel_nomatch", locals()) is False']
-        return Rule('Elaboration', inputs, conditions, 'id_complete', 'usermodel_match', 4)
+        nucleus = [('id', Message('id')), ('id_extra_sequence', ConstituentSet(nucleus=Message('id')))] 
+        satellite = [('usermodel_match', Message('usermodel_match'))]
+        conditions = ['exists("usermodel_nomatch", locals()) is False']    
+        return NewRule('Elaboration', nucleus, satellite, conditions, 4)
+
+    #def genrule_id_complete(self):
+        #'''id_complete = Elaboration(id_core, id_additional)'''
+        #inputs = [('id_core', Message('id_core')), ('id_additional', Message('id_additional'))]
+        #return Rule('Elaboration', inputs, [], 'id_core', 'id_additional', 5)
         
-    def genrule_id_usermodelmatch_extra(self):
-        '''id_usermodelmatch_extra = Elaboration(id_usermodelmatch, extra), if there's an extra message but no usermodel_nomatch
+    #def genrule_id_extra_sequence(self):
+        #'''id_extra_sequence = Sequence(id_complete, extra), if 'extra' exists:
         
-        Meaning: nucleus = id_usermodelmatch, aux = It is also a rather short/long/old/new book.'''
-        inputs = [ ('id_usermodelmatch', ConstituentSet(aux=Message('usermodel_match'))), ('extra', Message('extra')) ]
-        conditions = ['exists("usermodel_nomatch", locals()) is False', 'exists("extra", locals())']
-        return Rule('Elaboration', inputs, conditions, 'id_usermodelmatch', 'extra', 4)
+        #adds an additional "sentence" about extra facts after the id messages'''
+        #inputs = [('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('extra', Message('extra'))]
+        #return Rule('Sequence', inputs, ['exists("extra", locals())'], 'id_complete', 'extra', 5)
+
+    #def genrule_id_usermodelmatch(self):
+        #'''id_usermodelmatch = Elaboration(id_complete, usermodel_match), if there's no usermodel_nomatch
+        
+        #Meaning: This book fulfills ALL your requirments. It was written in ..., contains these features ... and ... etc'''
+        #inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('usermodel_match', Message('usermodel_match')) ]
+        #conditions = ['exists("usermodel_nomatch", locals()) is False']
+        #return Rule('Elaboration', inputs, conditions, 'id_complete', 'usermodel_match', 4)
+        
+    #def genrule_id_usermodelmatch_extra(self):
+        #'''id_usermodelmatch_extra = Elaboration(id_usermodelmatch, extra), if there's an extra message but no usermodel_nomatch
+        
+        #Meaning: nucleus = id_usermodelmatch, aux = It is also a rather short/long/old/new book.'''
+        #inputs = [ ('id_usermodelmatch', ConstituentSet(aux=Message('usermodel_match'))), ('extra', Message('extra')) ]
+        #conditions = ['exists("usermodel_nomatch", locals()) is False', 'exists("extra", locals())']
+        #return Rule('Elaboration', inputs, conditions, 'id_usermodelmatch', 'extra', 4)
         
     
-    def genrule_pos_eval(self):
-        '''pos_eval = Concession(usermodel_match, usermodel_nomatch), if len(usermodel_match) >= len(usermodel_nomatch)
+    #def genrule_pos_eval(self):
+        #'''pos_eval = Concession(usermodel_match, usermodel_nomatch), if len(usermodel_match) >= len(usermodel_nomatch)
         
-        Meaning: Although this book doesn't fulfill all your requirements (features x and y), it covers most of them (feat. a,b,c & d). It's therefore suitable for you.'''
-        inputs = [('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
-        return Rule("Concession", inputs, ['len(usermodel_match) >= len(usermodel_nomatch)'], 'usermodel_match', 'usermodel_nomatch', 2)
+        #Meaning: Although this book doesn't fulfill all your requirements (features x and y), it covers most of them (feat. a,b,c & d). It's therefore suitable for you.'''
+        #inputs = [('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
+        #return Rule("Concession", inputs, ['len(usermodel_match) >= len(usermodel_nomatch)'], 'usermodel_match', 'usermodel_nomatch', 2)
 
-    def genrule_neg_eval(self):
-        '''neg_eval = Concession(usermodel_nomatch, usermodel_match), if len(usermodel_match) < len(usermodel_nomatch)
+    #def genrule_neg_eval(self):
+        #'''neg_eval = Concession(usermodel_nomatch, usermodel_match), if len(usermodel_match) < len(usermodel_nomatch)
         
-        Meaning: Although this book fulfills some of your requirements, it doesn't match most of them. Therefore, this book might not be the best choice.'''
-        inputs = [('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
-        return Rule("Concession", inputs, ['len(usermodel_match) < len(usermodel_nomatch)'], 'usermodel_nomatch', 'usermodel_match', 2)
+        #Meaning: Although this book fulfills some of your requirements, it doesn't match most of them. Therefore, this book might not be the best choice.'''
+        #inputs = [('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
+        #return Rule("Concession", inputs, ['len(usermodel_match) < len(usermodel_nomatch)'], 'usermodel_nomatch', 'usermodel_match', 2)
     
-    # rules genrule_complete_seq 1 .. 4: complete_without_lastbook = Sequence(id_complete/id_extra_sequence, pos_eval/neg_eval)    
-    def genrule_complete_seq1(self):
-        inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('pos_eval', ConstituentSet(nucleus=Message('usermodel_match'))) ]
-        return Rule("Sequence", inputs, [], 'id_extra_sequence', 'pos_eval', 5)
+    ## rules genrule_complete_seq 1 .. 4: complete_without_lastbook = Sequence(id_complete/id_extra_sequence, pos_eval/neg_eval)    
+    #def genrule_complete_seq1(self):
+        #inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('pos_eval', ConstituentSet(nucleus=Message('usermodel_match'))) ]
+        #return Rule("Sequence", inputs, [], 'id_extra_sequence', 'pos_eval', 5)
         
-    def genrule_complete_seq2(self):
-        inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('neg_eval', ConstituentSet(nucleus=Message('usermodel_nomatch'))) ]
-        return Rule("Sequence", inputs, [], 'id_extra_sequence', 'neg_eval', 5)
+    #def genrule_complete_seq2(self):
+        #inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('neg_eval', ConstituentSet(nucleus=Message('usermodel_nomatch'))) ]
+        #return Rule("Sequence", inputs, [], 'id_extra_sequence', 'neg_eval', 5)
 
-    def genrule_complete_seq3(self):
-        inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('pos_eval', ConstituentSet(nucleus=Message('usermodel_match'))) ]
-        return Rule("Sequence", inputs, [], 'id_complete', 'pos_eval', 4)
+    #def genrule_complete_seq3(self):
+        #inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('pos_eval', ConstituentSet(nucleus=Message('usermodel_match'))) ]
+        #return Rule("Sequence", inputs, [], 'id_complete', 'pos_eval', 4)
 
-    def genrule_complete_seq4(self):
-        inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('neg_eval', ConstituentSet(nucleus=Message('usermodelno_match'))) ]
-        return Rule("Sequence", inputs, [], 'id_complete', 'neg_eval', 4)
+    #def genrule_complete_seq4(self):
+        #inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('neg_eval', ConstituentSet(nucleus=Message('usermodelno_match'))) ]
+        #return Rule("Sequence", inputs, [], 'id_complete', 'neg_eval', 4)
     
-    # rules genrule_complete_seq 5 .. 8: complete_with_particial_usermodel_without_lastbook = Sequence(id_complete/id_extra_sequence, usermodel_match/usermodel_match)    
-    def genrule_complete_seq5(self):
-        inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('usermodel_match', Message('usermodel_match')) ]
-        conditions = ['exists("usermodel_match", locals())', 'exists("usermodel_nomatch", locals()) is False']
-        return Rule("Sequence", inputs, conditions, 'id_extra_sequence', 'usermodel_match', 3)
+    ## rules genrule_complete_seq 5 .. 8: complete_with_particial_usermodel_without_lastbook = Sequence(id_complete/id_extra_sequence, usermodel_match/usermodel_match)    
+    #def genrule_complete_seq5(self):
+        #inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('usermodel_match', Message('usermodel_match')) ]
+        #conditions = ['exists("usermodel_match", locals())', 'exists("usermodel_nomatch", locals()) is False']
+        #return Rule("Sequence", inputs, conditions, 'id_extra_sequence', 'usermodel_match', 3)
 
-    def genrule_complete_seq6(self):
-        inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('usermodel_nomatch', Message('usermodel_nomatch')) ]
-        conditions = ['exists("usermodel_nomatch", locals())', 'exists("usermodel_match", locals()) is False']
-        return Rule("Sequence", inputs, conditions, 'id_extra_sequence', 'usermodel_nomatch', 3)
+    #def genrule_complete_seq6(self):
+        #inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('usermodel_nomatch', Message('usermodel_nomatch')) ]
+        #conditions = ['exists("usermodel_nomatch", locals())', 'exists("usermodel_match", locals()) is False']
+        #return Rule("Sequence", inputs, conditions, 'id_extra_sequence', 'usermodel_nomatch', 3)
 
-    def genrule_complete_seq7(self):
-        inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('usermodel_match', Message('usermodel_match')) ]
-        conditions = ['exists("usermodel_match", locals())', 'exists("usermodel_nomatch", locals()) is False']
-        return Rule("Sequence", inputs, conditions, 'id_complete', 'usermodel_match', 3)
+    #def genrule_complete_seq7(self):
+        #inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('usermodel_match', Message('usermodel_match')) ]
+        #conditions = ['exists("usermodel_match", locals())', 'exists("usermodel_nomatch", locals()) is False']
+        #return Rule("Sequence", inputs, conditions, 'id_complete', 'usermodel_match', 3)
 
-    def genrule_complete_seq8(self):
-        inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('usermodel_nomatch', Message('usermodel_nomatch')) ]
-        conditions = ['exists("usermodel_nomatch", locals())', 'exists("usermodel_match", locals()) is False']
-        return Rule("Sequence", inputs, conditions, 'id_complete', 'usermodel_nomatch', 3)
+    #def genrule_complete_seq8(self):
+        #inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('usermodel_nomatch', Message('usermodel_nomatch')) ]
+        #conditions = ['exists("usermodel_nomatch", locals())', 'exists("usermodel_match", locals()) is False']
+        #return Rule("Sequence", inputs, conditions, 'id_complete', 'usermodel_nomatch', 3)
 
-# Rule() instances for books that have a preceding book to compare them to
-#TODO: where to put 'id_additional', 'extra'?
+## Rule() instances for books that have a preceding book to compare them to
+##TODO: where to put 'id_additional', 'extra'?
 
-    def genrule_book_differences1(self):
-        '''book_differences1 = Elaboration(id_complete, lastbook_nomatch), if lastbook_nomatch exists
+    #def genrule_book_differences1(self):
+        #'''book_differences1 = Elaboration(id_complete, lastbook_nomatch), if lastbook_nomatch exists
         
-        Meaning: This book id_complete() differs in terms of (these) features. Used in conjunction with contrast_books().'''
-        inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('lastbook_nomatch', Message('lastbook_nomatch')) ]
-        conditions = ['exists("lastbook_nomatch", locals())']
-        return Rule("Elaboration", inputs, conditions, 'id_complete', 'lastbook_nomatch', 3)
+        #Meaning: This book id_complete() differs in terms of (these) features. Used in conjunction with contrast_books().'''
+        #inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('lastbook_nomatch', Message('lastbook_nomatch')) ]
+        #conditions = ['exists("lastbook_nomatch", locals())']
+        #return Rule("Elaboration", inputs, conditions, 'id_complete', 'lastbook_nomatch', 3)
 
 
-    def genrule_contrast_books(self):
-        '''contrast_books = Contrast(lastbook_id_core, book_differences), if lastbook_id_core exists
+    #def genrule_contrast_books(self):
+        #'''contrast_books = Contrast(lastbook_id_core, book_differences), if lastbook_id_core exists
         
-        Meaning: nucleus = "In contrast to the other book (author, title)", aux = [book_differences(): this book (author, title) has differing features. Used in conjunction with book_differences()].'''
-        inputs = [ ('lastbook_id_core', Message('lastbook_id_core')), ('book_differences', ConstituentSet(aux=Message('lastbook_nomatch')) ) ]
-        return Rule("Contrast", inputs, ['exists("lastbook_id_core", locals())'], 'lastbook_id_core', 'book_differences', 3)
+        #Meaning: nucleus = "In contrast to the other book (author, title)", aux = [book_differences(): this book (author, title) has differing features. Used in conjunction with book_differences()].'''
+        #inputs = [ ('lastbook_id_core', Message('lastbook_id_core')), ('book_differences', ConstituentSet(aux=Message('lastbook_nomatch')) ) ]
+        #return Rule("Contrast", inputs, ['exists("lastbook_id_core", locals())'], 'lastbook_id_core', 'book_differences', 3)
         
-    def genrule_concession_books(self):
-        '''concession_books = Concession(contrast_books, lastbook_match), if lastbook_match exists
+    #def genrule_concession_books(self):
+        #'''concession_books = Concession(contrast_books, lastbook_match), if lastbook_match exists
         
-        Meaning: nucleus = [contrast_books(): lists differences between this book and the last one], aux = Nevertheless, both books share some features: ...'''
-        inputs = [ ('contrast_books', ConstituentSet(nucleus=Message('lastbook_id_core')) ), ('lastbook_match', Message('lastbook_match')) ]
-        conditions = ['exists("lastbook_match", locals())']
-        return Rule("Concession", inputs, conditions, 'contrast_books', 'lastbook_match', 3)
+        #Meaning: nucleus = [contrast_books(): lists differences between this book and the last one], aux = Nevertheless, both books share some features: ...'''
+        #inputs = [ ('contrast_books', ConstituentSet(nucleus=Message('lastbook_id_core')) ), ('lastbook_match', Message('lastbook_match')) ]
+        #conditions = ['exists("lastbook_match", locals())']
+        #return Rule("Concession", inputs, conditions, 'contrast_books', 'lastbook_match', 3)
 
 
-    def genrule_book_differences2(self):
-        '''book_differences2 = Elaboration(id_usermodelmatch, lastbook_nomatch), if lastbook_match and lastbook_nomatch exist, if there's no usermodel_nomatch and if there are less lastbook matches than non-matches
+    #def genrule_book_differences2(self):
+        #'''book_differences2 = Elaboration(id_usermodelmatch, lastbook_nomatch), if lastbook_match and lastbook_nomatch exist, if there's no usermodel_nomatch and if there are less lastbook matches than non-matches
         
-        Meaning: nucleus = [id_usermodelmatch(): This book fulfills all your requirements. It was written in ... and...], aux = It differs in terms of (these) features. Used in conjunction with contrast_books().'''
-        inputs = [ ('id_usermodelmatch', ConstituentSet(aux=Message('usermodel_match'))), ('lastbook_nomatch', Message('lastbook_nomatch')) ]
-        conditions = ['exists("lastbook_match", locals())', 'exists("lastbook_nomatch", locals())', 'exists("usermodel_nomatch", locals()) is False', 'len(lastbook_match) < len(lastbook_nomatch)']
-        return Rule("Elaboration", inputs, conditions, 'id_usermodelmatch', 'lastbook_nomatch', 3)
+        #Meaning: nucleus = [id_usermodelmatch(): This book fulfills all your requirements. It was written in ... and...], aux = It differs in terms of (these) features. Used in conjunction with contrast_books().'''
+        #inputs = [ ('id_usermodelmatch', ConstituentSet(aux=Message('usermodel_match'))), ('lastbook_nomatch', Message('lastbook_nomatch')) ]
+        #conditions = ['exists("lastbook_match", locals())', 'exists("lastbook_nomatch", locals())', 'exists("usermodel_nomatch", locals()) is False', 'len(lastbook_match) < len(lastbook_nomatch)']
+        #return Rule("Elaboration", inputs, conditions, 'id_usermodelmatch', 'lastbook_nomatch', 3)
 
-    def genrule_book_similarities(self): #TODO: does this make sense in conjunction w/ contrast_books()?
-        '''book_similarities = Elaboration(id_usermodelmatch, lastbook_match), if lastbook_match and lastbook_nomatch exist, if there's no usermodel_nomatch and if there are the same number or more lastbook matches than non-matches
+    #def genrule_book_similarities(self): #TODO: does this make sense in conjunction w/ contrast_books()?
+        #'''book_similarities = Elaboration(id_usermodelmatch, lastbook_match), if lastbook_match and lastbook_nomatch exist, if there's no usermodel_nomatch and if there are the same number or more lastbook matches than non-matches
         
-        Meaning: nucleus = [id_usermodelmatch(): This book fulfills all your requirements. It was written in ... and...], aux = Both books share these features.'''
-        inputs = [ ('id_usermodelmatch', ConstituentSet(aux=Message('usermodel_match'))), ('lastbook_nomatch', Message('lastbook_nomatch')) ]
-        conditions = ['exists("lastbook_match", locals())', 'exists("lastbook_nomatch", locals())', 'exists("usermodel_nomatch", locals()) is False', 'len(lastbook_match) >= len(lastbook_nomatch)']
-        return Rule("Elaboration", inputs, conditions, 'id_usermodelmatch', 'lastbook_match', 3)
+        #Meaning: nucleus = [id_usermodelmatch(): This book fulfills all your requirements. It was written in ... and...], aux = Both books share these features.'''
+        #inputs = [ ('id_usermodelmatch', ConstituentSet(aux=Message('usermodel_match'))), ('lastbook_nomatch', Message('lastbook_nomatch')) ]
+        #conditions = ['exists("lastbook_match", locals())', 'exists("lastbook_nomatch", locals())', 'exists("usermodel_nomatch", locals()) is False', 'len(lastbook_match) >= len(lastbook_nomatch)']
+        #return Rule("Elaboration", inputs, conditions, 'id_usermodelmatch', 'lastbook_match', 3)
 
-    def genrule_no_lastbookmatch_statement(self):
-        '''no_lastbookmatch_statement = List(lastbook_id_core, lastbook_nomatch), iff there's no lastbook_match but a lastbook_nomatch (i.e. there is a preceding book, but it shares no features with the current one)'''
-        inputs = [ ('lastbook_id_core', Message('lastbook_id_core')), ('lastbook_nomatch', Message('lastbook_nomatch')) ]
-        conditions = ['exists("lastbook_nomatch", locals())', 'exists("lastbook_match", locals()) is False']
-        return Rule("List", inputs, conditions, 'lastbook_id_core', 'lastbook_nomatch', 5)
+    #def genrule_no_lastbookmatch_statement(self):
+        #'''no_lastbookmatch_statement = List(lastbook_id_core, lastbook_nomatch), iff there's no lastbook_match but a lastbook_nomatch (i.e. there is a preceding book, but it shares no features with the current one)'''
+        #inputs = [ ('lastbook_id_core', Message('lastbook_id_core')), ('lastbook_nomatch', Message('lastbook_nomatch')) ]
+        #conditions = ['exists("lastbook_nomatch", locals())', 'exists("lastbook_match", locals()) is False']
+        #return Rule("List", inputs, conditions, 'lastbook_id_core', 'lastbook_nomatch', 5)
 
 
-    def genrule_no_similarities_concession1(self):
-        '''no_similarities_concession1 = Concession(id_complete, no_lastbookmatch_statement)'''
-        inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('no_lastbookmatch_statement', ConstituentSet(nucleus=Message('lastbook_id_core')))]
-        conditions = ['exists("lastbook_match", locals()) is False', 'exists("extra", locals()) is False']
-        return Rule("Concession", inputs, conditions, 'id_complete', 'no_lastbookmatch_statement', 5)
+    #def genrule_no_similarities_concession1(self):
+        #'''no_similarities_concession1 = Concession(id_complete, no_lastbookmatch_statement)'''
+        #inputs = [ ('id_complete', ConstituentSet(nucleus=Message('id_core'))), ('no_lastbookmatch_statement', ConstituentSet(nucleus=Message('lastbook_id_core')))]
+        #conditions = ['exists("lastbook_match", locals()) is False', 'exists("extra", locals()) is False']
+        #return Rule("Concession", inputs, conditions, 'id_complete', 'no_lastbookmatch_statement', 5)
         
-    def genrule_no_similarities_concession2(self):
-        '''no_similarities_concession2 = Concession(id_extra_sequence, no_lastbookmatch_statement)'''
-        inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('no_lastbookmatch_statement', ConstituentSet(nucleus=Message('lastbook_id_core')))]
-        conditions = ['exists("lastbook_match", locals()) is False', 'exists("extra", locals())']
-        return Rule("Concession", inputs, conditions, 'id_extra_sequence', 'no_lastbookmatch_statement', 5)
+    #def genrule_no_similarities_concession2(self):
+        #'''no_similarities_concession2 = Concession(id_extra_sequence, no_lastbookmatch_statement)'''
+        #inputs = [ ('id_extra_sequence', ConstituentSet(aux=Message('extra'))), ('no_lastbookmatch_statement', ConstituentSet(nucleus=Message('lastbook_id_core')))]
+        #conditions = ['exists("lastbook_match", locals()) is False', 'exists("extra", locals())']
+        #return Rule("Concession", inputs, conditions, 'id_extra_sequence', 'no_lastbookmatch_statement', 5)
 
 
-    def genrule_contrast_books_neg_eval(self):
-        '''contrast_books_neg_eval = Sequence(contrast_books, neg_eval), if there's no lastbook_match
+    #def genrule_contrast_books_neg_eval(self):
+        #'''contrast_books_neg_eval = Sequence(contrast_books, neg_eval), if there's no lastbook_match
         
-        Meaning: nucleus = [contrast_books(): This book differs from the preceding one in the following features: ...], aux = [neg_eval(): Although this book fulfills some of your requirements, it doesn't match most of them.]'''
-        inputs = [ ('contrast_books', ConstituentSet(nucleus=Message('lastbook_id_core'))), ('neg_eval', ConstituentSet(nucleus=Message('usermodel_match')) ) ]
-        conditions = ['exists("lastbook_match", locals()) is False']
-        return Rule("Sequence", inputs, conditions, 'contrast_books', 'neg_eval', 2)
+        #Meaning: nucleus = [contrast_books(): This book differs from the preceding one in the following features: ...], aux = [neg_eval(): Although this book fulfills some of your requirements, it doesn't match most of them.]'''
+        #inputs = [ ('contrast_books', ConstituentSet(nucleus=Message('lastbook_id_core'))), ('neg_eval', ConstituentSet(nucleus=Message('usermodel_match')) ) ]
+        #conditions = ['exists("lastbook_match", locals()) is False']
+        #return Rule("Sequence", inputs, conditions, 'contrast_books', 'neg_eval', 2)
 
-    def genrule_no_lastbookmatch_pos_usermodel_concession(self):
-        '''no_lastbookmatch_pos_usermodel_concession = Concession(lastbook_nomatch, pos_eval), if there's no lastbook_match
+    #def genrule_no_lastbookmatch_pos_usermodel_concession(self):
+        #'''no_lastbookmatch_pos_usermodel_concession = Concession(lastbook_nomatch, pos_eval), if there's no lastbook_match
         
-        Meaning: This book hasn't got anything in common with the last book. Nevertheless, it matches many of your requirements'''
-        inputs = [ ('lastbook_nomatch', Message('lastbook_nomatch')), ('pos_eval', ConstituentSet(nucleus=Message('usermodel_match'))) ]
-        conditions = ['exists("lastbook_match", locals()) is False']
-        return Rule("Concession", inputs, conditions, 'lastbook_nomatch', 'pos_eval', 2)
+        #Meaning: This book hasn't got anything in common with the last book. Nevertheless, it matches many of your requirements'''
+        #inputs = [ ('lastbook_nomatch', Message('lastbook_nomatch')), ('pos_eval', ConstituentSet(nucleus=Message('usermodel_match'))) ]
+        #conditions = ['exists("lastbook_match", locals()) is False']
+        #return Rule("Concession", inputs, conditions, 'lastbook_nomatch', 'pos_eval', 2)
 
-    def genrule_no_lastbookmatch_neg_usermodel_concession(self):
-        '''no_lastbookmatch_neg_usermodel_concession = Elaboration(lastbook_nomatch, neg_eval), if there's no lastbook_match
+    #def genrule_no_lastbookmatch_neg_usermodel_concession(self):
+        #'''no_lastbookmatch_neg_usermodel_concession = Elaboration(lastbook_nomatch, neg_eval), if there's no lastbook_match
         
-        Meaning: This book hasn't got anything in common with the last book. In addition, it does only match a few of your requirements'''
-        inputs = [ ('lastbook_nomatch', Message('lastbook_nomatch')), ('neg_eval', ConstituentSet(nucleus=Message('usermodel_nomatch'))) ]
-        conditions = ['exists("lastbook_match", locals()) is False']
-        return Rule("Elaboration", inputs, conditions, 'lastbook_nomatch', 'neg_eval', 2)
+        #Meaning: This book hasn't got anything in common with the last book. In addition, it does only match a few of your requirements'''
+        #inputs = [ ('lastbook_nomatch', Message('lastbook_nomatch')), ('neg_eval', ConstituentSet(nucleus=Message('usermodel_nomatch'))) ]
+        #conditions = ['exists("lastbook_match", locals()) is False']
+        #return Rule("Elaboration", inputs, conditions, 'lastbook_nomatch', 'neg_eval', 2)
         
-    def genrule_lastbook_pos_usermodel_sequence(self): #TODO: replace this (temporary) rule
-        '''lastbook_pos_usermodel_sequence = Sequence(concession_books, pos_eval)'''
-        inputs = [ ('lastbook_concession', ConstituentSet(aux=Message('lastbook_match'))), ('usermodel_concession', ConstituentSet(nucleus=Message('usermodel_match'))) ]
-        return Rule("Sequence", inputs, [], 'lastbook_concession', 'usermodel_concession', 2)
+    #def genrule_lastbook_pos_usermodel_sequence(self): #TODO: replace this (temporary) rule
+        #'''lastbook_pos_usermodel_sequence = Sequence(concession_books, pos_eval)'''
+        #inputs = [ ('lastbook_concession', ConstituentSet(aux=Message('lastbook_match'))), ('usermodel_concession', ConstituentSet(nucleus=Message('usermodel_match'))) ]
+        #return Rule("Sequence", inputs, [], 'lastbook_concession', 'usermodel_concession', 2)
 
-    def genrule_lastbook_neg_usermodel_sequence(self): #TODO: replace this (temporary) rule
-        '''lastbook_neg_usermodel_sequence = Sequence(concession_books, neg_eval)'''
-        inputs = [ ('lastbook_concession', ConstituentSet(aux=Message('lastbook_match'))), ('usermodel_concession', ConstituentSet(nucleus=Message('usermodel_nomatch'))) ]
-        return Rule("Sequence", inputs, [], 'lastbook_concession', 'usermodel_concession', 2)
+    #def genrule_lastbook_neg_usermodel_sequence(self): #TODO: replace this (temporary) rule
+        #'''lastbook_neg_usermodel_sequence = Sequence(concession_books, neg_eval)'''
+        #inputs = [ ('lastbook_concession', ConstituentSet(aux=Message('lastbook_match'))), ('usermodel_concession', ConstituentSet(nucleus=Message('usermodel_nomatch'))) ]
+        #return Rule("Sequence", inputs, [], 'lastbook_concession', 'usermodel_concession', 2)
 
-    def genrule_complete_with_lastbook_and_extra_sequence(self): 
-        # would also work, but is too general: ConstituentSet(relType='Sequence')
-        '''Sequence(lastbook_pos_usermodel_sequence/lastbook_neg_usermodel_sequence, extra)'''
-        inputs = [ ('lastbook_usermodel_sequence', ConstituentSet(nucleus=ConstituentSet(aux=Message('lastbook_match')))), ('extra',Message('extra') )]
-        return Rule("Sequence", inputs, [], 'lastbook_usermodel_sequence', 'extra', 1)
+    #def genrule_complete_with_lastbook_and_extra_sequence(self): 
+        ## would also work, but is too general: ConstituentSet(relType='Sequence')
+        #'''Sequence(lastbook_pos_usermodel_sequence/lastbook_neg_usermodel_sequence, extra)'''
+        #inputs = [ ('lastbook_usermodel_sequence', ConstituentSet(nucleus=ConstituentSet(aux=Message('lastbook_match')))), ('extra',Message('extra') )]
+        #return Rule("Sequence", inputs, [], 'lastbook_usermodel_sequence', 'extra', 1)
 
-    def genrule_catchall_no_lastbookmatch_and_extra_sequence(self):
-        '''Sequence( any_constituent_set, extra), if there's no lastbook_match'''
-        inputs = [ ('any_constituent_set', ConstituentSet()), ('extra', Message('extra') )]
-        conditions = ['exists("lastbook_match", locals()) is False']
-        return Rule("Sequence", inputs, conditions, 'any_constituent_set', 'extra', 1)
+    #def genrule_catchall_no_lastbookmatch_and_extra_sequence(self):
+        #'''Sequence( any_constituent_set, extra), if there's no lastbook_match'''
+        #inputs = [ ('any_constituent_set', ConstituentSet()), ('extra', Message('extra') )]
+        #conditions = ['exists("lastbook_match", locals()) is False']
+        #return Rule("Sequence", inputs, conditions, 'any_constituent_set', 'extra', 1)
 
         
 class DocumentPlans:
@@ -1192,6 +1218,12 @@ def update_messages(messages, rule_name):
                 message.freeze()
     else:
         print "Sorry, this rule could not be applied to your messages."
+
+def test_newrule(booknumber=2, querynumber=10, rulenumber=0): #TODO: remove after debugging
+    m = genmessages(booknumber, querynumber)
+    messages = m.messages.values()
+    rule = Rules().rules[rulenumber]
+    return messages, rule, rule.get_options(messages)
 
 if __name__ == "__main__":
     #commandline_query = parse_commandline(sys.argv[1:])
