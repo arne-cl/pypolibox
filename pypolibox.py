@@ -797,9 +797,33 @@ class Rules:
         Meaning: This book fulfills ALL your requirments. It was written in ..., contains these features ... and ... etc'''
         nucleus = [('id', Message('id')), ('id_extra_sequence', ConstituentSet(nucleus=Message('id')))] 
         satellite = [('usermodel_match', Message('usermodel_match'))]
-        conditions = ['exists("usermodel_nomatch", locals()) is False', 'exists("usermodel_match", locals()) is True']    
-        return Rule('Elaboration', nucleus, satellite, conditions, 4)
+        conditions = ['exists("usermodel_nomatch", locals()) is False']    
+        return Rule('Elaboration', nucleus, satellite, conditions, 5)
 
+    def genrule_pos_eval(self):
+        '''pos_eval = Concession(usermodel_match, usermodel_nomatch)
+        
+        Meaning: Book matches many (>= 50%) of the requirements, but not all of them
+        '''
+        nucleus = [('usermodel_match', Message('usermodel_match'))]
+        satellite = [('usermodel_nomatch', Message('usermodel_nomatch'))]
+        conditions = 
+        return Rule('Concession', nucleus, satellite, conditions, 8)
+
+
+""" #genrule example
+
+    def genrule_name(self):
+        '''name = ...
+        
+        Meaning: ...
+        '''
+        nucleus = 
+        satellite = 
+        conditions = 
+        return Rule('Elaboration', nucleus, satellite, conditions, 5)
+
+"""        
         
 class DocumentPlans:
     """generates all C{DocumentPlan}s for an C{AllMessages} instance, i.e. one DocumentPlan for each book that is returned as a result of the user's database query"""
