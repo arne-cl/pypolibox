@@ -1144,6 +1144,11 @@ def update_messages(messages, rule_name):
     
     the resulting C{ConstituentSet} will be added to the list, while the messages involved in its construction will be removed.
     repeat this step until you've found an erroneous/missing rule'''
+    if type(messages) is list: # check if messages is a list of Message() instances
+        pass
+    elif isinstance(messages, Messages): # or a single Messages() instance
+        messages = messages.messages.values()
+
     options = Rules().rule_dict[rule_name].get_options(messages)
     if options:
         for option in options:
