@@ -80,15 +80,12 @@ class Query:
             assert args.minresults > 0
             self.minresults = args.minresults 
     
-        #print "The database will be queried for: {0}".format(self.queries)
         self.query_args = args # we may need these for debugging
         self.and_query = self.__construct_query(self.queries, query_and)
         self.or_query = self.__construct_query(self.queries, query_or)
-        #print "\nThis query will be sent to the database: {0}\n\n".format(self.query)
 
     def __construct_query(self, queries, query_combinator):
         """takes a list of queries and combines them into one complex SQL query"""
-        #query_template = "SELECT titel, year FROM books WHERE "
         query_template = "SELECT * FROM books "
         where = "WHERE "
         combined_queries = ""
@@ -867,7 +864,7 @@ class Rules:
         '''
         nucleus = [('book_differences', ConstituentSet(satellite=Message('lastbook_nomatch')))]
         satellite = [('lastbook_match', Message('lastbook_match'))]
-        conditions = ['exists("lastbook_nomatch", locals()) is True']
+        conditions = ['exists("lastbook_match", locals()) is True']
         return Rule('concession_books','Concession', nucleus, satellite, conditions, 5)
 
     def genrule_concession_book_differences_usermodelmatch(self):
@@ -1097,7 +1094,7 @@ def msgtypes(messages):
             if message.has_key(Feature("msgType")):
                 print i, message[Feature("msgType")]
             else:
-                print i, message[Feature("relType")]
+                print "{0} {1}({2}, {3})".format(i, message[Feature("relType")], message[Feature("nucleus")][Feature("msgType")], message[Feature("satellite")][Feature("msgType")])
 
 def find_applicable_rules(messages):
     #'''debugging: find out which rules are directly (i.e. without forming ConstituentSets first) applicable to your messages'''
