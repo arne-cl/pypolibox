@@ -69,8 +69,11 @@ class Rule(object):
     Each I{Rule} specifies which of the inputs will be the I{nucleus} and which will be the I{aux} of the output C{ConstituentSet}.
     '''
 
-    def __init__(self, ruleType, nucleus, satellite, conditions, heuristic):
+    def __init__(self, name, ruleType, nucleus, satellite, conditions, heuristic):
         '''
+        @param name: The name of the rule.
+        @type name: string
+        
         @param ruleType: The name of the relationship type this Rule specifies.
         @type ruleTupe: string
             
