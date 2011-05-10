@@ -769,7 +769,7 @@ class Rules:
                 method = 'self.' + method_name + '()'
                 rule = eval(method) # calls a method that generates a rule
                 self.rules.append(rule)
-                self.rule_dict[method_name] = rule
+                self.rule_dict[rule.name] = rule
                 
     def __str__(self):
         ret_str = ""
@@ -966,7 +966,7 @@ def sql_array_to_set(sql_array):
     this function turns those multi-value strings into a set with separate values
     """
     item = re.compile("\[(.*?)\]")
-    items = item.findall(sql_arra   y)
+    items = item.findall(sql_array)
     item_set = set()
     for i in items:
         item_set.add(i)

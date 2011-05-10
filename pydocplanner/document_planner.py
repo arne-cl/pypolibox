@@ -88,7 +88,7 @@ class Rule(object):
         @param heuristic: an integer used to rank potential ConstituentSets. 
         @type heuristic: C{int}
         '''
-        
+        self.name = name
         self.ruleType = ruleType
         self.conditions = conditions
         self.nucleus = nucleus
