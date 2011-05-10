@@ -1085,16 +1085,24 @@ def enumprint(obj):
         print "{0}:\n{1}\n".format(index, item)
 
 def msgtypes(messages):
+    '''print message types / rst relation types of a Messages() instance or a list of Message() instances'''
     if isinstance(messages, Messages):
         for i, message in enumerate(messages.messages.values()):
-            print i, message[Feature("msgType")]
+            print i, __msgtype_print(message)
     
     else: # if messages is a list of C{Message}/C{ConstituentSet} instances
         for i, message in enumerate(messages):
-            if message.has_key(Feature("msgType")):
-                print i, message[Feature("msgType")]
-            else:
-                print "{0} {1}({2}, {3})".format(i, message[Feature("relType")], message[Feature("nucleus")][Feature("msgType")], message[Feature("satellite")][Feature("msgType")])
+            print i, __msgtype_print(message)
+                
+def __msgtype_print(message):
+    '''recursive helper function for msgtypes(), which prints message types and RST relation types'''
+	if isinstance(message, Message):
+		return message[Feature("msgType")]
+	if isinstance(message, ConstituentSet):
+		nucleus = __msgtype_print(message[Feature("nucleus")])
+		reltype = message[Feature("relType")]
+		satellite = __msgtype_print(message[Feature("satellite")])
+		return "{0}({1}, {2})".format(reltype, nucleus, satellite)
 
 def find_applicable_rules(messages):
     #'''debugging: find out which rules are directly (i.e. without forming ConstituentSets first) applicable to your messages'''
@@ -1106,7 +1114,9 @@ def find_applicable_rules(messages):
     for name, rule in Rules().rule_dict.iteritems():
         try:
             if rule.get_options(messages) != []:
-                print "{0} is directly applicable\n\t{1}\n\n".format(name, rule.get_options(messages))
+                nucleus_candidates = [rulename for (rulename, msg) in rule.nucleus]
+                satellite_candidates = [rulename for (rulename, msg) in rule.satellite]
+                print "{0}: {1} - {2}, {3} - is directly applicable and results in \n\t{4}\n\n".format(name, rule.ruleType, nucleus_candidates, satellite_candidates, rule.get_options(messages))
         except:
             print "ERROR: Could not check if rule {0} is applicable. Possible solution: test if the rule's conditions are specified appropriately.\n\n".format(name)
 
