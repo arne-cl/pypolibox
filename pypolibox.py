@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# TODO: remove empty frozensets from message generation!
+
 import sqlite3
 import sys
 import argparse
@@ -916,13 +918,15 @@ class Rules:
 
 
     def genrule_compare_eval(self):
-        '''Sequence(concession_books, {pos_eval, neg_eval})
+        '''Sequence(concession_books, {pos_eval, neg_eval, usermodel_match})
         
         Meaning: 'concession_books' describes common and diverging features of the books. 'pos_eval/neg_eval' explains how many user requirements they meet
         '''
+        #TODO: split this rule? satellite=usermodel_match would actually require that there's no usermodel_nomatch
+        #book_differences = Contrast({id, id_extra_sequence}, lastbook_nomatch)
         #concession_books = Concession(book_differences, lastbook_match)
-        nucleus = [('concession_books', ConstituentSet(satellite=Message('lastbook_nomatch')))]
-        satellite = [('pos_eval', ConstituentSet(satellite=Message('usermodel_nomatch'))), ('neg_eval', ConstituentSet(nucleus=Message('usermodel_nomatch')))]
+        nucleus = [('concession_books', ConstituentSet(satellite=Message('lastbook_match')))]
+        satellite = [('pos_eval', ConstituentSet(satellite=Message('usermodel_nomatch'))), ('neg_eval', ConstituentSet(nucleus=Message('usermodel_nomatch'))), ('usermodel_match', Message('usermodel_match'))]
         conditions = []
         return Rule('compare_eval','Sequence', nucleus, satellite, conditions, 5)
 
@@ -1085,7 +1089,7 @@ def enumprint(obj):
         print "{0}:\n{1}\n".format(index, item)
 
 def msgtypes(messages):
-    '''print message types / rst relation types of a Messages() instance or a list of Message() instances'''
+    '''print message types / rst relation types of a DocPlan() instance, a Messages() instance or a list of Message() instances'''
     if isinstance(messages, Messages):
         for i, message in enumerate(messages.messages.values()):
             print i, __msgtype_print(message)
@@ -1106,6 +1110,42 @@ def __msgtype_print(message):
         satellite = __msgtype_print(message[Feature("satellite")])
         return "{0}({1}, {2})".format(reltype, nucleus, satellite)
 
+def avm_print(docplan):
+    avm_str = ""
+    header = "\begin{avm}\n"
+    footer = "\n\end{avm}"
+    if isinstance(docplan["children"], Message):
+        pass
+    if isinstance(docplan["children"], ConstituentSet):
+        pass
+    return avm_str
+
+def __avm(message):
+    '''
+    @type: C{Message} or C{ConstituentSet}
+    '''
+    if isinstance(message, Message):
+        msg_content = ""
+        msg_name = message[Feature("msgType")]
+        keys = message.keys()
+        keys.remove(Feature("msgType"))
+
+        msg_content += "\\[\n"
+        for key in keys:
+            value = message[key]
+            msg_content += "{0} & {1} \\\\\n".format(key, value)
+        msg_content += "\n\\]"
+
+        message = "{0}\t& {1}".format(msg_name, msg_content)
+        return message
+        
+    if isinstance(message, ConstituentSet):
+        rel_name = message[Feature("relType")]
+        nucleus = __avm(message[Feature("nucleus")])
+        satellite = __avm(message[Feature("satellite")])
+        message = "{0}\t& \\[ {1} \n\n {2} \\]".format(rel_name, nucleus, satellite)
+        return message
+        
 def find_applicable_rules(messages):
     #'''debugging: find out which rules are directly (i.e. without forming ConstituentSets first) applicable to your messages'''
     if type(messages) is list: # check if messages is a list of Message() instances
