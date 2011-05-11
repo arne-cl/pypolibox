@@ -8,7 +8,7 @@ import re # for "utils"
 import datetime
 from time import time
 import locale
-from pydocplanner.document_planner import Message, ConstituentSet, Rule, bottom_up_plan, __bottom_up_search #TODO: remove __bottom_up_search
+from pydocplanner.document_planner import DocPlan, Message, ConstituentSet, Rule, bottom_up_plan, __bottom_up_search #TODO: remove __bottom_up_search
 from nltk import FeatDict
 from nltk.featstruct import Feature
 
@@ -1045,7 +1045,7 @@ def maxscoretest():
         
 def testmsg(message_type='lastbook_nomatch'):
     for arg in argv:
-        ap = gen_props(arg)
+        ap = genprops(arg)
         for p in ap.allpropostions:
             try: print Messages(p).messages[message_type], "\n\n"
             except: pass
@@ -1090,19 +1090,21 @@ def msgtypes(messages):
         for i, message in enumerate(messages.messages.values()):
             print i, __msgtype_print(message)
     
-    else: # if messages is a list of C{Message}/C{ConstituentSet} instances
+    elif isinstance(messages, list) : # if messages is a list of C{Message}/C{ConstituentSet} instances
         for i, message in enumerate(messages):
             print i, __msgtype_print(message)
+    elif isinstance(messages, DocPlan):
+        print "DocumentPlan: ", __msgtype_print(messages["children"])
                 
 def __msgtype_print(message):
     '''recursive helper function for msgtypes(), which prints message types and RST relation types'''
-	if isinstance(message, Message):
-		return message[Feature("msgType")]
-	if isinstance(message, ConstituentSet):
-		nucleus = __msgtype_print(message[Feature("nucleus")])
-		reltype = message[Feature("relType")]
-		satellite = __msgtype_print(message[Feature("satellite")])
-		return "{0}({1}, {2})".format(reltype, nucleus, satellite)
+    if isinstance(message, Message):
+        return message[Feature("msgType")]
+    if isinstance(message, ConstituentSet):
+        nucleus = __msgtype_print(message[Feature("nucleus")])
+        reltype = message[Feature("relType")]
+        satellite = __msgtype_print(message[Feature("satellite")])
+        return "{0}({1}, {2})".format(reltype, nucleus, satellite)
 
 def find_applicable_rules(messages):
     #'''debugging: find out which rules are directly (i.e. without forming ConstituentSets first) applicable to your messages'''

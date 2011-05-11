@@ -323,12 +323,10 @@ def __bottom_up_search(messages, rules):
     @rtype: C{NoneType} or a C{set} of (C{Message}s or C{ConstituentSet}s)
     '''
     if len(messages) == 1:
-        #print "There's only one plan, so we'll use it:\n{0}\n".format(messages) #TODO: remove
         return messages
     elif len(messages) < 1:
         raise Exception('ERROR')
     else:
-        #fitzgerald: options = map(lambda x: x.get_options(messages), rules)
         try:
             options = [rule.get_options(messages) for rule in rules]
         except:
@@ -342,7 +340,6 @@ def __bottom_up_search(messages, rules):
             options_list.append( (x, y, z) )
             
         if options_list == []:
-            #print "There's no rule that can be applied to these messages:\n{0}\n".format(messages) #TODO:remove
             return None
 
         sorted_options = sorted(options_list, key = lambda (x,y,z): x, reverse=True) # sort all options by their score, beginning with the highest one
@@ -355,9 +352,7 @@ def __bottom_up_search(messages, rules):
             testSet = testSet.union(set([rst_relation])) # a set containing a ConstituentSet and one or more Messages that haven't been integrated into a structure yet
             ret = __bottom_up_search(testSet, rules)
             if ret:
-                #print "When applying the rules to these messages:\n{1}\n, this is the result set:\n{2}\n".format(rules, testSet, ret) #TODO: remove 
                 return ret
-        #print "Sorry, none of the rules could be applied to any of these options:\n{1}\n".format(rules, sorted_options) #TODO:remove
         return None
 
 
