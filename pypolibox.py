@@ -10,13 +10,13 @@ import re # for "utils"
 import datetime
 from time import time
 import locale
-from pydocplanner.document_planner import DocPlan, Message, ConstituentSet, Rule, bottom_up_plan, __bottom_up_search #TODO: remove __bottom_up_search
+from document_planner import DocPlan, Message, ConstituentSet, Rule, bottom_up_plan
 from nltk import FeatDict
 from nltk.featstruct import Feature
 
 language, encoding = locale.getlocale()
 DEFAULT_ENCODING = encoding # sqlite stores strings as unicode, but the user input is likely something else
-DB_FILE = 'pypolibox.sqlite'
+DB_FILE = 'books.sqlite'
 BOOK_TABLE_NAME = 'books' # name of the table in the database file that contains info about books
 CURRENT_YEAR = datetime.datetime.today().year 
   
@@ -1055,7 +1055,7 @@ def gendocplans(querynumber):
     for book in am.books:
         messages = book.messages.values()
         docplan = bottom_up_plan(messages, rules)
-        #print docplan
+        print docplan
         docplans.append(docplan)
     return docplans
     
