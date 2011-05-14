@@ -3,6 +3,8 @@ import re
 import itertools
 import nltk
 from nltk.featstruct import Feature
+from nltk import FeatDict
+
 from util import exists, flatten
 #from pypolibox import Messages # TODO: move Messages to textplan.py
 

@@ -1,6 +1,7 @@
-from pypolibox import testqueries # TODO: move here and rename
-from pypolibox import Query, Results, Books, AllFacts, AllPropositions, AllMessages
-from pypolibox import Rules # TODO: move to textplan_rules.py (together w/ Rule)
+from database import Query, Results, Books
+from pypolibox import AllFacts, AllPropositions
+from textplan import Rules, AllMessages
+
 #from pypolibox import curs # TODO: move stuff to database.py
 
 ## TODO: fixme
@@ -10,13 +11,6 @@ from pypolibox import Rules # TODO: move to textplan_rules.py (together w/ Rule)
     #print "select * from books where pages < 300;\n\n"
     #return query_results
 
-def test_cli(query_arguments=testqueries):
-    """run several complex queries and print their results to stdout"""
-    for arg in query_arguments:
-        book_list = Books(Results(Query(arg)))
-        print "{0}:\n\n".format(arg)
-        for book in book_list.books:
-            print book.title, book.year
 
                 
 def genprops(querynumber=10):
@@ -203,4 +197,62 @@ def apply_rule(messages, rule_name):
     else:
         print "Sorry, this rule could not be applied to your messages."
 
+testqueries = [ [],
+         ["-k", "pragmatics"],
+         ["-k", "pragmatics", "-r", "4"],
+         ["-k", "pragmatics", "semantics"],
+         ["-k", "pragmatics", "semantics", "-r", "7"],
+         ["-l", "German"],
+         ["-l", "German", "-p", "Lisp"],
+         ["-l", "German", "-p", "Lisp", "-k", "parsing"],
+         ["-l", "English", "-s", "0", "-c", "1"],
+         ["-l", "English", "-s", "0", "-e", "1", "-k", "discourse"],
+         ["-k", "syntax", "parsing", "-l", "German", "-p", "Prolog", "Lisp", "-s", "2", "-t", "0", "-e", "1", "-c", "1", "-r", "7"],
+            ] # list of possible query arguments for debugging purposes
+
+error_testqueries = [ ["-k", "cheeseburger"], # keyword does not exist
+               ["-k", "Pragmatics"], # keyword does exist, but only in lower case
+               ["-l", "Luxembourgish"], # db has no books in this language
+               ["-l", "Luxembourgish", "-k", "syntax"],
+               ["-l", "English", "German"], # our db only lists monolingual books
+               ["-p", ""], # should list all books that have no programming language associated with them
+               ["-t", "5"], # --target should be a numerical value (int) in range 0..3
+               ["-t", "-2"],
+               ["-t", "1.0"],
+               ["-t", "4.6"],
+               ["-t", "foobar"], # --target should be a numerical value
+               ["-t", ""],
+               ["-s", "5"], # --pagerange should be a numerical value (int) in range 0..2
+               ["-s", "-2"],
+               ["-s", "1.0"],
+               ["-s", "4.6"],
+               ["-s", "foobar"], # --pagerange should be a numerical value
+               ["-s", ""],
+               ["-e", "5"], # --exercises should be 0 or 1
+               ["-e", "-2"],
+               ["-e", "1.0"],
+               ["-e", "4.6"],
+               ["-e", "foobar"],
+               ["-e", ""],
+               ["-c", "5"], # --codeexamples should be 0 or 1
+               ["-c", "-2"],
+               ["-c", "1.0"],
+               ["-c", "4.6"],
+               ["-c", "foobar"],
+               ["-c", ""],
+               ["-r", "5"], # --minresults should be 0 or a positive integer
+               ["-r", "-2"],
+               ["-r", "1.0"],
+               ["-r", "4.6"],
+               ["-r", "foobar"],
+               ["-r", ""],
+        ] # list of (im)possible query arguments for debugging purposes. TODO: which ones behave unexpectedly?
+
+def test_cli(query_arguments=testqueries):
+    """run several complex queries and print their results to stdout"""
+    for arg in query_arguments:
+        book_list = Books(Results(Query(arg)))
+        print "{0}:\n\n".format(arg)
+        for book in book_list.books:
+            print book.title, book.year
 
