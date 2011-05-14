@@ -10,7 +10,7 @@ import re # for "utils"
 import datetime
 from time import time
 import locale
-from document_planner import DocPlan, Message, ConstituentSet, Rule, bottom_up_plan
+from textplan import DocPlan, Message, ConstituentSet, Rule, bottom_up_plan
 from nltk import FeatDict
 from nltk.featstruct import Feature
 
