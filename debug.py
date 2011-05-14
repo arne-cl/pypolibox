@@ -1,6 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from nltk.featstruct import Feature
 from database import Query, Results, Books
 from pypolibox import AllFacts, AllPropositions
-from textplan import Rules, AllMessages
+from textplan import ConstituentSet, DocPlan, Rules, AllMessages, Messages, Message
 
 #from pypolibox import curs # TODO: move stuff to database.py
 
@@ -126,12 +130,12 @@ def __avm(message):
         
 def abbreviate_textplan(textplan):
     if isinstance(textplan, DocPlan):
-        textplan = __abbrev(textplan["children"])
+        textplan = abbreviate_textplan(textplan["children"])
         return DocPlan(children=textplan)
     if isinstance(textplan, ConstituentSet):
         reltype = textplan[Feature("relType")]
-        nucleus = __abbrev(textplan[Feature("nucleus")])
-        satellite = __abbrev(textplan[Feature("satellite")])
+        nucleus = abbreviate_textplan(textplan[Feature("nucleus")])
+        satellite = abbreviate_textplan(textplan[Feature("satellite")])
         return ConstituentSet(relType=reltype, nucleus=nucleus, satellite=satellite)
     if isinstance(textplan, Message):
         msgtype = textplan[Feature("msgType")]
