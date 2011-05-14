@@ -3,22 +3,27 @@ import re
 import itertools
 import nltk
 from nltk.featstruct import Feature
-import util
-from util import exists
+from util import exists, flatten
 #from pypolibox import Messages # TODO: move Messages to textplan.py
 
 #original author: Nicholas FitzGerald
 # major rewrite: Arne Neumann
 #cf. "Fitzgerald, Nicholas (2009). Open-Source Implementation of Document Structuring Algorithm for NLTK"
 
-class DocPlan(nltk.featstruct.FeatDict):
+class Message(nltk.featstruct.FeatDict):
     """
-    C{DocPlan} is the output of Document Planning. A DocPlan consists of an optional title and text, and a child I{ConstituentSet}.
+    C{Message}s are the primary information bearing units. They are contructed during the Content Selection stage of NLG which preceded Document Structuring.
+
+    Each C{Message} has a I{msgType} which defines what type of message it is. In addition, C{Message}s can have any number of other features which contain the information the message conveys. These can either be simple features, or C{nltk.featstruct.FeatStruct}s.
+
+    C{Message} is based on C{nltk.featstruct.FeatDict}.
     """
-    def __init__(self, book_score = None, dtype = 'DocPlan', text = None, children = None):
-        self[nltk.featstruct.Feature('type',display='prefix')] = 'DPDocument'
-        self['title'] = nltk.featstruct.FeatDict({'type': dtype, 'text':text, 'book score': book_score})
-        self['children'] = children
+    def __init__(self, msgType = None):
+        """
+        I{msgType} is only specified for the C{nltk.featstruct.FeatDict} if it is specified by the user.
+        """
+        if msgType: 
+            self[nltk.featstruct.Feature('msgType',display='prefix')] = msgType
 
 class ConstituentSet(nltk.featstruct.FeatDict):
     """
@@ -44,21 +49,15 @@ class ConstituentSet(nltk.featstruct.FeatDict):
         if satellite: 
             self[nltk.featstruct.Feature('satellite',display='prefix')] = satellite
 
-class Message(nltk.featstruct.FeatDict):
+
+class DocPlan(nltk.featstruct.FeatDict):
     """
-    C{Message}s are the primary information bearing units. They are contructed during the Content Selection stage of NLG which preceded Document Structuring.
-
-    Each C{Message} has a I{msgType} which defines what type of message it is. In addition, C{Message}s can have any number of other features which contain the information the message conveys. These can either be simple features, or C{nltk.featstruct.FeatStruct}s.
-
-    C{Message} is based on C{nltk.featstruct.FeatDict}.
+    C{DocPlan} is the output of Document Planning. A DocPlan consists of an optional title and text, and a child I{ConstituentSet}.
     """
-    def __init__(self, msgType = None):
-        """
-        I{msgType} is only specified for the C{nltk.featstruct.FeatDict} if it is specified by the user.
-        """
-        if msgType: 
-            self[nltk.featstruct.Feature('msgType',display='prefix')] = msgType
-
+    def __init__(self, book_score = None, dtype = 'DocPlan', text = None, children = None):
+        self[nltk.featstruct.Feature('type',display='prefix')] = 'DPDocument'
+        self['title'] = nltk.featstruct.FeatDict({'type': dtype, 'text':text, 'book score': book_score})
+        self['children'] = children
 
 class Rule(object):
     '''
@@ -315,7 +314,7 @@ def __bottom_up_search(messages, rules):
             raise Exception('EPIC FAIL: Rule {0} had trouble with these messages: {1}'.format(rule, messages))
             print "BOO" #TODO: remove after debugging
             
-        options = util.flatten(options)
+        options = flatten(options)
         options_list = []
         for x, y, z in options:
             y.freeze()
