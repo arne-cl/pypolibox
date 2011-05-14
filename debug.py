@@ -1,4 +1,4 @@
-from pypolibox import argv # TODO: move here and rename
+from pypolibox import testqueries # TODO: move here and rename
 from pypolibox import Query, Results, Books, AllFacts, AllPropositions, AllMessages
 from pypolibox import Rules # TODO: move to textplan_rules.py (together w/ Rule)
 #from pypolibox import curs # TODO: move stuff to database.py
@@ -10,7 +10,7 @@ from pypolibox import Rules # TODO: move to textplan_rules.py (together w/ Rule)
     #print "select * from books where pages < 300;\n\n"
     #return query_results
 
-def test_cli(query_arguments=argv):
+def test_cli(query_arguments=testqueries):
     """run several complex queries and print their results to stdout"""
     for arg in query_arguments:
         book_list = Books(Results(Query(arg)))
@@ -20,17 +20,17 @@ def test_cli(query_arguments=argv):
 
                 
 def genprops(querynumber=10):
-    return AllPropositions(AllFacts(Books(Results(Query(argv[querynumber])))))
+    return AllPropositions(AllFacts(Books(Results(Query(testqueries[querynumber])))))
     
 def genmessages(booknumber=0, querynumber=10):
-    am = AllMessages(AllPropositions(AllFacts(Books(Results(Query(argv[querynumber]))))))  
+    am = AllMessages(AllPropositions(AllFacts(Books(Results(Query(testqueries[querynumber]))))))  
     for message in am.books[booknumber].messages.values(): message.freeze() #freeze messages, so Rule()s can be tested against them
     return am.books[booknumber].messages.values()
     
 def gendocplans(querynumber):
     docplans = []
     rules = Rules().rules
-    am = AllMessages(AllPropositions(AllFacts(Books(Results(Query(argv[querynumber]))))))
+    am = AllMessages(AllPropositions(AllFacts(Books(Results(Query(testqueries[querynumber]))))))
     #print len(am.books)
     for book in am.books:
         messages = book.messages.values()
@@ -41,7 +41,7 @@ def gendocplans(querynumber):
     
 def test_all_docplans():
     all_docplans = []
-    for argnumber, arg in enumerate(argv):
+    for argnumber, arg in enumerate(testqueries):
         print "generating DocPlans for the query:{0}\n".format(arg)
         docplans = gendocplans(argnumber)
         print "generated {0} DocPlans".format(len(docplans))

@@ -2,7 +2,6 @@ import argparse
 import locale
 import sqlite3
 import util
-#from pypolibox import argv # TODO: move to debug, don't import here?!
 
 language, encoding = locale.getlocale()
 DEFAULT_ENCODING = encoding # sqlite stores strings as unicode, but the user input is likely something else

@@ -641,7 +641,7 @@ class DocumentPlans:
 
 
 
-argv = [ [],
+testqueries = [ [],
          ["-k", "pragmatics"],
          ["-k", "pragmatics", "-r", "4"],
          ["-k", "pragmatics", "semantics"],
@@ -654,7 +654,7 @@ argv = [ [],
          ["-k", "syntax", "parsing", "-l", "German", "-p", "Prolog", "Lisp", "-s", "2", "-t", "0", "-e", "1", "-c", "1", "-r", "7"],
             ] # list of possible query arguments for debugging purposes
 
-error_argv = [ ["-k", "cheeseburger"], # keyword does not exist
+error_testqueries = [ ["-k", "cheeseburger"], # keyword does not exist
                ["-k", "Pragmatics"], # keyword does exist, but only in lower case
                ["-l", "Luxembourgish"], # db has no books in this language
                ["-l", "Luxembourgish", "-k", "syntax"],
