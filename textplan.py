@@ -4,12 +4,12 @@
 import string
 import re
 import itertools
+from time import time
 import nltk
 from nltk.featstruct import Feature
 from nltk import FeatDict
 
 from util import exists, flatten
-#from pypolibox import Messages # TODO: move Messages to textplan.py
 
 #original author: Nicholas FitzGerald
 # major rewrite: Arne Neumann
@@ -193,17 +193,17 @@ class ConstituentSet(nltk.featstruct.FeatDict):
             self[nltk.featstruct.Feature('satellite',display='prefix')] = satellite
 
 
-class DocPlan(nltk.featstruct.FeatDict):
+class TextPlan(nltk.featstruct.FeatDict):
     """
-    C{DocPlan} is the output of Document Planning. A DocPlan consists of an optional title and text, and a child I{ConstituentSet}.
+    C{TextPlan} is the output of Document Planning. A TextPlan consists of an optional title and text, and a child I{ConstituentSet}.
     """
-    def __init__(self, book_score = None, dtype = 'DocPlan', text = None, children = None):
+    def __init__(self, book_score = None, dtype = 'TextPlan', text = None, children = None):
         self[nltk.featstruct.Feature('type',display='prefix')] = 'DPDocument'
         self['title'] = nltk.featstruct.FeatDict({'type': dtype, 'text':text, 'book score': book_score})
         self['children'] = children
 
-class DocumentPlans:
-    """generates all C{DocumentPlan}s for an C{AllMessages} instance, i.e. one DocumentPlan for each book that is returned as a result of the user's database query"""
+class TextPlans:
+    """generates all C{TextPlan}s for an C{AllMessages} instance, i.e. one DocumentPlan for each book that is returned as a result of the user's database query"""
     
     def __init__ (self, allmessages):
         """ Class initialiser """
@@ -606,11 +606,11 @@ def generate_textplan(messages, rules, book_score = None, dtype = None, text = N
     '''
     The main method implementing the Bottom-Up document structuring algorithm from "Building Natural Language Generation Systems" figure 4.17, p. 108.
 
-    The method takes a list of C{Message}s and a set of C{Rule}s and creates a document plan by repeatedly applying the highest-scoring Rule-application (according to the Rule's heuristic score) until a full tree is created. This is returned as a C{DocPlan} with the tree set as I{children}.
+    The method takes a list of C{Message}s and a set of C{Rule}s and creates a document plan by repeatedly applying the highest-scoring Rule-application (according to the Rule's heuristic score) until a full tree is created. This is returned as a C{TextPlan} with the tree set as I{children}.
 
     If no plan is reached using bottom-up, I{None} is returned.
 
-    @param messages: a list of C{Message}s which have been selected during content selection for inclusion in the DocPlan
+    @param messages: a list of C{Message}s which have been selected during content selection for inclusion in the TextPlan
     @type messages: list of C{Message}s
     @param rules: a list of C{Rule}s specifying relationships which can hold between the messages
     @type rules: list of C{Rule}s
@@ -619,7 +619,7 @@ def generate_textplan(messages, rules, book_score = None, dtype = None, text = N
     @param text: an optional text string describing the document
     @type text: string
     @return: a document plan. if no plan could be created: return None
-    @rtype: C{DocPlan} or C{NoneType}
+    @rtype: C{TextPlan} or C{NoneType}
     '''
     if isinstance(messages, list):
         for message in messages:
@@ -631,7 +631,7 @@ def generate_textplan(messages, rules, book_score = None, dtype = None, text = N
 
     if ret: # if __bottom_up_search has found a valid plan ...
         children =  ret.pop() # pop returns an 'arbitrary' set element (there's only one)
-        return DocPlan(book_score=book_score, dtype=dtype, text=text, children=children)
+        return TextPlan(book_score=book_score, dtype=dtype, text=text, children=children)
     else:
         return None
 

@@ -2,16 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import locale
 import sqlite3
 import util
-#from pypolibox import DEFAULT_ENCODING
 
-language, encoding = locale.getlocale()
-DEFAULT_ENCODING = encoding # sqlite stores strings as unicode, but the user input is likely something else
+#import locale
+#language, encoding = locale.getlocale()
+#DEFAULT_ENCODING = encoding # sqlite stores strings as unicode, but the user input is likely something else
+
 DB_FILE = 'books.sqlite'
 BOOK_TABLE_NAME = 'books' # name of the table in the database file that contains info about books
-
+DEFAULT_ENCODING = 'UTF8'
 
 class Query:
     """ a Query() instance represents one user query to the database """

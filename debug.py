@@ -3,8 +3,9 @@
 
 from nltk.featstruct import Feature
 from database import Query, Results, Books
-from pypolibox import AllFacts, AllPropositions
-from textplan import ConstituentSet, DocPlan, Rules, AllMessages, Messages, Message
+from facts import AllFacts
+from propositions import AllPropositions
+from textplan import ConstituentSet, TextPlan, Rules, AllMessages, Messages, Message
 
 #from pypolibox import curs # TODO: move stuff to database.py
 
@@ -25,29 +26,29 @@ def genmessages(booknumber=0, querynumber=10):
     for message in am.books[booknumber].messages.values(): message.freeze() #freeze messages, so Rule()s can be tested against them
     return am.books[booknumber].messages.values()
     
-def gendocplans(querynumber):
-    docplans = []
+def genTextPlans(querynumber):
+    TextPlans = []
     rules = Rules().rules
     am = AllMessages(AllPropositions(AllFacts(Books(Results(Query(testqueries[querynumber]))))))
     #print len(am.books)
     for book in am.books:
         messages = book.messages.values()
-        docplan = generate_textplan(messages, rules)
-        print docplan
-        docplans.append(docplan)
-    return docplans
+        TextPlan = generate_textplan(messages, rules)
+        print TextPlan
+        TextPlans.append(TextPlan)
+    return TextPlans
     
-def test_all_docplans():
-    all_docplans = []
+def test_all_TextPlans():
+    all_TextPlans = []
     for argnumber, arg in enumerate(testqueries):
-        print "generating DocPlans for the query:{0}\n".format(arg)
-        docplans = gendocplans(argnumber)
-        print "generated {0} DocPlans".format(len(docplans))
-        for i, docplan in enumerate(docplans):
-            if docplan == None:
-                print "When using query argument {0}, no docplan could be generated for book {1}".format(arg, i)
-        all_docplans.append(docplans)
-    return all_docplans
+        print "generating TextPlans for the query:{0}\n".format(arg)
+        TextPlans = genTextPlans(argnumber)
+        print "generated {0} TextPlans".format(len(TextPlans))
+        for i, TextPlan in enumerate(TextPlans):
+            if TextPlan == None:
+                print "When using query argument {0}, no TextPlan could be generated for book {1}".format(arg, i)
+        all_TextPlans.append(TextPlans)
+    return all_TextPlans
  
 def enumprint(obj):
     for index, item in enumerate(obj):
@@ -63,7 +64,7 @@ def msgtypes(messages):
             print i, __msgtype_print(message)
     elif isinstance(messages, Message):
         print "Message: ", __msgtype_print(messages)
-    elif isinstance(messages, DocPlan):
+    elif isinstance(messages, TextPlan):
         print "DocumentPlan: ", __msgtype_print(messages["children"])
     elif isinstance(messages, ConstituentSet):
         print "ConstituentSet: ", __msgtype_print(messages)
@@ -79,12 +80,12 @@ def __msgtype_print(message):
         satellite = __msgtype_print(message[Feature("satellite")])
         return "{0}({1}, {2})".format(reltype, nucleus, satellite)
 
-def avm_print(docplan):
+def avm_print(TextPlan):
     #TODO: escape "_*"
     avm_str = ""
     header = "\begin{avm}\n\\[\n\n"
     footer = "\n\n\\]\n\end{avm}"
-    content = __avm(docplan)
+    content = __avm(TextPlan)
     avm_str += header + content + footer 
     return avm_str
 
@@ -114,7 +115,7 @@ def __avm(message):
         message = "{0}\t& \\[ {1} \n\n {2} \\]".format(rel_name, nucleus, satellite)
         return message
     
-    if isinstance(message, DocPlan):
+    if isinstance(message, TextPlan):
         message = __avm(message["children"])
         return message
     
@@ -129,9 +130,9 @@ def __avm(message):
 
         
 def abbreviate_textplan(textplan):
-    if isinstance(textplan, DocPlan):
+    if isinstance(textplan, TextPlan):
         textplan = abbreviate_textplan(textplan["children"])
-        return DocPlan(children=textplan)
+        return TextPlan(children=textplan)
     if isinstance(textplan, ConstituentSet):
         reltype = textplan[Feature("relType")]
         nucleus = abbreviate_textplan(textplan[Feature("nucleus")])
