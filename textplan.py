@@ -3,7 +3,7 @@ import nltk
 import util
 import itertools
 from nltk.featstruct import Feature
-#from pypolibox.pypolibox import Messages
+#from pypolibox import Messages # TODO: move Messages to textplan.py
 
 #original author: Nicholas FitzGerald
 # major rewrite: Arne Neumann
@@ -236,9 +236,6 @@ class Rule(object):
             if message.has_key(Feature("msgType")): #if it's a C{Message} and not a C{ConstituentSet}
                 message_name = message[Feature("msgType")]
                 locals()[message_name] = message
-#        for (name, message) in group: # for message_tuple in group ...
-#            locals()[name] = message # write messages to the local namespace so a condition can evaluate them
-            #UGLY HACK: the contents of locals() should NOT be modified; changes may not affect the values of local and free variables used by the interpreter. http://docs.python.org/library/functions.html#locals
 
         try:
             ret = eval(condition)
@@ -256,12 +253,6 @@ class Rule(object):
         @return: a C{ConstituentSet}, which combines a nucleus and aux. both can either be a C{Message} or C{ConstituentSet}
         '''
         (nucleus_name, nucleus_msg), (sat_name, sat_msg) = combination
-
-        #message_dict = {}
-        #for (name, message) in combination:
-            #message_dict[name] = message
-        #nucleus = message_dict[self.nucleus]
-        #aux = message_dict[self.aux]
         return ConstituentSet(relType = self.ruleType, nucleus=nucleus_msg, satellite=sat_msg)
 
 def exists(thing, namespace):
@@ -277,7 +268,7 @@ def exists(thing, namespace):
         return False
 
 
-def bottom_up_plan(messages, rules, book_score = None, dtype = None, text = None):
+def generate_textplan(messages, rules, book_score = None, dtype = None, text = None):
     '''
     The main method implementing the Bottom-Up document structuring algorithm from "Building Natural Language Generation Systems" figure 4.17, p. 108.
 
@@ -287,16 +278,12 @@ def bottom_up_plan(messages, rules, book_score = None, dtype = None, text = None
 
     @param messages: a list of C{Message}s which have been selected during content selection for inclusion in the DocPlan
     @type messages: list of C{Message}s
-    
     @param rules: a list of C{Rule}s specifying relationships which can hold between the messages
     @type rules: list of C{Rule}s
-    
     @param dtype: an optional type for the document
     @type dtype: string
-    
     @param text: an optional text string describing the document
     @type text: string
-    
     @return: a document plan. if no plan could be created: return None
     @rtype: C{DocPlan} or C{NoneType}
     '''
@@ -315,7 +302,7 @@ def bottom_up_plan(messages, rules, book_score = None, dtype = None, text = None
         return None
 
 def __bottom_up_search(messages, rules):
-    '''helper method for bottom_up_plan which performs recursive best-first-search
+    '''helper method for generate_text which performs recursive best-first-search
 
     @param messages: a set containing C{Message}s and/or C{ConstituentSet}s
     @type messages: C{set} of C{Message}s or C{ConstituentSet}s
@@ -358,56 +345,3 @@ def __bottom_up_search(messages, rules):
             if ret:
                 return ret
         return None
-
-
-# filling feature structures using strings
-#
-#>>> print nltk.featstruct.FeatDict('TotalRainMsg[period=june]')
-#[ *type* = 'TotalRainMsg' ]
-#[ period = 'june'         ]
-#
-#>>> fd = nltk.featstruct.FeatDict('TotalRainMsg[period=[month=June, year=2010]]')
-#>>> print fd
-#[ *type* = 'TotalRainMsg'     ]
-#[                             ]
-#[ period = [ month = 'June' ] ]
-#[          [ year  = 2010   ] ]
-#
-# after you've set at least the *type* of your FeatDict in string form:
-# nltk.featstruct.FeatDict('TotalRainMsg'), you can add new features in form 
-# of dictionaries
-#
-#>>> fd.update({'foo': 'bar'})
-#>>> print fd
-#[ *type* = 'TotalRainMsg'     ]
-#[ foo    = 'bar'              ]
-#[                             ]
-#[ period = [ month = 'June' ] ]
-#[          [ year  = 2010   ] ]
-#
-# unfortunately, this doesn't work this easy for complex structures.
-#
-#>>> f = nltk.FeatStruct('MessageName')
-#>>> f1 = nltk.FeatDict([('month', 'june'), ('year', '1996')])
-#>>> print f1 
-#[ month = 'june' ]
-#[ year  = '1996' ]
-#>>> f.update([('period', f1)])
-#>>> print f
-#[ *type* = 'MessageName'      ]
-#[                             ]
-#[ period = [ month = 'june' ] ]
-#[          [ year  = '1996' ] ]
-#
-# or simpler:
-#>>> m = Message(msgType='MsgName') # aka nltk.FeatStruct('MsgName')
-#>>> m['magnitude'] = nltk.FeatDict({'number': 4, 'unit': 'inches'})
-#>>> m
-#ID msg[magnitude=[number=4, unit='inches']]
-#>>> print m
-#[ *msgType* = 'ID msg'              ]
-#[                                   ]
-#[ magnitude = [ number = 4        ] ]
-#[             [ unit   = 'inches' ] ]
-
-

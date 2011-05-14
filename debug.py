@@ -34,7 +34,7 @@ def gendocplans(querynumber):
     #print len(am.books)
     for book in am.books:
         messages = book.messages.values()
-        docplan = bottom_up_plan(messages, rules)
+        docplan = generate_textplan(messages, rules)
         print docplan
         docplans.append(docplan)
     return docplans

@@ -1,3 +1,5 @@
+import re
+
 def flatten(nested_list):
     """flattens a list, where each list element is itself a list
     
