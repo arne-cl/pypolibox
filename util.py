@@ -26,3 +26,15 @@ def sql_array_to_set(sql_array):
     for i in items:
         item_set.add(i)
     return item_set
+
+def exists(thing, namespace):
+    '''checks if a variable/object/instance exists in the given namespace
+    
+    @type thing: C{str}
+    @type namespace: C{dict}
+    @rtype: C{bool}
+    '''
+    if namespace.has_key(thing):
+        return True
+    else:
+        return False

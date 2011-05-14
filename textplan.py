@@ -1,8 +1,10 @@
-import string, re
-import nltk
-import util
+import string
+import re
 import itertools
+import nltk
 from nltk.featstruct import Feature
+import util
+from util import exists
 #from pypolibox import Messages # TODO: move Messages to textplan.py
 
 #original author: Nicholas FitzGerald
@@ -255,17 +257,6 @@ class Rule(object):
         (nucleus_name, nucleus_msg), (sat_name, sat_msg) = combination
         return ConstituentSet(relType = self.ruleType, nucleus=nucleus_msg, satellite=sat_msg)
 
-def exists(thing, namespace):
-    '''checks if a variable/object/instance exists in the given namespace
-    
-    @type thing: C{str}
-    @type namespace: C{dict}
-    @rtype: C{bool}
-    '''
-    if namespace.has_key(thing):
-        return True
-    else:
-        return False
 
 
 def generate_textplan(messages, rules, book_score = None, dtype = None, text = None):
