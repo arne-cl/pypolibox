@@ -3,9 +3,11 @@ import nltk
 import util
 import itertools
 from nltk.featstruct import Feature
+#from pypolibox.pypolibox import Messages
 
 #original author: Nicholas FitzGerald
-#cf. "Open-Source Implementation of Document Structuring Algorithm for NLTK"
+# major rewrite: Arne Neumann
+#cf. "Fitzgerald, Nicholas (2009). Open-Source Implementation of Document Structuring Algorithm for NLTK"
 
 class DocPlan(nltk.featstruct.FeatDict):
     """
@@ -275,7 +277,7 @@ def exists(thing, namespace):
         return False
 
 
-def bottom_up_plan(messages, rules, book_score = None, dtype = None, text= None):
+def bottom_up_plan(messages, rules, book_score = None, dtype = None, text = None):
     '''
     The main method implementing the Bottom-Up document structuring algorithm from "Building Natural Language Generation Systems" figure 4.17, p. 108.
 
@@ -298,10 +300,12 @@ def bottom_up_plan(messages, rules, book_score = None, dtype = None, text= None)
     @return: a document plan. if no plan could be created: return None
     @rtype: C{DocPlan} or C{NoneType}
     '''
-    for message in messages:
-        message.freeze() # make all messages (C{FeatDict}s) immutable
-    messages_set = set(messages) # remove duplicate messages #TODO: change name!
-    
+    if isinstance(messages, list):
+        for message in messages:
+            message.freeze() # make all messages (C{FeatDict}s) immutable
+        messages_set = set(messages) # remove duplicate messages
+    elif isinstance(messages, Messages):
+        book_score = messages.book_score
     ret = __bottom_up_search(messages_set, rules)
 
     if ret: # if __bottom_up_search has found a valid plan ...

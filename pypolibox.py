@@ -918,15 +918,15 @@ class Rules:
 
 
     def genrule_compare_eval(self):
-        '''Sequence(concession_books, {pos_eval, neg_eval, usermodel_match})
+        '''Sequence(concession_books, {pos_eval, neg_eval, usermodel_match, usermodel_nomatch})
         
-        Meaning: 'concession_books' describes common and diverging features of the books. 'pos_eval/neg_eval' explains how many user requirements they meet
+        Meaning: 'concession_books' describes common and diverging features of the books. 'pos_eval/neg_eval/usermodel_match/usermodel_nomatch' explains how many user requirements they meet
         '''
-        #TODO: split this rule? satellite=usermodel_match would actually require that there's no usermodel_nomatch
+        #TODO: split this rule? satellite=usermodel_match would actually require that there's no usermodel_nomatch, analogical: satellite=usermodel_nomatch 
         #book_differences = Contrast({id, id_extra_sequence}, lastbook_nomatch)
         #concession_books = Concession(book_differences, lastbook_match)
         nucleus = [('concession_books', ConstituentSet(satellite=Message('lastbook_match')))]
-        satellite = [('pos_eval', ConstituentSet(satellite=Message('usermodel_nomatch'))), ('neg_eval', ConstituentSet(nucleus=Message('usermodel_nomatch'))), ('usermodel_match', Message('usermodel_match'))]
+        satellite = [('pos_eval', ConstituentSet(satellite=Message('usermodel_nomatch'))), ('neg_eval', ConstituentSet(nucleus=Message('usermodel_nomatch'))), ('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
         conditions = []
         return Rule('compare_eval','Sequence', nucleus, satellite, conditions, 5)
 
@@ -1038,21 +1038,6 @@ def test_cli(query_arguments=argv):
         for book in book_list.books:
             print book.title, book.year
 
-        
-def maxscoretest():
-    maxscores = []
-    for index, arg in enumerate(argv):
-        r = Results(Query(arg))
-        maxscores.append( "arg #{0}: {1} has maxscore {2}".format(index, arg, r.maxscore) )
-    for maxscore in maxscores:
-        print maxscore
-        
-def testmsg(message_type='lastbook_nomatch'):
-    for arg in argv:
-        ap = genprops(arg)
-        for p in ap.allpropostions:
-            try: print Messages(p).messages[message_type], "\n\n"
-            except: pass
                 
 def genprops(querynumber=10):
     return AllPropositions(AllFacts(Books(Results(Query(argv[querynumber])))))
@@ -1066,39 +1051,45 @@ def gendocplans(querynumber):
     docplans = []
     rules = Rules().rules
     am = AllMessages(AllPropositions(AllFacts(Books(Results(Query(argv[querynumber]))))))
-    print len(am.books)
+    #print len(am.books)
     for book in am.books:
         messages = book.messages.values()
         docplan = bottom_up_plan(messages, rules)
-        print docplan
+        #print docplan
         docplans.append(docplan)
     return docplans
     
 def test_all_docplans():
     all_docplans = []
-    for arg in argv:
-        docplans = gendocplans(arg)
-        all_docplans.append(docplans)
-    for i, docplans in enumerate(all_docplans):
-        for j, docplan in enumerate(docplans):
+    for argnumber, arg in enumerate(argv):
+        print "generating DocPlans for the query:{0}\n".format(arg)
+        docplans = gendocplans(argnumber)
+        print "generated {0} DocPlans".format(len(docplans))
+        for i, docplan in enumerate(docplans):
             if docplan == None:
-                print "When using query argument {0}, no docplan could be generated for book {1}".format(i,j)
-
+                print "When using query argument {0}, no docplan could be generated for book {1}".format(arg, i)
+        all_docplans.append(docplans)
+    return all_docplans
+ 
 def enumprint(obj):
     for index, item in enumerate(obj):
         print "{0}:\n{1}\n".format(index, item)
 
 def msgtypes(messages):
-    '''print message types / rst relation types of a DocPlan() instance, a Messages() instance or a list of Message() instances'''
+    '''print message types / rst relation types, no matter which data structure is used to represent them'''
     if isinstance(messages, Messages):
         for i, message in enumerate(messages.messages.values()):
-            print i, __msgtype_print(message)
-    
+            print i, __msgtype_print(message)    
     elif isinstance(messages, list) : # if messages is a list of C{Message}/C{ConstituentSet} instances
         for i, message in enumerate(messages):
             print i, __msgtype_print(message)
+    elif isinstance(messages, Message):
+        print "Message: ", __msgtype_print(messages)
     elif isinstance(messages, DocPlan):
         print "DocumentPlan: ", __msgtype_print(messages["children"])
+    elif isinstance(messages, ConstituentSet):
+        print "ConstituentSet: ", __msgtype_print(messages)
+
                 
 def __msgtype_print(message):
     '''recursive helper function for msgtypes(), which prints message types and RST relation types'''
@@ -1111,13 +1102,12 @@ def __msgtype_print(message):
         return "{0}({1}, {2})".format(reltype, nucleus, satellite)
 
 def avm_print(docplan):
+    #TODO: escape "_*"
     avm_str = ""
-    header = "\begin{avm}\n"
-    footer = "\n\end{avm}"
-    if isinstance(docplan["children"], Message):
-        pass
-    if isinstance(docplan["children"], ConstituentSet):
-        pass
+    header = "\begin{avm}\n\\[\n\n"
+    footer = "\n\n\\]\n\end{avm}"
+    content = __avm(docplan)
+    avm_str += header + content + footer 
     return avm_str
 
 def __avm(message):
@@ -1145,6 +1135,33 @@ def __avm(message):
         satellite = __avm(message[Feature("satellite")])
         message = "{0}\t& \\[ {1} \n\n {2} \\]".format(rel_name, nucleus, satellite)
         return message
+    
+    if isinstance(message, DocPlan):
+        message = __avm(message["children"])
+        return message
+    
+    if isinstance(message, FeatDict):
+        msg_content += "\\[\n"
+        for key in keys:
+            value = message[key]
+            msg_content += "{0} & {1} \\\\\n".format(key, value)
+        msg_content += "\n\\]"
+        return msg_content
+        
+
+        
+def __abbrev(constitutent_set):
+    if isinstance(constitutent_set, DocPlan):
+        constitutent_set = __abbrev(constitutent_set["children"])
+        return DocPlan(children=constitutent_set)
+    if isinstance(constitutent_set, ConstituentSet):
+        reltype = constitutent_set[Feature("relType")]
+        nucleus = __abbrev(constitutent_set[Feature("nucleus")])
+        satellite = __abbrev(constitutent_set[Feature("satellite")])
+        return ConstituentSet(relType=reltype, nucleus=nucleus, satellite=satellite)
+    if isinstance(constitutent_set, Message):
+        msgtype = constitutent_set[Feature("msgType")]
+        return Message(msgType=msgtype)
         
 def find_applicable_rules(messages):
     #'''debugging: find out which rules are directly (i.e. without forming ConstituentSets first) applicable to your messages'''
@@ -1188,7 +1205,7 @@ def findrule(ruletype="", attribute="", value=""):
                 matching_rules[name] = rule
     return matching_rules
 
-def update_messages(messages, rule_name):
+def apply_rule(messages, rule_name):
     '''debugging: take a rule and apply it to your list of messages. 
     
     the resulting C{ConstituentSet} will be added to the list, while the messages involved in its construction will be removed.
