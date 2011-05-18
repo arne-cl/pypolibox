@@ -9,7 +9,7 @@ import nltk
 from nltk.featstruct import Feature
 from nltk import FeatDict
 
-from util import exists, flatten
+from util import exists, flatten, freeze_all_messages, messages_instance_to_list_of_message_instances
 
 #original author: Nicholas FitzGerald
 # major rewrite: Arne Neumann
@@ -602,7 +602,7 @@ class Rules():
         return Rule('compare_eval','Sequence', nucleus, satellite, conditions, 5)
 
 
-def generate_textplan(messages, rules, book_score = None, dtype = None, text = None):
+def generate_textplan(messages, rules=Rules().rules, book_score = None, dtype = None, text = None):
     '''
     The main method implementing the Bottom-Up document structuring algorithm from "Building Natural Language Generation Systems" figure 4.17, p. 108.
 
@@ -622,11 +622,13 @@ def generate_textplan(messages, rules, book_score = None, dtype = None, text = N
     @rtype: C{TextPlan} or C{NoneType}
     '''
     if isinstance(messages, list):
-        for message in messages:
-            message.freeze() # make all messages (C{FeatDict}s) immutable
-        messages_set = set(messages) # remove duplicate messages
+        frozen_messages = freeze_all_messages(messages)
     elif isinstance(messages, Messages):
         book_score = messages.book_score
+        message_list = messages_instance_to_list_of_message_instances(messages)
+        frozen_messages = freeze_all_messages(message_list)
+        
+    messages_set = set(frozen_messages) # remove duplicate messages    
     ret = __bottom_up_search(messages_set, rules)
 
     if ret: # if __bottom_up_search has found a valid plan ...

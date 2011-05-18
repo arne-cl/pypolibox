@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# TODO: remove empty frozensets from message generation!
-
 import sys
 
 from database import Query, Results, Book, Books

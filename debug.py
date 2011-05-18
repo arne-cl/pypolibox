@@ -26,17 +26,17 @@ def genmessages(booknumber=0, querynumber=10):
     for message in am.books[booknumber].messages.values(): message.freeze() #freeze messages, so Rule()s can be tested against them
     return am.books[booknumber].messages.values()
     
-def genTextPlans(querynumber):
-    TextPlans = []
+def gentextplans(querynumber):
+    textplans = []
     rules = Rules().rules
     am = AllMessages(AllPropositions(AllFacts(Books(Results(Query(testqueries[querynumber]))))))
     #print len(am.books)
     for book in am.books:
         messages = book.messages.values()
-        TextPlan = generate_textplan(messages, rules)
-        print TextPlan
-        TextPlans.append(TextPlan)
-    return TextPlans
+        textplan = generate_textplan(messages, rules)
+        print textplan
+        textplans.append(textplan)
+    return textplans
     
 def test_all_TextPlans():
     all_TextPlans = []

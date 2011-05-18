@@ -38,3 +38,12 @@ def exists(thing, namespace):
         return True
     else:
         return False
+
+def messages_instance_to_list_of_message_instances(messages_instance):
+    return [message for message in messages_instance.messages.values()]
+    
+def freeze_all_messages(message_list):
+    '''makes all messages (C{FeatDict}s) immutable, which is necessary for turning them into sets'''
+    for message in message_list:
+        message.freeze()
+    return message_list
