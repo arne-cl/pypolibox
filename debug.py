@@ -25,6 +25,14 @@ def genmessages(booknumber=0, querynumber=10):
     am = AllMessages(AllPropositions(AllFacts(Books(Results(Query(testqueries[querynumber]))))))  
     for message in am.books[booknumber].messages.values(): message.freeze() #freeze messages, so Rule()s can be tested against them
     return am.books[booknumber].messages.values()
+
+def genallmessages(query):
+    if isinstance(query, int):
+        return AllMessages(AllPropositions(AllFacts(Books(Results(Query(testqueries[query]))))))
+    elif isinstance(query, list):
+        return AllMessages(AllPropositions(AllFacts(Books(Results(Query(query))))))
+    elif isinstance(query, Query):
+        return AllMessages(AllPropositions(AllFacts(Books(Results(query)))))
     
 def gentextplans(querynumber):
     textplans = []

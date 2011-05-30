@@ -15,10 +15,11 @@ def flatten(nested_list):
 def sql_array_to_set(sql_array):
     """ converts SQL string "arrays" into a set of strings
     
-    our book database uses '[' and ']' to handle attributes w/ more than one value:
-    e.g. authors = '[Noam Chomsky][Alan Touring]'
+    our book database uses '[' and ']' to handle attributes w/ more than one 
+    value: e.g. authors = '[Noam Chomsky][Alan Touring]'
 
-    this function turns those multi-value strings into a set with separate values
+    this function turns those multi-value strings into a set with separate 
+    values
     """
     item = re.compile("\[(.*?)\]")
     items = item.findall(sql_array)
@@ -43,7 +44,10 @@ def messages_instance_to_list_of_message_instances(messages_instance):
     return [message for message in messages_instance.messages.values()]
     
 def freeze_all_messages(message_list):
-    '''makes all messages (C{FeatDict}s) immutable, which is necessary for turning them into sets'''
+    '''
+    makes all messages (C{FeatDict}s) immutable, which is necessary for turning
+    them into sets
+    '''
     for message in message_list:
         message.freeze()
     return message_list

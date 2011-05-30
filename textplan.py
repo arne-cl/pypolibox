@@ -1,34 +1,44 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import string
-import re
+"""
+original author: Nicholas FitzGerald
+citation: Fitzgerald, Nicholas (2009). Open-Source Implementation of Document 
+Structuring Algorithm for NLTK
+
+major rewrite: Arne Neumann
+"""
+
 import itertools
 from time import time
 import nltk
 from nltk.featstruct import Feature
 from nltk import FeatDict
 
-from util import exists, flatten, freeze_all_messages, messages_instance_to_list_of_message_instances
+from util import (exists, flatten, freeze_all_messages, 
+                  messages_instance_to_list_of_message_instances)
 
-#original author: Nicholas FitzGerald
-# major rewrite: Arne Neumann
-#cf. "Fitzgerald, Nicholas (2009). Open-Source Implementation of Document Structuring Algorithm for NLTK"
 
 class Message(nltk.featstruct.FeatDict):
     """
-    C{Message}s are the primary information bearing units. They are contructed during the Content Selection stage of NLG which preceded Document Structuring.
+    C{Message}s are the primary information bearing units. They are contructed 
+    during the Content Selection stage of NLG which preceded Document 
+    Structuring.
 
-    Each C{Message} has a I{msgType} which defines what type of message it is. In addition, C{Message}s can have any number of other features which contain the information the message conveys. These can either be simple features, or C{nltk.featstruct.FeatStruct}s.
+    Each C{Message} has a I{msgType} which defines what type of message it 
+    is. In addition, C{Message}s can have any number of other features which 
+    contain the information the message conveys. These can either be simple 
+    features, or C{nltk.featstruct.FeatStruct}s.
 
     C{Message} is based on C{nltk.featstruct.FeatDict}.
     """
     def __init__(self, msgType = None):
         """
-        I{msgType} is only specified for the C{nltk.featstruct.FeatDict} if it is specified by the user.
+        I{msgType} is only specified for the C{nltk.featstruct.FeatDict} if it 
+        is specified by the user.
         """
         if msgType: 
-            self[nltk.featstruct.Feature('msgType',display='prefix')] = msgType
+            self[nltk.featstruct.Feature('msgType', display='prefix')] = msgType
 
 class Messages:
     """
@@ -45,23 +55,31 @@ class Messages:
         self.propositions = propositions.propositions
         self.messages = {}
 
+        # does not generate a message if there are no propositions about 
+        # its content (e.g. about 'extra')
         for proposition_type in self.propositions.iterkeys():
-            if self.propositions[proposition_type]: # don't generate a message if there are no propositions about its content (e.g. about 'extra')
-                self.messages[proposition_type] = self.generate_message(proposition_type)
+            if self.propositions[proposition_type]:
+                self.messages[proposition_type] = \
+                    self.generate_message(proposition_type)
 
     def generate_message(self, proposition_type):
         message = Message(msgType = proposition_type)
         proposition_dict = self.propositions[proposition_type]
-        simple_propositions = set(('id','lastbook_match', 'usermodel_match', 'usermodel_nomatch')) 
-        # simple_propositions can be turned into messages without further 'calculations'
+        simple_propositions = set(('id','lastbook_match', 'usermodel_match', 
+                                   'usermodel_nomatch')) 
+        #simple_propositions can be turned into messages without 
+        #further 'calculations'
         
+        
+        #keywords, authors and proglangs are stored as sets, but we need 
+        #frozensets (hashable) when creating rules and checking for duplicate 
+        #messages
         if proposition_type in simple_propositions:
-                for attrib in proposition_dict.iterkeys():
-                    value, rating = proposition_dict[attrib]
-                    if type(value) == set: 
-                        #keywords, authors and proglangs are stored as sets, but we need frozensets (hashable) when creating rules and checking for duplicate messages
-                        value = frozenset(value)
-                    message.update({attrib: value})
+            for attrib in proposition_dict.iterkeys():
+                value, rating = proposition_dict[attrib]
+                if type(value) == set: 
+                    value = frozenset(value)
+                message.update({attrib: value})
     
         if proposition_type is 'extra':
             message = self.generate_extra_message(proposition_dict)
@@ -79,7 +97,8 @@ class Messages:
         for attrib in proposition_dict.iterkeys():
             if attrib == 'year':
                 description, rating = proposition_dict['year']
-                recency = FeatDict({'description': description, 'rating': rating})
+                recency = FeatDict({'description': description, 
+                                    'rating': rating})
                 msg.update({'recency': recency})
             else:
                 value, rating = proposition_dict[attrib]
@@ -94,22 +113,26 @@ class Messages:
             if attrib == 'longer':
                 pages, rating = proposition_dict['longer']
                 magnitude = FeatDict({'number': pages, 'unit': 'pages'})
-                length = FeatDict({'type': 'RelativeVariation', 'direction': '+', 'magnitude': magnitude})
+                length = FeatDict({'type': 'RelativeVariation', 
+                                   'direction': '+', 'magnitude': magnitude})
                 msg.update({'length': length})
             elif attrib == 'shorter':
                 pages, rating = proposition_dict['shorter']
                 magnitude = FeatDict({'number': pages, 'unit': 'pages'})
-                length = FeatDict({'type': 'RelativeVariation', 'direction': '-', 'magnitude': magnitude})
+                length = FeatDict({'type': 'RelativeVariation', 
+                                   'direction': '-', 'magnitude': magnitude})
                 msg.update({'length': length})
             elif attrib == 'newer':
                 years, rating = proposition_dict['newer']
                 magnitude = FeatDict({'number': years, 'unit': 'years'})
-                recency = FeatDict({'type': 'RelativeVariation', 'direction': '+', 'magnitude': magnitude})
+                recency = FeatDict({'type': 'RelativeVariation', 
+                                    'direction': '+', 'magnitude': magnitude})
                 msg.update({'recency': recency})
             elif attrib == 'older':
                 years, rating = proposition_dict['older']
                 magnitude = FeatDict({'number': years, 'unit': 'years'})
-                recency = FeatDict({'type': 'RelativeVariation', 'direction': '-', 'magnitude': magnitude})
+                recency = FeatDict({'type': 'RelativeVariation', 
+                                    'direction': '-', 'magnitude': magnitude})
                 msg.update({'recency': recency})
             else:
                 value, rating = proposition_dict[attrib]
@@ -136,14 +159,19 @@ class Messages:
 
 class AllMessages:
     """
-    represents all Messages generated from AllPropositions about all Books() that were returned by a query
+    represents all Messages generated from AllPropositions about all Books()
+    that were returned by a query
     """
     def __init__ (self, allpropositions):
         """
         @type allpropositions: C{AllPropositions}
-        @param allpropositions: a C{AllPropositions} class instance containing a list of C{Propositions} instances
+        @param allpropositions: a C{AllPropositions} class instance containing 
+        a list of C{Propositions} instances
         
-        This will genenerate a C{Messages} instance (containing all C{Message}s about a book) for each C{Propositions} instance. It also adds a 'lastbook_title' and 'lastbook_author' to C{Message}s that compare the current and the preceding book
+        This will genenerate a C{Messages} instance (containing all C{Message}s
+        about a book) for each C{Propositions} instance. It also adds a 
+        'lastbook_title' and 'lastbook_author' to C{Message}s that compare the 
+        current and the preceding book
         """
         propositions_list = allpropositions.books
         self.books = []
@@ -155,8 +183,10 @@ class AllMessages:
             else:
                 lastbook = propositions_list[index-1]
                 for message_type in lastbook_id_messages:
-                    book.propositions[message_type]['lastbook_title'] = lastbook.propositions['id']['title']
-                    book.propositions[message_type]['lastbook_authors'] = lastbook.propositions['id']['authors']
+                    book.propositions[message_type]['lastbook_title'] = \
+                        lastbook.propositions['id']['title']
+                    book.propositions[message_type]['lastbook_authors'] = \
+                        lastbook.propositions['id']['authors']
                 self.books.append(Messages(book))
 
             
@@ -170,19 +200,26 @@ class AllMessages:
 
 class ConstituentSet(nltk.featstruct.FeatDict):
     """
-    C{ConstituentSet} is the contstuction built up by applying C{Rules} to a set of C{ConstituentSet}s and C{Message}s. Each C{ConstituentSet} is of a specific I{relType}, and has two constituents, one which is designated the I{nucleus} and one which is designated I{aux}. These C{ConstituentSet}s can then be combined with other C{ConstituentSet}s or C{Message}s.
+    C{ConstituentSet} is the contstuction built up by applying C{Rules} to a 
+    set of C{ConstituentSet}s and C{Message}s. Each C{ConstituentSet} is of a 
+    specific I{relType}, and has two constituents, one which is designated the 
+    I{nucleus} and one which is designated I{aux}. These C{ConstituentSet}s can
+    then be combined with other C{ConstituentSet}s or C{Message}s.
 
     C{ConstituentSet} is based on C{nltk.featstruct.FeatDict}.
     """
     def __init__(self, relType = None, nucleus = None, satellite = None):
         """
-        I{relType}, I{nucleus} and I{aux} are only specified for the C{nltk.featstruct.FeatDict} if they are specified by the user.
+        I{relType}, I{nucleus} and I{aux} are only specified for the 
+        C{nltk.featstruct.FeatDict} if they are specified by the user.
 
-        @param relType: The relation type which related the I{nucleus} to I{aux}.
+        @param relType: The relation type which related the I{nucleus} to 
+        I{aux}. 
         @type relType: string
         @param nucleus: Nucleus constituent. C{Message} or C{ConstituentSet}.
         @type nucleus: Message or ConstituentSet
-        @param satellite: Auxiliary constituent. C{Message} or C{ConstituentSet}.
+        @param satellite: Auxiliary constituent. C{Message} or 
+        C{ConstituentSet}. 
         @type satellite: Message or ConstituentSet
         """
         if relType: 
@@ -195,7 +232,8 @@ class ConstituentSet(nltk.featstruct.FeatDict):
 
 class TextPlan(nltk.featstruct.FeatDict):
     """
-    C{TextPlan} is the output of Document Planning. A TextPlan consists of an optional title and text, and a child I{ConstituentSet}.
+    C{TextPlan} is the output of Document Planning. A TextPlan consists of an 
+    optional title and text, and a child I{ConstituentSet}.
     """
     def __init__(self, book_score = None, dtype = 'TextPlan', text = None, children = None):
         self[nltk.featstruct.Feature('type',display='prefix')] = 'DPDocument'
@@ -203,11 +241,15 @@ class TextPlan(nltk.featstruct.FeatDict):
         self['children'] = children
 
 class TextPlans:
-    """generates all C{TextPlan}s for an C{AllMessages} instance, i.e. one DocumentPlan for each book that is returned as a result of the user's database query"""
+    """
+    generates all C{TextPlan}s for an C{AllMessages} instance, i.e. one 
+    DocumentPlan for each book that is returned as a result of the user's 
+    database query
+    """
     
     def __init__ (self, allmessages):
-        """ Class initialiser """
-        rules = Rules().rules # generate all C{Rule}s that the C{Message}s will be checked against
+        #generate all C{Rule}s that the C{Message}s will be checked against
+        rules = Rules().rules 
         self.document_plans = []
         for index, book in enumerate(allmessages.books):
             before = time()
@@ -228,15 +270,23 @@ class TextPlans:
 
 class Rule(object):
     '''
-    C{Rules} are the elements which specify relationships which hold between elements of the document. These elements can be I{Message}s or I{ConstituentSet}s.
+    C{Rules} are the elements which specify relationships which hold between 
+    elements of the document. These elements can be I{Message}s or 
+    I{ConstituentSet}s.
 
-    Each I{Rule} specifies a list of I{inputs}, which are is a minimal specification of a C{Message} or C{ConstituentSet}. To be a valid input to this Rule, a given C{Message} or C{ConstituentSet} must subsume one of the specified I{input}s.
+    Each I{Rule} specifies a list of I{inputs}, which are is a minimal 
+    specification of a C{Message} or C{ConstituentSet}. To be a valid input to 
+    this Rule, a given C{Message} or C{ConstituentSet} must subsume one of the 
+    specified I{input}s.
 
-    Each I{Rule} can also specify a set of conditions which must be met in order for the Rule to hold between the inputs.
+    Each I{Rule} can also specify a set of conditions which must be met in 
+    order for the Rule to hold between the inputs.
 
-    Each I{Rule} specifies a heuristic, which will be evaluated to provide a score by which to rank the order in which rules should be applied.
+    Each I{Rule} specifies a heuristic, which will be evaluated to provide a 
+    score by which to rank the order in which rules should be applied.
 
-    Each I{Rule} specifies which of the inputs will be the I{nucleus} and which will be the I{aux} of the output C{ConstituentSet}.
+    Each I{Rule} specifies which of the inputs will be the I{nucleus} and which
+    will be the I{aux} of the output C{ConstituentSet}.
     '''
 
     def __init__(self, name, ruleType, nucleus, satellite, conditions, heuristic):
@@ -247,13 +297,24 @@ class Rule(object):
         @param ruleType: The name of the relationship type this Rule specifies.
         @type ruleTupe: string
             
-        @param conditions: a list of strings which will be evaluated as conditions for applying the rule. These should return True or False when evaluated
+        @param conditions: a list of strings which will be evaluated as 
+        conditions for applying the rule. These should return True or False 
+        when evaluated
         @type conditions: list of strings
       
-        @param nucleus: A list of tuples containing (name, input). I{name} is a string specifying the name used for the nucleus message of the RST relation. The name is used to refer to this message in the I{conditions} and I{heuristic}. I{input} is a C{Message} or C{ConstituentSet}. There can be only one nucleus in a RST relation, so the planner has to choose from the list.
-        @type nucleus: list of tuples: (string, C{Message} or C{ConstituentSet})
+        @param nucleus: A list of tuples containing (name, input). I{name} is 
+        a string specifying the name used for the nucleus message of the RST 
+        relation. The name is used to refer to this message in the 
+        I{conditions} and I{heuristic}. I{input} is a C{Message} or 
+        C{ConstituentSet}. There can be only one nucleus in a RST relation, so 
+        the planner has to choose from the list. 
+        @type nucleus: list of tuples: (string, C{Message} or 
+        C{ConstituentSet}) 
       
-        @param satellite: same as I{nucleus}, but represents a list of possible satellite messages of a RST relation. Again, there can be only one satellite in a RST relation, so the planner has to choose from the list.
+        @param satellite: same as I{nucleus}, but represents a list of possible
+        satellite messages of a RST relation. Again, there can be only one 
+        satellite in a RST relation, so the planner has to choose from the 
+        list. 
         
         @param heuristic: an integer used to rank potential ConstituentSets. 
         @type heuristic: C{int}
@@ -267,7 +328,7 @@ class Rule(object):
 
     def __str__(self):
         """
-        This is just a simple string output for the rule which is mainly used for debugging.
+        string output for debugging purposes.
         """
         ret = ''
         for (key, val) in self.__dict__.iteritems():
@@ -277,21 +338,33 @@ class Rule(object):
     def get_options(self, messages):
         """these main method used for document planning 
         
-        From the list of C{Messages}, I{get_options} selects all possible ways the Rule could be applied.
+        From the list of C{Messages}, I{get_options} selects all possible ways 
+        the Rule could be applied.
 
-        The planner can then select -- with the __bottom_up_search function -- one of these possible applications of the Rule to use.
+        The planner can then select -- with the __bottom_up_search function -- 
+        one of these possible applications of the Rule to use.
         
-        #non_empty_message_combinations: list of combinations, where each combination is a (nucleus, satellite)-tuple. both the nucleus and the satellite each consist of a (name, message) tuple. #TODO: merge w/ function description!
+        I{non_empty_message_combinations} is a list of combinations, where each
+        combination is a (nucleus, satellite)-tuple. both the nucleus and the 
+        satellite each consist of a (name, message) tuple.
 
         @type messages: list of C{Message} objects
-        @param messages: a list of C{Message} objects, each containing one message about a book
+        @param messages: a list of C{Message} objects, each containing one 
+        message about a book
         
-        @rtype: empty list or a list containing one C{tuple} of (C{int}, C{ConstituentSet}, C{list}), where C{list} consists of C{Message} or C{ConstituentSet} objects 
-        @return: a list containing one 3-tuple (score, C{ConstituentSet}, inputs}) where:
-            score - is the evaluated heuristic score for this application of the Rule
-            const_set - is the new C{ConstituentSet} returned by the application of the Rule
-            inputs - is the list of inputs (C{Message}s or C{ConstituentSets} used in this application of the rule
-            returns an empty list if I{get_options} can't find a way to to apply the I{Rule}.
+        @rtype: empty list or a list containing one C{tuple} of (C{int}, 
+        C{ConstituentSet}, C{list}), where C{list} consists of C{Message} 
+        or C{ConstituentSet} objects 
+        @return: a list containing one 3-tuple 
+        (score, C{ConstituentSet}, inputs}) where:
+            score is the evaluated heuristic score for this application 
+                of the Rule
+            const_set is the new C{ConstituentSet} returned by the application 
+                of the Rule
+            inputs is the list of inputs (C{Message}s or C{ConstituentSets} 
+                used in this application of the rule
+        The method returns an empty list if I{get_options} can't find a way 
+        to apply the I{Rule}.
         """
         self.messages = messages # will be used by self.__name_eval()
         nucleus_candidates = []
@@ -325,16 +398,24 @@ class Rule(object):
         return options_list            
 
     def find_message_candidates(self, messages, message_prototype):
-        """takes a list of messages and returns only those with the right message type (as specified in Rule.inputs)
+        """takes a list of messages and returns only those with the right 
+        message type (as specified in Rule.inputs)
         
         @type messages: C{list} of C{Message}s
-        @param messages: a list of C{Message} objects, each containing one message about a book
+        @param messages: a list of C{Message} objects, each containing one 
+        message about a book
 
-        @param message_prototype: a tuple consisting of a message name and a C{Message} or C{ConstituentSet}
-        @type message_prototype: C{tuple} of (string, C{Message} or C{ConstituentSet})
+        @param message_prototype: a tuple consisting of a message name and a 
+        C{Message} or C{ConstituentSet}
+        @type message_prototype: C{tuple} of (string, C{Message} or 
+        C{ConstituentSet})
 
         @rtype: C{list} of C{tuple}s of (string, C{Message})
-        @return: a list containing all (name, message) tuples which are subsumed by the input message type (self.nucleus or self.satellite) -- if a rule should only be applied to UserModelMatch and UserModelNoMatch messages, the return value contains a list of messages with these types. 
+        @return: a list containing all (name, message) tuples which are 
+        subsumed by the input message type (self.nucleus or self.satellite). 
+        If a rule should only be applied to UserModelMatch and UserModelNoMatch
+        messages, the return value contains a list of messages with these 
+        types. 
         """
         messages_list = []
         name, condition = message_prototype
@@ -345,11 +426,16 @@ class Rule(object):
         
     def get_satisfactory_groups(self, groups):    
         '''
-        @type groups: C{list} of C{list}'s of C{tuple}'s of (C{str}, C{Message} or C{ConstituentSet})
-        @param groups: a list of group elements. each group contains a list which contains one or more message tuples of the form (message name, message)
+        @type groups: C{list} of C{list}'s of C{tuple}'s of (C{str}, 
+        C{Message} or C{ConstituentSet})
+        @param groups: a list of group elements. each group contains a list 
+        which contains one or more message tuples of the form 
+        (message name, message)
         
-        @rtype: C{list} of C{list}'s of C{tuple}'s of (C{str}, C{Message} or C{ConstituentSet})
-        @return: a list of group elements. contains only those groups which meet all the conditions specified in self.conditions        
+        @rtype: C{list} of C{list}'s of C{tuple}'s of (C{str}, C{Message} 
+        or C{ConstituentSet})
+        @return: a list of group elements. contains only those groups which 
+        meet all the conditions specified in self.conditions        
         '''
         satisfactory_groups = []
         for group in groups:
@@ -358,20 +444,27 @@ class Rule(object):
         return satisfactory_groups
         
     def get_conditions(self, group):
-        '''applies __name_eval to all conditions a Rule has, i.e. checks if a group meets all conditions
+        '''applies __name_eval to all conditions a Rule has, i.e. checks if a 
+        group meets all conditions
         
-        @type group: C{list} of C{tuple}'s of (C{str}, C{Message} or C{ConstituentSet})
-        @param group: a list of message tuples of the form (message name, message)
+        @type group: C{list} of C{tuple}'s of (C{str}, C{Message} or 
+        C{ConstituentSet})
+        @param group: a list of message tuples of the form 
+        (message name, message)
 
         @rtype: C{list} of C{bool}
-        @return: a list of truth values, each of which tells if a group met all conditions specified in self.conditions
+        @return: a list of truth values, each of which tells if a group met 
+        all conditions specified in self.conditions
         '''
         results = []
         for condition in self.conditions:
             try:
                 results.append( self.__name_eval(condition, group) )
             except NameError:
-                '''__name_eval can check for the existence of an object, but it will fail "do something" with a nonexisting object, e.g. "len(lastbook_match) < 5" would raise an error if lastbook_match doesn't exist'''
+                # __name_eval can check for the existence of an object, but it
+                # will fail to "do something" with a nonexisting object, e.g. 
+                # "len(lastbook_match) < 5" would raise an error if 
+                # lastbook_match doesn't exist
                 results.append(False)
         return results
                 
@@ -379,29 +472,23 @@ class Rule(object):
         '''Evaluate if I{condition} is met by the C{message}s in I{group}
         
         @type condition: C{str}
-        @param condition: a python statement that can be evaluated to True or False, encoded as a string
+        @param condition: a python statement that can be evaluated to True or 
+        False, encoded as a string
         
-        @type group: C{list} of C{tuple}'s of (C{str}, C{Message} or C{ConstituentSet})
-        @param group: a list of message tuples of the form (message name, message)
+        @type group: C{list} of C{tuple}'s of (C{str}, C{Message} or 
+        C{ConstituentSet})
+        @param group: a list of message tuples of the form 
+        (message name, message)
         
-        C{Message}s and C{ConstituentSet}s are C{FeatDict}s, which can be queried just like normal C{dict}s.
+        C{Message}s and C{ConstituentSet}s are C{FeatDict}s, which can be 
+        queried just like normal C{dict}s.
         
         @rtype: C{bool}
         @return: True if the condition is met by the C{Message}s in I{group}
-        
-        Example:
-        condition1: "M1.get(('attribute', 'direction')) == M2.get(('attribute', 'direction'))"
-        group1 contains two message tuples: 
-            ('M1', MonthlyRainfallMsg[attribute=[direction='+', magnitude=[number=2, unit='inches'], type='RelativeVariation'], period=[month=6, year=1996]]), 
-            ('M2', TotalRainfallMsg[attribute=[direction='+', magnitude=[number=4, unit='inches'], type='RelativeVariation'], period=[month=6, year=1996]])                
-
-        After adding the messages 'M1' and 'M2' to the local namespace, we can check if both have the same direction (as specified in condition1):
-            M1.get(('attribute', 'direction')) == M2.get(('attribute', 'direction'))
-        or:    
-            M1['attribute']['direction'] == M2['attribute']['direction']            
         '''
         for message in self.messages:
-            if message.has_key(Feature("msgType")): #if it's a C{Message} and not a C{ConstituentSet}
+            if Feature("msgType") in message: 
+            #if it's a C{Message} and not a C{ConstituentSet}
                 message_name = message[Feature("msgType")]
                 locals()[message_name] = message
 
@@ -414,19 +501,27 @@ class Rule(object):
     def __get_return(self, combination):
         '''constructs a ConstituentSet returned by I{get_options}
 
-        @type combination: C{tuple} of two C{tuple}s of (C{str}, C{Message} or C{ConstituentSet})
-        @param combination: a tuple of two message tuples -- the first one represents the nucleus, the second one the satellite -- of the form (message name, message) that will be combined into a constituent set.
+        @type combination: C{tuple} of two C{tuple}s of (C{str}, C{Message} 
+        or C{ConstituentSet})
+        @param combination: a tuple of two message tuples -- the first one 
+        represents the nucleus, the second one the satellite -- of the form 
+        (message name, message) that will be combined into a constituent set.
 
         @rtype: C{ConstituentSet}
-        @return: a C{ConstituentSet}, which combines a nucleus and aux. both can either be a C{Message} or C{ConstituentSet}
+        @return: a C{ConstituentSet}, which combines a nucleus and satellite. 
+        both can either be a C{Message} or C{ConstituentSet}
         '''
         (nucleus_name, nucleus_msg), (sat_name, sat_msg) = combination
-        return ConstituentSet(relType = self.ruleType, nucleus=nucleus_msg, satellite=sat_msg)
+        return ConstituentSet(relType = self.ruleType, nucleus=nucleus_msg, 
+                              satellite=sat_msg)
 
 class Rules():
     """creates Rule() instances
     
-    Each rule of the form Rule(ruleType, inputs, conditions, nucleus, aux, heuristic) is generated by its own method. Important note: these methods have to adhere to a naming convention, i.e. begin with 'genrule_'; otherwise, self.__init__ will fail! 
+    Each rule of the form Rule(ruleType, inputs, conditions, nucleus, aux, 
+    heuristic) is generated by its own method. Important note: these methods 
+    have to adhere to a naming convention, i.e. begin with 'genrule_'; 
+    otherwise, self.__init__ will fail! 
     """
         
     def __init__ (self):
@@ -444,12 +539,12 @@ class Rules():
     def __str__(self):
         ret_str = ""
         for name, rule in self.rule_dict.iteritems():
-            rule_summary = "{0}({1}, {2})".format(rule.ruleType, rule.nucleus, rule.satellite)
+            rule_summary = "{0}({1}, {2})".format(rule.ruleType, rule.nucleus,
+                                                  rule.satellite)
             ret_str += "{0}: {1}\n\n".format(name, rule_summary)
             ret_str += "{0}\n\n".format(str(rule))
         return ret_str
 
-    #def __init__(self, name, ruleType, nucleus, satellite, conditions, heuristic):
 
     def genrule_id_extra_sequence(self):
         '''Sequence(id_complete, extra), if 'extra' exists:
@@ -458,21 +553,27 @@ class Rules():
         nucleus = [('id', Message('id'))]
         satellite = [('extra', Message('extra'))]
         conditions = ['exists("extra", locals())']
-        return Rule('id_extra_sequence', 'Sequence', nucleus, satellite, conditions, 10)
+        return Rule('id_extra_sequence', 'Sequence', nucleus, satellite, 
+                    conditions, 10)
     
     def genrule_id_usermodelmatch(self):
-        '''Elaboration({id, id_extra_sequence}, usermodel_match), if there's no usermodel_nomatch
+        '''Elaboration({id, id_extra_sequence}, usermodel_match), if there's no
+        usermodel_nomatch
         
-        Meaning: This book fulfills ALL your requirments. It was written in ..., contains these features ... and ... etc'''
-        nucleus = [('id', Message('id')), ('id_extra_sequence', ConstituentSet(nucleus=Message('id')))] 
+        Meaning: This book fulfills ALL your requirments. It was written in ...,
+        contains these features ... and ... etc'''
+        nucleus = [('id', Message('id')), 
+                  ('id_extra_sequence', ConstituentSet(nucleus=Message('id')))] 
         satellite = [('usermodel_match', Message('usermodel_match'))]
         conditions = ['exists("usermodel_nomatch", locals()) is False']    
-        return Rule('id_usermodelmatch', 'Elaboration', nucleus, satellite, conditions, 5)
+        return Rule('id_usermodelmatch', 'Elaboration', nucleus, satellite, 
+                    conditions, 5)
 
     def genrule_pos_eval(self):
         '''Concession(usermodel_match, usermodel_nomatch)
         
-        Meaning: Book matches many (>= 50%) of the requirements, but not all of them'''
+        Meaning: Book matches many (>= 50%) of the requirements, but not all of
+        them'''
         nucleus = [('usermodel_match', Message('usermodel_match'))]
         satellite = [('usermodel_nomatch', Message('usermodel_nomatch'))]
         conditions = ['len(usermodel_match) >= len(usermodel_nomatch)'] 
@@ -481,7 +582,9 @@ class Rules():
     def genrule_neg_eval(self):
         '''Concession(usermodel_nomatch, usermodel_match)
         
-        Meaning: Although this book fulfills some of your requirements, it doesn't match most of them. Therefore, this book might not be the best choice.'''
+        Meaning: Although this book fulfills some of your requirements, it 
+        doesn't match most of them. Therefore, this book might not be the best 
+        choice.'''
         nucleus = [('usermodel_nomatch', Message('usermodel_nomatch'))]
         satellite = [('usermodel_match', Message('usermodel_match'))]
         conditions = ['len(usermodel_match) < len(usermodel_nomatch)']
@@ -490,129 +593,193 @@ class Rules():
     def genrule_single_book_complete(self):
         '''Sequence({id, id_extra_sequence}, {pos_eval, neg_eval})
         
-        Meaning: The nucleus mentions all the (remaining) facts (that aren't mentioned in the evaluation), while the satellite evaluates the book (in terms of usermodel matches)
+        Meaning: The nucleus mentions all the (remaining) facts (that aren't 
+        mentioned in the evaluation), while the satellite evaluates the book 
+        (in terms of usermodel matches)
         '''
-        nucleus = [('id', Message('id')), ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
-        satellite = [('pos_eval', ConstituentSet(satellite=Message('usermodel_nomatch'))), ('neg_eval', ConstituentSet(nucleus=Message('usermodel_nomatch')))]
+        nucleus = [('id', Message('id')), 
+             ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
+        satellite = [('pos_eval', 
+                     ConstituentSet(satellite=Message('usermodel_nomatch'))), 
+                     ('neg_eval', 
+                     ConstituentSet(nucleus=Message('usermodel_nomatch')))]
         conditions = []
-        return Rule('single_book_complete', 'Sequence', nucleus, satellite, conditions, 3)
+        return Rule('single_book_complete', 'Sequence', nucleus, satellite, 
+                    conditions, 3)
 
     def genrule_single_book_complete_usermodelmatch(self):
         '''Sequence({id, id_extra_sequence}, usermodel_match)
         
-        Meaning: The satellite states that the book matches ALL the user's requirements. The nucleus mentions the remaining facts about the book.
-        Condition: there's no preceding book and there are only usermodel matches.
+        Meaning: The satellite states that the book matches ALL the user's 
+        requirements. The nucleus mentions the remaining facts about the book.
+        Condition: there's no preceding book and there are only usermodel 
+        matches.
         '''
-        nucleus = [('id', Message('id')), ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
+        nucleus = [('id', Message('id')), 
+             ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
         satellite = [('usermodel_match', Message('usermodel_match'))]
-        conditions = ['exists("usermodel_nomatch", locals()) is False', 'exists("lastbook_match", locals()) is False', 'exists("lastbook_nomatch", locals()) is False']
-        return Rule('single_book_complete_usermodelmatch','Sequence', nucleus, satellite, conditions, 4)
+        conditions = ['exists("usermodel_nomatch", locals()) is False', 
+                      'exists("lastbook_match", locals()) is False', 
+                      'exists("lastbook_nomatch", locals()) is False']
+        return Rule('single_book_complete_usermodelmatch','Sequence', nucleus,
+                    satellite, conditions, 4)
 
     def genrule_single_book_complete_usermodelnomatch(self):
         '''Sequence({id, id_extra_sequence}, usermodel_nomatch)
         
-        Meaning: The satellite states that the book matches NONE of the user's requirements. The nucleus mentions the remaining facts about the book.
-        Condition: there's no preceding book and there are no usermodel matches.
+        Meaning: The satellite states that the book matches NONE of the user's 
+        requirements. The nucleus mentions the remaining facts about the book.
+        Condition: there's no preceding book and there are no usermodel 
+        matches.
         '''
-        nucleus = [('id', Message('id')), ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
+        nucleus = [('id', Message('id')), 
+             ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
         satellite = [('usermodel_nomatch', Message('usermodel_nomatch'))]
-        conditions = ['exists("usermodel_match", locals()) is False', 'exists("lastbook_match", locals()) is False', 'exists("lastbook_nomatch", locals()) is False']
-        return Rule('single_book_complete_usermodelnomatch', 'Sequence', nucleus, satellite, conditions, 2)
+        conditions = ['exists("usermodel_match", locals()) is False', 
+                      'exists("lastbook_match", locals()) is False', 
+                      'exists("lastbook_nomatch", locals()) is False']
+        return Rule('single_book_complete_usermodelnomatch', 'Sequence', 
+                    nucleus, satellite, conditions, 2)
 
     def genrule_book_differences(self):
         '''Contrast({id, id_extra_sequence}, lastbook_nomatch)
         
-        Meaning: id/id_extra_sequence. In contrast to book X, this book is in German, targets advanced users and ...
+        Meaning: id/id_extra_sequence. In contrast to book X, this book is in 
+        German, targets advanced users and ...
         Condition: There are differences between the two books
         '''
-        nucleus = [('id', Message('id')), ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
+        nucleus = [('id', Message('id')), 
+            ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
         satellite = [('lastbook_nomatch', Message('lastbook_nomatch'))]
         conditions = ['exists("lastbook_nomatch", locals()) is True']
-        return Rule('book_differences','Contrast', nucleus, satellite, conditions, 5)
+        return Rule('book_differences','Contrast', nucleus, satellite, 
+                    conditions, 5)
 
     def genrule_concession_books(self):
         '''Concession(book_differences, lastbook_match)
         
-        Meaning: After 'book_differences' explains the differences between both books, their common features are explained.
+        Meaning: After 'book_differences' explains the differences between both
+        books, their common features are explained.
         '''
-        nucleus = [('book_differences', ConstituentSet(satellite=Message('lastbook_nomatch')))]
+        nucleus = [('book_differences', 
+                   ConstituentSet(satellite=Message('lastbook_nomatch')))]
         satellite = [('lastbook_match', Message('lastbook_match'))]
         conditions = ['exists("lastbook_match", locals()) is True']
-        return Rule('concession_books','Concession', nucleus, satellite, conditions, 5)
+        return Rule('concession_books','Concession', nucleus, satellite, 
+                    conditions, 5)
 
     def genrule_concession_book_differences_usermodelmatch(self):
         '''Concession(book_differences, usermodel_match)
         
-        Meaning: 'book_differences' explains the differences between both books. Nevertheless, this book meets ALL your requirements ...
+        Meaning: 'book_differences' explains the differences between both books.
+        Nevertheless, this book meets ALL your requirements ...
         Condition: All user requirements are met.
         '''
-        nucleus = [('book_differences', ConstituentSet(satellite=Message('lastbook_nomatch')))]
+        nucleus = [('book_differences', 
+                    ConstituentSet(satellite=Message('lastbook_nomatch')))]
         satellite = [('usermodel_match', Message('usermodel_match'))]
         conditions = ['exists("usermodel_nomatch", locals()) is False']
-        return Rule('concession_book_differences_usermodelmatch','Concession', nucleus, satellite, conditions, 5)
+        return Rule('concession_book_differences_usermodelmatch','Concession',
+                    nucleus, satellite, conditions, 5)
 
     def genrule_book_similarities(self):
         '''Elaboration(id_usermodelmatch, lastbook_match)
         
-        Meaning: 'id_usermodelmatch' mentions that the books matches ALL requirements. In addition, the book shares many features with its predecessor.
-        Condition: There are both differences and commonalities (>=50%) between the two books.
+        Meaning: 'id_usermodelmatch' mentions that the books matches ALL 
+        requirements. In addition, the book shares many features with its 
+        predecessor.
+        Condition: There are both differences and commonalities (>=50%) between
+        the two books.
         '''
-        nucleus = [('id_usermodelmatch', ConstituentSet(satellite=Message('usermodel_match')))]
+        nucleus = [('id_usermodelmatch', 
+                    ConstituentSet(satellite=Message('usermodel_match')))]
         satellite = [('lastbook_match', Message('lastbook_match'))] 
-        conditions = ['exists("lastbook_match", locals()) is True', 'exists("lastbook_nomatch", locals()) is True', 'len(lastbook_match) >= len(lastbook_nomatch)']
-        return Rule('book_similarities','Elaboration', nucleus, satellite, conditions, 5)
+        conditions = ['exists("lastbook_match", locals()) is True', 
+                      'exists("lastbook_nomatch", locals()) is True', 
+                      'len(lastbook_match) >= len(lastbook_nomatch)']
+        return Rule('book_similarities','Elaboration', nucleus, satellite, 
+                    conditions, 5)
 
     def genrule_no_similarities_concession(self):
         #TODO: What's the connection between this rule and 'usermodel_(no)match'?
         '''Concession({id, id_extra_sequence}, lastbook_nomatch)
         
-        Meaning: Book X has these features BUT share none of them with its predecessor.
-        Condition: There is a predecessor to this book, but they don't share ANY features.
+        Meaning: Book X has these features BUT share none of them with its 
+        predecessor.
+        Condition: There is a predecessor to this book, but they don't share 
+        ANY features.
         '''
-        nucleus = [('id', Message('id')), ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
+        nucleus = [('id', Message('id')), 
+                   ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
         satellite = [('lastbook_nomatch', Message('lastbook_nomatch'))]
-        conditions = ['exists("lastbook_nomatch", locals()) is True', 'exists("lastbook_match", locals()) is False']
-        return Rule('no_similarities_concession','Concession', nucleus, satellite, conditions, 5)
+        conditions = ['exists("lastbook_nomatch", locals()) is True', 
+                      'exists("lastbook_match", locals()) is False']
+        return Rule('no_similarities_concession','Concession', nucleus, 
+                    satellite, conditions, 5)
 
 
     def genrule_contrast_books_posneg_eval(self):
-        #TODO: new-rules.rst rule 14 mentions that this one is only about books which share no features. WHY?
+        #TODO: new-rules.rst rule 14 mentions that this one is only about 
+        #books which share no features. WHY? 
         '''Sequence(book_differences, {pos_eval, neg_eval})
         
-        Meaning: book_differences mentions the differences between the books, pos_eval/neg_eval explains how many user requirements they meet
+        Meaning: book_differences mentions the differences between the books, 
+        pos_eval/neg_eval explains how many user requirements they meet 
         Conditions: matches some of the requirements
         '''
-        nucleus = [('book_differences', ConstituentSet(satellite=Message('lastbook_nomatch')))]
-        satellite = [('pos_eval', ConstituentSet(satellite=Message('usermodel_nomatch'))), ('neg_eval', ConstituentSet(nucleus=Message('usermodel_nomatch')))]
-        conditions = ['exists("usermodel_match", locals()) is True', 'exists("usermodel_nomatch", locals()) is True'] #'exists("lastbook_match", locals()) is False'
-        return Rule('contrast_books_posneg_eval','Sequence', nucleus, satellite, conditions, 5)
+        nucleus = [('book_differences', 
+                   ConstituentSet(satellite=Message('lastbook_nomatch')))]
+        satellite = [('pos_eval', ConstituentSet(satellite=Message('usermodel_nomatch'))), 
+                     ('neg_eval', ConstituentSet(nucleus=Message('usermodel_nomatch')))]
+        conditions = ['exists("usermodel_match", locals()) is True',
+                      'exists("usermodel_nomatch", locals()) is True'] 
+                      #'exists("lastbook_match", locals()) is False'
+        return Rule('contrast_books_posneg_eval','Sequence', nucleus, 
+                    satellite, conditions, 5)
 
 
     def genrule_compare_eval(self):
-        '''Sequence(concession_books, {pos_eval, neg_eval, usermodel_match, usermodel_nomatch})
+        '''Sequence(concession_books, {pos_eval, neg_eval, usermodel_match, 
+        usermodel_nomatch})
         
-        Meaning: 'concession_books' describes common and diverging features of the books. 'pos_eval/neg_eval/usermodel_match/usermodel_nomatch' explains how many user requirements they meet
+        Meaning: 'concession_books' describes common and diverging features of 
+        the books. 'pos_eval/neg_eval/usermodel_match/usermodel_nomatch' 
+        explains how many user requirements they meet
         '''
-        #TODO: split this rule? satellite=usermodel_match would actually require that there's no usermodel_nomatch, analogical: satellite=usermodel_nomatch 
+        #TODO: split this rule? satellite=usermodel_match would actually 
+        #require that there's no usermodel_nomatch, 
+        #analogical: satellite=usermodel_nomatch 
         #book_differences = Contrast({id, id_extra_sequence}, lastbook_nomatch)
         #concession_books = Concession(book_differences, lastbook_match)
-        nucleus = [('concession_books', ConstituentSet(satellite=Message('lastbook_match')))]
-        satellite = [('pos_eval', ConstituentSet(satellite=Message('usermodel_nomatch'))), ('neg_eval', ConstituentSet(nucleus=Message('usermodel_nomatch'))), ('usermodel_match', Message('usermodel_match')), ('usermodel_nomatch', Message('usermodel_nomatch'))]
+        nucleus = [('concession_books', 
+                   ConstituentSet(satellite=Message('lastbook_match')))]
+        satellite = [('pos_eval', ConstituentSet(satellite=Message('usermodel_nomatch'))), 
+                     ('neg_eval', ConstituentSet(nucleus=Message('usermodel_nomatch'))), 
+                     ('usermodel_match', Message('usermodel_match')), 
+                     ('usermodel_nomatch', Message('usermodel_nomatch'))]
         conditions = []
-        return Rule('compare_eval','Sequence', nucleus, satellite, conditions, 5)
+        return Rule('compare_eval','Sequence', nucleus, satellite, 
+                    conditions, 5)
 
 
-def generate_textplan(messages, rules=Rules().rules, book_score = None, dtype = None, text = None):
+def generate_textplan(messages, rules=Rules().rules, book_score = None, 
+                      dtype = None, text = None):
     '''
-    The main method implementing the Bottom-Up document structuring algorithm from "Building Natural Language Generation Systems" figure 4.17, p. 108.
+    The main method implementing the Bottom-Up document structuring algorithm 
+    from "Building Natural Language Generation Systems" figure 4.17, p. 108.
 
-    The method takes a list of C{Message}s and a set of C{Rule}s and creates a document plan by repeatedly applying the highest-scoring Rule-application (according to the Rule's heuristic score) until a full tree is created. This is returned as a C{TextPlan} with the tree set as I{children}.
+    The method takes a list of C{Message}s and a set of C{Rule}s and creates a 
+    document plan by repeatedly applying the highest-scoring Rule-application 
+    (according to the Rule's heuristic score) until a full tree is created. 
+    This is returned as a C{TextPlan} with the tree set as I{children}.
 
     If no plan is reached using bottom-up, I{None} is returned.
 
-    @param messages: a list of C{Message}s which have been selected during content selection for inclusion in the TextPlan
+    @param messages: a list of C{Message}s which have been selected during 
+    content selection for inclusion in the TextPlan
     @type messages: list of C{Message}s
-    @param rules: a list of C{Rule}s specifying relationships which can hold between the messages
+    @param rules: a list of C{Rule}s specifying relationships which can hold 
+    between the messages
     @type rules: list of C{Rule}s
     @param dtype: an optional type for the document
     @type dtype: string
@@ -632,21 +799,25 @@ def generate_textplan(messages, rules=Rules().rules, book_score = None, dtype = 
     ret = __bottom_up_search(messages_set, rules)
 
     if ret: # if __bottom_up_search has found a valid plan ...
-        children =  ret.pop() # pop returns an 'arbitrary' set element (there's only one)
-        return TextPlan(book_score=book_score, dtype=dtype, text=text, children=children)
+        children =  ret.pop() 
+        # pop returns an 'arbitrary' set element (there's only one)
+        return TextPlan(book_score=book_score, dtype=dtype, 
+                        text=text, children=children)
     else:
         return None
 
 def __bottom_up_search(messages, rules):
-    '''helper method for generate_text which performs recursive best-first-search
+    '''generate_text() helper method which performs recursive best-first-search
 
     @param messages: a set containing C{Message}s and/or C{ConstituentSet}s
     @type messages: C{set} of C{Message}s or C{ConstituentSet}s
     
-    @param rules: a list of C{Rule}s specifying relationships which can hold between the messages
+    @param rules: a list of C{Rule}s specifying relationships which can hold 
+    between the messages
     @type rules: C{list} of C{Rule}s
         
-    @return: a set containing one C{Message}, i.e. the first valid plan reached by best-first-search. returns None if no valid plan is found.
+    @return: a set containing one C{Message}, i.e. the first valid plan reached
+    by best-first-search. returns None if no valid plan is found.
     @rtype: C{NoneType} or a C{set} of (C{Message}s or C{ConstituentSet}s)
     '''
     if len(messages) == 1:
@@ -669,14 +840,22 @@ def __bottom_up_search(messages, rules):
         if options_list == []:
             return None
 
-        sorted_options = sorted(options_list, key = lambda (x,y,z): x, reverse=True) # sort all options by their score, beginning with the highest one
+        #sort all options by their score, beginning with the highest one
+        sorted_options = sorted(options_list, key = lambda (x,y,z): x, 
+                                reverse=True) 
+                                
         for (score, rst_relation, removes) in sorted_options:
             '''
-            rst_relation: a ConstituentSet (RST relation) that was generated by Rule.get_options()
-            removes: a list containing those messages that are now part of 'rst_relation' and should therefore not be used again
+            rst_relation: a ConstituentSet (RST relation) that was generated by
+                Rule.get_options()
+            removes: a list containing those messages that are now part of 
+                'rst_relation' and should therefore not be used again
             '''
             testSet = messages - set(removes)
-            testSet = testSet.union(set([rst_relation])) # a set containing a ConstituentSet and one or more Messages that haven't been integrated into a structure yet
+            testSet = testSet.union(set([rst_relation]))
+            # a set containing a ConstituentSet and one or more Messages that 
+            # haven't been integrated into a structure yet
+
             ret = __bottom_up_search(testSet, rules)
             if ret:
                 return ret
