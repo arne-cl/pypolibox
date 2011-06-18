@@ -223,7 +223,7 @@ class Query:
         @return: a part of a simple SQL query, e.g. 'exercises = 1'
         @rtype: C{str}
         """
-        return "{0} = {1}".format(sql_column, string)
+        return "{0} = {1}".format(sql_column, integer)
 
     def __str__(self):
         """
@@ -278,24 +278,21 @@ class Results:
         for result in and_sql_cursor:
             self.and_query_results.append(result)
         if len(self.and_query_results) >= self.minresults:
-            self.possible_matches = self.get_number_of_possible_matches(self.and_query_results)
+            self.possible_matches = self.get_number_of_possible_matches()
             self.query_results = self.and_query_results
             self.query_type = 'and'
         else: # if 'AND query' doesn't return enough results ... TODO: this should only be executed if the and_query has too few results AND that query consists of more than one parameter -- otherwise, it won't improve results in this case.
             or_sql_cursor = self.curs.execute(query.or_query)
             for result in or_sql_cursor:
                 self.or_query_results.append(result)
-            self.possible_matches = self.get_number_of_possible_matches(self.or_query_results)
+            self.possible_matches = self.get_number_of_possible_matches()
             self.query_results = self.or_query_results
             self.query_type = 'or'
             
-    def get_number_of_possible_matches(self, query_results):
+    def get_number_of_possible_matches(self):
         """
         counts the number of query paramters that could be matched by books from the results set. 
         example: keywords = pragmatics, keywords = semantics, language = German --> possible_matches = 3
-        
-        @param query_results:
-        @type query_results:
         
         @return: the number of possible matches
         @rtype: C{int}

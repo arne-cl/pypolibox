@@ -5,18 +5,8 @@ from nltk.featstruct import Feature
 from database import Query, Results, Books
 from facts import AllFacts
 from propositions import AllPropositions
-from textplan import (ConstituentSet, TextPlan, Rules, AllMessages, Messages, 
-                      Message, generate_textplan)
-
-#from pypolibox import curs # TODO: move stuff to database.py
-
-## TODO: fixme
-#def test_sql():
-    #"""a simple sql query example to play around with"""
-    #query_results = curs.execute('''select * from books where pages < 300;''')
-    #print "select * from books where pages < 300;\n\n"
-    #return query_results
-
+from textplan import (ConstituentSet, TextPlan, TextPlans, Rules, AllMessages,
+                      Messages, Message, generate_textplan)
 
                 
 def genprops(querynumber=10):
@@ -35,18 +25,22 @@ def genallmessages(query):
     elif isinstance(query, Query):
         return AllMessages(AllPropositions(AllFacts(Books(Results(query)))))
     
-def gentextplans(querynumber):
-    textplans = []
-    rules = Rules().rules
-    am = AllMessages(AllPropositions(AllFacts(Books(Results(Query(testqueries[querynumber]))))))
-    #print len(am.books)
-    for book in am.books:
-        messages = book.messages.values()
-        textplan = generate_textplan(messages, rules)
-        print textplan
-        textplans.append(textplan)
-    return textplans
+def gentextplans(query):
+    """
+    debug function: generates all text plans for a query.
     
+    @param query: can be the index of a testquery (e.g. 4) OR a list of query parameters (e.g. ["-k", "phonology", "-l", "German"])
+    @type query: C{int} or C{list} of C{str}
+    
+    @return: a number of text plans
+    @rtype: C{TextPlans}
+    """
+    textplans = []
+    if type(query) is int:
+        return TextPlans(AllMessages(AllPropositions(AllFacts(Books(Results(Query(testqueries[query])))))))
+    if type(query) is list:
+        return TextPlans(AllMessages(AllPropositions(AllFacts(Books(Results(Query(query)))))))
+        
 def test_all_TextPlans():
     all_TextPlans = []
     for argnumber, arg in enumerate(testqueries):
@@ -143,6 +137,12 @@ def abbreviate_textplan(textplan):
     """
     recursive helper function that prints only the skeletton of a textplan 
     (message types and RST relations but not the actual message content)
+    
+    @param textplan: a text plan, a constituent set or a message
+    @type textplan: C{TextPlan} or C{ConstituentSet} or C{Message}
+    
+    @return: a message (without the attribute value pairs stored in it)
+    @rtype: C{Message}
     """ 
     if isinstance(textplan, TextPlan):
         score = textplan["title"]["book score"]
