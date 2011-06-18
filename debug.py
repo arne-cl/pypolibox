@@ -5,7 +5,8 @@ from nltk.featstruct import Feature
 from database import Query, Results, Books
 from facts import AllFacts
 from propositions import AllPropositions
-from textplan import ConstituentSet, TextPlan, Rules, AllMessages, Messages, Message
+from textplan import (ConstituentSet, TextPlan, Rules, AllMessages, Messages, 
+                      Message, generate_textplan)
 
 #from pypolibox import curs # TODO: move stuff to database.py
 
@@ -88,64 +89,71 @@ def __msgtype_print(message):
         satellite = __msgtype_print(message[Feature("satellite")])
         return "{0}({1}, {2})".format(reltype, nucleus, satellite)
 
-def avm_print(TextPlan):
-    #TODO: escape "_*"
-    avm_str = ""
-    header = "\begin{avm}\n\\[\n\n"
-    footer = "\n\n\\]\n\end{avm}"
-    content = __avm(TextPlan)
-    avm_str += header + content + footer 
-    return avm_str
+#def avm_print(TextPlan):
+    #"""unfinished attempt to print textplans as attribute-value matrices in LaTeX"""
+    ##TODO: escape "_*"
+    #avm_str = ""
+    #header = "\begin{avm}\n\\[\n\n"
+    #footer = "\n\n\\]\n\end{avm}"
+    #content = __avm(TextPlan)
+    #avm_str += header + content + footer 
+    #return avm_str
 
-def __avm(message):
-    '''
-    @type: C{Message} or C{ConstituentSet}
-    '''
-    if isinstance(message, Message):
-        msg_content = ""
-        msg_name = message[Feature("msgType")]
-        keys = message.keys()
-        keys.remove(Feature("msgType"))
+#def __avm(message):
+    #'''
+    #@type: C{Message} or C{ConstituentSet}
+    #'''
+    #if isinstance(message, Message):
+        #msg_content = ""
+        #msg_name = message[Feature("msgType")]
+        #keys = message.keys()
+        #keys.remove(Feature("msgType"))
 
-        msg_content += "\\[\n"
-        for key in keys:
-            value = message[key]
-            msg_content += "{0} & {1} \\\\\n".format(key, value)
-        msg_content += "\n\\]"
+        #msg_content += "\\[\n"
+        #for key in keys:
+            #value = message[key]
+            #msg_content += "{0} & {1} \\\\\n".format(key, value)
+        #msg_content += "\n\\]"
 
-        message = "{0}\t& {1}".format(msg_name, msg_content)
-        return message
+        #message = "{0}\t& {1}".format(msg_name, msg_content)
+        #return message
         
-    if isinstance(message, ConstituentSet):
-        rel_name = message[Feature("relType")]
-        nucleus = __avm(message[Feature("nucleus")])
-        satellite = __avm(message[Feature("satellite")])
-        message = "{0}\t& \\[ {1} \n\n {2} \\]".format(rel_name, nucleus, satellite)
-        return message
+    #if isinstance(message, ConstituentSet):
+        #rel_name = message[Feature("relType")]
+        #nucleus = __avm(message[Feature("nucleus")])
+        #satellite = __avm(message[Feature("satellite")])
+        #message = "{0}\t& \\[ {1} \n\n {2} \\]".format(rel_name, nucleus, satellite)
+        #return message
     
-    if isinstance(message, TextPlan):
-        message = __avm(message["children"])
-        return message
+    #if isinstance(message, TextPlan):
+        #message = __avm(message["children"])
+        #return message
     
-    if isinstance(message, FeatDict):
-        msg_content += "\\[\n"
-        for key in keys:
-            value = message[key]
-            msg_content += "{0} & {1} \\\\\n".format(key, value)
-        msg_content += "\n\\]"
-        return msg_content
+    #if isinstance(message, FeatDict):
+        #msg_content += "\\[\n"
+        #for key in keys:
+            #value = message[key]
+            #msg_content += "{0} & {1} \\\\\n".format(key, value)
+        #msg_content += "\n\\]"
+        #return msg_content
         
 
         
 def abbreviate_textplan(textplan):
+    """
+    recursive helper function that prints only the skeletton of a textplan 
+    (message types and RST relations but not the actual message content)
+    """ 
     if isinstance(textplan, TextPlan):
-        textplan = abbreviate_textplan(textplan["children"])
-        return TextPlan(children=textplan)
+        score = textplan["title"]["book score"]
+        abbreviated_textplan = abbreviate_textplan(textplan["children"])
+        return TextPlan(book_score=score, children=abbreviated_textplan)
     if isinstance(textplan, ConstituentSet):
         reltype = textplan[Feature("relType")]
         nucleus = abbreviate_textplan(textplan[Feature("nucleus")])
         satellite = abbreviate_textplan(textplan[Feature("satellite")])
-        return ConstituentSet(relType=reltype, nucleus=nucleus, satellite=satellite)
+        return ConstituentSet(relType=reltype, nucleus=nucleus, 
+                              satellite=satellite)
     if isinstance(textplan, Message):
         msgtype = textplan[Feature("msgType")]
         return Message(msgType=msgtype)

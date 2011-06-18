@@ -2,11 +2,23 @@
 # -*- coding: utf-8 -*-
 
 """
-original author: Nicholas FitzGerald
-citation: Fitzgerald, Nicholas (2009). Open-Source Implementation of Document 
-Structuring Algorithm for NLTK
+The I{textplan} module is based on Nicholas FitzGerald's I{py_docplanner}[1], 
+in particular on his idea to represent RST trees as attribute value matrices 
+by using the I{nltk.featstruct} data structure.
 
-major rewrite: Arne Neumann
+I{textplan} converts C{Proposition} instances into C{Message}s (using 
+attribute value notation). Via a set of C{Rule}s, these messages are combined 
+into C{ConstituentSet}s. Rules are applied bottom-up, via a recursive 
+best-first search (cf. I{__bottom_up_search}).
+
+Not only messages, but also constituent sets can be combined 
+via rules. If all messages present can be combined into one large 
+C{ConstituentSet}, this constituent set is called a C{TextPlan}. A 
+C{TextPlan} represents a complete text plan in form of an attribute value 
+matrix.
+
+[1] Fitzgerald, Nicholas (2009). Open-Source Implementation of Document 
+Structuring Algorithm for NLTK. 
 """
 
 import itertools
@@ -21,16 +33,24 @@ from util import (exists, flatten, freeze_all_messages,
 
 class Message(nltk.featstruct.FeatDict):
     """
-    C{Message}s are the primary information bearing units. They are contructed 
-    during the Content Selection stage of NLG which preceded Document 
-    Structuring.
+    A {Message} combines and stores knowledge about an object (here: books) 
+    in a logical structure. Messages are constructed 
+    during content selection (taking the user's requirements, querying a 
+    database and processing its results), which precedes text planning.
 
-    Each C{Message} has a I{msgType} which defines what type of message it 
-    is. In addition, C{Message}s can have any number of other features which 
-    contain the information the message conveys. These can either be simple 
-    features, or C{nltk.featstruct.FeatStruct}s.
-
-    C{Message} is based on C{nltk.featstruct.FeatDict}.
+    Each C{Message} has a I{msgType} which describes the kind of information 
+    it includes. For example, the msgType 'id' specifies information that is 
+    needed to distinguish a book from other books::
+    
+        [ *msgType*    = 'id'                                ]
+        [ authors      = frozenset(['Roland Hausser'])       ]
+        [ codeexamples = 0                                   ]
+        [ language     = 'German'                            ]
+        [ pages        = 572                                 ]
+        [ proglang     = frozenset([])                       ]
+        [ target       = 0                                   ]
+        [ title        = 'Grundlagen der Computerlinguistik' ]
+        [ year         = 2000                                ]
     """
     def __init__(self, msgType = None):
         """
@@ -42,9 +62,9 @@ class Message(nltk.featstruct.FeatDict):
 
 class Messages:
     """
-    represents all Messages generated from Propositions() about a Book()
+    represents all C{Message} instances generated from C{Propositions} about a 
+    C{Book}.
     """
-    
     def __init__ (self, propositions):
         """reads propositions and calls message generation functions 
         
@@ -63,6 +83,12 @@ class Messages:
                     self.generate_message(proposition_type)
 
     def generate_message(self, proposition_type):
+        """
+        generates a C{Message} from a 'simple' C{Proposition}. Simple 
+        propositions are those kind of propostions that only give information 
+        about one item (i.e. describe one book) but don't compare two items 
+        (e.g. book A is 12 years older than book B).
+        """
         message = Message(msgType = proposition_type)
         proposition_dict = self.propositions[proposition_type]
         simple_propositions = set(('id','lastbook_match', 'usermodel_match', 
@@ -93,6 +119,11 @@ class Messages:
         return message
                              
     def generate_extra_message(self, proposition_dict):
+        """
+        generates a C{Message} from an 'extra' C{Proposition}. Extra 
+        propositions only exist if a book is remarkably new / old or very 
+        short / long. 
+        """
         msg = Message(msgType='extra')
         for attrib in proposition_dict.iterkeys():
             if attrib == 'year':
@@ -108,6 +139,11 @@ class Messages:
         return msg 
         
     def generate_lastbook_nomatch_message(self, proposition_dict):
+        """
+        generates a C{Message} from a 'lastbook_nomatch' C{Proposition}. A 
+        lastbook_nomatch propositions states which differences exist between 
+        two books.
+        """
         msg = Message(msgType='lastbook_nomatch')
         for attrib in proposition_dict.iterkeys():
             if attrib == 'longer':
@@ -235,9 +271,11 @@ class TextPlan(nltk.featstruct.FeatDict):
     C{TextPlan} is the output of Document Planning. A TextPlan consists of an 
     optional title and text, and a child I{ConstituentSet}.
     """
-    def __init__(self, book_score = None, dtype = 'TextPlan', text = None, children = None):
+    def __init__(self, book_score=None, dtype='TextPlan', text=None,
+                 children=None):
         self[nltk.featstruct.Feature('type',display='prefix')] = 'DPDocument'
-        self['title'] = nltk.featstruct.FeatDict({'type': dtype, 'text':text, 'book score': book_score})
+        self['title'] = nltk.featstruct.FeatDict({'type': dtype, 'text':text, 
+                                                  'book score': book_score})
         self['children'] = children
 
 class TextPlans:

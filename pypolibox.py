@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 
 """
-pypolibox is part of a database-to-text generation (NLG) software and uses 
-Python 2.7 and these modules (not included in the standard library):
+I{pypolibox} is part of a database-to-text generation (NLG) software built on 
+Python 2.6, the Natural Language Toolkit I{NLTK} and Nicholas Fitzgerald's 
+I{pydocplanner}. pypolibox is a reimplementation of I{JPolibox} and therefore 
+shares some of its oddities. 
 
-    nltk, argparse
+External dependencies: python2.6, python-nltk, python-argparse
 """
 
 import sys

@@ -1,32 +1,71 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+The I{database} module is responsible for parsing the user's requirements 
+(both from command line options, as well as interactively from the Python 
+interpreter), transforming these requirements into an SQL query, querying the 
+sqlite database and returning the results.
+"""
+
 import argparse
 import sqlite3
 import util
 
-#import locale
-#language, encoding = locale.getlocale()
-#DEFAULT_ENCODING = encoding # sqlite stores strings as unicode, but the user input is likely something else
-
 DB_FILE = 'books.sqlite'
-BOOK_TABLE_NAME = 'books' # name of the table in the database file that contains info about books
+BOOK_TABLE_NAME = 'books' # name of the table in the database file that 
+                          # contains info about books
 DEFAULT_ENCODING = 'UTF8'
 
 class Query:
-    """ a Query() instance represents one user query to the database """
+    """
+    a Query() instance represents one user query to the database
+    
+    Queries can be made from the command line, as well as from the Python 
+    interpreter. From the command line, queries can be made using either 
+    abbreviated or long parameters. The following examples both query the 
+    database for books that contain code examples and deal with both semantics 
+    and parsing::
+    
+        python pypolibox.py -k semantics, parsing -c 1
+        python pypolibox.py --keywords semantics, parsing --codeexamples 1
+        
+    When calling I{pypolibox.py} from within the Python interpreter, the same 
+    query can be made using the following command::
+    
+        Query(["-k", "semantics", "parsing", "-c", "1"])
+        
+    If you print the C{Query} instance (by using the I{print} command), it 
+    will return the SQL query that was constructed from the user input::
+    
+        SELECT * FROM books WHERE keywords like '%semantics%' AND keywords 
+        like '%parsing%' AND examples = 1
+
+    TODO: This module talks directly to the database. To make it easier to 
+    adapt pypolibox to a different domain, an SQL abstraction layer (e.g. 
+    SQL Alchemy) should be used.
+    """
     def __init__ (self, argv):
         """ 
-        parses commandline options with argparse, constructs a valid sql query and stores the resulting queries (boolean AND, boolean OR) in self.and_query and self.or_query.
+        given a list of query arguments, this constructor parses commandline 
+        options with argparse, constructs a valid sql query and stores the 
+        resulting query strings in self.and_query (using boolean AND to 
+        combine the query arguments) and self.or_query (boolean OR).
+        
+        @param argv: a list of strings (either parsed from the command line 
+        or set programmatically)
+        @type argv: C{list} of C{str}
         """
         self.queries = []
-        self.minresults = 10 #TODO: change value after debugging
+        self.minresults = 3
         query_and = " AND "
         query_or = " OR "
 
         parser = argparse.ArgumentParser()
         
-        parser.add_argument("-k", "--keywords", nargs='+', help="Which topic(s) should the book cover?") #nargs='+' handles 1 or more args    
+        parser.add_argument("-k", "--keywords", nargs='+', 
+            help="Which topic(s) should the book cover?") 
+            #nargs='+' handles 1 or more args    
         parser.add_argument("-l", "--language",
             help="Which language should the book have?")
         parser.add_argument("-p", "--proglang", nargs='+',
@@ -47,7 +86,6 @@ class Query:
         #TODO: put the if.args stuff into its own method (maybe useful, if
         # there's a WebQuery(Query) class
         args = parser.parse_args(argv)
-        self.args = args #TODO: remove after debugging
             
         if args.keywords is not None:
             for keyword in args.keywords:
@@ -60,18 +98,24 @@ class Query:
         if args.pagerange is not None:
             self.queries.append(self.__pages_query(args.pagerange))
         if args.target is not None:
-            # 0 beginner, 1 intermediate, 2 advanced, 3 professional
-            #db fuckup: advanced is encoded as "3"
-            assert args.target in (0, 1, 2, 3) #TODO: add exceptions to all asserts
+            #confusion: in the db, advanced is encoded as "3" --> blame JPolibox
+            target_error = """target should be: 0 (beginner), 1 
+            (intermediate), 2 (advanced) or 3 (professional)"""
+            assert args.target in (0, 1, 2, 3), target_error
             self.queries.append(self.__equals_query("target", args.target))
         if args.exercises is not None:
-            assert args.exercises in (0, 1)
+            exercises_error = """exercises value should be either 0 (books 
+            should have no exercises) or 1 (book should have exercises)"""
+            assert args.exercises in (0, 1), exercises_error
             self.queries.append(self.__equals_query("exercises", args.exercises))
         if args.codeexamples is not None:
-            assert args.codeexamples in (0, 1)
+            codeexamples_error = """codeexamples value should be either 0 (books 
+            should have no code examples) or 1 (book should have code examples)"""
+            assert args.codeexamples in (0, 1), codeexamples_error
             self.queries.append(self.__equals_query("examples", args.codeexamples))
         if args.minresults is not None:
-            assert args.minresults > 0
+            assert args.minresults > 0, """the minimal number of results must 
+            be 1"""
             self.minresults = args.minresults 
     
         self.query_args = args # we may need these for debugging
@@ -79,7 +123,21 @@ class Query:
         self.or_query = self.__construct_query(self.queries, query_or)
 
     def __construct_query(self, queries, query_combinator):
-        """takes a list of queries and combines them into one complex SQL query"""
+        """
+        helper function for __init__: takes a list of query arguments and 
+        combines them into one complex SQL query (using either boolean AND or 
+        boolean OR).
+        
+        @param queries: a list of queries in SQL notation
+        @type queries: C{list} of C{str}
+        
+        @param query_combinator: a string that can be used to combine SQL 
+        queries, e.g. " AND " or " OR "
+        @type query_combinator: C{str}
+        
+        @return: a complex SQL query
+        @rtype: C{str}
+        """
         query_template = "SELECT * FROM books "
         where = "WHERE "
         combined_queries = ""
@@ -96,7 +154,21 @@ class Query:
             return query_template # query will show all books in the db
 
     def __pages_query(self, length_category):
-        assert length_category in (0, 1, 2) # short, medium length, long books
+        """
+        helper function for __init__: constructs a query for page ranges 
+        (e.g. the book should have less than 300 pages or between 300 and 600 
+        pages).
+        
+        @param length_category: an integer specifying the page range of the 
+        book (0: short, 1: medium length, 2: long)
+        @type length_category: C{int}
+        
+        @return: a part of a simple SQL query, e.g. 'pages < 300'
+        @rtype: C{str}
+        """
+        length_error = """length value should be either 0: short, 1: medium 
+            length or 2: long"""
+        assert length_category in (0, 1, 2), length_error
         if length_category == 0:
             return "pages < 300"
         if length_category == 1:
@@ -105,19 +177,61 @@ class Query:
             return "pages >= 600"
     
     def __substring_query(self, sql_column, substring):
+        """
+        helper function for __init__: our database has a strange format that 
+        combines several values in the same string. For example, under the 
+        key 'keywords', there could be a value such as 
+        '[semantics][parsing][phonology]'. Therefore, we'll need to query for 
+        substrings, e.g. to find a book about 'semantics'.
+        
+        @param sql_column: the name of the column in the database we're 
+        querying, e.g. 'keywords'
+        @type sql_column: C{str}
+        
+        @param substring: a string we're looking for, e.g. 'semantics'
+        @type substring: C{str}
+
+        @return: a part of a simple SQL query, e.g. 'keyword like %semantics%'
+        @rtype: C{str}
+        """      
         sql_substring = "'%{0}%'".format(substring) # keyword --> '%keyword%' for SQL LIKE queries
         substring_query = "{0} like {1}".format(sql_column, sql_substring)
         return substring_query
     
     def __string_query(self, sql_column, string):
-        """find all database items that completely match a string
-           in a given column, e.g. WHERE lang = 'German' """
+        """
+        helper function for __init__: find all database items that completely 
+        match a string in a given column, e.g. WHERE lang = 'German'
+
+        @param sql_column: the name of the column in the database we're 
+        querying, e.g. 'lang'
+        @type sql_column: C{str}
+        
+        @param string: a string we're looking for, e.g. 'German'
+        @type string: C{str}
+
+        @return: a part of a simple SQL query, e.g. 'keyword like %semantics%'
+        @rtype: C{str}
+        """
         return "{0} = '{1}'".format(sql_column, string)
     
-    def __equals_query(self, sql_column, string):
+    def __equals_query(self, sql_column, integer):
+        """
+        helper function for __init__: find all database items that completely 
+        match an integer value in a given column, e.g. WHERE exercises = 1
+
+        @return: a part of a simple SQL query, e.g. 'exercises = 1'
+        @rtype: C{str}
+        """
         return "{0} = {1}".format(sql_column, string)
 
     def __str__(self):
+        """
+        If you print a C{Query} instance, it will return the query strings 
+        that will be send to the database.
+        
+        @rtype: C{str}
+        """
         ret_str = "The arguments (parsed from the command line): " + \
             "{0}\nhave resulted in the following SQL query:".format(self.query_args) + \
             "\n{0}\n\nIf the query should return less than ".format(self.and_query) + \
@@ -126,12 +240,22 @@ class Query:
         return ret_str
 
 class Results:
-    """ a Results() instance represents the results of a database query """
+    """
+    A C{Results} instance sends queries to the database, retrieves and stores 
+    the results.
+    """
     
     def __init__ (self, query):
-        """initialises a connection to the db, sends queries and stores results in self.query_results
+        """
+        initialises a connection to the db, sends queries and stores results 
+        in self.query_results
         
-        if the query (combining query parameters with boolean AND) returns less than query.minresults, a different query will be sent (combining query parameters with boolean OR). in the latter case, a maximum score (possible_matches) will be calculated (how many query parameters does a result match). possible_matches will be used by Books() to find the n-best matching books.
+        If the query (combining query parameters with boolean AND) returns 
+        less than query.minresults books, a different query will be sent 
+        (combining query parameters with boolean OR). In the latter case, a 
+        maximum score (possible_matches) will be calculated (how many query 
+        parameters does a result match). possible_matches will be used by 
+        a C{Books} instance to find the n-best matching books.
         
         @type q: instance of class C{Query}
         @param q: an instance of the class Query()
@@ -169,6 +293,12 @@ class Results:
         """
         counts the number of query paramters that could be matched by books from the results set. 
         example: keywords = pragmatics, keywords = semantics, language = German --> possible_matches = 3
+        
+        @param query_results:
+        @type query_results:
+        
+        @return: the number of possible matches
+        @rtype: C{int}
         """
         possible_matches = 0
         self.params = [param for param in self.query_args.__dict__
