@@ -106,7 +106,7 @@ class Messages:
                 value, rating = proposition_dict[attrib]
                 if type(value) == set: 
                     value = frozenset(value)
-                message.update({attrib: value})
+                message.update({attrib: (value, rating)})
     
         if proposition_type is 'extra':
             message = self.generate_extra_message(proposition_dict)
@@ -136,7 +136,7 @@ class Messages:
                 value, rating = proposition_dict[attrib]
                 if type(value) == set: 
                     value = frozenset(value)
-                msg.update({attrib: value})
+                msg.update({attrib: (value, rating)})
         return msg 
         
     def generate_lastbook_nomatch_message(self, proposition_dict):
@@ -151,31 +151,35 @@ class Messages:
                 pages, rating = proposition_dict['longer']
                 magnitude = FeatDict({'number': pages, 'unit': 'pages'})
                 length = FeatDict({'type': 'RelativeVariation', 
-                                   'direction': '+', 'magnitude': magnitude})
+                                   'direction': '+', 'magnitude': magnitude,
+                                   'rating': rating})
                 msg.update({'length': length})
             elif attrib == 'shorter':
                 pages, rating = proposition_dict['shorter']
                 magnitude = FeatDict({'number': pages, 'unit': 'pages'})
                 length = FeatDict({'type': 'RelativeVariation', 
-                                   'direction': '-', 'magnitude': magnitude})
+                                   'direction': '-', 'magnitude': magnitude,
+                                   'rating': rating})
                 msg.update({'length': length})
             elif attrib == 'newer':
                 years, rating = proposition_dict['newer']
                 magnitude = FeatDict({'number': years, 'unit': 'years'})
                 recency = FeatDict({'type': 'RelativeVariation', 
-                                    'direction': '+', 'magnitude': magnitude})
+                                    'direction': '+', 'magnitude': magnitude,
+                                    'rating': rating})
                 msg.update({'recency': recency})
             elif attrib == 'older':
                 years, rating = proposition_dict['older']
                 magnitude = FeatDict({'number': years, 'unit': 'years'})
                 recency = FeatDict({'type': 'RelativeVariation', 
-                                    'direction': '-', 'magnitude': magnitude})
+                                    'direction': '-', 'magnitude': magnitude,
+                                    'rating': rating})
                 msg.update({'recency': recency})
             else:
                 value, rating = proposition_dict[attrib]
                 if type(value) == set: 
                     value = frozenset(value)
-                msg.update({attrib: value})
+                msg.update({attrib: (value, rating)})
         return msg
 
     def add_identification_to_message(self, message):
