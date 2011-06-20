@@ -19,7 +19,7 @@ DEFAULT_ENCODING = 'UTF8'
 
 class Query:
     """
-    a Query() instance represents one user query to the database
+    a C{Query} instance represents one user query to the database
     
     Queries can be made from the command line, as well as from the Python 
     interpreter. From the command line, queries can be made using either 
@@ -142,13 +142,14 @@ class Query:
         where = "WHERE "
         combined_queries = ""
         if len(queries) > 1:
-            for query in queries[:-1]: # combine queries with " AND ", but don't append after the last query
+            for query in queries[:-1]:
+            #combine queries with " AND ", but don't append
+            #after the last query
                 combined_queries += query + query_combinator
             combined_queries += queries[-1]
             return query_template + where + combined_queries
         elif len(queries) == 1: # simple query, no combination needed
             query = queries[0] # list with one string element --> string
-            #print "type(queries): {0}, len(queries): {1}".format(type(queries), len(queries))
             return query_template + where + query
         else: #empty query
             return query_template # query will show all books in the db
@@ -229,8 +230,6 @@ class Query:
         """
         If you print a C{Query} instance, it will return the query strings 
         that will be send to the database.
-        
-        @rtype: C{str}
         """
         ret_str = "The arguments (parsed from the command line): " + \
             "{0}\nhave resulted in the following SQL query:".format(self.query_args) + \
@@ -257,8 +256,8 @@ class Results:
         parameters does a result match). possible_matches will be used by 
         a C{Books} instance to find the n-best matching books.
         
-        @type q: instance of class C{Query}
-        @param q: an instance of the class Query()
+        @type query: instance of class C{Query}
+        @param query: an instance of the class Query()
         """
         self.and_query_results = []
         self.or_query_results = []
@@ -291,8 +290,16 @@ class Results:
             
     def get_number_of_possible_matches(self):
         """
-        counts the number of query paramters that could be matched by books from the results set. 
-        example: keywords = pragmatics, keywords = semantics, language = German --> possible_matches = 3
+        Counts the number of query paramters that I{could} be matched by books 
+        from the results set. The actual scoring of books takes place in 
+        I{Books.get_book_ranks()}.
+        
+        For example, if a query contains the parameters::
+        
+            keywords = pragmatics, keywords = semantics, language = German
+            
+        it means that a book could possible match 3 parameters 
+        (possible_matches = 3).
         
         @return: the number of possible matches
         @rtype: C{int}
@@ -313,14 +320,27 @@ class Results:
     def get_table_header(self, table_name):
         """
         get the column names (e.g. title, year, authors) and their index from the books table of the db and return them as a dictionary.
+        
+        @param table_name: name of a database table, e.g. 'books'
+        @type table_name: C{str}
+        
+        @return: a dictionary, which contains the names of the table columns 
+        as keys and their index as values
+        @rtype: C{dict}, with C{str} keys and C{int} values
         """
         table_info = self.curs.execute('PRAGMA table_info({0})'.format(table_name))
         db_columns = {}
-        for index, name, type, notnull, dflt_value, pk in table_info:
+        for index, name, data_type, notnull, dflt_value, pk in table_info:
             db_columns[name.encode(DEFAULT_ENCODING)] = index
         return db_columns
 
     def __str__(self):
+        """
+        prints the number of results and if boolean AND or boolean OR has 
+        been used to gather at least self.minresults number of books
+        
+        @rtype: C{str}
+        """
         ret_str = "The query:\n{0}\n\nreturned ".format(self.and_query) + \
             "{0} result(s):\n\n".format(len(self.and_query_results))
         for book in self.and_query_results:
@@ -334,16 +354,21 @@ class Results:
         
 class Books:
     """
-    a Books() instance represents ALL books that were found by a database query 
-    as a list of Book() instances saved to self.books 
+    a C{Books} instance stores I{all} books that were found by a database query 
+    as a list of C{Book} instances in I{self.books} 
     """
 
     def __init__ (self, results):
         """
-        @type results: C{Results}
-        @param results: an instance of the class Results() containing the results from a database query
+        This constructor generates a list of C{Book} instances (saved in 
+        I{self.books}), each representing one book retrieved from a database 
+        query. Additionally, this method will attach a score to each book 
+        (depending on the number of query parameters it matches) using the 
+        I{get_book_ranks()} method.
 
-        This method generates a list of Book() instances (saved as self.books), each representing one book from a database query.
+        @param results: a C{Results} instance containing the results from a 
+        database query
+        @type results: C{Results}
         """
         self.query_args = results.query_args # original query arguments for debugging
         self.query_type = results.query_type
@@ -354,7 +379,9 @@ class Books:
             book_item = Book(result, results.db_columns, results.query_args)
             self.books.append(book_item)
         
-        if self.query_type == 'and': #since all 'AND query' results match all query parameters, there score will always be 1.0
+        if self.query_type == 'and': 
+            #since all 'AND query' results match all query parameters, their score 
+            #will always be 1.0
             self.scores = [1.0 for book in range(len(self.books))]
         elif self.query_type == 'or':
             book_ranks = self.get_book_ranks(results.possible_matches)
@@ -364,7 +391,16 @@ class Books:
                  
     def get_book_ranks(self, possible_matches):
         """
-        'OR query' results do not match all query parameters, therefore we'll need to rank them
+        ranks 'OR query' results according to the number of query parameters 
+        they match.
+        
+        @param possible_matches: the number of (meaningful) parameters of the 
+        query.
+        @int possible_matches: C{int}
+        
+        @return: a list of tuples, where each tuple consists of the score of 
+        a book and its index in C{self.books}
+        @rtype: C{list} of (C{float}, C{int}) tuples
         """
         scores = []
         for index, book in enumerate(self.books):
@@ -373,10 +409,14 @@ class Books:
         return sorted(scores, reverse=True) #best (highest) scores first
 
     def __str__(self):
+        """
+        prints the index, book score and database key value pairs about each 
+        book that the query returned.
+        """
         return_string = ""
         if self.query_type == 'and': #since all 'AND query' results match all query parameters, the score is always 1.0
             for index, book in enumerate(self.books):
-                book_string = "index: {0}\n{1}\n".format(index, book.__str__())
+                book_string = "index: {0}, score: 1.0\n{1}\n".format(index, book.__str__())
                 return_string += book_string
             return return_string
         elif self.query_type == 'or':
@@ -386,20 +426,44 @@ class Books:
             return return_string
 
 class Book:
-    """ a Book() instance represents ONE book from a database query """
+    """
+    a C{Book} instance represents I{one} book from a database query
+    """
     def __init__ (self, db_item, db_columns, query_args):
         """
-        fill Book() instance w/ metadata from the db
+        Fills a C{Book} instance with metadata from the database. Typical 
+        book metadata will look like this::
 
-        @type db_item: C{tuple}
+            language:		English
+            title:		Computational Linguistics. An Introduction.
+            pagerange:		0
+            query_args:		Namespace(codeexamples=None, exercises=None, 
+                            keywords=None, language=None, minresults=2, 
+                            pagerange=None, proglang=None, target=None)
+            year:		1986
+            codeexamples:		0
+            proglang:		set([])
+            exercises:		1
+            book_matches:		0
+            authors:		set(['Ralph Grishman'])
+            keywords:		set(['generation', 'discourse', 'semantics', 
+                            'parsing'])
+            pages:		193
+            
+        All key value pairs from the database are encoded from unicode 
+        to UTF8 and the number of query parameters that a book matches is 
+        calculated via I{get_number_of_book_matches()}.
+
         @param db_item: an item from the C{sqlite3.Cursor} object that contains
         the results from the db query.
+        @type db_item: C{tuple}        
         
+        @param db_columns: a dictionary of table columns (e.g. title, authors) 
+        from the database
         @type db_columns: C{dict}
-        @param db_columns: a dictionary of table columns (e.g. title, authors) from the database
         
-        @type query_args: C{argparse.Namespace}
         @param query_args: a key/value store containing the original user query
+        @type query_args: C{argparse.Namespace}
         """
         self.query_args = query_args #needed for generating query facts later on
         
@@ -431,6 +495,11 @@ class Book:
         self.book_matches = self.get_number_of_book_matches()
 
     def get_number_of_book_matches(self):
+        """
+        calculates the number of query parameters that a book matches
+        
+        @rtype: C{int}
+        """
         book_matches = 0
         simple_attributes = ['codeexamples', 'exercises', 'language', 'pagerange', 'target']
         complex_attributes = ['keywords', 'proglang'] # may contain more than 1 value
@@ -446,6 +515,9 @@ class Book:
         return book_matches
         
     def __str__(self):
+        """
+        prints the book metadata gathered from the database
+        """
         return_string = ""
         for key, value in self.__dict__.iteritems():
             return_string += "{0}:\t\t{1}\n".format(key, value)
