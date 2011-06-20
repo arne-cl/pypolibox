@@ -866,8 +866,8 @@ def __bottom_up_search(messages, rules):
         try:
             options = [rule.get_options(messages) for rule in rules]
         except:
-            raise Exception('EPIC FAIL: Rule {0} had trouble with these messages: {1}'.format(rule, messages))
-            print "BOO" #TODO: remove after debugging
+            raise Exception('ERROR: Rule {0} had trouble with these messages: {1}'.format(rule, messages))
+            print "ERROR" #TODO: remove after debugging
             
         options = flatten(options)
         options_list = []

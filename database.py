@@ -89,7 +89,8 @@ class Query:
             
         if args.keywords is not None:
             for keyword in args.keywords:
-                self.queries.append(self.__substring_query("keywords", keyword))
+                self.queries.append(self.__substring_query("keywords", 
+                                                           keyword))
         if args.language is not None:
             self.queries.append(self.__string_query("lang", args.language))
         if args.proglang is not None:
@@ -98,7 +99,8 @@ class Query:
         if args.pagerange is not None:
             self.queries.append(self.__pages_query(args.pagerange))
         if args.target is not None:
-            #confusion: in the db, advanced is encoded as "3" --> blame JPolibox
+            # confusion: in the db, advanced is encoded as "3"
+            # --> blame JPolibox ;)
             target_error = """target should be: 0 (beginner), 1 
             (intermediate), 2 (advanced) or 3 (professional)"""
             assert args.target in (0, 1, 2, 3), target_error
@@ -107,12 +109,15 @@ class Query:
             exercises_error = """exercises value should be either 0 (books 
             should have no exercises) or 1 (book should have exercises)"""
             assert args.exercises in (0, 1), exercises_error
-            self.queries.append(self.__equals_query("exercises", args.exercises))
+            self.queries.append(self.__equals_query("exercises", 
+                                                    args.exercises))
         if args.codeexamples is not None:
-            codeexamples_error = """codeexamples value should be either 0 (books 
-            should have no code examples) or 1 (book should have code examples)"""
+            codeexamples_error = """codeexamples value should be either 0 
+            (books should have no code examples) or 1 (book should have code 
+            examples)"""
             assert args.codeexamples in (0, 1), codeexamples_error
-            self.queries.append(self.__equals_query("examples", args.codeexamples))
+            self.queries.append(self.__equals_query("examples", 
+                                                    args.codeexamples))
         if args.minresults is not None:
             assert args.minresults > 0, """the minimal number of results must 
             be 1"""
@@ -194,8 +199,9 @@ class Query:
 
         @return: a part of a simple SQL query, e.g. 'keyword like %semantics%'
         @rtype: C{str}
-        """      
-        sql_substring = "'%{0}%'".format(substring) # keyword --> '%keyword%' for SQL LIKE queries
+        """
+        # keyword --> '%keyword%' for SQL LIKE queries
+        sql_substring = "'%{0}%'".format(substring)
         substring_query = "{0} like {1}".format(sql_column, sql_substring)
         return substring_query
     
@@ -271,7 +277,9 @@ class Results:
         conn = sqlite3.connect(DB_FILE)
         self.curs = conn.cursor()
         
-        self.db_columns = self.get_table_header(BOOK_TABLE_NAME) #NOTE: this has to be done BEFORE the actual query, otherwise we'll overwrite the cursor!
+        # NOTE: this has to be done BEFORE the actual query,
+        # otherwise we'll overwrite the cursor!
+        self.db_columns = self.get_table_header(BOOK_TABLE_NAME)
         
         and_sql_cursor = self.curs.execute(self.and_query)
         for result in and_sql_cursor:
@@ -280,7 +288,12 @@ class Results:
             self.possible_matches = self.get_number_of_possible_matches()
             self.query_results = self.and_query_results
             self.query_type = 'and'
-        else: # if 'AND query' doesn't return enough results ... TODO: this should only be executed if the and_query has too few results AND that query consists of more than one parameter -- otherwise, it won't improve results in this case.
+            
+        # if 'AND query' doesn't return enough results ...
+        # TODO: this 'else block' only needs to be executed if the and_query 
+        # has too few results AND that query consists of more than one 
+        # parameter -- otherwise, it won't improve results.
+        else:
             or_sql_cursor = self.curs.execute(query.or_query)
             for result in or_sql_cursor:
                 self.or_query_results.append(result)
@@ -309,7 +322,7 @@ class Results:
                           if param is not 'minresults'
                           if self.query_args.__getattribute__(param) is not None]
         self.values = map(self.query_args.__getattribute__, self.params)
-        #self.items = zip(self.params, self.values)
+
         for value in self.values:
             if type(value) == list:
                 possible_matches += len(value)
@@ -319,7 +332,8 @@ class Results:
         
     def get_table_header(self, table_name):
         """
-        get the column names (e.g. title, year, authors) and their index from the books table of the db and return them as a dictionary.
+        get the column names (e.g. title, year, authors) and their index from 
+        the books table of the db and return them as a dictionary.
         
         @param table_name: name of a database table, e.g. 'books'
         @type table_name: C{str}
@@ -370,7 +384,8 @@ class Books:
         database query
         @type results: C{Results}
         """
-        self.query_args = results.query_args # original query arguments for debugging
+        # original query arguments for debugging
+        self.query_args = results.query_args
         self.query_type = results.query_type
         self.books = []
         sorted_books = []
@@ -380,14 +395,15 @@ class Books:
             self.books.append(book_item)
         
         if self.query_type == 'and': 
-            #since all 'AND query' results match all query parameters, their score 
-            #will always be 1.0
+            #since all 'AND query' results match all query parameters,
+            #their score will always be 1.0
             self.scores = [1.0 for book in range(len(self.books))]
         elif self.query_type == 'or':
             book_ranks = self.get_book_ranks(results.possible_matches)
             for (score, index) in book_ranks:
                 sorted_books.append( (self.books[index], score) )
-            self.books, self.scores = zip(*sorted_books) #magic unzip / reverse zip function
+            #magic unzip / reverse zip function    
+            self.books, self.scores = zip(*sorted_books)
                  
     def get_book_ranks(self, possible_matches):
         """
@@ -414,14 +430,19 @@ class Books:
         book that the query returned.
         """
         return_string = ""
-        if self.query_type == 'and': #since all 'AND query' results match all query parameters, the score is always 1.0
+        # since all 'AND query' results match all query parameters,
+        # the score is always 1.0
+        if self.query_type == 'and':
             for index, book in enumerate(self.books):
-                book_string = "index: {0}, score: 1.0\n{1}\n".format(index, book.__str__())
+                book_string = "index: {0}, score: 1.0\n{1}\n".format(index, 
+                                                                book.__str__())
                 return_string += book_string
             return return_string
         elif self.query_type == 'or':
             for index, book in enumerate(self.books):
-                book_string = "index: {0}, score: {1}\n{2}\n".format(index, self.scores[index],  book.__str__())
+                book_string = "index: {0}, score: {1}\n{2}\n".format(index, 
+                                                            self.scores[index],
+                                                            book.__str__())
                 return_string += book_string
             return return_string
 
@@ -465,7 +486,8 @@ class Book:
         @param query_args: a key/value store containing the original user query
         @type query_args: C{argparse.Namespace}
         """
-        self.query_args = query_args #needed for generating query facts later on
+        #needed for generating query facts later on
+        self.query_args = query_args
         
         self.title = db_item[db_columns["title"]].encode(DEFAULT_ENCODING)
         self.year = db_item[db_columns["year"]]
@@ -501,11 +523,15 @@ class Book:
         @rtype: C{int}
         """
         book_matches = 0
-        simple_attributes = ['codeexamples', 'exercises', 'language', 'pagerange', 'target']
-        complex_attributes = ['keywords', 'proglang'] # may contain more than 1 value
+        simple_attributes = ['codeexamples', 'exercises', 'language', 
+                             'pagerange', 'target']
+        
+        # may contain more than 1 value
+        complex_attributes = ['keywords', 'proglang']
         
         for simple_attrib in simple_attributes:
-            if self.query_args.__getattribute__(simple_attrib) == getattr(self, simple_attrib):
+            if self.query_args.__getattribute__(simple_attrib) == getattr(self,
+                                                                simple_attrib):
                 book_matches += 1
         for complex_attrib in complex_attributes:
             if self.query_args.__getattribute__(complex_attrib) is not None:
