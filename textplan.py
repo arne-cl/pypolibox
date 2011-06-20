@@ -60,6 +60,7 @@ class Message(nltk.featstruct.FeatDict):
         if msgType: 
             self[nltk.featstruct.Feature('msgType', display='prefix')] = msgType
 
+
 class Messages:
     """
     represents all C{Message} instances generated from C{Propositions} about a 
@@ -178,11 +179,37 @@ class Messages:
         return msg
 
     def add_identification_to_message(self, message):
+        """
+        Adds special 'reference_title' and 'reference_authors' attributes to 
+        messages other than the I{id_message}. 
+        
+        In contrast to the I{id_message}, other messages will not be used to 
+        produce sentences that contain their content (i.e. no statement of the 
+        'author X wrote book Y in 1979' generated from an 'extra_message' or a 
+        'lastbook_nomatch' message). Nevertheless, they will need to make 
+        reference to the title and the authors of the book (e.g. 'Y is a 
+        rather short book'). As an example, look at this 'usermodel_match' 
+        message::
+        
+            [ *msgType*           = 'usermodel_match'                     ]
+            [ *reference_authors* = frozenset(['Ulrich Schmitz'])         ]
+            [ *reference_title*   = 'Computerlinguistik. Eine Einführung' ]
+            [ language            = 'German'                              ]
+            [ proglang            = frozenset(['Lisp'])                   ]
+            
+        The message contains two bits of information (the language and 
+        programming language used), which both have regular strings as keys. 
+        The 'referential' keys on the other hand are C{nltk.Feature} 
+        instances and not strings. This distinction should be regarded as 
+        a syntactic trick used to emphasize a semantic differce (READ: if you 
+        have a better solution, please change it).
+        """
         for attrib in ('title', 'authors'):
             value, rating = self.propositions['id'][attrib]
             if type(value) == set: 
                 value = frozenset(value)
-            message.update({attrib: value})
+            reference = Feature("reference_"+attrib)
+            message.update({reference: value})
         return message
         
     def __str__(self):
