@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# Author: Arne Neumann <arne-neumann@web.de>
 
 """
 The I{textplan} module is based on Nicholas FitzGerald's I{py_docplanner}[1], 
@@ -58,7 +59,8 @@ class Message(nltk.featstruct.FeatDict):
         is specified by the user.
         """
         if msgType: 
-            self[nltk.featstruct.Feature('msgType', display='prefix')] = msgType
+            self[nltk.featstruct.Feature('msgType', 
+                                         display='prefix')] = msgType
 
 
 class Messages:
@@ -364,7 +366,7 @@ class Rule(object):
         @type name: string
         
         @param ruleType: The name of the relationship type this Rule specifies.
-        @type ruleTupe: string
+        @type ruleType: string
             
         @param conditions: a list of strings which will be evaluated as 
         conditions for applying the rule. These should return True or False 
@@ -405,17 +407,21 @@ class Rule(object):
         return ret
 
     def get_options(self, messages):
-        """these main method used for document planning 
-        
+        """
+        this is the main method used for document planning 
+            
         From the list of C{Messages}, I{get_options} selects all possible ways 
         the Rule could be applied.
 
-        The planner can then select -- with the __bottom_up_search function -- 
-        one of these possible applications of the Rule to use.
+        The planner can then select with the L{textplan.__bottom_up_search} 
+        function one of these possible applications of the Rule to use.
         
         I{non_empty_message_combinations} is a list of combinations, where each
         combination is a (nucleus, satellite)-tuple. both the nucleus and the 
         satellite each consist of a (name, message) tuple.
+
+        The method returns an empty list if I{get_options} can't find a way 
+        to apply the I{Rule}.
 
         @type messages: list of C{Message} objects
         @param messages: a list of C{Message} objects, each containing one 
@@ -424,36 +430,35 @@ class Rule(object):
         @rtype: empty list or a list containing one C{tuple} of (C{int}, 
         C{ConstituentSet}, C{list}), where C{list} consists of C{Message} 
         or C{ConstituentSet} objects 
-        @return: a list containing one 3-tuple 
-        (score, C{ConstituentSet}, inputs}) where:
-            score is the evaluated heuristic score for this application 
-                of the Rule
-            const_set is the new C{ConstituentSet} returned by the application 
-                of the Rule
-            inputs is the list of inputs (C{Message}s or C{ConstituentSets} 
-                used in this application of the rule
-        The method returns an empty list if I{get_options} can't find a way 
-        to apply the I{Rule}.
+        @return: a list containing one 3-tuple (score, C{ConstituentSet}, 
+        inputs) where: 
+            - score is the evaluated heuristic score for this application of 
+            the Rule 
+            - ConstituentSet is the new C{ConstituentSet} instance returned by 
+            the application of the Rule
+            - inputs is the list of inputs (C{Message}s or C{ConstituentSets} 
+            used in this application of the rule 
         """
         self.messages = messages # will be used by self.__name_eval()
         nucleus_candidates = []
         satellite_candidates = []
 
         for message_prototype in self.nucleus:
-            nucleus_candidates.extend( self.find_message_candidates(messages, message_prototype) )
+            nucleus_candidates.extend(self.find_message_candidates(messages, 
+                                                            message_prototype))
 
         for message_prototype in self.satellite:
-            satellite_candidates.extend( self.find_message_candidates(messages, message_prototype) )
+            satellite_candidates.extend(self.find_message_candidates(messages,
+                                                            message_prototype))
         
-        possible_msg_combinations = list(itertools.product(nucleus_candidates, satellite_candidates)) #cartesian product (all possible combinations) of nucleus and satellite messages 
+        # cartesian product (all possible combinations) 
+        # of nucleus and satellite messages
+        possible_msg_combinations = list(itertools.product(nucleus_candidates,  
+                                                        satellite_candidates)) 
         
         condition_matching_combinations = self.get_satisfactory_groups(possible_msg_combinations) #remove messages which do not satisfy conditions
         
         non_empty_message_combinations = [msgs for msgs in condition_matching_combinations if msgs != [] ] # remove empty messages
-
-        self.combinations = non_empty_message_combinations #TODO: remove after debugging
-        
-        #return nucleus_candidates, satellite_candidates, possible_msg_combinations, condition_matching_combinations, non_empty_message_combinations #TODO: remove
  
         options_list = []
         inputs = []

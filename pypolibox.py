@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# Author: Arne Neumann <arne-neumann@web.de>
 
 """
-I{pypolibox} is part of a database-to-text generation (NLG) software built on 
-Python 2.6, the Natural Language Toolkit I{NLTK} and Nicholas Fitzgerald's 
-I{pydocplanner}. pypolibox is a reimplementation of I{JPolibox} and therefore 
-shares some of its oddities. 
-
-External dependencies: python2.6, python-nltk, python-argparse
+The pypolibox module is the 'main' module of the pypolibox package. It's the 
+module you'd usually call from the command line or load into your Python 
+interpreter. It just imports all the important modules and runs some demo 
+code in case it is run from the command line without any arguments.
 """
 
 import sys

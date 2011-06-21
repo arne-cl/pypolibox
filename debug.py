@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# Author: Arne Neumann <arne-neumann@web.de>
+
+"""
+The I{debug} module contains a number of functions, which can be used to test 
+the behaviour of pypolibox' classes, test its error handling or simply 
+provides short cuts to generate frequently needed data.
+"""
 
 from nltk.featstruct import Feature
 from database import Query, Results, Books
@@ -45,7 +52,7 @@ def test_all_TextPlans():
     all_TextPlans = []
     for argnumber, arg in enumerate(testqueries):
         print "generating TextPlans for the query:{0}\n".format(arg)
-        TextPlans = genTextPlans(argnumber)
+        TextPlans = gentextplans(argnumber)
         print "generated {0} TextPlans".format(len(TextPlans))
         for i, TextPlan in enumerate(TextPlans):
             if TextPlan == None:

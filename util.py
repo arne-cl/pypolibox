@@ -1,3 +1,11 @@
+# Author: Arne Neumann <arne-neumann@web.de>
+
+"""
+The C{util} module contains a number of 'bread and butter' functions that are 
+needed to run pypolibox, but are not particularly interesting (e.g. format 
+converters, existence checks etc.).
+"""
+
 import re
 
 def flatten(nested_list):

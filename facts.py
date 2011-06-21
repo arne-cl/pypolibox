@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# Author: Arne Neumann <arne-neumann@web.de>
 
 """
 The I{facts} module takes the information stored in C{Book} instances and 

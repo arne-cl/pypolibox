@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# Author: Arne Neumann <arne-neumann@web.de>
 
 """
 The I{database} module is responsible for parsing the user's requirements 
@@ -412,7 +413,7 @@ class Books:
         
         @param possible_matches: the number of (meaningful) parameters of the 
         query.
-        @int possible_matches: C{int}
+        @type possible_matches: C{int}
         
         @return: a list of tuples, where each tuple consists of the score of 
         a book and its index in C{self.books}
