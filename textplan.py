@@ -59,8 +59,7 @@ class Message(nltk.featstruct.FeatDict):
         is specified by the user.
         """
         if msgType: 
-            self[nltk.featstruct.Feature('msgType', 
-                                         display='prefix')] = msgType
+            self[nltk.featstruct.Feature('msgType')] = msgType
 
 
 class Messages:
