@@ -8,6 +8,15 @@ converters, existence checks etc.).
 
 import re
 
+def ensure_utf8(string):
+    """
+    ensures that a string does not use unicode but UTF8
+    """
+    if type(string) == unicode:
+        string = string.encode("UTF8")
+    return string
+
+
 def flatten(nested_list):
     """flattens a list, where each list element is itself a list
     
