@@ -2,6 +2,24 @@
 # -*- coding: utf-8 -*-
 # Author: Arne Neumann <arne-neumann@web.de>
 
+"""
+TODO: write argmatch() or use a list e.g. for PATIENS = ["code", "examples"]
+TODO: check active vs. passive plus theta roles. check if passive forms in 
+HLDS specifically mention AUX (e.g. herausbringen --> WURDE herausgebracht)
+
+TODO: think about alternations. these should not be part of the lexicon, 
+though.
+
+    Code: Code-Beispiele, $Programmiersprache-Code, Code in der 
+    Programmiersprache $Programmiersprache
+    
+    Autor: der Autor, $Vorname $Nachname, der Autor $Vorname $Nachname, $Nachname
+    Autoren: die Autoren, $Vorname1 $Nachname1 und $Vorname2 $Nachname2, die 
+    Autoren $Nachname1 und $Nachname2, $Nachname1 und $Nachname2
+       
+"""
+
+import re
 
 class Entry(object):
     """
@@ -114,7 +132,7 @@ class Entries():
         Das Buch X (von Noam Chomksy) wurde (im Jahr 2000 | im ABC-Verlag)+ 
         herausgebracht.
     
-        TODO: should be logically equiv. to 3a
+        TODO: should be logically equiv. to publish3a
         TODO: passiv: AGENS == ""?
         TODO: prät: wurde herausgebracht?
         """
@@ -133,7 +151,7 @@ class Entries():
         Das Buch X (von Noam Chomksy) kam (im Jahr 2000 | im ABC-Verlag)+ 
         heraus.
     
-        TODO: should be logicalle equiv. to 3a/3b
+        TODO: should be logically equiv. to publish3a/3b
         TODO: passiv: AGENS == ""?
         TODO: prät: kam heraus?
         """
@@ -163,22 +181,437 @@ class Entries():
                       grammatical_restrictions)
         return entry
 
+    def genentry_write1a(self):
+        """
+        Noam Chomsky schrieb das Buch "On Syntax".
+        """
+        required_args = ["author", "title"]
+        optional_args = []
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "prät", "AGENS": "author", 
+                                    "PATIENS": "title"}
+        entry = Entry("schreiben:1", "schreiben", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_write1b(self):
+        """
+        Noam Chomsky verfasste das Buch "On Syntax".
+        
+        TODO: should be logically equiv. to write1a
+        """
+        required_args = ["author", "title"]
+        optional_args = []
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "prät", "AGENS": "author", 
+                                    "PATIENS": "title"}
+        entry = Entry("verfassen:1", "verfassen", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_write2a(self):
+        """
+        Das Buch "On Syntax" wurde von Chomsky geschrieben.
+        
+        TODO: passive
+        """
+        required_args = ["author", "title"]
+        optional_args = []
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "prät", "AGENS": "", 
+                                    "PATIENS": "title"}
+        entry = Entry("schreiben:2", "schreiben", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_write2b(self):
+        """
+        Das Buch "On Syntax" wurde von Chomsky verfasst.
+        
+        TODO: passive
+        TODO: should be logically equiv. to write2a
+        """
+        required_args = ["author", "title"]
+        optional_args = []
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "prät", "AGENS": "", 
+                                    "PATIENS": "title"}
+        entry = Entry("verfassen:2", "verfassen", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_topics1a(self):
+        """
+        (Das Buch) X (des Autors Y) befasst sich mit den Themen A, B und C.
+        
+        TODO: reflexiv
+        """
+        required_args = ["title", "keywords"]
+        optional_args = ["author"]
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
+                                    "PATIENS": "keywords"}
+        entry = Entry("befassen:1", "befassen", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+    
+    def genentry_topics1b(self):
+        """
+        (Das Buch) X (des Autors Y) beschäftigt sich mit den Themen A, B und C.
+        
+        TODO: reflexiv
+        TODO: should be logically equiv. to topics1a
+        """
+        required_args = ["title", "keywords"]
+        optional_args = ["author"]
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
+                                    "PATIENS": "keywords"}
+        entry = Entry("beschäftigen:1", "beschäftigen", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_topics1b(self):
+        """
+        (Das Buch) X (des Autors Y) beschäftigt sich mit den Themen A, B und C.
+        
+        TODO: reflexiv
+        TODO: should be logically equiv. to topics1a
+        """
+        required_args = ["title", "keywords"]
+        optional_args = ["author"]
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
+                                    "PATIENS": "keywords"}
+        entry = Entry("beschäftigen:1", "beschäftigen", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+    
+    def genentry_topics1c(self):
+        """
+        (Das Buch) X (des Autors Y) behandelt die Themen A, B und C.
+
+        TODO: should be logically equiv. to topics1a/1b, but is non-reflexive
+        """
+        required_args = ["title", "keywords"]
+        optional_args = ["author"]
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
+                                    "PATIENS": "keywords"}
+        entry = Entry("behandeln:1", "behandeln", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_topics1d(self):
+        """
+        (Das Buch) X (des Autors Y) deckt die Themen A, B und C ab.
+
+        TODO: should be logically equiv. to topics1a/1b/1c, 
+              but is non-reflexive
+        """
+        required_args = ["title", "keywords"]
+        optional_args = ["author"]
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
+                                    "PATIENS": "keywords"}
+        entry = Entry("abdecken:1", "abdecken", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_topics2a(self):
+        """
+        (Der Autor) Noam Chomsky befasst sich ((im Buch | in)+ "On Syntax") mit 
+        den Themen A, B und C.
+        
+        NOTE: if we had more time, we could add "in seinem/ihrem" Buch 
+        (requires gender info in the database)
+        """
+        required_args = ["author", "keywords"]
+        optional_args = ["title"]
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "author", 
+                                    "PATIENS": "keywords"}
+        entry = Entry("befassen:2", "befassen", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_topics2b(self):
+        """
+        (Der Autor) Noam Chomsky beschäftigt sich ((im Buch | in)+ "On 
+        Syntax") mit den Themen A, B und C.
+        
+        NOTE: if we had more time, we could add "in seinem/ihrem" Buch 
+        (requires gender info in the database)
+        """
+        required_args = ["author", "keywords"]
+        optional_args = ["title"]
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "author", 
+                                    "PATIENS": "keywords"}
+        entry = Entry("beschäftigen:2", "beschäftigen", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_topics2c(self):
+        """
+        (Der Autor) Noam Chomsky behandelt ((im Buch | in)+ "On 
+        Syntax") die Themen A, B und C.
+        
+        NOTE: if we had more time, we could add "in seinem/ihrem" Buch 
+        (requires gender info in the database)
+        """
+        required_args = ["author", "keywords"]
+        optional_args = ["title"]
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "author", 
+                                    "PATIENS": "keywords"}
+        entry = Entry("behandeln:2", "behandeln", "V",
+                      required_args, optional_args, plus_args, grammatical_restrictions)
+        return entry
+
+    def genentry_topics2d(self):
+        """
+        (Der Autor) Noam Chomsky deckt ((im Buch | in)+ "On 
+        Syntax") die Themen A, B und C.
+        
+        NOTE: if we had more time, we could add "in seinem/ihrem" Buch 
+        (requires gender info in the database)
+        """
+        required_args = ["author", "keywords"]
+        optional_args = ["title"]
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "author", 
+                                    "PATIENS": "keywords"}
+        entry = Entry("abdecken:2", "abdecken", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_code_exercises1(self):
+        """
+        (Conrad Barskys) "Land of Lisp" enthält zahlreiche Übungen/Code-Bsps.
+        
+        TODO: grammatical_restrictions require pattern matching (or just a 
+        list of str)?
+        """
+        required_args = ["title"]
+        optional_args = ["author"]
+        plus_args = ["code", "exercises"]
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
+                                    "PATIENS": ["code", "examples"]}
+        entry = Entry("enthalten:1", "enthalten", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_code_exercises2(self):
+        """
+        (Im Buch | In) "Land of Lisp" sind zahlreiche Übungen/Code-Bsp. 
+        vorhanden.
+        
+        TODO: grammatical_restrictions require pattern matching (or just a 
+        list of str)?
+        
+        TODO: passive?
+        TODO: is "sein" really an AUX here? vorhanden == ADJ?
+        """
+        required_args = ["title"]
+        optional_args = []
+        plus_args = ["code", "exercises"]
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
+                                    "PATIENS": ["code", "examples"], 
+                                    "AUX": "sein"}
+        entry = Entry("vorhanden:1", "vorhanden", "ADJ",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_code_exercises3a(self):
+        """
+        (Der Autor) C. Barsky verwendet zahlreiche Code-Bsp., um die Themen 
+        des Buches zu erklären.
+        (Der Autor) C. Barsky verwendet zahlreiche Code-Bsp. zur Erklärung 
+        (der Themen des Buches).
+
+        TODO: grammatical_restrictions require pattern matching (or just a 
+        list of str)?
+        
+        TODO: um zu + inf; zur V.nominalized
+        """
+        required_args = ["author", "code"]
+        optional_args = ["title"]
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
+                                    "PATIENS": ["code", "examples"]}
+        entry = Entry("erklären:1", "erklären", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_code_exercises3b(self):
+        """
+        (Der Autor) C. Barsky verwendet zahlreiche Code-Bsp., um die Themen 
+        des Buches zu erläutern.
+        (Der Autor) C. Barsky verwendet zahlreiche Code-Bsp. zur Erläuterung 
+        (der Themen des Buches).
+
+        TODO: should be logically equiv. to code_exercises3a
+        TODO: grammatical_restrictions require pattern matching (or just a 
+        list of str)?
+        
+        TODO: um zu + inf; zur V.nominalized
+        """
+        required_args = ["author", "code"]
+        optional_args = ["title"]
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
+                                    "PATIENS": ["code", "examples"]}
+        entry = Entry("erläuterung:1", "erläuterung", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_pages1a(self):
+        """
+        (Das Buch) "On Syntax" hat einen Umfang von $pages.
+        
+        TODO: hat == AUX??
+        """
+        required_args = ["title", "pages"]
+        optional_args = []
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
+                                    "PATIENS": "pages"}
+        entry = Entry("Umfang:1", "Umfang", "N",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_pages1b(self):
+        """
+        (Das Buch) "On Syntax" umfasst $pages Seiten.
+        """
+        required_args = ["title", "pages"]
+        optional_args = []
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
+                                    "PATIENS": "pages"}
+        entry = Entry("umfassen:1", "umfassen", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_pages1c(self):
+        """
+        (Das Buch) "On Syntax" ist $pages Seiten lang.
+        
+        TODO: sein == AUX?? ist lang
+        """
+        required_args = ["title", "pages"]
+        optional_args = []
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
+                                    "PATIENS": "pages"}
+        entry = Entry("lang:1", "lang", "ADJ",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_pages1d(self):
+        """
+        $pagerange::
+
+            0: (eher) kurz
+            1: durchschnittlich lang
+            2: sehr lang / sehr umfangreich
+
+        (Das Buch) "On Syntax" ist mit $pages Seiten $pagerange.
+        """
+        required_args = ["title", "pages", "pagerange"]
+        optional_args = []
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
+                                    "PATIENS": "pages", "AUX": "sein"}
+        entry = Entry("lang:1", "lang", "ADJ",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
 
 '''
 
-def genentry_template():
-    """
-    """
-    required_args = []
-    optional_args = []
-    plus_args = []
-    grammatical_restrictions = {"TEMP": "", "AGENS": "", 
-                                "PATIENS": ""}
-    entry = Entry("", "", ""
-                  required_args, optional_args, grammatical_restrictions)
-    return entry
+    def genentry_template(self):
+        """
+        """
+        required_args = []
+        optional_args = []
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "", "AGENS": "", 
+                                    "PATIENS": ""}
+        entry = Entry("", "", "",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
 
 '''
+
+def non_unique_ids(entries):
+    """
+    helper function that returns a list of lexicon IDs that occur more than 
+    once (which should not happen). returns None if everything is OK.
+    """
+    lex_id_list = []
+    for entry in entries.entries:
+        lex_id_list.append(entry.lex_id)
+    if len(lex_id_list) == len(set(lex_id_list)):
+        return None
+    else:
+        lex_id_set = set()
+        non_uniques = set()
+        for lex_id in lex_id_list:
+            if lex_id in lex_id_set:
+                non_uniques.add(lex_id)
+            else:
+                lex_id_set.add(lex_id)
+        return list(non_uniques)
+
+def argmatch(arg1, arg2):
+    """
+    helper function to check if two strings are equal OR if a regular 
+    expression matches a complete string. this could be used when ensuring 
+    that all grammatical_restrictions in the lexicon are met.
+    
+    IO specification::
+    
+        >>> argmatch("foo","foo")
+        True
+        >>> argmatch("foo","food")
+        False
+        >>> regex = re.compile("foo|bar")
+        >>> argmatch("foo", regex)
+        True
+        >>> argmatch("food", regex)
+        False
+        >>> argmatch(regex, "bar")
+        True
+        >>> argmatch(regex, "bart")
+        False                   
+    """
+    pass
 
 if __name__ == "__main__":
     entries = Entries()
+    non_uniques = non_unique_ids(entries)
+    if non_uniques:
+        raise Exception, \
+              "These lexicon IDs aren't unique: {0}".format(non_uniques)
