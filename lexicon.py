@@ -11,24 +11,26 @@ TODO: think about alternations. these should not be part of the lexicon,
 though.
 
     Code: Code-Beispiele, $Programmiersprache-Code, Code in der 
-    Programmiersprache $Programmiersprache
+          Programmiersprache $Programmiersprache
     
-    Autor: der Autor, $Vorname $Nachname, der Autor $Vorname $Nachname, $Nachname
-    Autoren: die Autoren, $Vorname1 $Nachname1 und $Vorname2 $Nachname2, die 
-    Autoren $Nachname1 und $Nachname2, $Nachname1 und $Nachname2
-       
-"""
+    Autor: der Autor, $Vorname $Nachname, der Autor $Vorname $Nachname, 
+           $Nachname
+    Autoren: die Autoren, $Vorname1 $Nachname1 und $Vorname2 $Nachname2, 
+             die Autoren $Nachname1 und $Nachname2, $Nachname1 und $Nachname2
+    Sprache: in deutscher Sprache, auf Deutsch, deutschsprachig
 
-import re
+NOTE: We neither have gender info for authors, nor do we know if a book was 
+written in language A (by the author) or was just translated by the publisher 
+afterwards!
+"""
 
 class Entry(object):
     """
     defines an entry in the lexicon
     """
-    def __init__(self, lex_id, lex_string, pos, required_args, 
+    def __init__(self, lex_id, pos, required_args, 
                  optional_args, plus_args, grammatical_restrictions):
         self.lex_id = lex_id
-        self.lex_string = lex_string
         self.pos = pos
         self.required_args = required_args
         self.optional_args = optional_args # regex: A?
@@ -54,7 +56,13 @@ class Entries():
             if method_name.startswith('genentry_'):
                 method = 'self.' + method_name + '()'
                 entry = eval(method) # calls a method that generates a rule
-                self.entries.append(entry)
+                if type(entry) == Entry:
+                    self.entries.append(entry)
+                elif type(entry) == list:
+                    self.entries.extend(entry)
+                    # we can't use append for rules which produce more than one 
+                    # entry
+
 
     ### authorship and publication rules
 
@@ -70,7 +78,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "prät", "AGENS": "author", 
                                     "PATIENS": "title"}
-        entry = Entry("veroeffentlichen:1", "veröffentlichen", "V",
+        entry = Entry("veröffentlichen:1", "V",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -86,7 +94,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "prät", "AGENS": "publisher", 
                                     "PATIENS": "title"}
-        entry = Entry("veroeffentlichen:2", "veröffentlichen", "V",
+        entry = Entry("veröffentlichen:2", "V",
                       required_args, optional_args, plus_args,
                       grammatical_restrictions)
         return entry
@@ -104,7 +112,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "prät", "AGENS": "publisher", 
                                     "PATIENS": "title"}
-        entry = Entry("herausbringen:1", "herausbringen", "V",
+        entry = Entry("herausbringen:1", "V",
                       required_args, optional_args, plus_args,
                       grammatical_restrictions)
         return entry
@@ -122,7 +130,7 @@ class Entries():
         plus_args = ["year", "publisher"]
         grammatical_restrictions = {"TEMP": "prät", "AGENS": "", 
                                     "PATIENS": "title"}
-        entry = Entry("veroeffentlichen:3", "veröffentlichen", "V",
+        entry = Entry("veröffentlichen:3", "V",
                       required_args, optional_args, plus_args,
                       grammatical_restrictions)
         return entry
@@ -141,7 +149,7 @@ class Entries():
         plus_args = ["year", "publisher"]
         grammatical_restrictions = {"TEMP": "prät", "AGENS": "", 
                                     "PATIENS": "title"}
-        entry = Entry("herausbringen:2", "herausbringen", "V",
+        entry = Entry("herausbringen:2", "V",
                       required_args, optional_args, plus_args,
                       grammatical_restrictions)
         return entry
@@ -160,7 +168,7 @@ class Entries():
         plus_args = ["year", "publisher"]
         grammatical_restrictions = {"TEMP": "prät", "AGENS": "", 
                                     "PATIENS": "title"}
-        entry = Entry("herauskommen", "herauskommen", "V",
+        entry = Entry("herauskommen", "V",
                       required_args, optional_args, plus_args,
                       grammatical_restrictions)
         return entry
@@ -176,7 +184,7 @@ class Entries():
         plus_args = ["year", "publisher"]
         grammatical_restrictions = {"TEMP": "prät", "AGENS": "title", 
                                     "PATIENS": ""}
-        entry = Entry("erscheinen", "erscheinen", "V",
+        entry = Entry("erscheinen", "V",
                       required_args, optional_args, plus_args,
                       grammatical_restrictions)
         return entry
@@ -190,7 +198,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "prät", "AGENS": "author", 
                                     "PATIENS": "title"}
-        entry = Entry("schreiben:1", "schreiben", "V",
+        entry = Entry("schreiben:1", "V",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -206,7 +214,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "prät", "AGENS": "author", 
                                     "PATIENS": "title"}
-        entry = Entry("verfassen:1", "verfassen", "V",
+        entry = Entry("verfassen:1", "V",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -222,7 +230,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "prät", "AGENS": "", 
                                     "PATIENS": "title"}
-        entry = Entry("schreiben:2", "schreiben", "V",
+        entry = Entry("schreiben:2", "V",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -239,7 +247,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "prät", "AGENS": "", 
                                     "PATIENS": "title"}
-        entry = Entry("verfassen:2", "verfassen", "V",
+        entry = Entry("verfassen:2", "V",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -255,7 +263,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
                                     "PATIENS": "keywords"}
-        entry = Entry("befassen:1", "befassen", "V",
+        entry = Entry("befassen:1", "V",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -272,24 +280,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
                                     "PATIENS": "keywords"}
-        entry = Entry("beschäftigen:1", "beschäftigen", "V",
-                      required_args, optional_args, plus_args, 
-                      grammatical_restrictions)
-        return entry
-
-    def genentry_topics1b(self):
-        """
-        (Das Buch) X (des Autors Y) beschäftigt sich mit den Themen A, B und C.
-        
-        TODO: reflexiv
-        TODO: should be logically equiv. to topics1a
-        """
-        required_args = ["title", "keywords"]
-        optional_args = ["author"]
-        plus_args = []
-        grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
-                                    "PATIENS": "keywords"}
-        entry = Entry("beschäftigen:1", "beschäftigen", "V",
+        entry = Entry("beschäftigen:1", "V",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -305,7 +296,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
                                     "PATIENS": "keywords"}
-        entry = Entry("behandeln:1", "behandeln", "V",
+        entry = Entry("behandeln:1", "V",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -322,7 +313,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
                                     "PATIENS": "keywords"}
-        entry = Entry("abdecken:1", "abdecken", "V",
+        entry = Entry("abdecken:1", "V",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -340,7 +331,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "präs", "AGENS": "author", 
                                     "PATIENS": "keywords"}
-        entry = Entry("befassen:2", "befassen", "V",
+        entry = Entry("befassen:2", "V",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -358,7 +349,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "präs", "AGENS": "author", 
                                     "PATIENS": "keywords"}
-        entry = Entry("beschäftigen:2", "beschäftigen", "V",
+        entry = Entry("beschäftigen:2", "V",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -376,8 +367,9 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "präs", "AGENS": "author", 
                                     "PATIENS": "keywords"}
-        entry = Entry("behandeln:2", "behandeln", "V",
-                      required_args, optional_args, plus_args, grammatical_restrictions)
+        entry = Entry("behandeln:2", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
         return entry
 
     def genentry_topics2d(self):
@@ -393,7 +385,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "präs", "AGENS": "author", 
                                     "PATIENS": "keywords"}
-        entry = Entry("abdecken:2", "abdecken", "V",
+        entry = Entry("abdecken:2", "V",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -410,7 +402,7 @@ class Entries():
         plus_args = ["code", "exercises"]
         grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
                                     "PATIENS": ["code", "examples"]}
-        entry = Entry("enthalten:1", "enthalten", "V",
+        entry = Entry("enthalten:1", "V",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -432,7 +424,7 @@ class Entries():
         grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
                                     "PATIENS": ["code", "examples"], 
                                     "AUX": "sein"}
-        entry = Entry("vorhanden:1", "vorhanden", "ADJ",
+        entry = Entry("vorhanden:1", "ADJ",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -454,7 +446,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
                                     "PATIENS": ["code", "examples"]}
-        entry = Entry("erklären:1", "erklären", "V",
+        entry = Entry("erklären:1", "V",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -477,7 +469,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
                                     "PATIENS": ["code", "examples"]}
-        entry = Entry("erläuterung:1", "erläuterung", "V",
+        entry = Entry("erläuterung:1", "V",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -493,7 +485,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
                                     "PATIENS": "pages"}
-        entry = Entry("Umfang:1", "Umfang", "N",
+        entry = Entry("Umfang:1", "N",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -507,7 +499,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
                                     "PATIENS": "pages"}
-        entry = Entry("umfassen:1", "umfassen", "V",
+        entry = Entry("umfassen:1", "V",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -523,7 +515,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
                                     "PATIENS": "pages"}
-        entry = Entry("lang:1", "lang", "ADJ",
+        entry = Entry("lang:1", "ADJ",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -538,15 +530,200 @@ class Entries():
 
         (Das Buch) "On Syntax" ist mit $pages Seiten $pagerange.
         """
+        entries = []
+        pageranges = {}
+        pageranges["0"] = {"lex_id": "kurz:1", "pos": "ADJ", "MOD": "eher"}
+        pageranges["1"] = {"lex_id": "lang:2", "pos": "ADJ", 
+                          "MOD": "durchschnittlich"}
+        pageranges["2"] = {"lex_id": "lang:3", "pos": "ADJ", "MOD": "sehr"}
+        
         required_args = ["title", "pages", "pagerange"]
         optional_args = []
         plus_args = []
-        grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
-                                    "PATIENS": "pages", "AUX": "sein"}
-        entry = Entry("lang:1", "lang", "ADJ",
+        
+        for _index, pagerange in pageranges.items():
+            grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
+                                        "PATIENS": "pagerange", "AUX": "sein",
+                                        "MOD": pagerange["MOD"]}
+
+            entry = Entry(pagerange["lex_id"], pagerange["pos"],
+                          required_args, optional_args, plus_args, 
+                          grammatical_restrictions)
+            entries.append(entry)
+        return entries
+
+    def genentry_language1(self):
+        """
+        (Das Buch) "On Syntax" ist (in deutscher Sprache | auf Deutsch) verfasst
+        """
+        required_args = ["title", "language"]
+        optional_args = []
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "", 
+                                    "PATIENS": "title"}
+        entry = Entry("verfassen:3", "V",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
+
+    def genentry_language2(self):
+        """
+        (Das Buch) "On Syntax" ist deutschsprachig.
+    
+        TODO: "sprachig" == part, particle of sth. or ADJ??
+    
+\item[erscheinen / wurde\_veröffentlicht] {\tt author?, title, publisher, language, year*} \\
+    (\$year) erschien \$title in im Verlag \$publisher in \$language Sprache.
+    \$author s \$title wurde \$year vom Verlag \$publisher auf \$language veröffentlicht.
+
+        """
+        required_args = ["title", "language"]
+        optional_args = []
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "", 
+                                    "PATIENS": "title", "AUX": "sein",
+                                    "MOD": "language"}
+        entry = Entry("sprachig:1", "PART",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_language3a(self):
+        """
+        (Chomsky's | Das Buch) "On Syntax" erschien (1963) (in englischer 
+        Sprache | auf Englisch) im ABC-Verlag.
+    
+    
+\item[erscheinen / wurde\_veröffentlicht] {\tt author?, title, publisher, language, year*} \\
+    (\$year) erschien \$title in im Verlag \$publisher in \$language Sprache.
+    \$author s \$title wurde \$year vom Verlag \$publisher auf \$language veröffentlicht.
+
+        """
+        required_args = ["title", "publisher", "language"]
+        optional_args = ["author", "year"]
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "prät", "AGENS": "", 
+                                    "PATIENS": "title"}
+        entry = Entry("erscheinen:1", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_language3b(self):
+        """
+        (Chomsky's | Das Buch) "On Syntax" wurde (1963) (in englischer 
+        Sprache | auf Englisch) im ABC-Verlag veröffentlicht.
+    
+        TODO: should be logically equiv. to language3a, but needs an AUX 
+        (sein/wurde)
+        """
+        required_args = ["title", "publisher", "language"]
+        optional_args = ["author", "year"]
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "prät", "AGENS": "", 
+                                    "PATIENS": "title", "AUX": "sein"}
+        entry = Entry("veröffentlichen:4", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_target1(self):
+        """
+        (Chomsky's | Das Buch) "On Syntax" richtet sich an $target
+
+        TODO: specify different targets (cf. pagerange differentiations)
+        """
+        required_args = ["title", "target"]
+        optional_args = ["author"]
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "title", 
+                                    "PATIENS": "target"}
+        entry = Entry("richten:1", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_target2(self):
+        """
+        Noam Chomsky richtet sich (in "On Syntax") an $target.
+        Der Autor richtet sich (im Buch) an ein $target-Publikum.
+        
+        NOTE: no gender info in database --> no "in seinem/ihrem Buch"
+        """
+        required_args = ["author", "target"]
+        optional_args = ["title"]
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "präs", "AGENS": "author", 
+                                    "PATIENS": "target"}
+        entry = Entry("richten:2", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_target3a(self):
+        """
+        (Das Buch) "On Syntax" wurde für $target geschrieben.
+        Das Buch wurde für ein $target-Publikum geschrieben.
+        """
+        required_args = ["title", "target"]
+        optional_args = []
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "prät", "AGENS": "", 
+                                    "PATIENS": "title"}
+        entry = Entry("schreiben:3", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_target3b(self):
+        """
+        (Das Buch) "On Syntax" wurde für $target verfasst.
+        Das Buch wurde für ein $target-Publikum verfasst.
+        
+        TODO: should be logically equivalent to target3a
+        """
+        required_args = ["title", "target"]
+        optional_args = []
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "prät", "AGENS": "", 
+                                    "PATIENS": "title"}
+        entry = Entry("verfassen:4", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_target4a(self):
+        """
+        (Der Autor) Noam Chomsky schrieb "On Syntax" für ($target | ein 
+        $target-Publikum).
+        """
+        required_args = ["author", "title", "target"]
+        optional_args = []
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "prät", "AGENS": "author", 
+                                    "PATIENS": "title"}
+        entry = Entry("schreiben:4", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
+    def genentry_target4b(self):
+        """
+        (Der Autor) Noam Chomsky verfasste "On Syntax" für ($target | ein 
+        $target-Publikum).
+    
+        TODO: should be logically equivalent to target4a
+        """
+        required_args = ["author", "title", "target"]
+        optional_args = []
+        plus_args = []
+        grammatical_restrictions = {"TEMP": "prät", "AGENS": "author", 
+                                    "PATIENS": "title"}
+        entry = Entry("verfassen:4", "V",
+                      required_args, optional_args, plus_args, 
+                      grammatical_restrictions)
+        return entry
+
 
 '''
 
@@ -558,7 +735,7 @@ class Entries():
         plus_args = []
         grammatical_restrictions = {"TEMP": "", "AGENS": "", 
                                     "PATIENS": ""}
-        entry = Entry("", "", "",
+        entry = Entry("", "",
                       required_args, optional_args, plus_args, 
                       grammatical_restrictions)
         return entry
@@ -585,29 +762,29 @@ def non_unique_ids(entries):
                 lex_id_set.add(lex_id)
         return list(non_uniques)
 
-def argmatch(arg1, arg2):
-    """
-    helper function to check if two strings are equal OR if a regular 
-    expression matches a complete string. this could be used when ensuring 
-    that all grammatical_restrictions in the lexicon are met.
+#def argmatch(arg1, arg2):
+    #"""
+    #helper function to check if two strings are equal OR if a regular 
+    #expression matches a complete string. this could be used when ensuring 
+    #that all grammatical_restrictions in the lexicon are met.
     
-    IO specification::
+    #IO specification::
     
-        >>> argmatch("foo","foo")
-        True
-        >>> argmatch("foo","food")
-        False
-        >>> regex = re.compile("foo|bar")
-        >>> argmatch("foo", regex)
-        True
-        >>> argmatch("food", regex)
-        False
-        >>> argmatch(regex, "bar")
-        True
-        >>> argmatch(regex, "bart")
-        False                   
-    """
-    pass
+        #>>> argmatch("foo","foo")
+        #True
+        #>>> argmatch("foo","food")
+        #False
+        #>>> regex = re.compile("foo|bar")
+        #>>> argmatch("foo", regex)
+        #True
+        #>>> argmatch("food", regex)
+        #False
+        #>>> argmatch(regex, "bar")
+        #True
+        #>>> argmatch(regex, "bart")
+        #False                   
+    #"""
+    #pass
 
 if __name__ == "__main__":
     entries = Entries()
