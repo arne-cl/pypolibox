@@ -18,7 +18,7 @@ def extract_lexemes(lexicon):
         # findall returns a list (could possibly contain more than 1 item) 
         # --> list.extend instead of list.append
         lexemes.extend(lexeme)
-    return sorted(lexemes)
+    return sorted(set(lexemes))
 
 def extract_lemmas(lexicon):
     lemmas = []
@@ -28,7 +28,7 @@ def extract_lemmas(lexicon):
         # findall returns a list (could possibly contain more than 1 item) 
         # --> list.extend instead of list.append
         lemmas.extend(lemma)
-    return sorted(lemmas)
+    return sorted(set(lemmas))
 
     
 def write_to_file(word_list, file_name):
@@ -36,4 +36,4 @@ def write_to_file(word_list, file_name):
     word_file = open(file_name, "w")
     for line in word_list:
             word_file.write("{0}\n".format(line))
-    f.close()
+    word_file.close()
