@@ -15,6 +15,7 @@ TEST = "testbedHLDS.xml" #TODO: remove after debugging
 
 class HLDSReader():
     """
+    represents a list of sentences parsed from a testbed file
     """
     def __init__(self, hlds, input_format="file"):
         self.indentation = -2
@@ -28,13 +29,66 @@ class HLDSReader():
             self.parse_sentences()
             
     def parse_sentences(self):
+        """
+        A sentence is represented as an <item> structure::
+        
+            <item numOfParses="4" string="er beschreibt sie">
+                <xml>
+                    <lf>
+                        <satop nom="b1:handlung">
+                            <prop name="beschreiben"/>
+                            <diamond mode="TEMP">
+                                <prop name="präs"/>
+                            </diamond>
+                            <diamond mode="AGENS">
+                                <nom name="x1:sem-obj"/>
+                                <diamond mode="PRO">
+                                    <prop name="perspro"/>
+                                </diamond>
+                                <diamond mode="GEN">
+                                    <prop name="mask"/>
+                                </diamond>
+                                <diamond mode="PERS">
+                                    <prop name="3te"/>
+                                </diamond>
+                                <diamond mode="NUM">
+                                    <prop name="sing"/>
+                                </diamond>
+                            </diamond>
+                            <diamond mode="PATIENS">
+                                <nom name="x2:sem-obj"/>
+                                <diamond mode="PRO">
+                                    <prop name="perspro"/>
+                                </diamond>
+                                <diamond mode="GEN">
+                                    <prop name="fem"/>
+                                </diamond>
+                                <diamond mode="PERS">
+                                    <prop name="3te"/>
+                                </diamond>
+                                <diamond mode="NUM">
+                                    <prop name="sing"/>
+                                </diamond>
+                            </diamond>
+                        </satop>
+                    </lf>
+                    <!--<target>er beschreibt sie</target>-->
+                </xml>
+            </item>
+        """
+
         self.test_sentences = self.tree.findall("item")
         self.sentences = []
         
         for sentence in self.test_sentences:
             root = sentence.find("xml/lf/satop") # root (verb) of the sentence
+            
+            # <item numOfParses="4" string="er beschreibt sie">
             sentence_string = ensure_utf8(sentence.attrib["string"])
             expected_parses = sentence.attrib["numOfParses"]
+
+            # <satop nom="b1:handlung">
+            #   <prop name="beschreiben"/>
             root_name = root.find("prop").attrib["name"]
             root_id = root.attrib["nom"]
             elements = []

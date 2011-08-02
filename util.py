@@ -16,6 +16,14 @@ def ensure_utf8(string):
         string = string.encode("UTF8")
     return string
 
+def ensure_unicode(string):
+    """
+    ensures that a string does use unicode instead of UTF8
+    """
+    if type(string) != unicode:
+        string = string.decode("UTF8")
+    return string
+
 
 def flatten(nested_list):
     """flattens a list, where each list element is itself a list
