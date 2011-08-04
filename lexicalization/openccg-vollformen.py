@@ -3,7 +3,7 @@
 # Author: Arne Neumann <arne-neumann@web.de>
 
 """
-This script extracts all lexemes from the OpenCCG JPolibox lexicon.
+This script extracts all lexemes/lemmas from the OpenCCG JPolibox lexicon.
 """
 import sys
 import codecs
@@ -50,6 +50,7 @@ class Lexicon():
         return ret_str
         
 def extract_entities(lexicon_file, entity="lexemes", sort=True):
+    """generates a list of lexemes (or lemmas) from a dict.xml file"""
     lexicon = lexicon_file.readlines()
     entities = []
     lex_regex = re.compile('form=\"(.+?)\"')
@@ -77,3 +78,4 @@ def write_to_file(word_list, file_name):
 
 if __name__ == "__main__":
     lexicon = Lexicon(str_openccg)
+    print lexicon

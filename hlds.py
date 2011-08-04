@@ -8,6 +8,7 @@ OpenCCG realizer. This module shall allow the conversion between HLDS-XML
 files and Python data structures.
 """
 
+from nltk.featstruct import Feature, FeatDict
 from lxml import etree
 from util import ensure_utf8
 
@@ -142,7 +143,19 @@ class Sentence():
     
 class Diamond():
     """
-    represents a HLDS diamond
+    represents a HLDS diamond. Each diamond has an attribute 'mode' and a 
+    'prop' child. Additionally, a diamond can have a 'nom' child and any 
+    number 'diamond' children.
+    
+        <diamond mode="AGENS">
+            <nom name="s1:addition"/>
+            <prop name="sowohl"/>
+            <diamond mode="NP1">
+                <nom name="h1:nachname"/>
+                <prop name="Hausser"/>
+            </diamond>
+            ...
+        </diamond>
     """    
     def __init__(self, diamond_etree_element):
         self.mode = diamond_etree_element.attrib["mode"]
@@ -152,7 +165,7 @@ class Diamond():
             if child.tag == "diamond":
                 diamond = Diamond(child)
                 self.elements.append(diamond)
-            else:
+            else: # children with .tag 'nom' or 'prop'
                 setattr(self, child.tag, child.attrib["name"])
         
         if len(self.elements) == 0: # if there are no nested diamonds
@@ -165,6 +178,48 @@ class Diamond():
                                            ensure_utf8(value))
         return ret_str
         
+class DiamondFS(FeatDict):
+    """
+    A {DiamondFS} represents an HLDS diamond in form of a (nested) feature 
+    structure. 
+
+        <diamond mode="AGENS">
+            <nom name="s1:addition"/>
+            <prop name="sowohl"/>
+            <diamond mode="NP1">
+                <nom name="h1:nachname"/>
+                <prop name="Hausser"/>
+            </diamond>
+            ...
+        </diamond>
+    """
+    def __init__(self, diamond):
+        """
+        @param diamond: a diamond etree element
+        """
+        self[Feature('mode')] = diamond.attrib["mode"]
+        self.nested_diamonds = []
+        
+        for child in diamond.getchildren():
+            if child.tag == "diamond":
+                diamond = DiamondFS(child)
+                self.nested_diamonds.append(diamond)
+            else: # children with .tag 'nom' or 'prop'
+                #setattr(self, child.tag, child.attrib["name"])
+                self.update({child.tag: child.attrib["name"]})
+        
+        if len(self.nested_diamonds) == 0:
+            del self.nested_diamonds
+        
+    #def __str__(self):
+        #ret_str = ""
+        #for (key, value) in self.__dict__.items():
+            #ret_str += "{0}: {1}\n".format(ensure_utf8(key), 
+                                           #ensure_utf8(value))
+        #return ret_str
+
+
+ 
         
 if __name__ == "__main__":
     hlds = HLDSReader(TEST, input_format="file")
