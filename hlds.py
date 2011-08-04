@@ -99,18 +99,20 @@ class HLDSReader():
             #print "root name: %s" % (root_name)
             #print "root id: %s" % (root_id)
             
+            raw_diamonds = [] # TODO: remove after debugging
             for index, element in enumerate(root.findall("diamond")):
                 #self.indentation += 1
                 #self.parse_diamond(element)
                 #self.indentation -= 1
-                diamond = Diamond(element)
+                raw_diamonds.append(element) # TODO: remove after dbg
+                diamond = DiamondFS(element)
                 elements.append(diamond)
                 
 #            print "+++++++++++++++++\n\n"
             
             parsed_sentence = Sentence(sentence_string, expected_parses, 
                                        root_name, root_id, elements)
-            self.sentences.append(parsed_sentence)
+            self.sentences.append((parsed_sentence, raw_diamonds))
             
     def parse_diamond(self, diamond):
         """
@@ -197,20 +199,25 @@ class DiamondFS(FeatDict):
         """
         @param diamond: a diamond etree element
         """
-        self[Feature('mode')] = diamond.attrib["mode"]
+        self[Feature('mode')] = ensure_utf8(diamond.attrib["mode"])
         self.nested_diamonds = []
         
         for child in diamond.getchildren():
             if child.tag == "diamond":
-                diamond = DiamondFS(child)
-                self.nested_diamonds.append(diamond)
+                nested_diamond = DiamondFS(child)
+                self.update({nested_diamond[Feature("mode")]: nested_diamond})
+                #self.nested_diamonds.append(nested_diamond)
             else: # children with .tag 'nom' or 'prop'
                 #setattr(self, child.tag, child.attrib["name"])
-                self.update({child.tag: child.attrib["name"]})
+                child_tag = ensure_utf8(child.tag)
+                child_name = ensure_utf8(child.attrib["name"])
+                self.update({child_tag: child_name})
         
-        if len(self.nested_diamonds) == 0:
-            del self.nested_diamonds
-        
+        #if len(self.nested_diamonds) == 0:
+            #del self.nested_diamonds
+        #else:
+            #self.update({"nested_diamonds": self.nested_diamonds})
+
     #def __str__(self):
         #ret_str = ""
         #for (key, value) in self.__dict__.items():
