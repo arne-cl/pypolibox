@@ -6,21 +6,52 @@
 HLDS (Hybrid Logic Dependency Semantics) is the format internally used by the 
 OpenCCG realizer. This module shall allow the conversion between HLDS-XML 
 files and Python data structures.
+
+Sentences are represented as <item> structures in HLDS::
+        
+    <item numOfParses="4" string="er beschreibt sie">
+        <xml>
+            <lf>
+                <satop nom="b1:handlung">
+                    <prop name="beschreiben"/>
+                    <diamond mode="TEMP">
+                        <prop name="präs"/>
+                    </diamond>
+                    <diamond mode="AGENS">
+                        <nom name="x1:sem-obj"/>
+                        <diamond mode="PRO">
+                            <prop name="perspro"/>
+                        </diamond>
+                        <diamond mode="GEN">
+                            <prop name="mask"/>
+                        </diamond>
+                        ...
+                    </diamond>
+                    <diamond mode="PATIENS">
+                        <nom name="x2:sem-obj"/>
+                        <diamond mode="PRO">
+                            <prop name="perspro"/>
+                        </diamond>
+                        ...
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>er beschreibt sie</target>-->
+        </xml>
+    </item>
 """
 
 from nltk.featstruct import Feature, FeatDict
 from lxml import etree
 from util import ensure_utf8
 
-TEST = "testbedHLDS.xml" #TODO: remove after debugging
+testbed_file = "testbedHLDS.xml"
 
 class HLDSReader():
     """
     represents a list of sentences parsed from a testbed file
     """
     def __init__(self, hlds, input_format="file"):
-        self.indentation = -2
-
         if input_format == "string":
             tree = etree.fromstring(hlds)
             self.parse_sentences(tree)
@@ -35,39 +66,6 @@ class HLDSReader():
         feature structures.
         
         @param tree: an etree tree element
-        
-        A sentence is represented as an <item> structure in HLDS::
-        
-            <item numOfParses="4" string="er beschreibt sie">
-                <xml>
-                    <lf>
-                        <satop nom="b1:handlung">
-                            <prop name="beschreiben"/>
-                            <diamond mode="TEMP">
-                                <prop name="präs"/>
-                            </diamond>
-                            <diamond mode="AGENS">
-                                <nom name="x1:sem-obj"/>
-                                <diamond mode="PRO">
-                                    <prop name="perspro"/>
-                                </diamond>
-                                <diamond mode="GEN">
-                                    <prop name="mask"/>
-                                </diamond>
-                                ...
-                            </diamond>
-                            <diamond mode="PATIENS">
-                                <nom name="x2:sem-obj"/>
-                                <diamond mode="PRO">
-                                    <prop name="perspro"/>
-                                </diamond>
-                                ...
-                            </diamond>
-                        </satop>
-                    </lf>
-                    <!--<target>er beschreibt sie</target>-->
-                </xml>
-            </item>
         """
         self.xml_sentences = tree.findall("item")
         self.sentences = []
@@ -86,33 +84,21 @@ class HLDSReader():
             elements = []
             
             for index, element in enumerate(root.findall("diamond")):
-                diamond = DiamondFS(element)
+                diamond = Diamond(element)
                 elements.append(diamond)
 
             sentence_tuple = (sentence_string, expected_parses, root_name, 
                               root_id, elements)
-            parsed_sentence = SentenceFS(sentence_tuple)
+            parsed_sentence = Sentence(sentence_tuple)
             self.sentences.append(parsed_sentence)
             
 
-class Sentence():
-    """
-    represents a test sentence in HLDS notation for OpenCCG regression tests.
-    """
-    def __init__(self, sentence_string, expected_parses, root_name, root_id, 
-                 elements):
-        self.text = sentence_string
-        self.expected_parses = int(expected_parses)
-        self.root_name = root_name
-        self.root_id = root_id
-        self.elements = elements
-
-class SentenceFS(FeatDict):
+class Sentence(FeatDict):
     """
     represents a sentence in HLDS notation as a feature structure.
     
     TODO: rewrite __new__() to accept more than one parameter. Since 
-    C{SentenceFS} inherits its features from C{FeatDict}, we can't feed as 
+    C{Sentence} inherits its features from C{FeatDict}, we can't feed as 
     many parameters to __init__() as we'd like to
     """
     def __init__(self, sent_tuple):
@@ -122,13 +108,13 @@ class SentenceFS(FeatDict):
         self.update({Feature("root_name"): root_name}) 
         self.update({Feature("root_id"): root_id})
         
-        for element in elements: # these are C{DiamondFS}s
+        for element in elements: # these are C{Diamond}s
             self.update({element[Feature("mode")]: element})
     
         
-class DiamondFS(FeatDict):
+class Diamond(FeatDict):
     """
-    A {DiamondFS} represents an HLDS diamond in form of a (nested) feature 
+    A {Diamond} represents an HLDS diamond in form of a (nested) feature 
     structure. 
 
         <diamond mode="AGENS">
@@ -149,7 +135,7 @@ class DiamondFS(FeatDict):
         
         for child in diamond.getchildren():
             if child.tag == "diamond":
-                nested_diamond = DiamondFS(child)
+                nested_diamond = Diamond(child)
                 self.update({nested_diamond[Feature("mode")]: nested_diamond})
 
             else: # children with .tag 'nom' or 'prop'
@@ -159,4 +145,8 @@ class DiamondFS(FeatDict):
  
         
 if __name__ == "__main__":
-    hlds = HLDSReader(TEST, input_format="file")
+    hlds = HLDSReader(testbed_file, input_format="file")
+    import random
+    num_of_sentences = len(hlds.sentences)
+    print hlds.sentences[random.randrange(0, num_of_sentences)]
+    # print a random sentence (from the testbed file) as a feature structure
