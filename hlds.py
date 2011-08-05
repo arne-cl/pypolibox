@@ -54,27 +54,14 @@ class HLDSReader():
                                 <diamond mode="GEN">
                                     <prop name="mask"/>
                                 </diamond>
-                                <diamond mode="PERS">
-                                    <prop name="3te"/>
-                                </diamond>
-                                <diamond mode="NUM">
-                                    <prop name="sing"/>
-                                </diamond>
+                                ...
                             </diamond>
                             <diamond mode="PATIENS">
                                 <nom name="x2:sem-obj"/>
                                 <diamond mode="PRO">
                                     <prop name="perspro"/>
                                 </diamond>
-                                <diamond mode="GEN">
-                                    <prop name="fem"/>
-                                </diamond>
-                                <diamond mode="PERS">
-                                    <prop name="3te"/>
-                                </diamond>
-                                <diamond mode="NUM">
-                                    <prop name="sing"/>
-                                </diamond>
+                                ...
                             </diamond>
                         </satop>
                     </lf>
@@ -82,7 +69,6 @@ class HLDSReader():
                 </xml>
             </item>
         """
-
         self.xml_sentences = tree.findall("item")
         self.sentences = []
         
@@ -99,12 +85,7 @@ class HLDSReader():
             root_id = root.attrib["nom"]
             elements = []
             
-#            raw_diamonds = [] # TODO: remove after debugging
             for index, element in enumerate(root.findall("diamond")):
-                #self.indentation += 1
-                #self.parse_diamond(element)
-                #self.indentation -= 1
-#                raw_diamonds.append(element) # TODO: remove after dbg
                 diamond = DiamondFS(element)
                 elements.append(diamond)
 
@@ -113,22 +94,6 @@ class HLDSReader():
             parsed_sentence = SentenceFS(sentence_tuple)
             self.sentences.append(parsed_sentence)
             
-    #def parse_diamond(self, diamond):
-        #"""
-        #diamonds are recursive structures...
-        #"""
-        #children = diamond.getchildren()
-        #print "  " * self.indentation, \
-              #"[element] %s" % (diamond.attrib["mode"])
-        
-        #for child in children:
-            #if child.tag == "diamond":
-                #self.indentation += 2
-                #self.parse_diamond(child)
-                #self.indentation -= 2
-            #else:    
-                #print "  " * int(self.indentation+2), \
-                      #"%s %s" % (child.tag, child.attrib["name"])
 
 class Sentence():
     """
@@ -158,7 +123,7 @@ class SentenceFS(FeatDict):
         self.update({Feature("root_id"): root_id})
         
         for element in elements: # these are C{DiamondFS}s
-            self.update({Feature("mode"): element})
+            self.update({element[Feature("mode")]: element})
     
         
 class DiamondFS(FeatDict):
