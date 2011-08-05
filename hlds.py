@@ -22,16 +22,21 @@ class HLDSReader():
         self.indentation = -2
 
         if input_format == "string":
-            self.tree = etree.fromstring(hlds)
-            self.parse_sentences()
+            tree = etree.fromstring(hlds)
+            self.parse_sentences(tree)
             
         elif input_format == "file":
-            self.tree = etree.parse(hlds)
-            self.parse_sentences()
+            tree = etree.parse(hlds)
+            self.parse_sentences(tree)
             
-    def parse_sentences(self):
+    def parse_sentences(self, tree):
         """
-        A sentence is represented as an <item> structure::
+        parses all sentences (represented as HLDS XML <item> structures) into 
+        feature structures.
+        
+        @param tree: an etree tree element
+        
+        A sentence is represented as an <item> structure in HLDS::
         
             <item numOfParses="4" string="er beschreibt sie">
                 <xml>
@@ -78,10 +83,10 @@ class HLDSReader():
             </item>
         """
 
-        self.test_sentences = self.tree.findall("item")
+        self.xml_sentences = tree.findall("item")
         self.sentences = []
         
-        for sentence in self.test_sentences:
+        for sentence in self.xml_sentences:
             root = sentence.find("xml/lf/satop") # root (verb) of the sentence
             
             # <item numOfParses="4" string="er beschreibt sie">
@@ -94,42 +99,36 @@ class HLDSReader():
             root_id = root.attrib["nom"]
             elements = []
             
-            #print "sentence: %s" % (sentence_string)
-            #print "expected parses: %s" % (expected_parses)
-            #print "root name: %s" % (root_name)
-            #print "root id: %s" % (root_id)
-            
-            raw_diamonds = [] # TODO: remove after debugging
+#            raw_diamonds = [] # TODO: remove after debugging
             for index, element in enumerate(root.findall("diamond")):
                 #self.indentation += 1
                 #self.parse_diamond(element)
                 #self.indentation -= 1
-                raw_diamonds.append(element) # TODO: remove after dbg
+#                raw_diamonds.append(element) # TODO: remove after dbg
                 diamond = DiamondFS(element)
                 elements.append(diamond)
-                
-#            print "+++++++++++++++++\n\n"
+
+            sentence_tuple = (sentence_string, expected_parses, root_name, 
+                              root_id, elements)
+            parsed_sentence = SentenceFS(sentence_tuple)
+            self.sentences.append(parsed_sentence)
             
-            parsed_sentence = Sentence(sentence_string, expected_parses, 
-                                       root_name, root_id, elements)
-            self.sentences.append((parsed_sentence, raw_diamonds))
-            
-    def parse_diamond(self, diamond):
-        """
-        diamonds are recursive structures...
-        """
-        children = diamond.getchildren()
-        print "  " * self.indentation, \
-              "[element] %s" % (diamond.attrib["mode"])
+    #def parse_diamond(self, diamond):
+        #"""
+        #diamonds are recursive structures...
+        #"""
+        #children = diamond.getchildren()
+        #print "  " * self.indentation, \
+              #"[element] %s" % (diamond.attrib["mode"])
         
-        for child in children:
-            if child.tag == "diamond":
-                self.indentation += 2
-                self.parse_diamond(child)
-                self.indentation -= 2
-            else:    
-                print "  " * int(self.indentation+2), \
-                      "%s %s" % (child.tag, child.attrib["name"])
+        #for child in children:
+            #if child.tag == "diamond":
+                #self.indentation += 2
+                #self.parse_diamond(child)
+                #self.indentation -= 2
+            #else:    
+                #print "  " * int(self.indentation+2), \
+                      #"%s %s" % (child.tag, child.attrib["name"])
 
 class Sentence():
     """
@@ -142,43 +141,25 @@ class Sentence():
         self.root_name = root_name
         self.root_id = root_id
         self.elements = elements
-    
-class Diamond():
+
+class SentenceFS(FeatDict):
     """
-    represents a HLDS diamond. Each diamond has an attribute 'mode' and a 
-    'prop' child. Additionally, a diamond can have a 'nom' child and any 
-    number 'diamond' children.
+    represents a sentence in HLDS notation as a feature structure.
     
-        <diamond mode="AGENS">
-            <nom name="s1:addition"/>
-            <prop name="sowohl"/>
-            <diamond mode="NP1">
-                <nom name="h1:nachname"/>
-                <prop name="Hausser"/>
-            </diamond>
-            ...
-        </diamond>
-    """    
-    def __init__(self, diamond_etree_element):
-        self.mode = diamond_etree_element.attrib["mode"]
-        self.elements = []
+    TODO: rewrite __new__() to accept more than one parameter. Since 
+    C{SentenceFS} inherits its features from C{FeatDict}, we can't feed as 
+    many parameters to __init__() as we'd like to
+    """
+    def __init__(self, sent_tuple):
+        sent_str, expected_parses, root_name, root_id, elements = sent_tuple            
+        self.update({Feature("text"): sent_str})
+        self.update({Feature("expected_parses"): int(expected_parses)})
+        self.update({Feature("root_name"): root_name}) 
+        self.update({Feature("root_id"): root_id})
         
-        for child in diamond_etree_element.getchildren():
-            if child.tag == "diamond":
-                diamond = Diamond(child)
-                self.elements.append(diamond)
-            else: # children with .tag 'nom' or 'prop'
-                setattr(self, child.tag, child.attrib["name"])
-        
-        if len(self.elements) == 0: # if there are no nested diamonds
-            del self.elements
-        
-    def __str__(self):
-        ret_str = ""
-        for (key, value) in self.__dict__.items():
-            ret_str += "{0}: {1}\n".format(ensure_utf8(key), 
-                                           ensure_utf8(value))
-        return ret_str
+        for element in elements: # these are C{DiamondFS}s
+            self.update({Feature("mode"): element})
+    
         
 class DiamondFS(FeatDict):
     """
@@ -200,32 +181,16 @@ class DiamondFS(FeatDict):
         @param diamond: a diamond etree element
         """
         self[Feature('mode')] = ensure_utf8(diamond.attrib["mode"])
-        self.nested_diamonds = []
         
         for child in diamond.getchildren():
             if child.tag == "diamond":
                 nested_diamond = DiamondFS(child)
                 self.update({nested_diamond[Feature("mode")]: nested_diamond})
-                #self.nested_diamonds.append(nested_diamond)
+
             else: # children with .tag 'nom' or 'prop'
-                #setattr(self, child.tag, child.attrib["name"])
                 child_tag = ensure_utf8(child.tag)
                 child_name = ensure_utf8(child.attrib["name"])
                 self.update({child_tag: child_name})
-        
-        #if len(self.nested_diamonds) == 0:
-            #del self.nested_diamonds
-        #else:
-            #self.update({"nested_diamonds": self.nested_diamonds})
-
-    #def __str__(self):
-        #ret_str = ""
-        #for (key, value) in self.__dict__.items():
-            #ret_str += "{0}: {1}\n".format(ensure_utf8(key), 
-                                           #ensure_utf8(value))
-        #return ret_str
-
-
  
         
 if __name__ == "__main__":
