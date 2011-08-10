@@ -5,7 +5,7 @@
 """
 HLDS (Hybrid Logic Dependency Semantics) is the format internally used by the 
 OpenCCG realizer. This module shall allow the conversion between HLDS-XML 
-files and Python data structures.
+files and NLTK feature structures.
 
 Sentences are represented as <item> structures in HLDS::
         
@@ -41,6 +41,7 @@ Sentences are represented as <item> structures in HLDS::
     </item>
 """
 
+import random
 from nltk.featstruct import Feature, FeatDict
 from lxml import etree
 from lxml.builder import ElementMaker
@@ -49,10 +50,21 @@ from util import ensure_utf8, ensure_unicode
 testbed_file = "testbedHLDS.xml"
 
 class HLDSReader():
-    """
-    represents a list of sentences parsed from a testbed file
+    """ 
+    represents a list of sentences (as NLTK feature structures) parsed from 
+    an HLDS XML testbed file.
     """
     def __init__(self, hlds, input_format="file"):
+        """
+        @type hlds: C{str} or C{file}
+        @param hlds: an HLDS XML testbed file (either a file object or a 
+        string, depending on the input_format parameter)
+        
+        @type input_format: C{str}
+        @param input_format: "string" or "file"
+        """
+        self.sentences = []
+        
         if input_format == "string":
             tree = etree.fromstring(hlds)
             self.parse_sentences(tree)
@@ -60,16 +72,17 @@ class HLDSReader():
         elif input_format == "file":
             tree = etree.parse(hlds)
             self.parse_sentences(tree)
-            
+        
     def parse_sentences(self, tree):
         """
-        parses all sentences (represented as HLDS XML <item> structures) into 
-        feature structures.
+        Parses all sentences (represented as HLDS XML <item> structures) 
+        into feature structures. These structures are saved as a list of 
+        C{Sentence}s in self.sentences.
         
+        @type tree: C{etree._ElementTree}
         @param tree: an etree tree element
         """
         self.xml_sentences = tree.findall("item")
-        self.sentences = []
         
         for sentence in self.xml_sentences:
             root = sentence.find("xml/lf/satop") # root (verb) of the sentence
@@ -84,7 +97,7 @@ class HLDSReader():
             root_id = root.attrib["nom"]
             elements = []
             
-            for index, element in enumerate(root.findall("diamond")):
+            for element in root.findall("diamond"):
                 diamond = Diamond(element)
                 elements.append(diamond)
 
@@ -96,14 +109,32 @@ class HLDSReader():
 
 class Sentence(FeatDict):
     """
-    represents a sentence in HLDS notation as a feature structure.
+    represents an HLDS sentence as an NLTK feature structure.
     
     TODO: rewrite __new__() to accept more than one parameter. Since 
     C{Sentence} inherits its features from C{FeatDict}, we can't feed as 
     many parameters to __init__() as we'd like to.
     """
     def __init__(self, sent_tuple):
-        sent_str, expected_parses, root_name, root_id, elements = sent_tuple            
+        """         
+        __init__ wraps all C{Diamond}s that were already constructed by 
+        HLDSReader.parse_sentences() plus some meta data (root verb etc.) 
+        into a NLTK feature structure that represents a complete sentence.
+                
+        @type sent_tuple: C{tuple} of (C{str}, C{int}, C{str}, C{str}, 
+        C{list}), where C{list} contains C{Diamond}s
+        
+        @param sent_tuple: a 5-tuple containing the text that should be 
+        generated (C{str}), the expected number of parses (C{int}), the 
+        root verb of that sentence (root_name: C{str}), the root (verb) 
+        category (root_id: C{str}, e.g. "b1:handlung") and a list of the 
+        diamonds that are contained in the sentence (elements: C{list} of 
+        C{Diamond}s). 
+        
+        TODO: rewrite __new__(), so we don't have to put all those 
+        parameters into one tuple.                
+        """
+        sent_str, expected_parses, root_name, root_id, elements = sent_tuple
         self.update({Feature("text"): sent_str})
         self.update({Feature("expected_parses"): int(expected_parses)})
         self.update({Feature("root_name"): root_name}) 
@@ -130,6 +161,9 @@ class Diamond(FeatDict):
     """
     def __init__(self, diamond):
         """
+        __init__ transforms a HLDS XML <diamond>...</diamond> structure 
+        (that was parsed into an etree element) into an NLTK feature structure.
+        
         @type diamond: C{etree._Element}
         @param diamond: a diamond etree element
         """
@@ -144,6 +178,7 @@ class Diamond(FeatDict):
                 child_tag = ensure_utf8(child.tag)
                 child_name = ensure_utf8(child.attrib["name"])
                 self.update({child_tag: child_name})
+
  
 def create_hlds_testbed(sentence_list, output="etree"):
     """
@@ -155,41 +190,15 @@ def create_hlds_testbed(sentence_list, output="etree"):
     @type output: C{str}
     @param output: "etree" (etree element) or "xml" (formatted, valid xml 
     document as a string)
+    
+    @rtype: C{str}
     """
     root = etree.Element("regression")
     doc = etree.ElementTree(root)
     
     etree_sentences = []
     for sentence in sentence_list:
-        expected_parses = sentence[Feature("expected_parses")]
-        text = sentence[Feature("text")]
-        
-        item = etree.SubElement(root, "item", 
-                                numOfParses=str(expected_parses),
-                                string=ensure_unicode(text))
-        
-        xml = etree.SubElement(item, "xml")
-        lf = etree.SubElement(xml, "lf")
-        
-        root_id = sentence[Feature("root_id")]
-        satop = etree.SubElement(lf, "satop", nom=root_id)
-        
-        root_name = sentence[Feature("root_name")]
-        etree.SubElement(satop, "prop", name=root_name)
-        
-        diamonds = []
-        for key, val in sentence.items():
-            if type(val) is Diamond:
-                diamonds.append(sentence[key])
-        
-        etree_diamonds = []
-        for diamond in diamonds:
-            etree_diamonds.append(__diamond_fs2xml(diamond))
-            
-        for diamond in etree_diamonds:
-            final_position = len(diamond)
-            satop.insert(final_position, diamond)
-        
+        item = __sentence_fs2xml(sentence)
         etree_sentences.append(item)
     
     for sentence_tree in etree_sentences:
@@ -202,11 +211,52 @@ def create_hlds_testbed(sentence_list, output="etree"):
         return etree.tostring(doc, encoding="utf8", 
                               xml_declaration=True, pretty_print=True)
 
+def __sentence_fs2xml(sentence):
+    """    
+    transforms a sentence (in NLTK feature structure notation) into its 
+    corresponding HLDS XML <item></item> structure.
+    
+    @type sentence: C{Sentence}
+    @param sentence: a sentence in NLTK feature structure notation
+    
+    @rtype: C{etree._Element}
+    @return: the input sentence in HLDS XML format (represented as an etree 
+    element)
+    """
+    expected_parses = sentence[Feature("expected_parses")]
+    text = sentence[Feature("text")]
+    
+    item = etree.Element("item", numOfParses=str(expected_parses),
+                         string=ensure_unicode(text))
+    
+    xml = etree.SubElement(item, "xml")
+    lf = etree.SubElement(xml, "lf")
+    
+    root_id = sentence[Feature("root_id")]
+    satop = etree.SubElement(lf, "satop", nom=root_id)
+    
+    root_name = sentence[Feature("root_name")]
+    etree.SubElement(satop, "prop", name=root_name)
+    
+    diamonds = []
+    for key, val in sentence.items():
+        if type(val) is Diamond:
+            diamonds.append(sentence[key])
+    
+    etree_diamonds = []
+    for diamond in diamonds:
+        etree_diamonds.append(__diamond_fs2xml(diamond))
+        
+    for diamond in etree_diamonds:
+        final_position = len(diamond)
+        satop.insert(final_position, diamond)
+    
+    return item
  
 def __diamond_fs2xml(diamond):
     """
     converts a {Diamond} feature structure into its corresponding HLDS 
-    XML representation
+    XML structure (stored in an etree element).
     
     @type diamond: C{Diamond}
     @param diamond: a Diamond feature structure containing nom? prop? diamond* 
@@ -228,9 +278,12 @@ def __diamond_fs2xml(diamond):
     if "prop" in diamond:    
         diamond_etree.insert(0, PROP(name=ensure_unicode(diamond["prop"])) )
         
-    subdiamonds = [diamond[k] for k,v in diamond.items() if type(v) is Diamond]
-    etree_subdiamonds = []
+    subdiamonds = []    
+    for key, value in diamond.items():
+        if type(value) is Diamond:
+            subdiamonds.append(diamond[key])
     
+    etree_subdiamonds = []    
     for subdiamond in subdiamonds:
         etree_subdiamonds.append(__diamond_fs2xml(subdiamond))
         
@@ -240,16 +293,38 @@ def __diamond_fs2xml(diamond):
         
     return diamond_etree
 
+def test_conversion():
+    """    
+    tests HLDS XML <-> NLTK feature structures conversions. converts an 
+    HLDS XML testbed file into a list of sentences in NLTK feature 
+    structure. picks one of these sentences randomly and converts it back 
+    to HLDS XML. prints boths versions of this sentence. returns an 
+    HLDSReader instance (containing a list of C{Sentence}s in NLTK feature 
+    structure notation) and a HLDS XML testbed file (as a string) created 
+    from those feature structures.
+    
+    @rtype: C{tuple} of (C{HLDSReader}, C{str}) 
+    @return: a tuple containing an HLDSReader instance and a string 
+    representation of an HLDS XML testbed file
+    """
+    hlds_reader = HLDSReader(testbed_file, input_format="file")
+    random_sent_fs = \
+        hlds_reader.sentences[random.randrange(0, len(hlds_reader.sentences))]
+    random_sent_xml = create_hlds_testbed([random_sent_fs], output="xml")
+    all_sents_xml = create_hlds_testbed(hlds_reader.sentences, output="xml")
+                                              
+    print random_sent_fs, "\n" * 3, random_sent_xml
+    return hlds_reader, all_sents_xml 
+
 
 def eprint(element):
-    """pretty print function for etree trees or elements"""
+    """pretty print function for etree trees or elements
+    
+    @type element: C{etree._ElementTree} or C{etree._Element}
+    """
     print etree.tostring(element, pretty_print=True, encoding="utf8")
     
 if __name__ == "__main__":
-    hlds = HLDSReader(testbed_file, input_format="file")
-    import random
-    num_of_sentences = len(hlds.sentences)
-    print hlds.sentences[random.randrange(0, num_of_sentences)]
-    # print a random sentence (from the testbed file) as a feature structure
-    hlds_testbed = create_hlds_testbed(hlds.sentences, output="xml")
+    fs_sents, xml_sents = test_conversion()
+    
     
