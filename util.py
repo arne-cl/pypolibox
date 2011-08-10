@@ -75,7 +75,7 @@ def exists(thing, namespace):
     else:
         return False
 
-def messages_instance_to_list_of_message_instances(messages_instance):
+def msgs_instance_to_list_of_msgs(messages_instance):
     return [message for message in messages_instance.messages.values()]
     
 def freeze_all_messages(message_list):

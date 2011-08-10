@@ -29,7 +29,7 @@ from nltk.featstruct import Feature
 from nltk import FeatDict
 
 from util import (exists, flatten, freeze_all_messages, 
-                  messages_instance_to_list_of_message_instances)
+                  msgs_instance_to_list_of_msgs)
 
 
 class Message(nltk.featstruct.FeatDict):
@@ -865,7 +865,7 @@ def generate_textplan(messages, rules=Rules().rules, book_score = None,
         frozen_messages = freeze_all_messages(messages)
     elif isinstance(messages, Messages):
         book_score = messages.book_score
-        message_list = messages_instance_to_list_of_message_instances(messages)
+        message_list = msgs_instance_to_list_of_msgs(messages)
         frozen_messages = freeze_all_messages(message_list)
         
     messages_set = set(frozen_messages) # remove duplicate messages    
