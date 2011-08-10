@@ -45,6 +45,16 @@ def sql_array_to_set(sql_array):
 
     this function turns those multi-value strings into a set with separate 
     values
+
+    @type sql_array: C{str}    
+    @param sql_array: a string from the database that represents one or 
+    more items delimited by '[' and ']', e.g. "[Noam Chomsky]" or "[Noam 
+    Chomsky][Alan Touring]"
+    
+    @rtype: C{list} of C{str}
+    
+    @return: a list of strings, where each string represents one item from 
+    the database, e.g. ["Noam Chomsky", "Alan Touring"]    
     """
     item = re.compile("\[(.*?)\]")
     items = item.findall(sql_array)
@@ -54,12 +64,12 @@ def sql_array_to_set(sql_array):
     return item_set
 
 def exists(thing, namespace):
-    '''checks if a variable/object/instance exists in the given namespace
+    """checks if a variable/object/instance exists in the given namespace
     
     @type thing: C{str}
     @type namespace: C{dict}
     @rtype: C{bool}
-    '''
+    """
     if namespace.has_key(thing):
         return True
     else:
@@ -69,10 +79,10 @@ def messages_instance_to_list_of_message_instances(messages_instance):
     return [message for message in messages_instance.messages.values()]
     
 def freeze_all_messages(message_list):
-    '''
+    """
     makes all messages (C{FeatDict}s) immutable, which is necessary for turning
     them into sets
-    '''
+    """
     for message in message_list:
         message.freeze()
     return message_list
