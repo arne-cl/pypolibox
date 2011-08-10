@@ -163,7 +163,6 @@ def create_hlds_testbed(sentence_list, output="etree"):
     for sentence in sentence_list:
         expected_parses = sentence[Feature("expected_parses")]
         text = sentence[Feature("text")]
-        print text # TODO: remove after dbg
         
         item = etree.SubElement(root, "item", 
                                 numOfParses=str(expected_parses),
@@ -202,8 +201,7 @@ def create_hlds_testbed(sentence_list, output="etree"):
     elif output == "xml":
         return etree.tostring(doc, encoding="utf8", 
                               xml_declaration=True, pretty_print=True)
-        #return xml_str
-        #, etree_diamonds # TODO: rm etree_diamonds after dbg
+
  
 def __diamond_fs2xml(diamond):
     """
@@ -218,21 +216,18 @@ def __diamond_fs2xml(diamond):
     @return: a Diamond in HLDS XML tree notation, represented as an etree 
     element
     """
-    print "applying __diamond_fs2xml to {0}".format(diamond[Feature("mode")])
     E = ElementMaker()
     NOM = E.nom
     PROP = E.prop
     DIAMOND = E.diamond
 
+    diamond_etree = DIAMOND(mode=ensure_unicode(diamond[Feature("mode")]))
+    
     if "nom" in diamond:
-        diamond_etree = DIAMOND(NOM(name=ensure_unicode(diamond["nom"])),
-                                PROP(name=ensure_unicode(diamond["prop"])),
-                                mode=ensure_unicode(diamond[Feature("mode")]))
-
-    else:
-        diamond_etree = DIAMOND(PROP(name=ensure_unicode(diamond["prop"])),
-                                mode=ensure_unicode(diamond[Feature("mode")]))
-
+        diamond_etree.insert(0, NOM(name=ensure_unicode(diamond["nom"])) )
+    if "prop" in diamond:    
+        diamond_etree.insert(0, PROP(name=ensure_unicode(diamond["prop"])) )
+        
     subdiamonds = [diamond[k] for k,v in diamond.items() if type(v) is Diamond]
     etree_subdiamonds = []
     
@@ -257,4 +252,4 @@ if __name__ == "__main__":
     print hlds.sentences[random.randrange(0, num_of_sentences)]
     # print a random sentence (from the testbed file) as a feature structure
     hlds_testbed = create_hlds_testbed(hlds.sentences, output="xml")
-    print hlds_testbed[:1500]
+    
