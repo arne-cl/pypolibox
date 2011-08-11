@@ -17,59 +17,123 @@ from textplan import (ConstituentSet, TextPlan, TextPlans, Rules, AllMessages,
 
                 
 def genprops(querynumber=10):
-    return AllPropositions(AllFacts(Books(Results(Query(testqueries[querynumber])))))
+    """    
+    generates all propositions for all books in the database concerning a 
+    specific query.
+    
+    @type querynumber: C{int}
+    @param querynumber: the index of a query from the predefined list of 
+    test queries (named 'testqueries')
+    
+    @rtype: C{AllPropositions}
+    """    
+    books = Books(Results(Query(testqueries[querynumber])))
+    return AllPropositions(AllFacts(books))
     
 def genmessages(booknumber=0, querynumber=10):
-    am = AllMessages(AllPropositions(AllFacts(Books(Results(Query(testqueries[querynumber]))))))  
-    for message in am.books[booknumber].messages.values(): message.freeze() #freeze messages, so Rule()s can be tested against them
+    """
+    generates all messages for a book regarding a specific database query.
+    
+    @type booknumber: C{int}
+    @param booknumber: the index of the book from the results list ("0" 
+    would be the first book with the highest score)
+    
+    @type querynumber: C{int}
+    @param querynumber: the index of a query from the predefined list of 
+    test queries (named 'testqueries')
+    
+    @rtype: C{list} of C{Message}s
+    """
+    books = Books(Results(Query(testqueries[querynumber])))
+    am = AllMessages(AllPropositions(AllFacts(books)))  
+    
+    for message in am.books[booknumber].messages.values(): 
+        message.freeze()
+        #freeze messages, so Rule()s can be tested against them
     return am.books[booknumber].messages.values()
 
 def genallmessages(query):
+    """
+    debug function: generates all messages plans for a query.
+    
+    @type query: C{int} or C{list} of C{str}
+    @param query: can be the index of a test query (e.g. 4) OR a list of 
+    query parameters (e.g. ["-k", "phonology", "-l", "German"])
+    
+    @rtype: C{AllMessages}
+    @return: all messages that could be generated for the query
+    """
     if isinstance(query, int):
-        return AllMessages(AllPropositions(AllFacts(Books(Results(Query(testqueries[query]))))))
+        books = Books(Results(Query(testqueries[query])))
+        return AllMessages(AllPropositions(AllFacts(books)))
     elif isinstance(query, list):
-        return AllMessages(AllPropositions(AllFacts(Books(Results(Query(query))))))
+        books = Books(Results(Query(query)))
+        return AllMessages(AllPropositions(AllFacts(books)))
     elif isinstance(query, Query):
-        return AllMessages(AllPropositions(AllFacts(Books(Results(query)))))
+        books = Books(Results(query))
+        return AllMessages(AllPropositions(AllFacts(books)))
     
 def gentextplans(query):
     """
     debug function: generates all text plans for a query.
     
-    @param query: can be the index of a testquery (e.g. 4) OR a list of query parameters (e.g. ["-k", "phonology", "-l", "German"])
     @type query: C{int} or C{list} of C{str}
+    @param query: can be the index of a test query (e.g. 4) OR a list of 
+    query parameters (e.g. ["-k", "phonology", "-l", "German"])
     
-    @return: a number of text plans
     @rtype: C{TextPlans}
+    @return: a C{TextPlans} instance, containing a number of text plans
     """
     textplans = []
     if type(query) is int:
-        return TextPlans(AllMessages(AllPropositions(AllFacts(Books(Results(Query(testqueries[query])))))))
+        books = Books(Results(Query(testqueries[query])))
+        return TextPlans(AllMessages(AllPropositions(AllFacts(books))))
     if type(query) is list:
-        return TextPlans(AllMessages(AllPropositions(AllFacts(Books(Results(Query(query)))))))
+        books = Books(Results(Query(query)))
+        return TextPlans(AllMessages(AllPropositions(AllFacts(books))))
         
 def test_all_TextPlans():
+    """
+    
+    generates all text plans for each query in the predefined list of test 
+    queries.
+    
+    @rtype: C{list} of C{TextPlan}s or C{str}s
+    @return:  
+    """
     all_TextPlans = []
     for argnumber, arg in enumerate(testqueries):
         print "generating TextPlans for the query:{0}\n".format(arg)
         TextPlans = gentextplans(argnumber)
-        print "generated {0} TextPlans".format(len(TextPlans))
-        for i, TextPlan in enumerate(TextPlans):
+        print "generated {0} TextPlans".format(len(TextPlans.document_plans))
+        for i, TextPlan in enumerate(TextPlans.document_plans):
             if TextPlan == None:
                 print "When using query argument {0}, no TextPlan could be generated for book {1}".format(arg, i)
         all_TextPlans.append(TextPlans)
     return all_TextPlans
  
 def enumprint(obj):
+    """
+    prints every item of an iterable on its own line, preceded by its index
+    """
     for index, item in enumerate(obj):
         print "{0}:\n{1}\n".format(index, item)
 
 def msgtypes(messages):
-    '''print message types / rst relation types, no matter which data structure is used to represent them'''
+    """
+    print message types / rst relation types, no matter which data 
+    structure is used to represent them
+    
+    @type messages: C{Messages} or 
+                    C{list} of C{Message} or 
+                    C{Message} or 
+                    C{TextPlan}
+    """
     if isinstance(messages, Messages):
         for i, message in enumerate(messages.messages.values()):
             print i, __msgtype_print(message)    
-    elif isinstance(messages, list) : # if messages is a list of C{Message}/C{ConstituentSet} instances
+    elif isinstance(messages, list):
+    # if messages is a list of C{Message}/C{ConstituentSet} instances
         for i, message in enumerate(messages):
             print i, __msgtype_print(message)
     elif isinstance(messages, Message):
@@ -81,7 +145,13 @@ def msgtypes(messages):
 
                 
 def __msgtype_print(message):
-    '''recursive helper function for msgtypes(), which prints message types and RST relation types'''
+    """    
+    recursive helper function for msgtypes(), which prints message types 
+    and RST relation types
+    
+    @type message: C{Message} or C{ConstituentSet}
+    @rtype: C{str}
+    """
     if isinstance(message, Message):
         return message[Feature("msgType")]
     if isinstance(message, ConstituentSet):
@@ -166,27 +236,37 @@ def abbreviate_textplan(textplan):
         return Message(msgType=msgtype)
         
 def find_applicable_rules(messages):
-    '''debugging: find out which rules are directly (i.e. without forming ConstituentSets first) applicable to your messages'''
-    if type(messages) is list: # check if messages is a list of Message() instances
+    """    
+    debugging: find out which rules are directly (i.e. without forming ConstituentSets first) applicable to your messages
+    
+    @type messages: C{list} of C{Message}s or
+                    C{Messages}
+    """
+    if type(messages) is list: # is 'messages' a list of Message() instances?
         pass
-    elif isinstance(messages, Messages): # or a single Messages() instance
+    elif isinstance(messages, Messages):
         messages = messages.messages.values()
         
     for name, rule in Rules().rule_dict.iteritems():
         try:
             if rule.get_options(messages) != []:
-                nucleus_candidates = [rulename for (rulename, msg) in rule.nucleus]
-                satellite_candidates = [rulename for (rulename, msg) in rule.satellite]
-                print "{0}: {1} - {2}, {3} - is directly applicable and results in \n\t{4}\n\n".format(name, rule.ruleType, nucleus_candidates, satellite_candidates, rule.get_options(messages))
+                nuc_candidates = \
+                    [rulename for (rulename, msg) in rule.nucleus]
+                sat_candidates = \
+                    [rulename for (rulename, msg) in rule.satellite]
+                print "{0}: {1} - {2}, {3} - is directly applicable and results in \n\t{4}\n\n".format(name, rule.ruleType, nuc_candidates, sat_candidates, rule.get_options(messages))
         except:
             print "ERROR: Could not check if rule {0} is applicable. Possible solution: test if the rule's conditions are specified appropriately.\n\n".format(name)
 
         
 def findrule(ruletype="", attribute="", value=""):
-    '''debugging: find rules that have a certain ruleType and some attribute-value pair
+    """
+    debugging: find rules that have a certain ruleType and some 
+    attribute-value pair
     
-    findrule("Concession", "nucleus", "usermodel_match") finds rules of type 'Concession' where rule.nucleus == 'usermodel_match'
-    '''
+    Example: findrule("Concession", "nucleus", "usermodel_match") finds 
+    rules of type 'Concession' where rule.nucleus == 'usermodel_match'.
+    """
     rules = Rules().rule_dict
     matching_rules = {}
     
@@ -208,11 +288,13 @@ def findrule(ruletype="", attribute="", value=""):
     return matching_rules
 
 def apply_rule(messages, rule_name):
-    '''debugging: take a rule and apply it to your list of messages. 
+    """
+    debugging: take a rule and apply it to your list of messages. 
     
-    the resulting C{ConstituentSet} will be added to the list, while the messages involved in its construction will be removed.
-    repeat this step until you've found an erroneous/missing rule'''
-
+    the resulting C{ConstituentSet} will be added to the list, while the 
+    messages involved in its construction will be removed. repeat this step 
+    until you've found an erroneous/missing rule.
+    """
     options = Rules().rule_dict[rule_name].get_options(messages)
     if options:
         for option in options:
@@ -225,6 +307,31 @@ def apply_rule(messages, rule_name):
     else:
         print "Sorry, this rule could not be applied to your messages."
 
+
+def compare_textplans():
+    """
+    helps to find out how many different text plan structures there are.
+    """
+    import cPickle as pickle
+    f = open("data/alltextplans.pickle", "r")
+    # alltextplans.pickle was generated by running test_all_TextPlans()
+    
+    alltextplans = pickle.load(f)
+    
+    alltextplans_list = []
+    for textplans in alltextplans:
+        alltextplans_list.extend(textplans.document_plans)
+
+    frozen_constsets = []
+    for textplan in alltextplans_list:
+        abbrev_tp = abbreviate_textplan(textplan)
+        abbrev_constset = abbrev_tp["children"]
+        abbrev_constset.freeze()
+        frozen_constsets.append(abbrev_constset)
+    
+    return frozen_constsets
+    
+    
 testqueries = [ [],
          ["-k", "pragmatics"],
          ["-k", "pragmatics", "-r", "4"],
@@ -235,7 +342,8 @@ testqueries = [ [],
          ["-l", "German", "-p", "Lisp", "-k", "parsing"],
          ["-l", "English", "-s", "0", "-c", "1"],
          ["-l", "English", "-s", "0", "-e", "1", "-k", "discourse"],
-         ["-k", "syntax", "parsing", "-l", "German", "-p", "Prolog", "Lisp", "-s", "2", "-t", "0", "-e", "1", "-c", "1", "-r", "7"],
+         ["-k", "syntax", "parsing", "-l", "German", "-p", "Prolog", "Lisp", 
+          "-s", "2", "-t", "0", "-e", "1", "-c", "1", "-r", "7"],
             ] # list of possible query arguments for debugging purposes
 
 error_testqueries = [ ["-k", "cheeseburger"], # keyword does not exist
@@ -274,7 +382,8 @@ error_testqueries = [ ["-k", "cheeseburger"], # keyword does not exist
                ["-r", "4.6"],
                ["-r", "foobar"],
                ["-r", ""],
-        ] # list of (im)possible query arguments for debugging purposes. TODO: which ones behave unexpectedly?
+        ] # list of (im)possible query arguments for debugging purposes. 
+          # TODO: check which query arguments behave unexpectedly
 
 def test_cli(query_arguments=testqueries):
     """run several complex queries and print their results to stdout"""

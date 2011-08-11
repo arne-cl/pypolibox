@@ -13,7 +13,7 @@ import argparse
 import sqlite3
 import util
 
-DB_FILE = 'books.sqlite'
+DB_FILE = 'data/books.sqlite'
 BOOK_TABLE_NAME = 'books' # name of the table in the database file that 
                           # contains info about books
 DEFAULT_ENCODING = 'UTF8'
