@@ -335,55 +335,7 @@ def compare_textplans():
     
     return alltextplans_list, abbreviated_textplans, frozen_constsets
 
-def fs_ordering(featstruct):
-    """
-    takes a C{ConstitutentSet} (in this case simply a C{TextPlan} without the 
-    wrapper around it) prints the messages and rhetorical relations in linear 
-    order (the way they should be generated).
-    """
-    start = 0
-    fs_list = __fstree2list(featstruct)
-    if fs_list is None:
-        return None
-    
-    for i in range(len(fs_list)-1):
-    # we're looking for the first element of the list that is the nucleus of
-    # its successor.
-        if fs_list[i] is not fs_list[i+1][Feature("nucleus")]:
-            pass
-        else:
-            start = i
-            break
 
-    print "{0}({1}, {2})".format(fs_list[start][Feature("relType")], 
-                                 fs_list[start][Feature("nucleus")][Feature("msgType")], 
-                                 fs_list[start][Feature("satellite")][Feature("msgType")])
-
-    rest = fs_list[start+1:]
-    # if fs_list contains only one element, this loop won't be executed at all
-    for fs in rest:
-        if type(fs[Feature("satellite")]) is Message:
-            print "{0}({1}, {2})".format(fs[Feature("relType")],
-                                         "<---",
-                                         fs[Feature("satellite")][Feature("msgType")])
-        elif type(fs[Feature("satellite")]) is ConstituentSet:
-            print "{0}({1}, {2})".format(fs[Feature("relType")],
-                                         "<---",
-                                         "--->")
-            sat = fs[Feature("satellite")]
-            print "{0}({1}, {2})".format(sat[Feature("relType")],
-                                         sat[Feature("nucleus")][Feature("msgType")],
-                                         sat[Feature("satellite")][Feature("msgType")])
-                            
-             
-def __fstree2list(featstruct):
-    fs_list = [fs for fs in featstruct.walk() if type(fs) is ConstituentSet]
-    if fs_list:
-        fs_list.reverse()
-        return fs_list
-    else:
-        return None
-    
 testqueries = [ [],
          ["-k", "pragmatics"],
          ["-k", "pragmatics", "-r", "4"],
