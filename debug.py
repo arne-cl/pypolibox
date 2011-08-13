@@ -127,7 +127,8 @@ def msgtypes(messages):
     @type messages: C{Messages} or 
                     C{list} of C{Message} or 
                     C{Message} or 
-                    C{TextPlan}
+                    C{TextPlan} or
+                    C{ConstituentSet}
     """
     if isinstance(messages, Messages):
         for i, message in enumerate(messages.messages.values()):
@@ -323,14 +324,65 @@ def compare_textplans():
         alltextplans_list.extend(textplans.document_plans)
 
     frozen_constsets = []
+    abbreviated_textplans = []
     for textplan in alltextplans_list:
         abbrev_tp = abbreviate_textplan(textplan)
+        abbreviated_textplans.append(abbrev_tp)
         abbrev_constset = abbrev_tp["children"]
         abbrev_constset.freeze()
         frozen_constsets.append(abbrev_constset)
     
-    return frozen_constsets
     
+    return alltextplans_list, abbreviated_textplans, frozen_constsets
+
+def fs_ordering(featstruct):
+    """
+    takes a C{ConstitutentSet} (in this case simply a C{TextPlan} without the 
+    wrapper around it) prints the messages and rhetorical relations in linear 
+    order (the way they should be generated).
+    """
+    start = 0
+    fs_list = __fstree2list(featstruct)
+    if fs_list is None:
+        return None
+    
+    for i in range(len(fs_list)-1):
+    # we're looking for the first element of the list that is the nucleus of
+    # its successor.
+        if fs_list[i] is not fs_list[i+1][Feature("nucleus")]:
+            pass
+        else:
+            start = i
+            break
+
+    print "{0}({1}, {2})".format(fs_list[start][Feature("relType")], 
+                                 fs_list[start][Feature("nucleus")][Feature("msgType")], 
+                                 fs_list[start][Feature("satellite")][Feature("msgType")])
+
+    rest = fs_list[start+1:]
+    # if fs_list contains only one element, this loop won't be executed at all
+    for fs in rest:
+        if type(fs[Feature("satellite")]) is Message:
+            print "{0}({1}, {2})".format(fs[Feature("relType")],
+                                         "<---",
+                                         fs[Feature("satellite")][Feature("msgType")])
+        elif type(fs[Feature("satellite")]) is ConstituentSet:
+            print "{0}({1}, {2})".format(fs[Feature("relType")],
+                                         "<---",
+                                         "--->")
+            sat = fs[Feature("satellite")]
+            print "{0}({1}, {2})".format(sat[Feature("relType")],
+                                         sat[Feature("nucleus")][Feature("msgType")],
+                                         sat[Feature("satellite")][Feature("msgType")])
+                            
+             
+def __fstree2list(featstruct):
+    fs_list = [fs for fs in featstruct.walk() if type(fs) is ConstituentSet]
+    if fs_list:
+        fs_list.reverse()
+        return fs_list
+    else:
+        return None
     
 testqueries = [ [],
          ["-k", "pragmatics"],
