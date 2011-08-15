@@ -180,17 +180,25 @@ class Diamond(FeatDict):
             ...
         </diamond>
     """
-    def __init__(self, diamond):
+    def __init__(self, etree_or_list):
+        """        
+        @type etree_or_tuple: C{etree._Element}
+        @param etree_or_tuple: a diamond etree element
         """
-        __init__ transforms a HLDS XML <diamond>...</diamond> structure 
+        if type(etree_or_list) is etree._Element:
+            self.convert_diamond_xml2fs(etree_or_list)
+        elif type(etree_or_list) is list:
+            mode, prop, nom, nested_diamonds_list = etree_or_list
+            self.create_diamond_fs(mode, prop, nom, nested_diamonds_list)
+        
+    def convert_diamond_xml2fs(self, etree):
+        """
+        transforms a HLDS XML <diamond>...</diamond> structure 
         (that was parsed into an etree element) into an NLTK feature structure.
-        
-        @type diamond: C{etree._Element}
-        @param diamond: a diamond etree element
         """
-        self[Feature('mode')] = ensure_utf8(diamond.attrib["mode"])
+        self[Feature('mode')] = ensure_utf8(etree.attrib["mode"])
         
-        for child in diamond.getchildren():
+        for child in etree.getchildren():
             if child.tag == "diamond":
                 nested_diamond = Diamond(child)
                 self.update({nested_diamond[Feature("mode")]: nested_diamond})
@@ -199,7 +207,21 @@ class Diamond(FeatDict):
                 child_tag = ensure_utf8(child.tag)
                 child_name = ensure_utf8(child.attrib["name"])
                 self.update({child_tag: child_name})
-
+    
+    def create_diamond_fs(self, mode, prop, nom, nested_diamonds_list):
+        """
+        creates an HLDS feature structure from scratch (in contrast to 
+        convert_diamond_xml2fs, which converts an HLDS XML structure into 
+        its corresponding feature structure representation)        
+        """
+        self[Feature('mode')] = mode
+        if prop:
+            self.update({"prop": prop})
+        if nom:
+            self.update({"nom": nom})
+        if nested_diamonds_list:
+            for nested_diamond in nested_diamonds_list:
+                self.update({nested_diamond[Feature("mode")]: nested_diamond})
  
 def create_hlds_testbed(sentence_list, output="etree"):
     """
