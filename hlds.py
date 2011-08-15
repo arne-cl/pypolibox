@@ -46,7 +46,7 @@ import random
 from lxml import etree
 from lxml.builder import ElementMaker
 from nltk.featstruct import Feature, FeatDict
-from util import ensure_utf8, ensure_unicode
+from util import ensure_utf8, ensure_unicode, write_to_file
 
 testbed_file = "data/testbedHLDS.xml"
 
@@ -206,7 +206,7 @@ class Diamond(FeatDict):
                 child_name = ensure_utf8(child.attrib["name"])
                 self.update({child_tag: child_name})
     
-    def create_diamond_fs(self, mode, prop, nom, nested_diamonds_list):
+    def create_diamond_fs(self, mode, nom, prop, nested_diamonds_list):
         """
         creates an HLDS feature structure from scratch (in contrast to 
         convert_diamond_xml2fs, which converts an HLDS XML structure into 
@@ -314,10 +314,12 @@ def __diamond_fs2xml(diamond):
 
     diamond_etree = DIAMOND(mode=ensure_unicode(diamond[Feature("mode")]))
     
-    if "nom" in diamond:
-        diamond_etree.insert(0, NOM(name=ensure_unicode(diamond["nom"])) )
     if "prop" in diamond:    
         diamond_etree.insert(0, PROP(name=ensure_unicode(diamond["prop"])) )
+    if "nom" in diamond:
+    # if present, nom(inal) has to be the first argument/sub tag of a diamond
+        diamond_etree.insert(0, NOM(name=ensure_unicode(diamond["nom"])) )
+
         
     subdiamonds = []    
     for key, value in diamond.items():
