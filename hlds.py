@@ -123,40 +123,41 @@ class HLDSReader():
             diamond.convert_diamond_xml2fs(element)
             elements.append(diamond)
 
-        sentence_tuple = (sentence_string, expected_parses, root_prop, 
-                          root_nom, elements)
-        
-        return Sentence(sentence_tuple)
+        sentence = Sentence()
+        sentence.create_sentence(sentence_string, expected_parses, 
+                                 root_prop, root_nom, elements)
+        return sentence
 
 
 class Sentence(FeatDict):
     """
     represents an HLDS sentence as an NLTK feature structure.
-    
-    TODO: rewrite __new__() to accept more than one parameter. Since 
-    C{Sentence} inherits its features from C{FeatDict}, we can't feed as 
-    many parameters to __init__() as we'd like to.
     """
-    def __init__(self, sent_tuple):
+    def create_sentence(self, sent_str, expected_parses, root_prop, root_nom, 
+                        elements):
         """         
-        __init__ wraps all C{Diamond}s that were already constructed by 
+        wraps all C{Diamond}s that were already constructed by 
         HLDSReader.parse_sentences() plus some meta data (root verb etc.) 
         into a NLTK feature structure that represents a complete sentence.
-                
-        @type sent_tuple: C{tuple} of (C{str}, C{int}, C{str}, C{str}, 
-        C{list}), where C{list} contains C{Diamond}s
         
-        @param sent_tuple: a 5-tuple containing the text that should be 
-        generated (C{str}), the expected number of parses (C{int}), the 
-        root verb of that sentence (root_prop: C{str}), the root (verb) 
-        category (root_nom: C{str}, e.g. "b1:handlung") and a list of the 
-        diamonds that are contained in the sentence (elements: C{list} of 
-        C{Diamond}s). 
+        @type sent_str: C{str}
+        @param sent_str: the text that should be generated
         
-        TODO: rewrite __new__(), so we don't have to put all those 
-        parameters into one tuple.                
+        @type expected_parses: C{int}
+        @param expected_parses: the expected number of parses
+        
+        @type root_prop: C{str}
+        @param root_prop: the root element of that text (in case we're 
+        actually generating a sentence: the main verb)
+        
+        @type root_nom: C{str}
+        @param root_nom: the root (element/verb) category, e.g. "b1:handlung"
+        
+        @type elements: C{list} of C{Diamond}s        
+        @param elements: a list of the diamonds that are contained in the 
+        sentence 
         """
-        sent_str, expected_parses, root_prop, root_nom, elements = sent_tuple
+        
         self.update({Feature("text"): sent_str})
         self.update({Feature("expected_parses"): int(expected_parses)})
         self.update({Feature("root_prop"): root_prop}) 
