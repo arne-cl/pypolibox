@@ -7,6 +7,7 @@ converters, existence checks etc.).
 """
 
 import re
+import cPickle as pickle
 
 def ensure_utf8(string):
     """
@@ -86,3 +87,16 @@ def freeze_all_messages(message_list):
     for message in message_list:
         message.freeze()
     return message_list
+
+def write_to_file(str_or_obj, file_path):
+    """
+    takes a string and writes it to a file or takes any other object, pickles 
+    it and writes it to a file
+    """
+    f = open(file_path, "w")
+    if type(str_or_obj) is str:
+        f.write(str_or_obj)
+    else:
+        pickle.dump(str_or_obj, f)
+    f.close()
+    
