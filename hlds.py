@@ -41,13 +41,14 @@ Sentences are represented as <item> structures in HLDS::
     </item>
 """
 
+import sys
 import random
-from nltk.featstruct import Feature, FeatDict
 from lxml import etree
 from lxml.builder import ElementMaker
+from nltk.featstruct import Feature, FeatDict
 from util import ensure_utf8, ensure_unicode
 
-testbed_file = "testbedHLDS.xml"
+testbed_file = "data/testbedHLDS.xml"
 
 class HLDSReader():
     """ 
@@ -62,9 +63,7 @@ class HLDSReader():
         
         @type input_format: C{str}
         @param input_format: "string" or "file"
-        """
-        self.sentences = []
-        
+        """        
         if input_format == "string":
             tree = etree.fromstring(hlds)
             self.parse_sentences(tree)
@@ -75,37 +74,59 @@ class HLDSReader():
         
     def parse_sentences(self, tree):
         """
-        Parses all sentences (represented as HLDS XML <item> structures) 
+        Parses all sentences (represented as HLDS XML structures) 
         into feature structures. These structures are saved as a list of 
         C{Sentence}s in self.sentences.
+        
+        If there's only one sentence in a file, it's root element is <xml>. 
+        If there's more than one, they are each <xml> sentence "roots" is 
+        wrapped in an <item>...</item> (and <regression> becomes the root 
+        tag of the document).
         
         @type tree: C{etree._ElementTree}
         @param tree: an etree tree element
         """
-        self.xml_sentences = tree.findall("item")
+        self.sentences = []
         
-        for sentence in self.xml_sentences:
-            root = sentence.find("xml/lf/satop") # root (verb) of the sentence
+        self.xml_sentences = tree.findall("item")
+        if self.xml_sentences: # there are multiple sentences            
+            for sent in self.xml_sentences:
+                self.sentences.append(self.parse_sentence(sent, 
+                                                          single_sent=False))
+                
+        else: # no <item> tag --> file contains just one sentence
+            root = tree.find("lf/satop") # root (verb) of the sentence
+            self.sentences = [self.parse_sentence(root, single_sent=True)]
             
+    def parse_sentence(self, sentence, single_sent=True):
+        if single_sent is False:
+            item = sentence
+            satop = item.find("xml/lf/satop") # root (verb) of the sentence
+
             # <item numOfParses="4" string="er beschreibt sie">
-            sentence_string = ensure_utf8(sentence.attrib["string"])
-            expected_parses = sentence.attrib["numOfParses"]
+            sentence_string = ensure_utf8(item.attrib["string"])
+            expected_parses = item.attrib["numOfParses"]
 
-            # <satop nom="b1:handlung">
-            #   <prop name="beschreiben"/>
-            root_name = root.find("prop").attrib["name"]
-            root_id = root.attrib["nom"]
-            elements = []
-            
-            for element in root.findall("diamond"):
-                diamond = Diamond(element)
-                elements.append(diamond)
+        elif single_sent is True:
+            satop = sentence
+            sentence_string = "" #TODO: parse str from xml comment w/ iterparse
+            expected_parses = 1 
+                
+        # <satop nom="b1:handlung">
+        #   <prop name="beschreiben"/>
+        root_name = satop.find("prop").attrib["name"]
+        root_id = satop.attrib["nom"]
+        elements = []
+        
+        for element in satop.findall("diamond"):
+            diamond = Diamond(element)
+            elements.append(diamond)
 
-            sentence_tuple = (sentence_string, expected_parses, root_name, 
-                              root_id, elements)
-            parsed_sentence = Sentence(sentence_tuple)
-            self.sentences.append(parsed_sentence)
-            
+        sentence_tuple = (sentence_string, expected_parses, root_name, 
+                          root_id, elements)
+        
+        return Sentence(sentence_tuple)
+
 
 class Sentence(FeatDict):
     """
@@ -325,6 +346,13 @@ def eprint(element):
     print etree.tostring(element, pretty_print=True, encoding="utf8")
     
 if __name__ == "__main__":
-    fs_sents, xml_sents = test_conversion()
-    
-    
+    if len(sys.argv) > 1:
+    # given an HLDS XML file as a command line argument, print a feature 
+    # structure representation of the sentence(s) it contains
+        for arg in sys.argv[1:]:
+            hlds_reader = HLDSReader(arg, input_format="file")
+            for sentence in hlds_reader.sentences:
+                print sentence, "\n\n"
+    else:
+    # test functionality on a random testbed sentence
+        fs_sents, xml_sents = test_conversion()

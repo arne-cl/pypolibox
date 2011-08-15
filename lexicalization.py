@@ -53,9 +53,49 @@ def linearize_textplan(textplan):
             nested_structure = fs[Feature("satellite")]
             linearized_structures.append(nested_structure)
     return linearized_structures
-    
-             
+                 
 def __rstree2list(featstruct):
     rst_list = [fs for fs in featstruct.walk() if type(fs) is ConstituentSet]
     rst_list.reverse()
     return rst_list
+
+def lexicalize_authors(authors):
+    """
+    type authors: C{tuple} of (C{frozenset}, C{str})
+    """
+    names, rating = authors
+    names_list = list(names)
+    
+    if len(names_list) == 1:
+        pass
+        """
+        der Autor
+        die Autorin ???
+        Nachname
+        Vorname+ Nachname
+        """
+    elif len(names_list) > 1:
+        pass
+        """
+        die Autoren
+        
+        if len(names_list) == 2:
+        
+        Nachname und Nachname
+        Vorname+ Nachname und Vorname+ Nachname
+        
+        if len(names_list) > 2:
+
+        Nachname, Nachname und Nachname
+        Vorname+ Nachname, Vorname+ Nachname und Vorname+ Nachname
+
+        #cf. database.py ...
+        if len(queries) > 1:
+            for query in queries[:-1]:
+            #combine queries with " AND ", but don't append
+            #after the last query
+                combined_queries += query + query_combinator
+            combined_queries += queries[-1]
+            return query_template + where + combined_queries
+        
+        """
