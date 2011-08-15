@@ -119,7 +119,8 @@ class HLDSReader():
         elements = []
         
         for element in satop.findall("diamond"):
-            diamond = Diamond(element)
+            diamond = Diamond()
+            diamond.convert_diamond_xml2fs(element)
             elements.append(diamond)
 
         sentence_tuple = (sentence_string, expected_parses, root_prop, 
@@ -180,27 +181,24 @@ class Diamond(FeatDict):
             ...
         </diamond>
     """
-    def __init__(self, etree_or_list):
+    def __init__(self):
         """        
-        @type etree_or_tuple: C{etree._Element}
-        @param etree_or_tuple: a diamond etree element
         """
-        if type(etree_or_list) is etree._Element:
-            self.convert_diamond_xml2fs(etree_or_list)
-        elif type(etree_or_list) is list:
-            mode, prop, nom, nested_diamonds_list = etree_or_list
-            self.create_diamond_fs(mode, prop, nom, nested_diamonds_list)
         
     def convert_diamond_xml2fs(self, etree):
         """
         transforms a HLDS XML <diamond>...</diamond> structure 
         (that was parsed into an etree element) into an NLTK feature structure.
+
+        @type etree_or_tuple: C{etree._Element}
+        @param etree_or_tuple: a diamond etree element
         """
         self[Feature('mode')] = ensure_utf8(etree.attrib["mode"])
         
         for child in etree.getchildren():
             if child.tag == "diamond":
-                nested_diamond = Diamond(child)
+                nested_diamond = Diamond()
+                nested_diamond.convert_diamond_xml2fs(child)
                 self.update({nested_diamond[Feature("mode")]: nested_diamond})
 
             else: # children with .tag 'nom' or 'prop'
