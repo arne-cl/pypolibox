@@ -114,16 +114,16 @@ class HLDSReader():
                 
         # <satop nom="b1:handlung">
         #   <prop name="beschreiben"/>
-        root_name = satop.find("prop").attrib["name"]
-        root_id = satop.attrib["nom"]
+        root_prop = satop.find("prop").attrib["name"]
+        root_nom = satop.attrib["nom"]
         elements = []
         
         for element in satop.findall("diamond"):
             diamond = Diamond(element)
             elements.append(diamond)
 
-        sentence_tuple = (sentence_string, expected_parses, root_name, 
-                          root_id, elements)
+        sentence_tuple = (sentence_string, expected_parses, root_prop, 
+                          root_nom, elements)
         
         return Sentence(sentence_tuple)
 
@@ -147,19 +147,19 @@ class Sentence(FeatDict):
         
         @param sent_tuple: a 5-tuple containing the text that should be 
         generated (C{str}), the expected number of parses (C{int}), the 
-        root verb of that sentence (root_name: C{str}), the root (verb) 
-        category (root_id: C{str}, e.g. "b1:handlung") and a list of the 
+        root verb of that sentence (root_prop: C{str}), the root (verb) 
+        category (root_nom: C{str}, e.g. "b1:handlung") and a list of the 
         diamonds that are contained in the sentence (elements: C{list} of 
         C{Diamond}s). 
         
         TODO: rewrite __new__(), so we don't have to put all those 
         parameters into one tuple.                
         """
-        sent_str, expected_parses, root_name, root_id, elements = sent_tuple
+        sent_str, expected_parses, root_prop, root_nom, elements = sent_tuple
         self.update({Feature("text"): sent_str})
         self.update({Feature("expected_parses"): int(expected_parses)})
-        self.update({Feature("root_name"): root_name}) 
-        self.update({Feature("root_id"): root_id})
+        self.update({Feature("root_prop"): root_prop}) 
+        self.update({Feature("root_nom"): root_nom})
         
         for element in elements: # these are C{Diamond}s
             self.update({element[Feature("mode")]: element})
@@ -253,11 +253,11 @@ def __sentence_fs2xml(sentence):
     xml = etree.SubElement(item, "xml")
     lf = etree.SubElement(xml, "lf")
     
-    root_id = sentence[Feature("root_id")]
-    satop = etree.SubElement(lf, "satop", nom=root_id)
+    root_nom = sentence[Feature("root_nom")]
+    satop = etree.SubElement(lf, "satop", nom=root_nom)
     
-    root_name = sentence[Feature("root_name")]
-    etree.SubElement(satop, "prop", name=root_name)
+    root_prop = sentence[Feature("root_prop")]
+    etree.SubElement(satop, "prop", name=root_prop)
     
     diamonds = []
     for key, val in sentence.items():
