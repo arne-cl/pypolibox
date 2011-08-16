@@ -266,7 +266,8 @@ def create_hlds_testbed(sent_or_sent_list, mode="test", output="etree"):
             raise Exception, \
                 "ValueError: sentence_or_sent_or_sent_list shoud be one Sentence" \
                 " or a list containing only one Sentence."
-
+        root.insert(0, sentence_etree)
+        
     if output == "etree":
         return doc
     elif output == "xml":
