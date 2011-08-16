@@ -222,12 +222,17 @@ class Diamond(FeatDict):
             for nested_diamond in nested_diamonds_list:
                 self.update({nested_diamond[Feature("mode")]: nested_diamond})
  
-def create_hlds_testbed(sentence_list, output="etree"):
+def create_hlds_testbed(sent_or_sent_list, mode="test", output="etree"):
     """
     this function transforms C{Sentence}s into a a valid HLDS XML testbed file
     
-    @type sentence_list: C{list} of C{Sentence}s
-    @param sentence_list: a list of C{Sentence} feature structures
+    @type sent_or_sent_list: C{list} of C{Sentence}s
+    @param sent_or_sent_list: a list of C{Sentence} feature structures
+
+    @type mode: C{str}    
+    @param mode: "test", if the sentence will be part of a (regression) 
+    testbed file (ccg-test). "realize", if the sentence will be put in a 
+    file on its own (ccg-realize).
     
     @type output: C{str}
     @param output: "etree" (etree element) or "xml" (formatted, valid xml 
@@ -235,25 +240,40 @@ def create_hlds_testbed(sentence_list, output="etree"):
     
     @rtype: C{str}
     """
-    root = etree.Element("regression")
-    doc = etree.ElementTree(root)
+    if mode is "test":
+        root = etree.Element("regression")
+        doc = etree.ElementTree(root)
     
-    etree_sentences = []
-    for sentence in sentence_list:
-        item = __sentence_fs2xml(sentence)
-        etree_sentences.append(item)
-    
-    for sentence_tree in etree_sentences:
-        final_position = len(root)
-        root.insert(final_position, sentence_tree)
-            
+        etree_sentences = []
+        for sentence in sent_or_sent_list:
+            item = __sentence_fs2xml(sentence, mode="test")
+            etree_sentences.append(item)
+        
+        for sentence_tree in etree_sentences:
+            final_position = len(root)
+            root.insert(final_position, sentence_tree)
+
+    elif mode is "realize":
+        root = etree.Element("xml")
+        doc = etree.ElementTree(root)
+        
+        if type(sent_or_sent_list) is Sentence:
+            sentence_etree = __sentence_fs2xml(sent_or_sent_list, mode="realize")
+        elif type(sent_or_sent_list) is list and len(sent_or_sent_list) == 1:
+            sentence_etree = __sentence_fs2xml(sent_or_sent_list[0], 
+                                               mode="realize")
+        else:
+            raise Exception, \
+                "ValueError: sentence_or_sent_or_sent_list shoud be one Sentence" \
+                " or a list containing only one Sentence."
+
     if output == "etree":
         return doc
     elif output == "xml":
         return etree.tostring(doc, encoding="utf8", 
                               xml_declaration=True, pretty_print=True)
 
-def __sentence_fs2xml(sentence):
+def __sentence_fs2xml(sentence, mode="test"):
     """    
     transforms a sentence (in NLTK feature structure notation) into its 
     corresponding HLDS XML <item></item> structure.
@@ -261,18 +281,24 @@ def __sentence_fs2xml(sentence):
     @type sentence: C{Sentence}
     @param sentence: a sentence in NLTK feature structure notation
     
+    @type mode: C{str}    
+    @param mode: "test", if the sentence will be part of a (regression) 
+    testbed file (ccg-test). "realize", if the sentence will be put in a 
+    file on its own (ccg-realize).
+    
     @rtype: C{etree._Element}
     @return: the input sentence in HLDS XML format (represented as an etree 
     element)
     """
-    expected_parses = sentence[Feature("expected_parses")]
-    text = sentence[Feature("text")]
-    
-    item = etree.Element("item", numOfParses=str(expected_parses),
-                         string=ensure_unicode(text))
-    
-    xml = etree.SubElement(item, "xml")
-    lf = etree.SubElement(xml, "lf")
+    if mode is "test":
+        expected_parses = sentence[Feature("expected_parses")]
+        text = sentence[Feature("text")]
+        item = etree.Element("item", numOfParses=str(expected_parses),
+                             string=ensure_unicode(text))
+        xml = etree.SubElement(item, "xml")
+        lf = etree.SubElement(xml, "lf")
+    else:
+        lf = etree.Element("lf")
     
     root_nom = sentence[Feature("root_nom")]
     satop = etree.SubElement(lf, "satop", nom=root_nom)
@@ -290,10 +316,13 @@ def __sentence_fs2xml(sentence):
         etree_diamonds.append(__diamond_fs2xml(diamond))
         
     for diamond in etree_diamonds:
-        final_position = len(diamond)
+        final_position = len(satop)
         satop.insert(final_position, diamond)
-    
-    return item
+   
+    if mode is "test":
+        return item
+    else:
+        return lf
  
 def __diamond_fs2xml(diamond):
     """
