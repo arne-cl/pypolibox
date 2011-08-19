@@ -92,15 +92,15 @@ def lexicalize_authors(authors):
         lastname_only = Diamond()
         lastname_only.create_diamond("n1", "x1:personenname", "", [])
         lastname = Sentence()
-        lastname.create_sentence(lastname_str, 1, "m1:nachname", lastname_str,
+        lastname.create_sentence(lastname_str, 1, "nachname", lastname_str,
                                  [lastname_only])
         
         names_hlds.append(lastname)
+        
+        # given name(s) + lastname 
+        
         return names_hlds
         
-        """
-        Vorname+ Nachname
-        """
         
     elif len(names_list) > 1:
         pass
@@ -142,3 +142,30 @@ def __split_name(name):
     name_components = name.split()
     given_names, last_name = name_components[:-1], name_components[-1]
     return given_names, last_name
+
+def __create_nested_given_names(given_names):
+    """
+    
+    given names are represented as nested (diamond) structures in HLDS 
+    (instead of using indices to specify the first given name, second given 
+    name etc.), where the last given name is the outermost structural 
+    element and the first given name is the innermost one.
+    
+    @type given_names: C{list} of C{str}
+    
+    """
+    if given_names:
+        preceding_names, last_given_name = given_names[:-1], given_names[-1]
+        diamond = Diamond()
+        nested_diamond = __create_nested_given_names(preceding_names)
+
+        if type(nested_diamond) is list:
+            diamond.create_diamond("N1", "vorname", last_given_name, 
+                                   nested_diamond)
+        elif type(nested_diamond) is Diamond:
+            diamond.create_diamond("N1", "vorname", last_given_name, 
+                                   [nested_diamond])            
+        return diamond
+        
+    else: # given_names list is empty
+        return []

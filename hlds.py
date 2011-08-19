@@ -211,7 +211,12 @@ class Diamond(FeatDict):
         """
         creates an HLDS feature structure from scratch (in contrast to 
         convert_diamond_xml2fs, which converts an HLDS XML structure into 
-        its corresponding feature structure representation)        
+        its corresponding feature structure representation)
+        
+        @type mode: C{Str}
+        @type nom: C{Str}
+        @type prop: C{Str}
+        @type nested_diamonds_list: C{list}
         """
         self[Feature('mode')] = mode
         if prop:
