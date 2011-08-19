@@ -119,6 +119,14 @@ def enumprint(obj):
     for index, item in enumerate(obj):
         print "{0}:\n{1}\n".format(index, item)
 
+def etreeprint(element):
+    """pretty print function for etree trees or elements
+    
+    @type element: C{etree._ElementTree} or C{etree._Element}
+    """
+    print etree.tostring(element, pretty_print=True, encoding="utf8")
+
+
 def msgtypes(messages):
     """
     print message types / rst relation types, no matter which data 

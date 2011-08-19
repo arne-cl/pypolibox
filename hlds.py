@@ -395,13 +395,6 @@ def test_conversion():
     print random_sent_fs, "\n" * 3, random_sent_xml
     return hlds_reader, all_sents_xml 
 
-
-def eprint(element):
-    """pretty print function for etree trees or elements
-    
-    @type element: C{etree._ElementTree} or C{etree._Element}
-    """
-    print etree.tostring(element, pretty_print=True, encoding="utf8")
     
 if __name__ == "__main__":
     if len(sys.argv) > 1:
