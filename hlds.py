@@ -125,7 +125,7 @@ class HLDSReader():
 
         sentence = Sentence()
         sentence.create_sentence(sentence_string, expected_parses, 
-                                 root_prop, root_nom, elements)
+                                root_nom, root_prop, elements)
         return sentence
 
 

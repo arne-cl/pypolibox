@@ -80,8 +80,8 @@ def lexicalize_authors(authors):
         num.create_diamond("NUM", "", "sing", [])
         
         der_autor = Sentence()
-        der_autor.create_sentence("der Autor", 1, "Autor", 
-                                  "a1:bel-phys-körper", [art, gen, num])
+        der_autor.create_sentence("der Autor", 1, "a1:bel-phys-körper", 
+                                  "Autor", [art, gen, num])
 
         names_hlds.append(der_autor)
         
@@ -92,7 +92,7 @@ def lexicalize_authors(authors):
         lastname_only = Diamond()
         lastname_only.create_diamond("n1", "x1:personenname", "", [])
         lastname = Sentence()
-        lastname.create_sentence(lastname_str, 1, lastname_str, "m1:nachname", 
+        lastname.create_sentence(lastname_str, 1, "m1:nachname", lastname_str,
                                  [lastname_only])
         
         names_hlds.append(lastname)
