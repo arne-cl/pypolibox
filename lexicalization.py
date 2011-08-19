@@ -9,7 +9,8 @@ be utilized by the OpenCCG surface realizer to produce natural language text.
 
 from nltk.featstruct import Feature
 from textplan import ConstituentSet, Message
-import hlds
+from hlds import Diamond, Sentence, create_hlds_testbed
+from debug import enumprint #TODO: dbg, rm
 
 def linearize_textplan(textplan):
     """
@@ -63,17 +64,44 @@ def lexicalize_authors(authors):
     """
     type authors: C{tuple} of (C{frozenset}, C{str})
     """
-    names, rating = authors
+    names, _ = authors
     names_list = list(names)
     
     if len(names_list) == 1:
-        pass
+        names_hlds = []
+        
+        # string "der Autor"
+        
+        art = Diamond()
+        art.create_diamond_fs("ART", "d1:sem-obj", "def", [])
+        gen = Diamond()
+        gen.create_diamond_fs("GEN", "", "mask", [])
+        num = Diamond()
+        num.create_diamond_fs("NUM", "", "sing", [])
+        
+        der_autor = Sentence()
+        der_autor.create_sentence("der Autor", 1, "Autor", 
+                                  "a1:bel-phys-körper", [art, gen, num])
+
+        names_hlds.append(der_autor)
+        
+        # lastname
+        
+        _, lastname_str = __split_name(names_list[0])
+        
+        lastname_only = Diamond()
+        lastname_only.create_diamond_fs("n1", "x1:personenname", "", [])
+        lastname = Sentence()
+        lastname.create_sentence(lastname_str, 1, lastname_str, "m1:nachname", 
+                                 [lastname_only])
+        
+        names_hlds.append(lastname)
+        return names_hlds
+        
         """
-        der Autor
-        die Autorin ???
-        Nachname
         Vorname+ Nachname
         """
+        
     elif len(names_list) > 1:
         pass
         """
@@ -99,3 +127,18 @@ def lexicalize_authors(authors):
             return query_template + where + combined_queries
         
         """
+
+def __split_name(name):
+    """
+    naively splits a name string into a last name and a given name 
+    (or given names).
+    
+    @type name: C{Str}
+    @param name: a name, e.g. "George W. Bush"
+    
+    @rtype: C{tuple} of (C{list}, C{str}), where C{list} consists of C{str}s
+    @return: a list of given names and a string containing the last name
+    """
+    name_components = name.split()
+    given_names, last_name = name_components[:-1], name_components[-1]
+    return given_names, last_name
