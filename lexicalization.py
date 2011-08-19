@@ -73,11 +73,11 @@ def lexicalize_authors(authors):
         # string "der Autor"
         
         art = Diamond()
-        art.create_diamond_fs("ART", "d1:sem-obj", "def", [])
+        art.create_diamond("ART", "d1:sem-obj", "def", [])
         gen = Diamond()
-        gen.create_diamond_fs("GEN", "", "mask", [])
+        gen.create_diamond("GEN", "", "mask", [])
         num = Diamond()
-        num.create_diamond_fs("NUM", "", "sing", [])
+        num.create_diamond("NUM", "", "sing", [])
         
         der_autor = Sentence()
         der_autor.create_sentence("der Autor", 1, "Autor", 
@@ -90,7 +90,7 @@ def lexicalize_authors(authors):
         _, lastname_str = __split_name(names_list[0])
         
         lastname_only = Diamond()
-        lastname_only.create_diamond_fs("n1", "x1:personenname", "", [])
+        lastname_only.create_diamond("n1", "x1:personenname", "", [])
         lastname = Sentence()
         lastname.create_sentence(lastname_str, 1, lastname_str, "m1:nachname", 
                                  [lastname_only])

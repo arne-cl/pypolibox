@@ -207,7 +207,7 @@ class Diamond(FeatDict):
                 child_name = ensure_utf8(child.attrib["name"])
                 self.update({child_tag: child_name})
     
-    def create_diamond_fs(self, mode, nom, prop, nested_diamonds_list):
+    def create_diamond(self, mode, nom, prop, nested_diamonds_list):
         """
         creates an HLDS feature structure from scratch (in contrast to 
         convert_diamond_xml2fs, which converts an HLDS XML structure into 
