@@ -133,7 +133,7 @@ class Sentence(FeatDict):
     """
     represents an HLDS sentence as an NLTK feature structure.
     """
-    def create_sentence(self, sent_str, expected_parses, root_prop, root_nom, 
+    def create_sentence(self, sent_str, expected_parses, root_nom, root_prop, 
                         elements):
         """         
         wraps all C{Diamond}s that were already constructed by 
