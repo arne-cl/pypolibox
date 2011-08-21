@@ -119,7 +119,7 @@ def __gen_autor(num_of_authors):
     @type num_of_authors: C{int}
     @param num_of_authors: the number of authors of a book
     
-    @rtype: C{Sentence}
+    @rtype: C{Diamond}
     """
     if num_of_authors == 1:
         num_str = "sing"
@@ -133,38 +133,37 @@ def __gen_autor(num_of_authors):
     num = Diamond()
     num.create_diamond("NUM", "", num_str, [])
     
-    der_autor = Sentence()
-    der_autor.create_sentence("der Autor", 1, "a1:bel-phys-körper", 
-                              "Autor", [art, gen, num])
+    der_autor = Diamond()
+    der_autor.create_diamond("", "a1:bel-phys-körper", "Autor", 
+                            [art, gen, num])
     return der_autor
 
 def __gen_lastname_only(name):
     """
     @type name: C{str}
-    @rtype: C{Sentence}
+    @rtype: C{Diamond}
     """
     _, lastname_str = __split_name(name)        
     lastname_only = Diamond()
     lastname_only.create_diamond("n1", "x1:personenname", "", [])
-    lastname = Sentence()
-    lastname.create_sentence(lastname_str, 1, "nachname", lastname_str,
-                             [lastname_only])
+    lastname = Diamond()
+    lastname.create_diamond("", "nachname", lastname_str, [lastname_only])
     return lastname
 
 def __gen_complete_name(name):
     given_names, lastname_str = __split_name(name)
     given_names_diamond = __create_nested_given_names(given_names)
-    complete_name = Sentence()
+    complete_name = Diamond()
     
-    complete_name.create_sentence(name, 1, "nachname", lastname_str, 
-                                  [given_names_diamond])
+    complete_name.create_diamond("", "nachname", lastname_str, 
+                                 [given_names_diamond])
     return complete_name
 
 def __gen_komma_enumeration(diamonds_list):
-    if len(diamonds_list) is 0:
-        return []
-    if len(diamonds_list) is 1:
-        return diamonds_list[0]
+    #~ if len(diamonds_list) is 0:
+        #~ return []
+    #~ if len(diamonds_list) is 1:
+        #~ return diamonds_list[0]
     if len(diamonds_list) is 2:
         komma_enum = Diamond()
         komma_enum.create_diamond("NP1", "konjunktion", "komma", 
@@ -172,9 +171,10 @@ def __gen_komma_enumeration(diamonds_list):
     if len(diamonds_list) > 2:
         komma_enum = Diamond()
         nested_komma_enum = __gen_komma_enumeration(diamonds_list[1:])
+        #print "nested_komma_enum: {0}".format(nested_komma_enum) #TODO: dbg, rm
         komma_enum.create_diamond("NP1", "konjunktion", "komma", 
                                   [nested_komma_enum, diamonds_list[0]])
-
+    return komma_enum
     
 def __split_name(name):
     """
