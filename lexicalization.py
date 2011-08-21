@@ -60,74 +60,122 @@ def __rstree2list(featstruct):
     rst_list.reverse()
     return rst_list
 
-def lexicalize_authors(authors):
-    """
-    type authors: C{tuple} of (C{frozenset}, C{str})
-    """
-    names, _ = authors
-    names_list = list(names)
+def lexicalize_author(name):
+
+    #~ """
+    #~ type authors: C{tuple} of (C{frozenset}, C{str})
+    #~ """
+    #~ names, _ = authors
+    #~ names_list = list(names)
+
+    #~ num_of_authors = len(names_list)
+    #~ names_hlds = []
+    #~ 
+    #~ autor = __gen_autor(1)
+    #~ names_hlds.append(autor)
+    #~ 
+#~ if num_of_authors == 1:
+    #~ lastname = __gen_lastname_only(name)
+    #~ names_hlds.append(lastname)
+    #~ 
+    #~ # given name(s) + lastname        
+    #~ complete_name = __gen_complete_name(name)
+    #~ names_hlds.append(complete_name)
     
-    if len(names_list) == 1:
-        names_hlds = []
+    return [__gen_autor(1), __gen_lastname_only(name), 
+            __gen_complete_name(name)]
         
-        # string "der Autor"
         
-        art = Diamond()
-        art.create_diamond("ART", "d1:sem-obj", "def", [])
-        gen = Diamond()
-        gen.create_diamond("GEN", "", "mask", [])
-        num = Diamond()
-        num.create_diamond("NUM", "", "sing", [])
-        
-        der_autor = Sentence()
-        der_autor.create_sentence("der Autor", 1, "a1:bel-phys-körper", 
-                                  "Autor", [art, gen, num])
+    #~ elif len(names_list) > 1:
+        #~ # string "die Autoren"
+        #~ """
+        #~ die Autoren
+        #~ 
+        #~ if len(names_list) == 2:
+        #~ 
+        #~ Nachname und Nachname
+        #~ Vorname+ Nachname und Vorname+ Nachname
+        #~ 
+        #~ if len(names_list) > 2:
+#~ 
+        #~ Nachname, Nachname und Nachname
+        #~ Vorname+ Nachname, Vorname+ Nachname und Vorname+ Nachname
+#~ 
+        #~ #cf. database.py ...
+        #~ if len(queries) > 1:
+            #~ for query in queries[:-1]:
+            #~ #combine queries with " AND ", but don't append
+            #~ #after the last query
+                #~ combined_queries += query + query_combinator
+            #~ combined_queries += queries[-1]
+            #~ return query_template + where + combined_queries
+        #~ 
+        #~ """
 
-        names_hlds.append(der_autor)
-        
-        # lastname
-        
-        _, lastname_str = __split_name(names_list[0])
-        
-        lastname_only = Diamond()
-        lastname_only.create_diamond("n1", "x1:personenname", "", [])
-        lastname = Sentence()
-        lastname.create_sentence(lastname_str, 1, "nachname", lastname_str,
-                                 [lastname_only])
-        
-        names_hlds.append(lastname)
-        
-        # given name(s) + lastname 
-        
-        return names_hlds
-        
-        
-    elif len(names_list) > 1:
-        pass
-        """
-        die Autoren
-        
-        if len(names_list) == 2:
-        
-        Nachname und Nachname
-        Vorname+ Nachname und Vorname+ Nachname
-        
-        if len(names_list) > 2:
 
-        Nachname, Nachname und Nachname
-        Vorname+ Nachname, Vorname+ Nachname und Vorname+ Nachname
 
-        #cf. database.py ...
-        if len(queries) > 1:
-            for query in queries[:-1]:
-            #combine queries with " AND ", but don't append
-            #after the last query
-                combined_queries += query + query_combinator
-            combined_queries += queries[-1]
-            return query_template + where + combined_queries
+def __gen_autor(num_of_authors):
+    """
+    @type num_of_authors: C{int}
+    @param num_of_authors: the number of authors of a book
+    
+    @rtype: C{Sentence}
+    """
+    if num_of_authors == 1:
+        num_str = "sing"
+    elif num_of_authors > 1:
+        num_str = "plur"
         
-        """
+    art = Diamond()
+    art.create_diamond("ART", "d1:sem-obj", "def", [])
+    gen = Diamond()
+    gen.create_diamond("GEN", "", "mask", [])
+    num = Diamond()
+    num.create_diamond("NUM", "", num_str, [])
+    
+    der_autor = Sentence()
+    der_autor.create_sentence("der Autor", 1, "a1:bel-phys-körper", 
+                              "Autor", [art, gen, num])
+    return der_autor
 
+def __gen_lastname_only(name):
+    """
+    @type name: C{str}
+    @rtype: C{Sentence}
+    """
+    _, lastname_str = __split_name(name)        
+    lastname_only = Diamond()
+    lastname_only.create_diamond("n1", "x1:personenname", "", [])
+    lastname = Sentence()
+    lastname.create_sentence(lastname_str, 1, "nachname", lastname_str,
+                             [lastname_only])
+    return lastname
+
+def __gen_complete_name(name):
+    given_names, lastname_str = __split_name(name)
+    given_names_diamond = __create_nested_given_names(given_names)
+    complete_name = Sentence()
+    
+    complete_name.create_sentence(name, 1, "nachname", lastname_str, 
+                                  [given_names_diamond])
+    return complete_name
+
+def __gen_komma_enumeration(diamonds_list):
+    if len(diamonds_list) is 0:
+        return []
+    if len(diamonds_list) is 1:
+        return diamonds_list[0]
+    if len(diamonds_list) is 2:
+        komma_enum = Diamond()
+        komma_enum.create_diamond("NP1", "konjunktion", "komma", 
+                                  [diamonds_list[1], diamonds_list[0]])
+    if len(diamonds_list) > 2:
+        komma_enum = Diamond()
+        nested_komma_enum = __gen_komma_enumeration(diamonds_list[1:])
+        komma_enum.create_diamond("NP1", "konjunktion", "komma", 
+                                  [nested_komma_enum, diamonds_list[0]])
+
+    
 def __split_name(name):
     """
     naively splits a name string into a last name and a given name 
@@ -152,7 +200,9 @@ def __create_nested_given_names(given_names):
     element and the first given name is the innermost one.
     
     @type given_names: C{list} of C{str}
-    
+    @rtype: empty C{list} or C{Diamond}
+    @return: returns an empty list if given_names is empty. otherwise returns a
+    C{Diamond} (which might contain other diamonds)
     """
     if given_names:
         preceding_names, last_given_name = given_names[:-1], given_names[-1]
@@ -169,3 +219,4 @@ def __create_nested_given_names(given_names):
         
     else: # given_names list is empty
         return []
+

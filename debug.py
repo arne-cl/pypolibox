@@ -8,6 +8,7 @@ the behaviour of pypolibox' classes, test its error handling or simply
 provides short cuts to generate frequently needed data.
 """
 
+from lxml import etree
 from nltk.featstruct import Feature
 from database import Query, Results, Books
 from facts import AllFacts
