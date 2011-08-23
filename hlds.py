@@ -373,6 +373,32 @@ def __diamond_fs2xml(diamond):
         
     return diamond_etree
 
+def diamond2sentence(diamond):
+    """
+    Converts a Diamond feature structure into a Sentence feature structure. 
+    This becomes necessary whenever we want to realize a short utterance, e.g. 
+    "die Autoren" or "die Themen Syntax und Pragmatik". 
+    
+    Note: OpenCCG does not really distinguish between a sentence and smaller 
+    units of meaning. It simply assigns the <sentence> tag to every HLDS 
+    structure it realizes, whereas each substructure of this "sentence" (no 
+    matter how complex) is labelled as <diamond>.
+    
+    @type diamond: C{Diamond}
+    @rtype: C{Sentence}
+    """
+    nom = ""
+    prop = ""
+    sentence = Sentence()
+    if "nom" in diamond:
+        nom = diamond["nom"]
+    if "prop" in diamond:
+        prop = diamond["prop"]
+    nested_diamonds = [val for (key, val) in diamond.items() 
+                           if type(val) is Diamond]
+    sentence.create_sentence("", 1, nom, prop, nested_diamonds)
+    return sentence
+
 def test_conversion():
     """    
     tests HLDS XML <-> NLTK feature structures conversions. converts an 

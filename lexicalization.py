@@ -7,10 +7,96 @@ This module shall convert C{TextPlan}s into HLDS XML structures which can
 be utilized by the OpenCCG surface realizer to produce natural language text.
 """
 
+import os
+import re
+from tempfile import NamedTemporaryFile
+from commands import getstatusoutput
 from nltk.featstruct import Feature
 from textplan import ConstituentSet, Message
-from hlds import Diamond, Sentence, create_hlds_testbed
+from hlds import Diamond, Sentence, create_hlds_testbed, diamond2sentence
 from debug import enumprint #TODO: dbg, rm
+from util import write_to_file
+
+OPENCCG_BIN_PATH = "/home/guido/bin/openccg/bin"
+GRAMMAR_PATH = "openccg-jpolibox"
+
+def realize(sentence, results="best"):
+    """
+    realizes a sentence by calling OpenCCG's I{ccg-realize} binary.
+    
+    TODO: check if 'Best Joined Edges' do play a significant role (they're not
+    always present)
+    
+    @type sentence: C{str}
+    @param sentence: the path to an HLDS XML sentence file (absolute path or 
+    relative to GRAMMAR_PATH)
+    """
+    current_dir = os.getcwd()
+    os.chdir(GRAMMAR_PATH)
+    grammar_abspath = os.getcwd()
+    realizer = os.path.join(OPENCCG_BIN_PATH, "ccg-realize")
+    
+    if type(sentence) is str:
+        file_path = os.path.join(grammar_abspath, sentence)
+        if os.path.isfile(file_path):
+            status, output = getstatusoutput("{0} {1}".format(realizer, 
+                                                              file_path))
+            os.chdir(current_dir)
+        else:
+            os.chdir(current_dir)
+            raise Exception, "{0} is not a file.\n" \
+                "Please use an absolute path or one that is relative to:\n" \
+                "{1}".format(file_path, grammar_abspath)
+    
+    elif type(sentence) is Diamond:
+        sent = diamond2sentence(sentence)
+        sent_xml_str = create_hlds_testbed(sent, mode="realize", output="xml")
+
+        tmp_file = NamedTemporaryFile(mode="w", delete=False)
+        tmp_file.write(sent_xml_str)
+        tmp_file.close()
+
+        status, output = getstatusoutput("{0} {1}".format(realizer, 
+                                                          tmp_file.name))
+        os.chdir(current_dir)
+        
+    else:
+        os.chdir(current_dir)
+        raise Exception, "Sorry, I can only realize HLDS XML sentence files," \
+            " Sentence and Diamond instances."
+
+    if status != 0:
+        raise Exception, "Error: Can't run ccg-realize properly." \
+            "Error message is:\n\n{0}".format(output)
+    else:
+        if results == "debug":
+            return output
+
+        res = re.compile("Complete Edges \(sorted\):\n")
+        complete_vs_best = re.compile("\n\nBest Edge:\n")
+        sentence_header = re.compile("\{.*?\} \[.*?\] ")
+        sentence_tail = re.compile(" :- ")
+        
+        _, results_str = res.split(output)
+        complete_edges_str, best_edge = complete_vs_best.split(results_str)
+
+        if results == "best":
+            _, best_edge_and_tail = sentence_header.split(best_edge)
+            best_result, _ = sentence_tail.split(best_edge_and_tail)
+            return best_result
+
+        elif results == "all":
+            complete_edges_list = complete_edges_str.splitlines()
+            result_edges = []
+            for complete_edge in complete_edges_list:
+                # maxsplit=1 is needed if there are 'Best Joined Edges'
+                _, edge_and_tail = sentence_header.split(complete_edge, 
+                                                         maxsplit=1)
+                edge, _ = sentence_tail.split(edge_and_tail, maxsplit=1)
+                result_edges.append(edge)
+            return list(set(result_edges)) # remove duplicates, return a list
+        
+
 
 def linearize_textplan(textplan):
     """
@@ -151,13 +237,40 @@ def __gen_lastname_only(name):
     return lastname
 
 def __gen_complete_name(name):
-    given_names, lastname_str = __split_name(name)
-    given_names_diamond = __create_nested_given_names(given_names)
-    complete_name = Diamond()
+    """
+    takes a name as a string and returns a corresponding nested HLDS diamond 
+    structure.
     
-    complete_name.create_diamond("", "nachname", lastname_str, 
-                                 [given_names_diamond])
+    @type name: C{str}
+    @rtype: C{Diamond}
+    """
+    given_names, lastname_str = __split_name(name)
+    complete_name = Diamond()
+    if given_names:
+        given_names_diamond = __create_nested_given_names(given_names)
+        complete_name.create_diamond("", "nachname", lastname_str, 
+                                     [given_names_diamond])
+    else: #if name string does not contain ' ', i.e. only last name is given
+        complete_name.create_diamond("", "nachname", lastname_str, [])
+
     return complete_name
+
+
+def __gen_enumeration(diamonds_list):
+    if len(diamonds_list) is 1:
+        return diamonds_list[0]
+    if len(diamonds_list) is 2:
+        enumeration = Diamond()
+        enumeration.create_diamond("", "konjunktion", "und", 
+                                   [diamonds_list[1], diamonds_list[0]])
+    if len(diamonds_list) > 2:
+        enumeration = Diamond()
+        nested_komma_enum = __gen_komma_enumeration(diamonds_list[1:])
+        enumeration.create_diamond("", "konjunktion", "und", 
+                                   [nested_komma_enum, diamonds_list[0]])
+    return enumeration
+    
+
 
 def __gen_komma_enumeration(diamonds_list):
     #~ if len(diamonds_list) is 0:
@@ -220,3 +333,17 @@ def __create_nested_given_names(given_names):
     else: # given_names list is empty
         return []
 
+"""
+__gen_komma_enumeration(lexicalize_author("Bert Fritz Hold"))
+
+d1 = lexicalize_author("Bert Fritz Hold")
+d2 = lexicalize_author("Manfred Krug")
+d3 = lexicalize_author("Rainer Maria Posemuckel")
+d4 = lexicalize_author("Horst Oberwutz-Przybilsky")
+
+d1 = lexicalize_author("Bert Fritz Hold"); d2 = lexicalize_author("Manfred Krug"); d3 = lexicalize_author("Rainer Maria Posemuckel"); d4 = lexicalize_author("Horst Oberwutz-Przybilsky")
+
+
+dlist = [d1[2], d2[2], d3[2], d4[2]]
+
+"""
