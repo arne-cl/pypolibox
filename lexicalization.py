@@ -5,6 +5,8 @@
 """
 This module shall convert C{TextPlan}s into HLDS XML structures which can 
 be utilized by the OpenCCG surface realizer to produce natural language text.
+
+TODO: move OPENCCG_BIN_PATH and GRAMMAR_PATH to a config.yml file
 """
 
 import os
@@ -20,16 +22,30 @@ from util import write_to_file
 OPENCCG_BIN_PATH = "/home/guido/bin/openccg/bin"
 GRAMMAR_PATH = "openccg-jpolibox"
 
-def realize(sentence, results="best"):
+def realize(sentence, results="all"):
     """
     realizes a sentence by calling OpenCCG's I{ccg-realize} binary.
     
     TODO: check if 'Best Joined Edges' do play a significant role (they're not
     always present)
     
-    @type sentence: C{str}
-    @param sentence: the path to an HLDS XML sentence file (absolute path or 
-    relative to GRAMMAR_PATH)
+    @type sentence: C{str} or C{Diamond} or C{Sentence}
+    @param sentence:
+     - a string: the path to an HLDS XML sentence file (absolute path or 
+       relative to GRAMMAR_PATH)
+     - a Diamond instance
+     - a Sentence instance
+    
+    @type results: C{str}
+    @param results: 
+    - "debug": return the raw results from ccg-realize
+    - "all": return all strings that ccg-realize could produce ("Complete 
+      Edges")
+    - "best": return only the best result from ccg-realize ("Best Edge")
+    
+    @rtype: C{str} or C{list} of C{str}
+    @return: a string (the "best" result from OpenCCG) OR a list of string, 
+    containing "all" results that could be realized by OpenCCG
     """
     current_dir = os.getcwd()
     os.chdir(GRAMMAR_PATH)
@@ -48,9 +64,12 @@ def realize(sentence, results="best"):
                 "Please use an absolute path or one that is relative to:\n" \
                 "{1}".format(file_path, grammar_abspath)
     
-    elif type(sentence) is Diamond:
-        sent = diamond2sentence(sentence)
-        sent_xml_str = create_hlds_testbed(sent, mode="realize", output="xml")
+    elif type(sentence) in (Diamond, Sentence):
+        if type(sentence) is Diamond:
+            sentence = diamond2sentence(sentence)
+        
+        sent_xml_str = create_hlds_testbed(sentence, mode="realize", 
+                                           output="xml")
 
         tmp_file = NamedTemporaryFile(mode="w", delete=False)
         tmp_file.write(sent_xml_str)
@@ -220,7 +239,7 @@ def __gen_autor(num_of_authors):
     num.create_diamond("NUM", "", num_str, [])
     
     der_autor = Diamond()
-    der_autor.create_diamond("", "a1:bel-phys-körper", "Autor", 
+    der_autor.create_diamond("", u"a1:bel-phys-körper", "Autor", 
                             [art, gen, num])
     return der_autor
 
@@ -284,7 +303,6 @@ def __gen_komma_enumeration(diamonds_list):
     if len(diamonds_list) > 2:
         komma_enum = Diamond()
         nested_komma_enum = __gen_komma_enumeration(diamonds_list[1:])
-        #print "nested_komma_enum: {0}".format(nested_komma_enum) #TODO: dbg, rm
         komma_enum.create_diamond("NP1", "konjunktion", "komma", 
                                   [nested_komma_enum, diamonds_list[0]])
     return komma_enum
