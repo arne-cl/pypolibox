@@ -117,9 +117,18 @@ def realize(sentence, results="all"):
         
 
 
-def linearize_textplan(textplan):
+def linearize_textplan(textplan): #TODO: add better explanation to docstring
     """
+    takes a text plan (RST tree) and returns an ordered list of constituent 
+    sets (RST relations that combine two messages).
+    
     @type textplan: C{TextPlan}
+    @param textplan: a complete text plan (RST tree) encoded as a feature 
+    structure
+    
+    @rtype: C{list} of C{ConstituentSet}s
+    @return: a list of constituent sets in the order they should be realized by 
+    surface generation
     """
     rstree = textplan["children"] # we don't need to process the title/metadata
     if type(rstree) is Message:
@@ -165,62 +174,31 @@ def __rstree2list(featstruct):
     rst_list.reverse()
     return rst_list
 
+def lexicalize_book(book_title):
+    pass
+
 def lexicalize_author(name):
-
-    #~ """
-    #~ type authors: C{tuple} of (C{frozenset}, C{str})
-    #~ """
-    #~ names, _ = authors
-    #~ names_list = list(names)
-
-    #~ num_of_authors = len(names_list)
-    #~ names_hlds = []
-    #~ 
-    #~ autor = __gen_autor(1)
-    #~ names_hlds.append(autor)
-    #~ 
-#~ if num_of_authors == 1:
-    #~ lastname = __gen_lastname_only(name)
-    #~ names_hlds.append(lastname)
-    #~ 
-    #~ # given name(s) + lastname        
-    #~ complete_name = __gen_complete_name(name)
-    #~ names_hlds.append(complete_name)
+    """
+    converts the name of an author into several possible HLDS diamond 
+    structures, which can be used for text generation.
     
+    @type name: C{str}
+    @param name: name of an author, e.g. "Christopher D. Manning"
+    
+    @rtype: C{list} of C{Diamond}s
+    @return: a list of 3 Diamond instance. the first generates "der Autor", the
+    second the author's lastname and the last generates the author's complete 
+    name.
+    """
     return [__gen_autor(1), __gen_lastname_only(name), 
             __gen_complete_name(name)]
         
-        
-    #~ elif len(names_list) > 1:
-        #~ # string "die Autoren"
-        #~ """
-        #~ die Autoren
-        #~ 
-        #~ if len(names_list) == 2:
-        #~ 
-        #~ Nachname und Nachname
-        #~ Vorname+ Nachname und Vorname+ Nachname
-        #~ 
-        #~ if len(names_list) > 2:
-#~ 
-        #~ Nachname, Nachname und Nachname
-        #~ Vorname+ Nachname, Vorname+ Nachname und Vorname+ Nachname
-#~ 
-        #~ #cf. database.py ...
-        #~ if len(queries) > 1:
-            #~ for query in queries[:-1]:
-            #~ #combine queries with " AND ", but don't append
-            #~ #after the last query
-                #~ combined_queries += query + query_combinator
-            #~ combined_queries += queries[-1]
-            #~ return query_template + where + combined_queries
-        #~ 
-        #~ """
-
-
 
 def __gen_autor(num_of_authors):
     """
+    given an integer (number of authors), returns a Diamond instance which 
+    generates "der Autor" or "die Autoren".
+    
     @type num_of_authors: C{int}
     @param num_of_authors: the number of authors of a book
     
@@ -245,6 +223,12 @@ def __gen_autor(num_of_authors):
 
 def __gen_lastname_only(name):
     """
+    given an authors name ("Christopher D. Manning"), the function returns a 
+    Diamond instance which can be used to realize the author's last name.
+    
+    NOTE: This does not work with last names that include whitespace, e.g. 
+    "du Bois" or "von Neumann".
+    
     @type name: C{str}
     @rtype: C{Diamond}
     """
@@ -276,6 +260,24 @@ def __gen_complete_name(name):
 
 
 def __gen_enumeration(diamonds_list):
+    """
+    Takes a list of Diamond instances and combines them into a nested Diamond.
+    This nested Diamond can be used to generate an enumeration, such as::
+    
+        A
+        A und B
+        A, B und C
+        A, B, C und D
+        ...
+        
+    @type diamonds_list: C{list} of C{Diamond}s
+    
+    @rtype: C{Diamond}
+    @return: a Diamond instance (containing zero or more nested Diamond 
+    instances)
+    """
+    if len(diamonds_list) is 0:
+        return []
     if len(diamonds_list) is 1:
         return diamonds_list[0]
     if len(diamonds_list) is 2:
@@ -292,10 +294,25 @@ def __gen_enumeration(diamonds_list):
 
 
 def __gen_komma_enumeration(diamonds_list):
-    #~ if len(diamonds_list) is 0:
-        #~ return []
-    #~ if len(diamonds_list) is 1:
-        #~ return diamonds_list[0]
+    """
+    This function will be called by __gen_enumeration() and takes a list of 
+    Diamond instances and combines them into a nested Diamond, expressing comma
+    separated items, e.g.:
+    
+        Manning, Chomsky
+        Manning, Chomsky, Allen
+        ...
+        
+    @type diamonds_list: C{list} of C{Diamond}s
+    
+    @rtype: C{Diamond}
+    @return: a Diamond instance (containing zero or more nested Diamond 
+    instances)
+    """
+    if len(diamonds_list) is 0:
+        return []
+    if len(diamonds_list) is 1:
+        return diamonds_list[0]
     if len(diamonds_list) is 2:
         komma_enum = Diamond()
         komma_enum.create_diamond("NP1", "konjunktion", "komma", 
@@ -324,7 +341,6 @@ def __split_name(name):
 
 def __create_nested_given_names(given_names):
     """
-    
     given names are represented as nested (diamond) structures in HLDS 
     (instead of using indices to specify the first given name, second given 
     name etc.), where the last given name is the outermost structural 
@@ -351,17 +367,3 @@ def __create_nested_given_names(given_names):
     else: # given_names list is empty
         return []
 
-"""
-__gen_komma_enumeration(lexicalize_author("Bert Fritz Hold"))
-
-d1 = lexicalize_author("Bert Fritz Hold")
-d2 = lexicalize_author("Manfred Krug")
-d3 = lexicalize_author("Rainer Maria Posemuckel")
-d4 = lexicalize_author("Horst Oberwutz-Przybilsky")
-
-d1 = lexicalize_author("Bert Fritz Hold"); d2 = lexicalize_author("Manfred Krug"); d3 = lexicalize_author("Rainer Maria Posemuckel"); d4 = lexicalize_author("Horst Oberwutz-Przybilsky")
-
-
-dlist = [d1[2], d2[2], d3[2], d4[2]]
-
-"""
