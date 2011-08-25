@@ -6,7 +6,8 @@
 This module shall convert C{TextPlan}s into HLDS XML structures which can 
 be utilized by the OpenCCG surface realizer to produce natural language text.
 
-TODO: move OPENCCG_BIN_PATH and GRAMMAR_PATH to a config.yml file
+TODO: move OPENCCG_BIN_PATH and GRAMMAR_PATH to a config.yml file and make them
+absolute
 """
 
 import os
@@ -17,7 +18,8 @@ from nltk.featstruct import Feature
 from textplan import ConstituentSet, Message
 from hlds import Diamond, Sentence, create_hlds_testbed, diamond2sentence
 from debug import enumprint #TODO: dbg, rm
-from util import write_to_file, ensure_unicode #TODO: dbg, rm
+from util import ensure_unicode
+from util import write_to_file #TODO: dbg, rm
 from database import get_column #TODO: dbg, rm
 
 OPENCCG_BIN_PATH = "/home/guido/bin/openccg/bin"
@@ -93,7 +95,7 @@ def realize(sentence, results="all"):
             return output
 
         res = re.compile("Complete Edges \(sorted\):\n")
-        complete_vs_best = re.compile("\n\nBest Edge:\n")
+        complete_vs_best = re.compile("\nBest Edge:\n")
         sentence_header = re.compile("\{.*?\} \[.*?\] ")
         sentence_tail = re.compile(" :- ")
         
@@ -186,10 +188,21 @@ def __gen_title(book_title):
     
         'Computational Linguistics' --> '„ Computational Linguistics “'
         
-    @type book_title: C{str}
+    @type book_title: C{unicode}
     @rtype: C{Diamond}
     """
-    title = book_title.replace(" ", "_")
+    book_title = ensure_unicode(book_title)
+    
+    chars = [(u" ", u"_"),
+             ("Ä".decode("utf-8"), u"Ae"), ("ä".decode("utf-8"), u"ae"),
+             ("Ö".decode("utf-8"), u"Oe"), ("ö".decode("utf-8"), u"oe"),
+             ("Ü".decode("utf-8"), u"Ue"), ("ü".decode("utf-8"), u"ue"),
+             ("ß".decode("utf-8"), u"ss")]
+    for in_char, out_char in chars:
+        book_title = book_title.replace(in_char, out_char)
+    
+    #title = book_title.replace(" ", "_")
+    #title = book_title.translate(translation_table)
     
     opening_bracket = Diamond()
     opening_bracket.create_diamond('99', u'a1:anf\xfchrung\xf6ffnen', 
@@ -199,20 +212,34 @@ def __gen_title(book_title):
                                    'anfschl', [])
     
     title_diamond = Diamond()
-    title_diamond.create_diamond('AGENS', 'c1:buchtitel', title, 
+    title_diamond.create_diamond('AGENS', 'buchtitel', book_title, 
                                  [opening_bracket, closing_bracket])
     return title_diamond
 
-def __gen_abstract_title(number_of_books): #TODO: write function
+
+def __gen_abstract_title(number_of_books):
     """
+    given an integer representing a number of books returns a Diamond, which 
+    can be realized as either "das Buch" or "die Bücher"
+    
     @type number_of_books: C{int}
     @rtype: C{Diamond}
     """
     if number_of_books is 1:
-        pass
+        num_str = "sing"
     if number_of_books > 1:
-        pass
+        num_str = "plur"
 
+    art = Diamond()
+    art.create_diamond("ART", "sem-obj", "def", [])    
+
+    num = Diamond()
+    num.create_diamond("NUM", "", num_str, [])
+
+    title = Diamond()
+    title.create_diamond("", "artefaktum", "Buch", [art, num])
+    return title
+    
 def lexicalize_author(name):
     """
     converts the name of an author into several possible HLDS diamond 
