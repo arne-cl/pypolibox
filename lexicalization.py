@@ -17,7 +17,8 @@ from nltk.featstruct import Feature
 from textplan import ConstituentSet, Message
 from hlds import Diamond, Sentence, create_hlds_testbed, diamond2sentence
 from debug import enumprint #TODO: dbg, rm
-from util import write_to_file
+from util import write_to_file, ensure_unicode #TODO: dbg, rm
+from database import get_column #TODO: dbg, rm
 
 OPENCCG_BIN_PATH = "/home/guido/bin/openccg/bin"
 GRAMMAR_PATH = "openccg-jpolibox"
@@ -174,8 +175,43 @@ def __rstree2list(featstruct):
     rst_list.reverse()
     return rst_list
 
-def lexicalize_book(book_title):
-    pass
+def lexicalize_title(book_title):
+    return [__gen_title(book_title)]
+    
+def __gen_title(book_title):
+    """
+    Converts a book title (string) into its corresponding HLDS diamond
+    structure. Since book titles are hard coded into the grammar, the OpenCCG 
+    output will differ somewhat, e.g.:: 
+    
+        'Computational Linguistics' --> '„ Computational Linguistics “'
+        
+    @type book_title: C{str}
+    @rtype: C{Diamond}
+    """
+    title = book_title.replace(" ", "_")
+    
+    opening_bracket = Diamond()
+    opening_bracket.create_diamond('99', u'a1:anf\xfchrung\xf6ffnen', 
+                                   u'anf\xf6ffn', [])
+    closing_bracket = Diamond()
+    closing_bracket.create_diamond('66', u'a2:anf\xfchrungschlie\xdfen', 
+                                   'anfschl', [])
+    
+    title_diamond = Diamond()
+    title_diamond.create_diamond('AGENS', 'c1:buchtitel', title, 
+                                 [opening_bracket, closing_bracket])
+    return title_diamond
+
+def __gen_abstract_title(number_of_books): #TODO: write function
+    """
+    @type number_of_books: C{int}
+    @rtype: C{Diamond}
+    """
+    if number_of_books is 1:
+        pass
+    if number_of_books > 1:
+        pass
 
 def lexicalize_author(name):
     """
@@ -190,11 +226,11 @@ def lexicalize_author(name):
     second the author's lastname and the last generates the author's complete 
     name.
     """
-    return [__gen_autor(1), __gen_lastname_only(name), 
+    return [__gen_abstract_autor(1), __gen_lastname_only(name), 
             __gen_complete_name(name)]
         
 
-def __gen_autor(num_of_authors):
+def __gen_abstract_autor(num_of_authors):
     """
     given an integer (number of authors), returns a Diamond instance which 
     generates "der Autor" or "die Autoren".

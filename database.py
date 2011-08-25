@@ -550,3 +550,21 @@ class Book:
             return_string += "{0}:\t\t{1}\n".format(key, value)
         return return_string
 
+def get_column(column_name):
+    """
+    debugging: primitive db query that returns all the values stored in a 
+    column, e.g. get_column("title") will return all book titles stored in 
+    the database
+    
+    @type column_name: C{str}
+    @rtype: C{list} of C{str}
+    """
+    conn = sqlite3.connect(DB_FILE)
+    curs = conn.cursor()
+
+    col_curs = curs.execute("PRAGMA table_info({0})".format(BOOK_TABLE_NAME))
+    columns = [header[1] for header in col_curs]
+    print "available table columns: {0}\n".format(columns)
+
+    results_cursor = curs.execute("select {0} from books".format(column_name))
+    return [result[0] for result in results_cursor]
