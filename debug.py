@@ -10,12 +10,19 @@ provides short cuts to generate frequently needed data.
 
 from lxml import etree
 from nltk.featstruct import Feature
-from database import Query, Results, Books
+from database import Query, Results, Books, get_column
 from facts import AllFacts
 from propositions import AllPropositions
 from textplan import (ConstituentSet, TextPlan, TextPlans, Rules, AllMessages,
                       Messages, Message, generate_textplan)
+from lexicalization import gen_title, realize
 
+
+def test_realizer():
+        title_list = get_column("title")
+        diamond_list = [gen_title(title) for title in title_list]
+        realized_sentences = [realize(d) for d in diamond_list]
+        return realized_sentences
                 
 def genprops(querynumber=10):
     """    

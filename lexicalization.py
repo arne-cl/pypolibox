@@ -17,7 +17,7 @@ from commands import getstatusoutput
 from nltk.featstruct import Feature
 from textplan import ConstituentSet, Message
 from hlds import Diamond, Sentence, create_hlds_testbed, diamond2sentence
-from debug import enumprint #TODO: dbg, rm
+#from debug import enumprint #TODO: dbg, rm
 from util import ensure_unicode
 from util import write_to_file #TODO: dbg, rm
 from database import get_column #TODO: dbg, rm
@@ -92,7 +92,9 @@ def realize(sentence, results="all"):
             "Error message is:\n\n{0}".format(output)
     else:
         if results == "debug":
-            return output
+            input_and_output = \
+                "Input:\n{0}\n\n\nOutput:\n{1}".format(sent_xml_str, output)
+            return input_and_output
 
         res = re.compile("Complete Edges \(sorted\):\n")
         complete_vs_best = re.compile("\nBest Edge:\n")
@@ -178,9 +180,9 @@ def __rstree2list(featstruct):
     return rst_list
 
 def lexicalize_title(book_title):
-    return [__gen_title(book_title)]
+    return [gen_title(book_title)]
     
-def __gen_title(book_title):
+def gen_title(book_title):
     """
     Converts a book title (string) into its corresponding HLDS diamond
     structure. Since book titles are hard coded into the grammar, the OpenCCG 
@@ -192,6 +194,7 @@ def __gen_title(book_title):
     @rtype: C{Diamond}
     """
     book_title = ensure_unicode(book_title)
+    book_title = book_title.replace(u" ", u"_")
     
     #~ chars = [(u" ", u"_"),
              #~ ("Ä".decode("utf-8"), u"Ae"), ("ä".decode("utf-8"), u"ae"),
@@ -201,7 +204,7 @@ def __gen_title(book_title):
     #~ for in_char, out_char in chars:
         #~ book_title = book_title.replace(in_char, out_char)
     
-    #title = book_title.replace(" ", "_")
+    
     #title = book_title.translate(translation_table)
     
     opening_bracket = Diamond()
@@ -217,7 +220,7 @@ def __gen_title(book_title):
     return title_diamond
 
 
-def __gen_abstract_title(number_of_books):
+def gen_abstract_title(number_of_books):
     """
     given an integer representing a number of books returns a Diamond, which 
     can be realized as either "das Buch" or "die Bücher"
