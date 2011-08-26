@@ -193,13 +193,13 @@ def __gen_title(book_title):
     """
     book_title = ensure_unicode(book_title)
     
-    chars = [(u" ", u"_"),
-             ("Ä".decode("utf-8"), u"Ae"), ("ä".decode("utf-8"), u"ae"),
-             ("Ö".decode("utf-8"), u"Oe"), ("ö".decode("utf-8"), u"oe"),
-             ("Ü".decode("utf-8"), u"Ue"), ("ü".decode("utf-8"), u"ue"),
-             ("ß".decode("utf-8"), u"ss")]
-    for in_char, out_char in chars:
-        book_title = book_title.replace(in_char, out_char)
+    #~ chars = [(u" ", u"_"),
+             #~ ("Ä".decode("utf-8"), u"Ae"), ("ä".decode("utf-8"), u"ae"),
+             #~ ("Ö".decode("utf-8"), u"Oe"), ("ö".decode("utf-8"), u"oe"),
+             #~ ("Ü".decode("utf-8"), u"Ue"), ("ü".decode("utf-8"), u"ue"),
+             #~ ("ß".decode("utf-8"), u"ss")]
+    #~ for in_char, out_char in chars:
+        #~ book_title = book_title.replace(in_char, out_char)
     
     #title = book_title.replace(" ", "_")
     #title = book_title.translate(translation_table)

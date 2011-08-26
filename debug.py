@@ -118,7 +118,10 @@ def enumprint(obj):
     prints every item of an iterable on its own line, preceded by its index
     """
     for index, item in enumerate(obj):
-        print "{0}:\n{1}\n".format(index, item)
+        if type(item) is unicode:
+            print u"{0}:\n{1}\n".format(index, item)
+        else:
+            print "{0}:\n{1}\n".format(index, item)
 
 def etreeprint(element):
     """pretty print function for etree trees or elements
