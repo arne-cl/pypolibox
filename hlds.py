@@ -42,13 +42,15 @@ Sentences are represented as <item> structures in HLDS::
 """
 
 import sys
+import re
 import random
+from collections import defaultdict
 from lxml import etree
 from lxml.builder import ElementMaker
 from nltk.featstruct import Feature, FeatDict
 from util import ensure_utf8, ensure_unicode, write_to_file
 
-testbed_file = "data/testbedHLDS.xml"
+testbed_file = "openccg-jpolibox/testbedHLDS.xml"
 
 class HLDSReader():
     """ 
@@ -232,8 +234,8 @@ def create_hlds_testbed(sent_or_sent_list, mode="test", output="etree"):
     """
     this function transforms C{Sentence}s into a a valid HLDS XML testbed file
     
-    @type sent_or_sent_list: C{list} of C{Sentence}s
-    @param sent_or_sent_list: a list of C{Sentence} feature structures
+    @type sent_or_sent_list: C{Sentence} or C{list} of C{Sentence}s
+    @param sent_or_sent_list: a C{Sentence} or a list of C{Sentence}s
 
     @type mode: C{str}    
     @param mode: "test", if the sentence will be part of a (regression) 
@@ -251,13 +253,20 @@ def create_hlds_testbed(sent_or_sent_list, mode="test", output="etree"):
         doc = etree.ElementTree(root)
     
         etree_sentences = []
-        for sentence in sent_or_sent_list:
-            item = __sentence_fs2xml(sentence, mode="test")
-            etree_sentences.append(item)
         
-        for sentence_tree in etree_sentences:
+        if type(sent_or_sent_list) is list:
+            for sentence in sent_or_sent_list:
+                item = __sentence_fs2xml(sentence, mode="test")
+                etree_sentences.append(item)
+        
+            for sentence_etree in etree_sentences:
+                final_position = len(root)
+                root.insert(final_position, sentence_etree)
+            
+        elif type(sent_or_sent_list) is Sentence:
+            sentence_etree = __sentence_fs2xml(sent_or_sent_list, mode="test")
             final_position = len(root)
-            root.insert(final_position, sentence_tree)
+            root.insert(final_position, sentence_etree)
 
     elif mode is "realize":
         root = etree.Element("xml")
@@ -270,8 +279,8 @@ def create_hlds_testbed(sent_or_sent_list, mode="test", output="etree"):
                                                mode="realize")
         else:
             raise Exception, \
-                "ValueError: sentence_or_sent_or_sent_list shoud be one Sentence" \
-                " or a list containing only one Sentence."
+                "ValueError: in 'realize' mode, sent_or_sent_list should be " \
+                "one Sentence or a list containing only one Sentence."
         root.insert(0, sentence_etree)
         
     if output == "etree":
@@ -279,6 +288,7 @@ def create_hlds_testbed(sent_or_sent_list, mode="test", output="etree"):
     elif output == "xml":
         return etree.tostring(doc, encoding="utf8", 
                               xml_declaration=True, pretty_print=True)
+
 
 def __sentence_fs2xml(sentence, mode="test"):
     """    
@@ -414,14 +424,46 @@ def test_conversion():
     representation of an HLDS XML testbed file
     """
     hlds_reader = HLDSReader(testbed_file, input_format="file")
+    random_sent_index = random.randrange(0, len(hlds_reader.sentences))
     random_sent_fs = \
-        hlds_reader.sentences[random.randrange(0, len(hlds_reader.sentences))]
+        hlds_reader.sentences[random_sent_index]
     random_sent_xml = create_hlds_testbed([random_sent_fs], output="xml")
     all_sents_xml = create_hlds_testbed(hlds_reader.sentences, output="xml")
                                               
-    print random_sent_fs, "\n" * 3, random_sent_xml
+    print "random sentence: %i\n" % random_sent_index, random_sent_fs, \
+          "\n" * 3, random_sent_xml
     return hlds_reader, all_sents_xml 
 
+
+def add_nomprefixes(sentence):
+    prop_dict = defaultdict(int)
+    elements = [element for element in sentence.walk()]
+
+    for e in elements:
+        if type(e) is Diamond:
+            if "nom" in e.keys():
+                if "prop" in e.keys():
+                    nom_prefix_char = e["prop"].lower()[0]
+                else: #if there's no <prop> tag
+                    nom_prefix_char = "x"
+                    
+                prop_dict[nom_prefix_char] += 1
+                nom_without_prefix = e["nom"]
+                e["nom"] = "{0}{1}:{2}".format(nom_prefix_char, 
+                                               prop_dict[nom_prefix_char],
+                                               nom_without_prefix)
+
+def remove_nomprefixes(sentence):
+    prop_dict = defaultdict(int)
+    elements = [element for element in sentence.walk()]
+    prefix = re.compile("\w\d+:")
+
+    for e in elements:
+        if type(e) is Diamond:
+            if "nom" in e.keys():
+                if prefix.match(e["nom"]):
+                    e["nom"] = prefix.split(e["nom"], maxsplit=1)[1]
+    
     
 if __name__ == "__main__":
     if len(sys.argv) > 1:

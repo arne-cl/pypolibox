@@ -67,7 +67,7 @@ def realize(sentence, results="all"):
                 "Please use an absolute path or one that is relative to:\n" \
                 "{1}".format(file_path, grammar_abspath)
     
-    elif type(sentence) in (Diamond, Sentence):
+    elif type(sentence) is Diamond or type(sentence) is Sentence:
         if type(sentence) is Diamond:
             sentence = diamond2sentence(sentence)
         
@@ -104,24 +104,33 @@ def realize(sentence, results="all"):
         _, results_str = res.split(output)
         complete_edges_str, best_edge = complete_vs_best.split(results_str)
 
+        if not complete_edges_str: #if there are no complete edges
+            best_vs_best_joined = re.compile("\nBest Joined Edge:\n")
+            best_edge, best_joined = best_vs_best_joined.split(best_edge)
+
         if results == "best":
             _, best_edge_and_tail = sentence_header.split(best_edge)
             best_result, _ = sentence_tail.split(best_edge_and_tail)
             return best_result
 
         elif results == "all":
-            complete_edges_list = complete_edges_str.splitlines()
-            result_edges = []
-            for complete_edge in complete_edges_list:
-                # maxsplit=1 is needed if there are 'Best Joined Edges'
-                _, edge_and_tail = sentence_header.split(complete_edge, 
-                                                         maxsplit=1)
-                edge, _ = sentence_tail.split(edge_and_tail, maxsplit=1)
-                result_edges.append(edge)
-            return list(set(result_edges)) # remove duplicates, return a list
-        
-
-
+            if complete_edges_str:
+                complete_edges_list = complete_edges_str.splitlines()
+                result_edges = []
+                for complete_edge in complete_edges_list:
+                    # maxsplit=1 is needed if there are 'Best Joined Edges'
+                    _, edge_and_tail = sentence_header.split(complete_edge, 
+                                                             maxsplit=1)
+                    edge, _ = sentence_tail.split(edge_and_tail, maxsplit=1)
+                    result_edges.append(edge)
+                return list(set(result_edges)) # remove duplicates, return a list
+            else: # if there are no complete edges
+                _, best_edge_and_tail = sentence_header.split(best_edge)
+                best_edge_result, _ = sentence_tail.split(best_edge_and_tail)
+                _, best_joined_and_tail = sentence_header.split(best_joined)
+                best_joined_result, _ = sentence_tail.split(best_joined_and_tail)
+                return [best_edge_result, best_joined_result]
+                
 def linearize_textplan(textplan): #TODO: add better explanation to docstring
     """
     takes a text plan (RST tree) and returns an ordered list of constituent 

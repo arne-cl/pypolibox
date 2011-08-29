@@ -15,14 +15,39 @@ from facts import AllFacts
 from propositions import AllPropositions
 from textplan import (ConstituentSet, TextPlan, TextPlans, Rules, AllMessages,
                       Messages, Message, generate_textplan)
-from lexicalization import gen_title, realize
+from lexicalization import gen_title, realize, lexicalize_author
 
+import util
 
-def test_realizer():
+def title_realizer():
         title_list = get_column("title")
         diamond_list = [gen_title(title) for title in title_list]
         realized_sentences = [realize(d) for d in diamond_list]
         return realized_sentences
+
+def authors_realizer():
+    sets_of_authors = get_column("authors")
+    authors_list = []
+    
+    
+    for author_set_str in sets_of_authors:
+        author_set = util.sql_array_to_set(author_set_str)
+        for author in author_set:
+            authors_list.append(author)
+    
+    authors_diamonds = [lexicalize_author(a)[2] for a in authors_list]
+    
+    #return authors_diamonds
+    
+    results = []
+    for i, d in enumerate(authors_diamonds):
+        try:
+            r = realize(d, results="all")
+            results.append(r)
+            print i, r, "\n\n"
+        except:
+            print i, "***\n\n"
+    return results
                 
 def genprops(querynumber=10):
     """    
