@@ -18,6 +18,26 @@ from textplan import (ConstituentSet, TextPlan, TextPlans, Rules, AllMessages,
 from lexicalization import gen_title, realize, lexicalize_author
 
 import util
+import hlds
+
+
+def compare_hlds_variants():
+    hlds_reader = hlds.HLDSReader(hlds.testbed_file)
+    for i, sentence in enumerate(hlds_reader.sentences):
+        xml_sentence_test = hlds.create_hlds_testbed(sentence, mode="test", 
+                                                     output="xml")
+        util.write_to_file(xml_sentence_test, 
+                      "xmltest/sentence{0}-converted-test.xml".format(str(i).zfill(3)))
+
+        xml_sentence_realize = hlds.create_hlds_testbed(sentence, mode="test", 
+                                                        output="xml")        
+        util.write_to_file(xml_sentence_test, 
+                      "xmltest/sentence{0}-converted-realize.xml".format(str(i).zfill(3)))
+    for i, sentence in enumerate(hlds_reader.xml_sentences):
+        xml_sentence_original = hlds.etreeprint(sentence)
+        util.write_to_file(xml_sentence_original, 
+                      "xmltest/sentence{0}-original-test.xml".format(str(i).zfill(3)))
+
 
 def title_realizer():
         title_list = get_column("title")
@@ -154,13 +174,6 @@ def enumprint(obj):
             print u"{0}:\n{1}\n".format(index, item)
         else:
             print "{0}:\n{1}\n".format(index, item)
-
-def etreeprint(element):
-    """pretty print function for etree trees or elements
-    
-    @type element: C{etree._ElementTree} or C{etree._Element}
-    """
-    print etree.tostring(element, pretty_print=True, encoding="utf8")
 
 
 def msgtypes(messages):

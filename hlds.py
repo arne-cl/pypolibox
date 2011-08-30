@@ -184,9 +184,9 @@ class Diamond(FeatDict):
             ...
         </diamond>
     """
-    def __init__(self):
-        """        
-        """
+    #~ def __init__(self):
+        #~ """        
+        #~ """
         
     def convert_diamond_xml2fs(self, etree):
         """
@@ -230,6 +230,7 @@ class Diamond(FeatDict):
                 #print "debug. type(nested_diamond): {0}\nnested diamond: {1}".format(type(nested_diamond), nested_diamond) #TODO: dbg, rm
                 self.update({nested_diamond[Feature("mode")]: nested_diamond})
  
+
 def create_hlds_testbed(sent_or_sent_list, mode="test", output="etree"):
     """
     this function transforms C{Sentence}s into a a valid HLDS XML testbed file
@@ -273,7 +274,8 @@ def create_hlds_testbed(sent_or_sent_list, mode="test", output="etree"):
         doc = etree.ElementTree(root)
         
         if type(sent_or_sent_list) is Sentence:
-            sentence_etree = __sentence_fs2xml(sent_or_sent_list, mode="realize")
+            sentence_etree = __sentence_fs2xml(sent_or_sent_list, 
+                                               mode="realize")
         elif type(sent_or_sent_list) is list and len(sent_or_sent_list) == 1:
             sentence_etree = __sentence_fs2xml(sent_or_sent_list[0], 
                                                mode="realize")
@@ -463,6 +465,15 @@ def remove_nomprefixes(sentence):
             if "nom" in e.keys():
                 if prefix.match(e["nom"]):
                     e["nom"] = prefix.split(e["nom"], maxsplit=1)[1]
+
+def etreeprint(element):
+    """pretty print function for etree trees or elements
+    
+    @type element: C{etree._ElementTree} or C{etree._Element}
+    """
+    xml_string = etree.tostring(element, pretty_print=True, encoding="utf8")
+    print xml_string
+    return xml_string
     
     
 if __name__ == "__main__":
