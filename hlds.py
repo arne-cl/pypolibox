@@ -288,8 +288,7 @@ def create_hlds_testbed(sent_or_sent_list, mode="test", output="etree"):
     if output == "etree":
         return doc
     elif output == "xml":
-        return etree.tostring(doc, encoding="utf8", 
-                              xml_declaration=True, pretty_print=True)
+        return etreeprint(doc, debug=False)
 
 
 def __sentence_fs2xml(sentence, mode="test"):
@@ -466,13 +465,15 @@ def remove_nomprefixes(sentence):
                 if prefix.match(e["nom"]):
                     e["nom"] = prefix.split(e["nom"], maxsplit=1)[1]
 
-def etreeprint(element):
+def etreeprint(element, debug=True):
     """pretty print function for etree trees or elements
     
     @type element: C{etree._ElementTree} or C{etree._Element}
     """
-    xml_string = etree.tostring(element, pretty_print=True, encoding="UTF-8")
-    print xml_string
+    xml_string = etree.tostring(element, xml_declaration=True, 
+                                pretty_print=True, encoding="UTF-8")
+    if debug is True:
+        print xml_string
     return xml_string
     
     
