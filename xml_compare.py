@@ -119,6 +119,18 @@ def xml_compare(x1, x2, reporter=None):
             return False
     return True
 
+def compare_xml_files(fname1, fname2, reporter=None):
+    with open(fname1, "r") as file1:
+        xml_str1 = file1.read()
+    with open(fname2, "r") as file2:
+        xml_str2 = file2.read()
+    
+    xml1 = ET.fromstring(xml_str1)
+    xml2 = ET.fromstring(xml_str2)
+    
+    return xml_compare(xml1, xml2, reporter)
+    
+        
 
 def text_compare(t1, t2):
     if not t1 and not t2:
