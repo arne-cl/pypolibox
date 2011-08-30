@@ -471,7 +471,7 @@ def etreeprint(element):
     
     @type element: C{etree._ElementTree} or C{etree._Element}
     """
-    xml_string = etree.tostring(element, pretty_print=True, encoding="utf8")
+    xml_string = etree.tostring(element, pretty_print=True, encoding="UTF-8")
     print xml_string
     return xml_string
     
