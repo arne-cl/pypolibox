@@ -19,7 +19,13 @@ except ImportError:
     import elementtree.ElementTree as ET
 from xml.parsers.expat import ExpatError as XMLParseError
 
-#~ RealOutputChecker = doctest.OutputChecker
+import os
+from lxml import etree
+from commands import getstatusoutput
+
+import util
+import hlds
+import lexicalization
 
 """
 for fname in origlist:
@@ -37,61 +43,68 @@ for fname in origlist:
 --> original-ccg-test-results.pickle
 """
 
+def split_testbed(testbed_file=hlds.testbed_file):
+    """
+    splits Martin's original testbedHLDS.xml file (which can only be used by 
+    I{ccg-test}) into one HLDS file per sentence. These files can be realized 
+    with I{ccg-realize}, which offers much better output for debugging 
+    purposes.
+    """
+    with open(testbed_file) as f:
+        testbed_tree = etree.parse(f)
+    sentences = testbed_tree.findall("item/xml")
+    for i, sentence in enumerate(sentences):
+        sent_xml_str = hlds.etreeprint(sentence, debug=False, raw=False)
+        util.write_to_file(sent_xml_str, 
+                           "xmltest/testbed{0}.xml".format(str(i).zfill(3)))
 
+
+def reconstruct_testbed_files(testbed_file=hlds.testbed_file):
+    hlds_reader = hlds.HLDSReader(testbed_file, input_format="file")
+    for i, sentence in enumerate(hlds_reader.sentences):
+        sent_xml_str = hlds.create_hlds_testbed(sentence, mode="realize", 
+                                                output="xml")
+        util.write_to_file(sent_xml_str, 
+                           "xmltest/testbed%s-reconstructed.xml"
+                                % str(i).zfill(3) )
+
+
+def realize_testbed_files(list_of_filenames):
+    current_dir = os.getcwd()
+            
+    os.chdir(lexicalization.GRAMMAR_PATH)
+    grammar_abspath = os.getcwd()
+    realizer = os.path.join(lexicalization.OPENCCG_BIN_PATH, "ccg-realize")
+
+    results = []
+    for fname in list_of_filenames:
+        file_path = os.path.join(grammar_abspath, fname)
+        if os.path.isfile(file_path):
+            status, output = getstatusoutput("{0} {1}".format(realizer, 
+                                                              file_path))
+            print status, "\n", output, "\n\n"
+            results.append( (status, output) )
+        else:
+            os.chdir(current_dir)
+            raise Exception, "{0} is not a file.\n" \
+                "Please use an absolute path or one that is relative to:\n" \
+                "{1}".format(file_path, grammar_abspath)
+    
+    os.chdir(current_dir)
+    util.write_to_file(results, "xmltest/testbed-files-realized.pickle")
+    return results
+
+
+def listdir_with_abspath(path):
+    fnames = os.listdir(path)
+    fnames_with_abspath = [os.path.abspath(os.path.join(path, fname)) 
+                            for fname in fnames]
+    return fnames_with_abspath
 
 def debug(*msg):
     import sys
     print >> sys.stderr, ' '.join(map(str, msg))
 
-
-#~ class HTMLOutputChecker(RealOutputChecker):
-#~ 
-    #~ def check_output(self, want, got, optionflags):
-        #~ normal = RealOutputChecker.check_output(self, want, got, optionflags)
-        #~ if normal or not got:
-            #~ return normal
-        #~ try:
-            #~ want_xml = make_xml(want)
-        #~ except XMLParseError:
-            #~ pass
-        #~ else:
-            #~ try:
-                #~ got_xml = make_xml(got)
-            #~ except XMLParseError:
-                #~ pass
-            #~ else:
-                #~ if xml_compare(want_xml, got_xml):
-                    #~ return True
-        #~ return False
-#~ 
-    #~ def output_difference(self, example, got, optionflags):
-        #~ actual = RealOutputChecker.output_difference(
-            #~ self, example, got, optionflags)
-        #~ want_xml = got_xml = None
-        #~ try:
-            #~ want_xml = make_xml(example.want)
-            #~ want_norm = make_string(want_xml)
-        #~ except XMLParseError, e:
-            #~ if example.want.startswith('<'):
-                #~ want_norm = '(bad XML: %s)' % e
-                #~ #  '<xml>%s</xml>' % example.want
-            #~ else:
-                #~ return actual
-        #~ try:
-            #~ got_xml = make_xml(got)
-            #~ got_norm = make_string(got_xml)
-        #~ except XMLParseError, e:
-            #~ if example.want.startswith('<'):
-                #~ got_norm = '(bad XML: %s)' % e
-            #~ else:
-                #~ return actual
-        #~ s = '%s\nXML Wanted: %s\nXML Got   : %s\n' % (
-            #~ actual, want_norm, got_norm)
-        #~ if got_xml and want_xml:
-            #~ result = []
-            #~ xml_compare(want_xml, got_xml, result.append)
-            #~ s += 'Difference report:\n%s\n' % '\n'.join(result)
-        #~ return s
 
 
 def xml_compare(x1, x2, debug=True):
@@ -154,21 +167,3 @@ def text_compare(t1, t2):
         return True
     return (t1 or '').strip() == (t2 or '').strip()
 
-
-#~ def make_xml(s):
-    #~ return ET.XML('<xml>%s</xml>' % s)
-#~ 
-#~ 
-#~ def make_string(xml):
-    #~ if isinstance(xml, (str, unicode)):
-        #~ xml = make_xml(xml)
-    #~ s = ET.tostring(xml)
-    #~ if s == '<xml />':
-        #~ return ''
-    #~ assert s.startswith('<xml>') and s.endswith('</xml>'), repr(s)
-    #~ return s[5:-6]
-#~ 
-#~ 
-#~ def install():
-    #~ doctest.OutputChecker = HTMLOutputChecker
-#~ 

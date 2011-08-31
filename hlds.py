@@ -111,7 +111,14 @@ class HLDSReader():
 
         elif single_sent is True:
             satop = sentence
-            sentence_string = "" #TODO: parse str from xml comment w/ iterparse
+            root = sentence.getroottree()
+            target = root.find("target").text
+                        
+            if target is not None:
+                sentence_string = target
+            else:
+                sentence_string = "" #TODO: parse str from xml comment w/ iterparse
+            
             expected_parses = 1 
                 
         # <satop nom="b1:handlung">
@@ -465,13 +472,25 @@ def remove_nomprefixes(sentence):
                 if prefix.match(e["nom"]):
                     e["nom"] = prefix.split(e["nom"], maxsplit=1)[1]
 
-def etreeprint(element, debug=True):
+
+def etreeprint(element, debug=True, raw=False):
     """pretty print function for etree trees or elements
     
     @type element: C{etree._ElementTree} or C{etree._Element}
+    @param debug: if True: not only return the XML string, but also print it to
+    stdout. if False: only return the XML string
+    
+    @param raw: if True: just transform the etree (element) into a string, 
+    don't add or prettify anything. if False: add an XML declaration and use
+    pretty print to make the output more readable for humans.
     """
-    xml_string = etree.tostring(element, xml_declaration=True, 
-                                pretty_print=True, encoding="UTF-8")
+    if raw is False:
+        xml_string = etree.tostring(element, xml_declaration=True, 
+                                    pretty_print=True, encoding="UTF-8")
+    else:
+        xml_string = etree.tostring(element, xml_declaration=False, 
+                                    pretty_print=False, encoding="UTF-8")        
+        
     if debug is True:
         print xml_string
     return xml_string

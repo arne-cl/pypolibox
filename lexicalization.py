@@ -131,6 +131,7 @@ def realize(sentence, results="all"):
                 _, best_joined_and_tail = sentence_header.split(best_joined)
                 best_joined_result, _ = sentence_tail.split(best_joined_and_tail)
                 return [best_edge_result, best_joined_result]
+
                 
 def linearize_textplan(textplan): #TODO: add better explanation to docstring
     """
