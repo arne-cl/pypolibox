@@ -25,6 +25,7 @@ from database import get_column #TODO: dbg, rm
 OPENCCG_BIN_PATH = "/home/guido/bin/openccg/bin"
 GRAMMAR_PATH = "openccg-jpolibox"
 
+
 def realize(sentence, results="all"):
     """
     realizes a sentence by calling OpenCCG's I{ccg-realize} binary.
