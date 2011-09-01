@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Author: ianb ???
+# Author: ianb ???, Arne Neumann
 
 """
-code stolen from: https://bitbucket.org/formencode/official-formencode/src/883ff9329228/formencode/doctest_xml_compare.py
+'text_compare' and 'xml_compare' code stolen from: https://bitbucket.org/formencode/official-formencode/src/883ff9329228/formencode/doctest_xml_compare.py
 
 TODO: check source. i think it was originally from ianb's repo
 """ 
@@ -71,6 +71,18 @@ def reconstruct_testbed_files(testbed_file=hlds.testbed_file):
 
 
 def realize_testbed_files(list_of_filenames, output_pickle):
+    """
+    realizes any number of files with I{ccg-realize} and save the output to a 
+    pickle.
+    
+    @type list_of_filenames: C{list} of C{str}
+    @param list_of_filenames: list of (absolute) paths to HLDS XML files that 
+    will be realized.
+    
+    @type output_pickle: C{str}
+    @param output_pickle: path to the pickle file that the results should be 
+    stored in.
+    """
     current_dir = os.getcwd()
             
     os.chdir(lexicalization.GRAMMAR_PATH)
@@ -97,17 +109,22 @@ def realize_testbed_files(list_of_filenames, output_pickle):
 
 
 def listdir_with_abspath(path, pattern_string):
+    """
+    lists the absolute path of all files in a directory that match a regex 
+    pattern.
+    
+    @type path: C{str}
+    @param path: path to a directory
+    
+    @type pattern_string: C{str}
+    @param pattern_string: a regular expression
+    """
     pattern = re.compile(pattern_string)
     fnames = os.listdir(path)
     matching_fnames = [fname for fname in fnames if pattern.search(fname)]
     fnames_with_abspath = [os.path.abspath(os.path.join(path, fname)) 
                             for fname in matching_fnames]
     return sorted(fnames_with_abspath)
-
-def debug(*msg):
-    import sys
-    print >> sys.stderr, ' '.join(map(str, msg))
-
 
 
 def xml_compare(x1, x2, debug=True):

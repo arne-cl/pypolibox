@@ -3,6 +3,16 @@
 # Author: Arne Neumann <arne-neumann@web.de>
 
 """
+TODO: fix Diamond construction. In HLDS there can be more than one 
+<diamond> with the same identifier/name (e.g. there can be two <diamond 
+nom="MOD"> <diamond nom="MOD"> within the same <satop> or <diamond> 
+structure).  C{Diamond}s, on the other hand, are I{nltk.featstruct}s. Two 
+featstructs within another structure can't have the same name/identifier -->
+reversible renaming is needed, as these feature structures need to be 
+converted back to XML.
+"""
+
+"""
 HLDS (Hybrid Logic Dependency Semantics) is the format internally used by the 
 OpenCCG realizer. This module shall allow the conversion between HLDS-XML 
 files and NLTK feature structures.
@@ -112,10 +122,10 @@ class HLDSReader():
         elif single_sent is True:
             satop = sentence
             root = sentence.getroottree()
-            target = root.find("target").text
+            target_element = root.find("target")
                         
-            if target is not None:
-                sentence_string = target
+            if target_element is not None:
+                sentence_string = target_element.text
             else:
                 sentence_string = "" #TODO: parse str from xml comment w/ iterparse
             
@@ -143,7 +153,7 @@ class Sentence(FeatDict):
     represents an HLDS sentence as an NLTK feature structure.
     """
     def create_sentence(self, sent_str, expected_parses, root_nom, root_prop, 
-                        elements):
+                        diamonds):
         """         
         wraps all C{Diamond}s that were already constructed by 
         HLDSReader.parse_sentences() plus some meta data (root verb etc.) 
@@ -162,8 +172,8 @@ class Sentence(FeatDict):
         @type root_nom: C{str}
         @param root_nom: the root (element/verb) category, e.g. "b1:handlung"
         
-        @type elements: C{list} of C{Diamond}s        
-        @param elements: a list of the diamonds that are contained in the 
+        @type diamonds: C{list} of C{Diamond}s        
+        @param diamonds: a list of the diamonds that are contained in the 
         sentence 
         """
         
@@ -171,10 +181,57 @@ class Sentence(FeatDict):
         self.update({Feature("expected_parses"): int(expected_parses)})
         self.update({Feature("root_prop"): root_prop}) 
         self.update({Feature("root_nom"): root_nom})
-        
-        for element in elements: # these are C{Diamond}s
-            self.update({element[Feature("mode")]: element})
+
+        modified_diamonds = gen_diamond_ids(diamonds)
+
+        for (modified_id, diamond) in modified_diamonds:
+            self.update({modified_id: diamond})
+
+
+def gen_diamond_ids(diamonds):
+    """
+    nltk.featstruct must have unique key names, so we'll have to make those 
+    HLDS XML <diamond> structures unique. E.g., ff there are two or more 
+    <diamond mode="NUM"> elements, the they will be converted into 'MOD__1', 
+    'MOD__2' etc.
     
+    @type diamonds: C{list} of C{Diamond}s
+    @rtype: C{tuple} of (C{str}, C{Diamond})
+    @return: a tuple consisting of (un)modified identifiers (e.g. 'DEF', 
+    'NUM__1', 'NUM__2' and the Diamonds they belong to)
+    """
+    diamond_counts = diamond_count(diamonds)
+    usage_counts = defaultdict(int)
+    
+    modified_diamonds = []
+    for diamond in diamonds: # these are C{Diamond}s
+        diamond_id = diamond[Feature("mode")]
+        if diamond_counts[diamond_id] == 1:
+            modified_id = diamond_id
+        else: # there's more than one Diamond with the same "mode"
+            usage_counts[diamond_id] += 1
+            modified_id = "{0}__{1}".format(diamond_id, 
+                                            usage_counts[diamond_id])
+        modified_diamonds.append( (modified_id, diamond) )
+    return modified_diamonds
+
+
+def diamond_count(diamonds_list):
+    """
+    counts how man diamonds have a certain / the same 'mode'. It is okay to 
+    have more than one structure with the same name in XML, but it won't work 
+    in C{nltk.featstruct}s.
+    
+    @type diamonds_list: C{list} of C{Diamond}s
+    @rtype: C{defaultdict}
+    """
+    diamond_counts = defaultdict(int)
+    for diamond in diamonds_list:
+        diamond_id = diamond[Feature("mode")]
+        diamond_counts[diamond_id] += 1
+    return diamond_counts
+
+
         
 class Diamond(FeatDict):
     """
