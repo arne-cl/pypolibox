@@ -56,11 +56,14 @@ def realize(sentence, results="all"):
     grammar_abspath = os.getcwd()
     realizer = os.path.join(OPENCCG_BIN_PATH, "ccg-realize")
     
-    if type(sentence) is str:
+    if type(sentence) is str: # realize a file
         file_path = os.path.join(grammar_abspath, sentence)
         if os.path.isfile(file_path):
             status, output = getstatusoutput("{0} {1}".format(realizer, 
                                                               file_path))
+            with open(file_path, "r") as f:
+                sent_xml_str = f.read() # used for results="debug"
+                
             os.chdir(current_dir)
         else:
             os.chdir(current_dir)

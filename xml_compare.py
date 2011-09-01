@@ -20,6 +20,7 @@ except ImportError:
 from xml.parsers.expat import ExpatError as XMLParseError
 
 import os
+import re
 from lxml import etree
 from commands import getstatusoutput
 
@@ -69,7 +70,7 @@ def reconstruct_testbed_files(testbed_file=hlds.testbed_file):
                                 % str(i).zfill(3) )
 
 
-def realize_testbed_files(list_of_filenames):
+def realize_testbed_files(list_of_filenames, output_pickle):
     current_dir = os.getcwd()
             
     os.chdir(lexicalization.GRAMMAR_PATH)
@@ -91,15 +92,17 @@ def realize_testbed_files(list_of_filenames):
                 "{1}".format(file_path, grammar_abspath)
     
     os.chdir(current_dir)
-    util.write_to_file(results, "xmltest/testbed-files-realized.pickle")
+    util.write_to_file(results, output_pickle)
     return results
 
 
-def listdir_with_abspath(path):
+def listdir_with_abspath(path, pattern_string):
+    pattern = re.compile(pattern_string)
     fnames = os.listdir(path)
+    matching_fnames = [fname for fname in fnames if pattern.search(fname)]
     fnames_with_abspath = [os.path.abspath(os.path.join(path, fname)) 
-                            for fname in fnames]
-    return fnames_with_abspath
+                            for fname in matching_fnames]
+    return sorted(fnames_with_abspath)
 
 def debug(*msg):
     import sys
