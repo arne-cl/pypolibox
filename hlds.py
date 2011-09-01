@@ -248,10 +248,6 @@ class Diamond(FeatDict):
             ...
         </diamond>
     """
-    #~ def __init__(self):
-        #~ """        
-        #~ """
-        
     def convert_diamond_xml2fs(self, etree):
         """
         transforms a HLDS XML <diamond>...</diamond> structure 
@@ -261,17 +257,29 @@ class Diamond(FeatDict):
         @param etree_or_tuple: a diamond etree element
         """
         self[Feature('mode')] = ensure_utf8(etree.attrib["mode"])
-        
+
+        nested_xml_diamonds = []
+        nested_xml_elements = [] # 'nom' or 'prop' elements
         for child in etree.getchildren():
             if child.tag == "diamond":
-                nested_diamond = Diamond()
-                nested_diamond.convert_diamond_xml2fs(child)
-                self.update({nested_diamond[Feature("mode")]: nested_diamond})
+                nested_xml_diamonds.append(child)
+            else:
+                nested_xml_elements.append(child)
 
-            else: # children with .tag 'nom' or 'prop'
-                child_tag = ensure_utf8(child.tag)
-                child_name = ensure_utf8(child.attrib["name"])
-                self.update({child_tag: child_name})
+        for xml_element in nested_xml_elements:
+            element_tag = ensure_utf8(xml_element.tag)
+            element_name = ensure_utf8(xml_element.attrib["name"])
+            self.update({element_tag: element_name})
+
+        nested_diamonds = []
+        for xml_diamond in nested_xml_diamonds:
+            nested_diamond = Diamond()
+            nested_diamond.convert_diamond_xml2fs(xml_diamond)
+            nested_diamonds.append(nested_diamond)
+
+        modified_diamonds = gen_diamond_ids(nested_diamonds)
+        for (modified_id, diamond) in modified_diamonds:
+            self.update({modified_id: diamond})
     
     def create_diamond(self, mode, nom, prop, nested_diamonds_list):
         """
