@@ -298,9 +298,10 @@ class Diamond(FeatDict):
         if nom:
             self.update({"nom": nom})
         if nested_diamonds_list:
-            for nested_diamond in nested_diamonds_list:
-                #print "debug. type(nested_diamond): {0}\nnested diamond: {1}".format(type(nested_diamond), nested_diamond) #TODO: dbg, rm
-                self.update({nested_diamond[Feature("mode")]: nested_diamond})
+            for i, nested_diamond in enumerate(nested_diamonds_list):
+                identifier = "{0}__{1}".format(str(i).zfill(2), 
+                                               nested_diamond[Feature("mode")])
+                self.update({identifier: nested_diamond})
  
 
 def create_hlds_testbed(sent_or_sent_list, mode="test", output="etree"):
