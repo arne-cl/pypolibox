@@ -8,6 +8,10 @@ be utilized by the OpenCCG surface realizer to produce natural language text.
 
 TODO: move OPENCCG_BIN_PATH and GRAMMAR_PATH to a config.yml file and make them
 absolute
+
+DEBUG NOTE: 
+used book table columns: [u'title', u'year', u'authors', u'keywords', 
+u'lang', u'plang', u'pages', u'target', u'exercises', u'examples']
 """
 
 import os
@@ -17,13 +21,27 @@ from commands import getstatusoutput
 from nltk.featstruct import Feature
 from textplan import ConstituentSet, Message
 from hlds import Diamond, Sentence, create_hlds_testbed, diamond2sentence
-#from debug import enumprint #TODO: dbg, rm
-from util import ensure_unicode
-from util import write_to_file #TODO: dbg, rm
+from util import ensure_unicode, write_to_file, sql_array_to_set #TODO: dbg, rm
 from database import get_column #TODO: dbg, rm
 
 OPENCCG_BIN_PATH = "/home/guido/bin/openccg/bin"
 GRAMMAR_PATH = "openccg-jpolibox"
+
+def test_keywords():
+    """
+    retrieves all keywords from the database and realizes them with 
+    I{ccg-realize}.
+    """
+    keyword_arrays = get_column("keywords")
+    keyword_set = set()
+    for keyword_array in keyword_arrays:
+        temp_set = sql_array_to_set(keyword_array)
+        for keyword in temp_set:
+            keyword_set.add(keyword)
+            
+    keyword_diamonds = [__gen_keyword(keyword) for keyword in keyword_set]
+    for diamond in keyword_diamonds:
+        print realize(diamond, results="all"), "\n\n"
 
 
 def realize(sentence, results="all"):
@@ -193,8 +211,9 @@ def __rstree2list(featstruct):
     rst_list.reverse()
     return rst_list
 
+
 def lexicalize_title(book_title):
-    return [gen_title(book_title)]
+    return [gen_title(book_title), gen_abstract_title(1)]
     
 def gen_title(book_title):
     """
@@ -209,17 +228,6 @@ def gen_title(book_title):
     """
     book_title = ensure_unicode(book_title)
     book_title = book_title.replace(u" ", u"_")
-    
-    #~ chars = [(u" ", u"_"),
-             #~ ("Ä".decode("utf-8"), u"Ae"), ("ä".decode("utf-8"), u"ae"),
-             #~ ("Ö".decode("utf-8"), u"Oe"), ("ö".decode("utf-8"), u"oe"),
-             #~ ("Ü".decode("utf-8"), u"Ue"), ("ü".decode("utf-8"), u"ue"),
-             #~ ("ß".decode("utf-8"), u"ss")]
-    #~ for in_char, out_char in chars:
-        #~ book_title = book_title.replace(in_char, out_char)
-    
-    
-    #title = book_title.translate(translation_table)
     
     opening_bracket = Diamond()
     opening_bracket.create_diamond('99', u'a1:anf\xfchrung\xf6ffnen', 
@@ -301,6 +309,7 @@ def __gen_abstract_autor(num_of_authors):
                             [art, gen, num])
     return der_autor
 
+
 def __gen_lastname_only(name):
     """
     given an authors name ("Christopher D. Manning"), the function returns a 
@@ -308,6 +317,8 @@ def __gen_lastname_only(name):
     
     NOTE: This does not work with last names that include whitespace, e.g. 
     "du Bois" or "von Neumann".
+    
+    TODO: remove n1, x1 from "nom" fields
     
     @type name: C{str}
     @rtype: C{Diamond}
@@ -318,6 +329,7 @@ def __gen_lastname_only(name):
     lastname = Diamond()
     lastname.create_diamond("", "nachname", lastname_str, [lastname_only])
     return lastname
+
 
 def __gen_complete_name(name):
     """
@@ -338,6 +350,44 @@ def __gen_complete_name(name):
 
     return complete_name
 
+
+
+
+def lexicalize_keywords(keywords):
+    """
+    @type keywords: C{frozenset} of C{str}
+    
+    TODO: add code for "das Thema" / "die Themen"
+    """
+    
+    return [__gen_keywords(keywords)]
+    
+
+def __gen_keywords(keywords):
+    """
+    takes a list of keyword (strings) and converts them into a nested 
+    C{Diamond} structure
+    
+    @type keywords: C{list} of C{str}
+    @rtype: C{Diamond}
+    """
+    def gen_keyword(keyword):
+        """takes a keyword (string) and converts it into a C{Diamond}"""
+        fixed_keyword = keyword.replace(" ", "_")
+        num = Diamond()
+        num.create_diamond("NUM", "", "sing", [])
+        keyword_diamond = Diamond()
+        keyword_diamond.create_diamond("", "sorte", fixed_keyword, [num])
+        return keyword_diamond
+
+    if len(keywords) == 1:
+        return [gen_keyword(keywords[0])]
+    
+    elif len(keywords) > 1:
+        keyword_diamonds = [gen_keyword(kw) for kw in keywords]
+        return __gen_enumeration(keyword_diamonds)
+
+    
 
 def __gen_enumeration(diamonds_list):
     """
@@ -372,7 +422,6 @@ def __gen_enumeration(diamonds_list):
     return enumeration
     
 
-
 def __gen_komma_enumeration(diamonds_list):
     """
     This function will be called by __gen_enumeration() and takes a list of 
@@ -404,6 +453,7 @@ def __gen_komma_enumeration(diamonds_list):
                                   [nested_komma_enum, diamonds_list[0]])
     return komma_enum
     
+
 def __split_name(name):
     """
     naively splits a name string into a last name and a given name 
@@ -418,6 +468,7 @@ def __split_name(name):
     name_components = name.split()
     given_names, last_name = name_components[:-1], name_components[-1]
     return given_names, last_name
+
 
 def __create_nested_given_names(given_names):
     """
