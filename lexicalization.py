@@ -39,7 +39,7 @@ def test_keywords():
         for keyword in temp_set:
             keyword_set.add(keyword)
             
-    keyword_diamonds = [__gen_keyword(keyword) for keyword in keyword_set]
+    keyword_diamonds = [__gen_keywords([keyword]) for keyword in keyword_set]
     for diamond in keyword_diamonds:
         print realize(diamond, results="all"), "\n\n"
 
@@ -264,6 +264,7 @@ def gen_abstract_title(number_of_books):
     title = Diamond()
     title.create_diamond("", "artefaktum", "Buch", [art, num])
     return title
+
     
 def lexicalize_author(name):
     """
@@ -380,10 +381,10 @@ def __gen_keywords(keywords):
         keyword_diamond.create_diamond("", "sorte", fixed_keyword, [num])
         return keyword_diamond
 
-    if len(keywords) == 1:
-        return [gen_keyword(keywords[0])]
+    if isinstance(keywords, list) and len(keywords) == 1:
+        return gen_keyword(keywords[0])
     
-    elif len(keywords) > 1:
+    elif isinstance(keywords, list) and len(keywords) > 1:
         keyword_diamonds = [gen_keyword(kw) for kw in keywords]
         return __gen_enumeration(keyword_diamonds)
 
@@ -438,11 +439,11 @@ def __gen_komma_enumeration(diamonds_list):
     @return: a Diamond instance (containing zero or more nested Diamond 
     instances)
     """
-    if len(diamonds_list) is 0:
+    if len(diamonds_list) == 0:
         return []
-    if len(diamonds_list) is 1:
+    if len(diamonds_list) == 1:
         return diamonds_list[0]
-    if len(diamonds_list) is 2:
+    if len(diamonds_list) == 2:
         komma_enum = Diamond()
         komma_enum.create_diamond("NP1", "konjunktion", "komma", 
                                   [diamonds_list[1], diamonds_list[0]])
