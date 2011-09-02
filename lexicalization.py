@@ -27,7 +27,7 @@ from database import get_column #TODO: dbg, rm
 OPENCCG_BIN_PATH = "/home/guido/bin/openccg/bin"
 GRAMMAR_PATH = "openccg-jpolibox"
 
-def test_keywords():
+def test_keywords_individually():
     """
     retrieves all keywords from the database and realizes them with 
     I{ccg-realize}.
@@ -42,6 +42,19 @@ def test_keywords():
     keyword_diamonds = [__gen_keywords([keyword]) for keyword in keyword_set]
     for diamond in keyword_diamonds:
         print realize(diamond, results="all"), "\n\n"
+
+def test_keywords():
+    """
+    retrieves all keywords from the database and realizes them with 
+    I{ccg-realize}.
+    """
+    keyword_arrays = get_column("keywords")
+    keyword_set = set()
+    for keyword_array in keyword_arrays:
+        keyword_list = list(sql_array_to_set(keyword_array))
+        keywords_diamond = __gen_keywords(keyword_list)
+        print realize(keywords_diamond, results="all"), "\n\n"
+
 
 
 def realize(sentence, results="all"):
