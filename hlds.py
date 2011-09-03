@@ -271,10 +271,10 @@ class Diamond(FeatDict):
         @type nested_diamonds_list: C{list}
         """
         self[Feature('mode')] = mode
-        if prop:
-            self.update({"prop": prop})
         if nom:
             self.update({"nom": nom})
+        if prop:
+            self.update({"prop": prop})
         if nested_diamonds_list:
             for i, nested_diamond in enumerate(nested_diamonds_list):
                 identifier = "{0}__{1}".format(str(i).zfill(2), 
@@ -468,7 +468,7 @@ def __diamond_fs2xml(diamond):
         etree_subdiamonds.append(__diamond_fs2xml(subdiamond))
         
     for subdiamond in etree_subdiamonds:
-        final_position = len(subdiamond)
+        final_position = len(diamond_etree)
         diamond_etree.insert(final_position, subdiamond)
         
     return diamond_etree
@@ -553,6 +553,26 @@ def remove_nomprefixes(sentence):
             if "nom" in e.keys():
                 if prefix.match(e["nom"]):
                     e["nom"] = prefix.split(e["nom"], maxsplit=1)[1]
+
+
+def last_diamond_index(featstruct):
+    """
+    Returns the highest index currently used withing a given C{Diamond} or 
+    C{Sentence}. E.g., if this structure contains three diamonds ("01__ART", 
+    "02__NUM" and "03__TEMP"), the return value will be 3
+    
+    @type featstruct: C{Diamond} or C{Sentence}
+    @rtype: C{int}
+    """
+    int_prefix = re.compile("(\d+)__")
+    diamond_keys = featstruct.keys()
+    matching_keys = []
+    for key in diamond_keys:
+        if isinstance(key, (str, unicode) ):
+            match = int_prefix.match(key)
+            if match:
+                matching_keys.append(match.groups()[0])
+    return int( sorted(matching_keys)[-1] ) # highest index in use
 
 
 def etreeprint(element, debug=True, raw=False):
