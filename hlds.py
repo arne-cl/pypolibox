@@ -138,8 +138,7 @@ class HLDSReader():
         elements = []
         
         for element in satop.findall("diamond"):
-            diamond = Diamond()
-            diamond.convert_diamond_xml2fs(element)
+            diamond = convert_diamond_xml2fs(element)
             elements.append(diamond)
 
         sentence = Sentence()
@@ -182,55 +181,62 @@ class Sentence(FeatDict):
         self.update({Feature("root_prop"): root_prop}) 
         self.update({Feature("root_nom"): root_nom})
 
-        modified_diamonds = gen_diamond_ids(diamonds)
+        #~ modified_diamonds = gen_diamond_ids(diamonds)
+#~ 
+        #~ for (modified_id, diamond) in modified_diamonds:
+            #~ self.update({modified_id: diamond})
 
-        for (modified_id, diamond) in modified_diamonds:
-            self.update({modified_id: diamond})
-
-
-def gen_diamond_ids(diamonds):
-    """
-    nltk.featstruct must have unique key names, so we'll have to make those 
-    HLDS XML <diamond> structures unique. E.g., ff there are two or more 
-    <diamond mode="NUM"> elements, the they will be converted into 'MOD__1', 
-    'MOD__2' etc.
-    
-    @type diamonds: C{list} of C{Diamond}s
-    @rtype: C{tuple} of (C{str}, C{Diamond})
-    @return: a tuple consisting of (un)modified identifiers (e.g. 'DEF', 
-    'NUM__1', 'NUM__2' and the Diamonds they belong to)
-    """
-    diamond_counts = diamond_count(diamonds)
-    usage_counts = defaultdict(int)
-    
-    modified_diamonds = []
-    for diamond in diamonds: # these are C{Diamond}s
-        diamond_id = diamond[Feature("mode")]
-        if diamond_counts[diamond_id] == 1:
-            modified_id = diamond_id
-        else: # there's more than one Diamond with the same "mode"
-            usage_counts[diamond_id] += 1
-            modified_id = "{0}__{1}".format(diamond_id, 
-                                            usage_counts[diamond_id])
-        modified_diamonds.append( (modified_id, diamond) )
-    return modified_diamonds
+        if diamonds:
+            for i, diamond in enumerate(diamonds):
+                identifier = "{0}__{1}".format(str(i).zfill(2), 
+                                               diamond[Feature("mode")])
+                self.update({identifier: diamond})
 
 
-def diamond_count(diamonds_list):
-    """
-    counts how man diamonds have a certain / the same 'mode'. It is okay to 
-    have more than one structure with the same name in XML, but it won't work 
-    in C{nltk.featstruct}s.
-    
-    @type diamonds_list: C{list} of C{Diamond}s
-    @rtype: C{defaultdict}
-    """
-    diamond_counts = defaultdict(int)
-    for diamond in diamonds_list:
-        diamond_id = diamond[Feature("mode")]
-        diamond_counts[diamond_id] += 1
-    return diamond_counts
 
+#~ def gen_diamond_ids(diamonds):
+    #~ """
+    #~ nltk.featstruct must have unique key names, so we'll have to make those 
+    #~ HLDS XML <diamond> structures unique. E.g., ff there are two or more 
+    #~ <diamond mode="NUM"> elements, the they will be converted into 'MOD__1', 
+    #~ 'MOD__2' etc.
+    #~ 
+    #~ @type diamonds: C{list} of C{Diamond}s
+    #~ @rtype: C{tuple} of (C{str}, C{Diamond})
+    #~ @return: a tuple consisting of (un)modified identifiers (e.g. 'DEF', 
+    #~ 'NUM__1', 'NUM__2' and the Diamonds they belong to)
+    #~ """
+    #~ diamond_counts = diamond_count(diamonds)
+    #~ usage_counts = defaultdict(int)
+    #~ 
+    #~ modified_diamonds = []
+    #~ for diamond in diamonds: # these are C{Diamond}s
+        #~ diamond_id = diamond[Feature("mode")]
+        #~ if diamond_counts[diamond_id] == 1:
+            #~ modified_id = diamond_id
+        #~ else: # there's more than one Diamond with the same "mode"
+            #~ usage_counts[diamond_id] += 1
+            #~ modified_id = "{0}__{1}".format(diamond_id, 
+                                            #~ usage_counts[diamond_id])
+        #~ modified_diamonds.append( (modified_id, diamond) )
+    #~ return modified_diamonds
+
+
+#~ def diamond_count(diamonds_list):
+    #~ """
+    #~ counts how man diamonds have a certain / the same 'mode'. It is okay to 
+    #~ have more than one structure with the same name in XML, but it won't work 
+    #~ in C{nltk.featstruct}s.
+    #~ 
+    #~ @type diamonds_list: C{list} of C{Diamond}s
+    #~ @rtype: C{defaultdict}
+    #~ """
+    #~ diamond_counts = defaultdict(int)
+    #~ for diamond in diamonds_list:
+        #~ diamond_id = diamond[Feature("mode")]
+        #~ diamond_counts[diamond_id] += 1
+    #~ return diamond_counts
+#~ 
 
         
 class Diamond(FeatDict):
@@ -247,45 +253,17 @@ class Diamond(FeatDict):
             </diamond>
             ...
         </diamond>
-    """
-    def convert_diamond_xml2fs(self, etree):
-        """
-        transforms a HLDS XML <diamond>...</diamond> structure 
-        (that was parsed into an etree element) into an NLTK feature structure.
-
-        @type etree_or_tuple: C{etree._Element}
-        @param etree_or_tuple: a diamond etree element
-        """
-        self[Feature('mode')] = ensure_utf8(etree.attrib["mode"])
-
-        nested_xml_diamonds = []
-        nested_xml_elements = [] # 'nom' or 'prop' elements
-        for child in etree.getchildren():
-            if child.tag == "diamond":
-                nested_xml_diamonds.append(child)
-            else:
-                nested_xml_elements.append(child)
-
-        for xml_element in nested_xml_elements:
-            element_tag = ensure_utf8(xml_element.tag)
-            element_name = ensure_utf8(xml_element.attrib["name"])
-            self.update({element_tag: element_name})
-
-        nested_diamonds = []
-        for xml_diamond in nested_xml_diamonds:
-            nested_diamond = Diamond()
-            nested_diamond.convert_diamond_xml2fs(xml_diamond)
-            nested_diamonds.append(nested_diamond)
-
-        modified_diamonds = gen_diamond_ids(nested_diamonds)
-        for (modified_id, diamond) in modified_diamonds:
-            self.update({modified_id: diamond})
-    
+    """    
     def create_diamond(self, mode, nom, prop, nested_diamonds_list):
         """
         creates an HLDS feature structure from scratch (in contrast to 
         convert_diamond_xml2fs, which converts an HLDS XML structure into 
         its corresponding feature structure representation)
+        
+        NOTE: I'd like to simply put this into __init__, but I don't know how 
+        to subclass FeatDict properly. FeatDict.__new__ complains about 
+        Diamond.__init__(self, mode, nom, prop, nested_diamonds_list) having 
+        too many arguments.
         
         @type mode: C{Str}
         @type nom: C{Str}
@@ -302,6 +280,44 @@ class Diamond(FeatDict):
                 identifier = "{0}__{1}".format(str(i).zfill(2), 
                                                nested_diamond[Feature("mode")])
                 self.update({identifier: nested_diamond})
+
+
+def convert_diamond_xml2fs(etree):
+    """
+    transforms a HLDS XML <diamond>...</diamond> structure 
+    (that was parsed into an etree element) into an NLTK feature structure.
+
+    @type etree_or_tuple: C{etree._Element}
+    @param etree_or_tuple: a diamond etree element
+    
+    @rtype: C{Diamond}
+    """
+    mode = ensure_utf8(etree.attrib["mode"])
+
+    nested_diamonds = []
+    nom = "" # default value
+    prop = "" # default value
+    
+    for child in etree.getchildren():
+        if child.tag == "diamond":
+            nested_diamond = convert_diamond_xml2fs(child)
+            nested_diamonds.append(nested_diamond)
+        elif child.tag == "nom":
+            nom = ensure_utf8(child.attrib["name"])
+        elif child.tag == "prop":
+            prop = ensure_utf8(child.attrib["name"])
+
+    #~ modified_diamonds = gen_diamond_ids(nested_diamonds)
+    #~ for (modified_id, diamond) in modified_diamonds:
+        #~ self.update({modified_id: diamond})
+    
+    # TODO: check, if gen_diamond_ids() is still needed, or if its covered by 
+    # Diamond.__init__ now ???
+    
+    diamond = Diamond()
+    diamond.create_diamond(mode, nom, prop, nested_diamonds)
+    return diamond
+ 
  
 
 def create_hlds_testbed(sent_or_sent_list, mode="test", output="etree"):
