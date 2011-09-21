@@ -8,10 +8,6 @@ be utilized by the OpenCCG surface realizer to produce natural language text.
 
 TODO: move OPENCCG_BIN_PATH and GRAMMAR_PATH to a config.yml file and make them
 absolute
-
-DEBUG NOTE:
-used book table columns: [u'title', u'year', u'authors', u'keywords',
-u'lang', u'plang', u'pages', u'target', u'exercises', u'examples']
 """
 
 import os
@@ -413,6 +409,8 @@ def __gen_keywords(keywords):
     @type keywords: C{list} of C{str}
     @rtype: C{Diamond}
     """
+    assert isinstance(keywords, list), "input needs to be a list"
+    
     def gen_keyword(keyword):
         """takes a keyword (string) and converts it into a C{Diamond}"""
         fixed_keyword = keyword.replace(" ", "_")

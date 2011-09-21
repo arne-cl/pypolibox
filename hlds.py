@@ -192,52 +192,6 @@ class Sentence(FeatDict):
                                                diamond[Feature("mode")])
                 self.update({identifier: diamond})
 
-
-
-#~ def gen_diamond_ids(diamonds):
-    #~ """
-    #~ nltk.featstruct must have unique key names, so we'll have to make those 
-    #~ HLDS XML <diamond> structures unique. E.g., ff there are two or more 
-    #~ <diamond mode="NUM"> elements, the they will be converted into 'MOD__1', 
-    #~ 'MOD__2' etc.
-    #~ 
-    #~ @type diamonds: C{list} of C{Diamond}s
-    #~ @rtype: C{tuple} of (C{str}, C{Diamond})
-    #~ @return: a tuple consisting of (un)modified identifiers (e.g. 'DEF', 
-    #~ 'NUM__1', 'NUM__2' and the Diamonds they belong to)
-    #~ """
-    #~ diamond_counts = diamond_count(diamonds)
-    #~ usage_counts = defaultdict(int)
-    #~ 
-    #~ modified_diamonds = []
-    #~ for diamond in diamonds: # these are C{Diamond}s
-        #~ diamond_id = diamond[Feature("mode")]
-        #~ if diamond_counts[diamond_id] == 1:
-            #~ modified_id = diamond_id
-        #~ else: # there's more than one Diamond with the same "mode"
-            #~ usage_counts[diamond_id] += 1
-            #~ modified_id = "{0}__{1}".format(diamond_id, 
-                                            #~ usage_counts[diamond_id])
-        #~ modified_diamonds.append( (modified_id, diamond) )
-    #~ return modified_diamonds
-
-
-#~ def diamond_count(diamonds_list):
-    #~ """
-    #~ counts how man diamonds have a certain / the same 'mode'. It is okay to 
-    #~ have more than one structure with the same name in XML, but it won't work 
-    #~ in C{nltk.featstruct}s.
-    #~ 
-    #~ @type diamonds_list: C{list} of C{Diamond}s
-    #~ @rtype: C{defaultdict}
-    #~ """
-    #~ diamond_counts = defaultdict(int)
-    #~ for diamond in diamonds_list:
-        #~ diamond_id = diamond[Feature("mode")]
-        #~ diamond_counts[diamond_id] += 1
-    #~ return diamond_counts
-#~ 
-
         
 class Diamond(FeatDict):
     """
