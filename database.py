@@ -301,6 +301,7 @@ class Results:
             self.possible_matches = self.get_number_of_possible_matches()
             self.query_results = self.or_query_results
             self.query_type = 'or'
+        conn.close() # close connection to sqlite db
             
     def get_number_of_possible_matches(self):
         """
@@ -567,4 +568,6 @@ def get_column(column_name):
     print "available table columns: {0}\n".format(columns)
 
     results_cursor = curs.execute("select {0} from books".format(column_name))
-    return [result[0] for result in results_cursor]
+    results = [result[0] for result in results_cursor]
+    conn.close() # close connection to db
+    return results

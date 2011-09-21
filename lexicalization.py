@@ -29,9 +29,9 @@ OPENCCG_BIN_PATH = "/home/guido/bin/openccg/bin"
 GRAMMAR_PATH = "openccg-jpolibox"
 
 def test_keywords_individually():
-    """
-    retrieves all keywords from the database and realizes them with
-    I{ccg-realize}.
+    """ 
+    retrieves all keywords from the database and realizes them individually 
+    with I{ccg-realize}.
     """
     keyword_arrays = get_column("keywords")
     keyword_set = set()
@@ -46,7 +46,7 @@ def test_keywords_individually():
 
 def test_keywords():
     """
-    retrieves all keywords from the database and realizes them with
+    retrieves all sets of keywords from the database and realizes them with
     I{ccg-realize}.
     """
     keyword_arrays = get_column("keywords")
@@ -55,7 +55,6 @@ def test_keywords():
         keyword_list = list(sql_array_to_set(keyword_array))
         keywords_diamond = __gen_keywords(keyword_list)
         print realize(keywords_diamond, results="all"), "\n\n"
-
 
 
 def realize(sentence, results="all"):
