@@ -428,11 +428,11 @@ def __gen_keywords(keywords):
 
     elif isinstance(keywords, list) and len(keywords) > 1:
         keyword_diamonds = [gen_keyword(kw) for kw in keywords]
-        return __gen_enumeration(keyword_diamonds)
+        return __gen_enumeration(keyword_diamonds, mode="N")
 
 
 
-def __gen_enumeration(diamonds_list):
+def __gen_enumeration(diamonds_list, mode=""):
     """
     Takes a list of Diamond instances and combines them into a nested Diamond.
     This nested Diamond can be used to generate an enumeration, such as::
@@ -455,17 +455,17 @@ def __gen_enumeration(diamonds_list):
         return diamonds_list[0]
     if len(diamonds_list) is 2:
         enumeration = Diamond()
-        enumeration.create_diamond("", "konjunktion", "und",
+        enumeration.create_diamond(mode, "konjunktion", "und",
                                    [diamonds_list[1], diamonds_list[0]])
     if len(diamonds_list) > 2:
         enumeration = Diamond()
         nested_komma_enum = __gen_komma_enumeration(diamonds_list[1:])
-        enumeration.create_diamond("", "konjunktion", "und",
+        enumeration.create_diamond(mode, "konjunktion", "und",
                                    [nested_komma_enum, diamonds_list[0]])
     return enumeration
 
 
-def __gen_komma_enumeration(diamonds_list):
+def __gen_komma_enumeration(diamonds_list, mode=""):
     """
     This function will be called by __gen_enumeration() and takes a list of
     Diamond instances and combines them into a nested Diamond, expressing comma
@@ -487,12 +487,12 @@ def __gen_komma_enumeration(diamonds_list):
         return diamonds_list[0]
     if len(diamonds_list) == 2:
         komma_enum = Diamond()
-        komma_enum.create_diamond("NP1", "konjunktion", "komma",
+        komma_enum.create_diamond(mode, "konjunktion", "komma",
                                   [diamonds_list[1], diamonds_list[0]])
     if len(diamonds_list) > 2:
         komma_enum = Diamond()
         nested_komma_enum = __gen_komma_enumeration(diamonds_list[1:])
-        komma_enum.create_diamond("NP1", "konjunktion", "komma",
+        komma_enum.create_diamond(mode, "konjunktion", "komma",
                                   [nested_komma_enum, diamonds_list[0]])
     return komma_enum
 

@@ -2,6 +2,10 @@
 # -*- coding: utf-8 -*-
 # Author: Arne Neumann <arne-neumann@web.de>
 
+# TODO: change Sequence to Joint. Sequence is a multinuclear relation which 
+# combines predecessors and successors. Joint is a random relation without 
+# any restrictions.
+
 """
 The I{textplan} module is based on Nicholas FitzGerald's I{py_docplanner}[1], 
 in particular on his idea to represent RST trees as attribute value matrices 
