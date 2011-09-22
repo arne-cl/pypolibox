@@ -429,7 +429,7 @@ def __gen_keywords(keywords):
         #return __gen_enumeration(keyword_diamonds, mode="NP") # TODO: dbg,rm
 
 
-def add_mode_suffix(diamond, mode=""):
+def add_mode_suffix(diamond, mode="NP"):
     matching_subdiamond_keys = []
     for key in diamond.keys():
         if isinstance(key, str) and key.endswith(mode):
@@ -442,7 +442,7 @@ def add_mode_suffix(diamond, mode=""):
 
     for key, value in diamond.items():
         if isinstance(value, Diamond):
-            addsuffix(value, mode)
+            add_mode_suffix(value, mode)
 
 
 
@@ -469,13 +469,12 @@ def __gen_enumeration(diamonds_list, mode=""):
         return diamonds_list[0]
     if len(diamonds_list) is 2:
         enumeration = Diamond()
-        enumeration.create_diamond(mode, "konjunktion", "und",
-                                   [diamonds_list[1], diamonds_list[0]])
+        enumeration.create_diamond(mode, "konjunktion", "und", diamonds_list)
     if len(diamonds_list) > 2:
         enumeration = Diamond()
-        nested_komma_enum = __gen_komma_enumeration(diamonds_list[1:], mode)
+        nested_komma_enum = __gen_komma_enumeration(diamonds_list[:-1], mode)
         enumeration.create_diamond(mode, "konjunktion", "und",
-                                   [nested_komma_enum, diamonds_list[0]])
+                                   [nested_komma_enum, diamonds_list[-1]])
     return enumeration
 
 
@@ -501,13 +500,12 @@ def __gen_komma_enumeration(diamonds_list, mode=""):
         return diamonds_list[0]
     if len(diamonds_list) == 2:
         komma_enum = Diamond()
-        komma_enum.create_diamond(mode, "konjunktion", "komma",
-                                  [diamonds_list[1], diamonds_list[0]])
+        komma_enum.create_diamond(mode, "konjunktion", "komma", diamonds_list)
     if len(diamonds_list) > 2:
         komma_enum = Diamond()
-        nested_komma_enum = __gen_komma_enumeration(diamonds_list[1:])
+        nested_komma_enum = __gen_komma_enumeration(diamonds_list[:-1], mode)
         komma_enum.create_diamond(mode, "konjunktion", "komma",
-                                  [nested_komma_enum, diamonds_list[0]])
+                                  [nested_komma_enum, diamonds_list[-1]])
     return komma_enum
 
 
