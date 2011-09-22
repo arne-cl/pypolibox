@@ -272,7 +272,28 @@ def convert_diamond_xml2fs(etree):
     diamond.create_diamond(mode, nom, prop, nested_diamonds)
     return diamond
  
+
+def hlds2xml(featstruct):
+    """
+    debug function that returns the string representation of a feature 
+    structure (Diamond or Sentence) and its HLDS XML equivalent.
+    
+    @type featstruct: C{Diamond} or C{Sentence}
+    @rtype: C{str}
+    """
+    assert isinstance(featstruct, (Diamond, Sentence))
+    input_str = featstruct.__str__()
+    
+    if isinstance(featstruct, Diamond):
+        sentence = diamond2sentence(featstruct)
+        output_str = create_hlds_testbed(sentence, mode="realize", 
+                                         output="xml")
+    
+    if isinstance(featstruct, Sentence):
+        output_str = create_hlds_testbed(featstruct, mode="realize", 
+                                         output="xml")
  
+    return "Input:\n\n{0}\n\nOutput:\n\n{1}".format(input_str, output_str)
 
 def create_hlds_testbed(sent_or_sent_list, mode="test", output="etree"):
     """

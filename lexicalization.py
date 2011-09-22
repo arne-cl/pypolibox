@@ -417,7 +417,7 @@ def __gen_keywords(keywords):
         num = Diamond()
         num.create_diamond("NUM", "", "sing", [])
         keyword_diamond = Diamond()
-        keyword_diamond.create_diamond("", "sorte", fixed_keyword, [num])
+        keyword_diamond.create_diamond("NP", "sorte", fixed_keyword, [num])
         return keyword_diamond
 
     if isinstance(keywords, list) and len(keywords) == 1:
@@ -425,7 +425,24 @@ def __gen_keywords(keywords):
 
     elif isinstance(keywords, list) and len(keywords) > 1:
         keyword_diamonds = [gen_keyword(kw) for kw in keywords]
-        return __gen_enumeration(keyword_diamonds, mode="N")
+        return keyword_diamonds
+        #return __gen_enumeration(keyword_diamonds, mode="NP") # TODO: dbg,rm
+
+
+def add_mode_suffix(diamond, mode=""):
+    matching_subdiamond_keys = []
+    for key in diamond.keys():
+        if isinstance(key, str) and key.endswith(mode):
+            if diamond[key][Feature("mode")] == mode:
+                matching_subdiamond_keys.append(key)
+                
+    sorted_subdiamond_keys = sorted(matching_subdiamond_keys)
+    for i, key in enumerate(sorted_subdiamond_keys):
+        diamond[key][Feature("mode")] = "{0}{1}".format(mode, i+1)
+
+    for key, value in diamond.items():
+        if isinstance(value, Diamond):
+            addsuffix(value, mode)
 
 
 
@@ -456,7 +473,7 @@ def __gen_enumeration(diamonds_list, mode=""):
                                    [diamonds_list[1], diamonds_list[0]])
     if len(diamonds_list) > 2:
         enumeration = Diamond()
-        nested_komma_enum = __gen_komma_enumeration(diamonds_list[1:])
+        nested_komma_enum = __gen_komma_enumeration(diamonds_list[1:], mode)
         enumeration.create_diamond(mode, "konjunktion", "und",
                                    [nested_komma_enum, diamonds_list[0]])
     return enumeration
