@@ -17,28 +17,13 @@ from commands import getstatusoutput
 from nltk.featstruct import Feature
 from textplan import ConstituentSet, Message
 from hlds import (Diamond, Sentence, create_hlds_testbed, diamond2sentence, 
-                  last_diamond_index)
+                  last_diamond_index, add_nomprefixes)
 from util import ensure_unicode, write_to_file, sql_array_to_set #TODO: dbg, rm
 from database import get_column #TODO: dbg, rm
 
 OPENCCG_BIN_PATH = "/home/guido/bin/openccg/bin"
 GRAMMAR_PATH = "openccg-jpolibox"
 
-def test_keywords_individually():
-    """ 
-    retrieves all keywords from the database and realizes them individually 
-    with I{ccg-realize}.
-    """
-    keyword_arrays = get_column("keywords")
-    keyword_set = set()
-    for keyword_array in keyword_arrays:
-        temp_set = sql_array_to_set(keyword_array)
-        for keyword in temp_set:
-            keyword_set.add(keyword)
-
-    keyword_diamonds = [__gen_keywords([keyword]) for keyword in keyword_set]
-    for diamond in keyword_diamonds:
-        print realize(diamond, results="all"), "\n\n"
 
 def test_keywords():
     """
@@ -50,7 +35,9 @@ def test_keywords():
     for keyword_array in keyword_arrays:
         keyword_list = list(sql_array_to_set(keyword_array))
         keywords_diamond = __gen_keywords(keyword_list)
-        print realize(keywords_diamond, results="all"), "\n\n"
+        add_mode_suffix(keywords_diamond)
+        add_nomprefixes(keywords_diamond)
+        print keyword_list, "\n", realize(keywords_diamond, results="all"), "\n\n"
 
 
 def realize(sentence, results="all"):
@@ -425,8 +412,7 @@ def __gen_keywords(keywords):
 
     elif isinstance(keywords, list) and len(keywords) > 1:
         keyword_diamonds = [gen_keyword(kw) for kw in keywords]
-        return keyword_diamonds
-        #return __gen_enumeration(keyword_diamonds, mode="NP") # TODO: dbg,rm
+        return __gen_enumeration(keyword_diamonds, mode="NP") # TODO: dbg,rm
 
 
 def add_mode_suffix(diamond, mode="NP"):

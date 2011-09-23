@@ -379,7 +379,7 @@ def __sentence_fs2xml(sentence, mode="test"):
                              string=ensure_unicode(text))
         xml = etree.SubElement(item, "xml")
         lf = etree.SubElement(xml, "lf")
-    else:
+    else: # mode is "realize"
         lf = etree.Element("lf")
     
     root_nom = sentence[Feature("root_nom")]
@@ -457,7 +457,7 @@ def diamond2sentence(diamond):
     Note: OpenCCG does not really distinguish between a sentence and smaller 
     units of meaning. It simply assigns the <sentence> tag to every HLDS 
     structure it realizes, whereas each substructure of this "sentence" (no 
-    matter how complex) is labelled as <diamond>.
+    matter how complex) is labelled as a <diamond>.
     
     @type diamond: C{Diamond}
     @rtype: C{Sentence}
@@ -469,10 +469,19 @@ def diamond2sentence(diamond):
         nom = diamond["nom"]
     if "prop" in diamond:
         prop = diamond["prop"]
-    nested_diamonds = [val for (key, val) in diamond.items() 
-                           if type(val) is Diamond]
+
+    nested_diamonds = []
+    for key in sorted(diamond.keys()):
+    # keys need to be sorted, otherwise Diamonds within a Sentence will have a
+    # different order than before. Diamond keys seem ordered, but they aren't
+    # (keys beginning with numbers seem to be in descending order, those 
+    # beginning with letters in ascending order)
+        if isinstance(diamond[key], Diamond):
+            nested_diamonds.append(diamond[key])
+
     sentence.create_sentence("", 1, nom, prop, nested_diamonds)
     return sentence
+
 
 def test_conversion():
     """    
