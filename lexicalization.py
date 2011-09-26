@@ -32,13 +32,26 @@ def test_keywords():
     I{ccg-realize}.
     """
     keyword_arrays = get_column("keywords")
-    keyword_set = set()
+    #keyword_set = set()
     for keyword_array in keyword_arrays:
         keyword_list = list(sql_array_to_set(keyword_array))
         keywords_diamond = __gen_keywords(keyword_list)
         add_mode_suffix(keywords_diamond, mode="N")
         add_nom_prefixes(keywords_diamond)
         print keyword_list, "\n", realize(keywords_diamond, results="all"), "\n\n"
+
+def test_authors():
+    """
+    retrieves all sets of authors from the database and realizes them with 
+    I{ccg-realize}.
+    """
+    author_arrays = get_column("authors")
+    for author_array in author_arrays:
+        author_list = list(sql_array_to_set(author_array))
+        complete_names_enum = lexicalize_authors(author_list)[2]
+        #lastnames_enum = lexicalize_authors(author_list)[1]
+        print author_list, "\n", realize(complete_names_enum), "\n\n"
+        #print author_list, "\n", realize(lastnames_enum), "\n\n"
 
 
 def realize(sentence, results="all"):
@@ -288,12 +301,13 @@ def lexicalize_authors(authors):
         lastnames.append(__gen_lastname_only(author))
         complete_names.append(__gen_complete_name(author))
         
-    lastnames_enum = __gen_enumeration(lastnames)
-    complete_names_enum = __gen_enumeration(complete_names)
+    lastnames_enum = __gen_enumeration(lastnames, mode="NP")
+    complete_names_enum = __gen_enumeration(complete_names, mode="NP")
 
     for realisation in (abstract_authors, lastnames_enum, complete_names_enum):
         add_nom_prefixes(realisation)
-        add_mode_suffix(realisation)
+        add_mode_suffix(realisation, mode="NP")
+        add_mode_suffix(realisation, mode="N")
             
     return [abstract_authors, lastnames_enum, complete_names_enum]
 
@@ -339,10 +353,8 @@ def __gen_lastname_only(name):
     """
     _, lastname_str = __split_name(name)
     lastname_only = Diamond()
-    lastname_only.create_diamond("N1", "personenname", "", [])
     lastname = Diamond()
-    lastname.create_diamond("NP", "nachname", lastname_str, [lastname_only])
-    #add_nom_prefixes(lastname)
+    lastname.create_diamond("NP", "nachname", lastname_str, [])
     return lastname
 
 
