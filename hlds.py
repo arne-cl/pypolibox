@@ -3,16 +3,6 @@
 # Author: Arne Neumann <arne-neumann@web.de>
 
 """
-TODO: fix Diamond construction. In HLDS there can be more than one 
-<diamond> with the same identifier/name (e.g. there can be two <diamond 
-nom="MOD"> <diamond nom="MOD"> within the same <satop> or <diamond> 
-structure).  C{Diamond}s, on the other hand, are I{nltk.featstruct}s. Two 
-featstructs within another structure can't have the same name/identifier -->
-reversible renaming is needed, as these feature structures need to be 
-converted back to XML.
-"""
-
-"""
 HLDS (Hybrid Logic Dependency Semantics) is the format internally used by the 
 OpenCCG realizer. This module shall allow the conversion between HLDS-XML 
 files and NLTK feature structures.
@@ -181,11 +171,6 @@ class Sentence(FeatDict):
         self.update({Feature("root_prop"): root_prop}) 
         self.update({Feature("root_nom"): root_nom})
 
-        #~ modified_diamonds = gen_diamond_ids(diamonds)
-#~ 
-        #~ for (modified_id, diamond) in modified_diamonds:
-            #~ self.update({modified_id: diamond})
-
         if diamonds:
             for i, diamond in enumerate(diamonds):
                 identifier = "{0}__{1}".format(str(i).zfill(2), 
@@ -261,13 +246,6 @@ def convert_diamond_xml2fs(etree):
         elif child.tag == "prop":
             prop = ensure_utf8(child.attrib["name"])
 
-    #~ modified_diamonds = gen_diamond_ids(nested_diamonds)
-    #~ for (modified_id, diamond) in modified_diamonds:
-        #~ self.update({modified_id: diamond})
-    
-    # TODO: check, if gen_diamond_ids() is still needed, or if its covered by 
-    # Diamond.__init__ now ???
-    
     diamond = Diamond()
     diamond.create_diamond(mode, nom, prop, nested_diamonds)
     return diamond
@@ -389,8 +367,12 @@ def __sentence_fs2xml(sentence, mode="test"):
     etree.SubElement(satop, "prop", name=root_prop)
     
     diamonds = []
-    for key, val in sentence.items():
-        if type(val) is Diamond:
+    for key in sorted(sentence.keys()):
+    # keys need to be sorted, otherwise Diamonds within a Sentence will have a
+    # different order than before. Diamond keys seem ordered, but they aren't
+    # (keys beginning with numbers seem to be in descending order, those 
+    # beginning with letters in ascending order)
+        if isinstance(sentence[key], Diamond):
             diamonds.append(sentence[key])
     
     etree_diamonds = []
@@ -432,10 +414,13 @@ def __diamond_fs2xml(diamond):
     # if present, nom(inal) has to be the first argument/sub tag of a diamond
         diamond_etree.insert(0, NOM(name=ensure_unicode(diamond["nom"])) )
 
-        
     subdiamonds = []    
-    for key, value in diamond.items():
-        if type(value) is Diamond:
+    for key in sorted(diamond.keys()):
+    # keys need to be sorted, otherwise Diamonds within a Sentence will have a
+    # different order than before. Diamond keys seem ordered, but they aren't
+    # (keys beginning with numbers seem to be in descending order, those 
+    # beginning with letters in ascending order)
+        if isinstance(diamond[key], Diamond):
             subdiamonds.append(diamond[key])
     
     etree_subdiamonds = []    
@@ -509,7 +494,23 @@ def test_conversion():
     return hlds_reader, all_sents_xml 
 
 
-def add_nomprefixes(sentence):
+def add_mode_suffix(diamond, mode="N"):
+    matching_subdiamond_keys = []
+    for key in diamond.keys():
+        if isinstance(key, str) and key.endswith(mode):
+            if diamond[key][Feature("mode")] == mode:
+                matching_subdiamond_keys.append(key)
+                
+    sorted_subdiamond_keys = sorted(matching_subdiamond_keys)
+    for i, key in enumerate(sorted_subdiamond_keys):
+        diamond[key][Feature("mode")] = "{0}{1}".format(mode, i+1)
+
+    for key, value in diamond.items():
+        if isinstance(value, Diamond):
+            add_mode_suffix(value, mode)
+
+
+def add_nom_prefixes(sentence):
     prop_dict = defaultdict(int)
     elements = [element for element in sentence.walk()]
 
@@ -523,9 +524,9 @@ def add_nomprefixes(sentence):
                     
                 prop_dict[nom_prefix_char] += 1
                 nom_without_prefix = e["nom"]
-                e["nom"] = "{0}{1}:{2}".format(nom_prefix_char, 
+                e["nom"] = "{0}{1}:{2}".format(ensure_utf8(nom_prefix_char), 
                                                prop_dict[nom_prefix_char],
-                                               nom_without_prefix)
+                                               ensure_utf8(nom_without_prefix))
 
 def remove_nomprefixes(sentence):
     prop_dict = defaultdict(int)

@@ -12,12 +12,13 @@ absolute
 
 import os
 import re
+from copy import deepcopy
 from tempfile import NamedTemporaryFile
 from commands import getstatusoutput
 from nltk.featstruct import Feature
 from textplan import ConstituentSet, Message
 from hlds import (Diamond, Sentence, create_hlds_testbed, diamond2sentence, 
-                  last_diamond_index, add_nomprefixes)
+                  last_diamond_index, add_nom_prefixes, add_mode_suffix)
 from util import ensure_unicode, write_to_file, sql_array_to_set #TODO: dbg, rm
 from database import get_column #TODO: dbg, rm
 
@@ -35,8 +36,8 @@ def test_keywords():
     for keyword_array in keyword_arrays:
         keyword_list = list(sql_array_to_set(keyword_array))
         keywords_diamond = __gen_keywords(keyword_list)
-        add_mode_suffix(keywords_diamond)
-        add_nomprefixes(keywords_diamond)
+        add_mode_suffix(keywords_diamond, mode="N")
+        add_nom_prefixes(keywords_diamond)
         print keyword_list, "\n", realize(keywords_diamond, results="all"), "\n\n"
 
 
@@ -262,21 +263,39 @@ def gen_abstract_title(number_of_books):
     return title
 
 
-def lexicalize_author(name):
+def lexicalize_authors(authors):
     """
-    converts the name of an author into several possible HLDS diamond
+    converts a list of authors into several possible HLDS diamond
     structures, which can be used for text generation.
 
-    @type name: C{str}
-    @param name: name of an author, e.g. "Christopher D. Manning"
+    @type name: C{list} of C{str}
+    @param name: list of names, e.g. ["Ronald Hausser", 
+    "Christopher D. Manning"]
 
     @rtype: C{list} of C{Diamond}s
     @return: a list of 3 Diamond instance. the first generates "der Autor", the
-    second the author's lastname and the last generates the author's complete
-    name.
+    second the authors lastnames and the last one generates the complete names 
+    of the authors.
     """
-    return [__gen_abstract_autor(1), __gen_lastname_only(name),
-            __gen_complete_name(name)]
+    assert isinstance(authors, list), "needs a list of name strings as input"
+    num_of_authors = len(authors)
+    
+    abstract_authors = __gen_abstract_autor(num_of_authors)
+
+    lastnames = []
+    complete_names = []
+    for author in authors:
+        lastnames.append(__gen_lastname_only(author))
+        complete_names.append(__gen_complete_name(author))
+        
+    lastnames_enum = __gen_enumeration(lastnames)
+    complete_names_enum = __gen_enumeration(complete_names)
+
+    for realisation in (abstract_authors, lastnames_enum, complete_names_enum):
+        add_nom_prefixes(realisation)
+        add_mode_suffix(realisation)
+            
+    return [abstract_authors, lastnames_enum, complete_names_enum]
 
 
 def __gen_abstract_autor(num_of_authors):
@@ -295,14 +314,14 @@ def __gen_abstract_autor(num_of_authors):
         num_str = "plur"
 
     art = Diamond()
-    art.create_diamond("ART", "d1:sem-obj", "def", [])
+    art.create_diamond("ART", "sem-obj", "def", [])
     gen = Diamond()
     gen.create_diamond("GEN", "", "mask", [])
     num = Diamond()
     num.create_diamond("NUM", "", num_str, [])
 
     der_autor = Diamond()
-    der_autor.create_diamond("", u"a1:bel-phys-körper", "Autor",
+    der_autor.create_diamond("", u"bel-phys-körper", "Autor",
                             [art, gen, num])
     return der_autor
 
@@ -315,16 +334,15 @@ def __gen_lastname_only(name):
     NOTE: This does not work with last names that include whitespace, e.g.
     "du Bois" or "von Neumann".
 
-    TODO: remove n1, x1 from "nom" fields
-
     @type name: C{str}
     @rtype: C{Diamond}
     """
     _, lastname_str = __split_name(name)
     lastname_only = Diamond()
-    lastname_only.create_diamond("n1", "x1:personenname", "", [])
+    lastname_only.create_diamond("N1", "personenname", "", [])
     lastname = Diamond()
-    lastname.create_diamond("", "nachname", lastname_str, [lastname_only])
+    lastname.create_diamond("NP", "nachname", lastname_str, [lastname_only])
+    #add_nom_prefixes(lastname)
     return lastname
 
 
@@ -340,10 +358,10 @@ def __gen_complete_name(name):
     complete_name = Diamond()
     if given_names:
         given_names_diamond = __create_nested_given_names(given_names)
-        complete_name.create_diamond("", "nachname", lastname_str,
+        complete_name.create_diamond("NP", "nachname", lastname_str,
                                      [given_names_diamond])
     else: #if name string does not contain ' ', i.e. only last name is given
-        complete_name.create_diamond("", "nachname", lastname_str, [])
+        complete_name.create_diamond("NP", "nachname", lastname_str, [])
 
     return complete_name
 
@@ -353,20 +371,22 @@ def __gen_complete_name(name):
 def lexicalize_keywords(keywords):
     """
     @type keywords: C{frozenset} of C{str}
-
-    TODO: add code for "das Thema" / "die Themen"
     """
     num_of_keywords = len(keywords)
 
     abstract_keywords = __gen_abstract_keywords(num_of_keywords)
-    keywords = __gen_keywords(keywords)
+    keyword_description = deepcopy(abstract_keywords)
+    
+    keywords = __gen_keywords(keywords, mode="N")
     keywords.update({Feature("mode"): "NOMERG"})
 
     index = last_diamond_index(abstract_keywords) + 1
     identifier = "{0}__{1}".format(str(index).zfill(2), 
                                    keywords[Feature("mode")])
-    abstract_keywords.update({identifier: keywords})
-    return abstract_keywords
+    keyword_description.update({identifier: keywords})
+    add_nom_prefixes(keyword_description)
+    add_mode_suffix(keyword_description, mode="N")
+    return [abstract_keywords, keyword_description]
 
 
 
@@ -388,7 +408,7 @@ def __gen_abstract_keywords(num_of_keywords):
     return abstract_keywords
 
 
-def __gen_keywords(keywords):
+def __gen_keywords(keywords, mode="N"):
     """
     takes a list of keyword (strings) and converts them into a nested
     C{Diamond} structure
@@ -398,38 +418,21 @@ def __gen_keywords(keywords):
     """
     assert isinstance(keywords, list), "input needs to be a list"
     
-    def gen_keyword(keyword):
+    def gen_keyword(keyword, mode="N"):
         """takes a keyword (string) and converts it into a C{Diamond}"""
         fixed_keyword = keyword.replace(" ", "_")
         num = Diamond()
         num.create_diamond("NUM", "", "sing", [])
         keyword_diamond = Diamond()
-        keyword_diamond.create_diamond("NP", "sorte", fixed_keyword, [num])
+        keyword_diamond.create_diamond(mode, "sorte", fixed_keyword, [num])
         return keyword_diamond
 
     if isinstance(keywords, list) and len(keywords) == 1:
-        return gen_keyword(keywords[0])
+        return gen_keyword(keywords[0], mode="N")
 
     elif isinstance(keywords, list) and len(keywords) > 1:
-        keyword_diamonds = [gen_keyword(kw) for kw in keywords]
-        return __gen_enumeration(keyword_diamonds, mode="NP") # TODO: dbg,rm
-
-
-def add_mode_suffix(diamond, mode="NP"):
-    matching_subdiamond_keys = []
-    for key in diamond.keys():
-        if isinstance(key, str) and key.endswith(mode):
-            if diamond[key][Feature("mode")] == mode:
-                matching_subdiamond_keys.append(key)
-                
-    sorted_subdiamond_keys = sorted(matching_subdiamond_keys)
-    for i, key in enumerate(sorted_subdiamond_keys):
-        diamond[key][Feature("mode")] = "{0}{1}".format(mode, i+1)
-
-    for key, value in diamond.items():
-        if isinstance(value, Diamond):
-            add_mode_suffix(value, mode)
-
+        keyword_diamonds = [gen_keyword(kw, mode="N") for kw in keywords]
+        return __gen_enumeration(keyword_diamonds, mode="N") # TODO: dbg,rm
 
 
 def __gen_enumeration(diamonds_list, mode=""):
