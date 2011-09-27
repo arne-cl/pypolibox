@@ -12,6 +12,7 @@ absolute
 
 import os
 import re
+import random
 from copy import deepcopy
 from tempfile import NamedTemporaryFile
 from commands import getstatusoutput
@@ -53,6 +54,24 @@ def test_authors():
         print author_list, "\n", realize(complete_names_enum), "\n\n"
         #print author_list, "\n", realize(lastnames_enum), "\n\n"
 
+def test_titles():
+    """
+    retrieves all book titles and realizes 10 random combinations of these with
+    I{ccg-realize}.
+    """
+    all_titles = get_column("title")
+    num_of_books = lambda : random.randint(1,4)
+    book_titles = lambda : random.sample(all_titles, num_of_books())
+    
+    for i in xrange(10):
+        temp_titles = book_titles()
+        print "\n\n", temp_titles
+        realized_titles = realize(lexicalize_titles(temp_titles, 
+                                                    realize="complete"))
+        for title in realized_titles:
+            print title
+        
+                                                   
 
 def realize(sentence, results="all"):
     """
@@ -222,8 +241,32 @@ def __rstree2list(featstruct):
     return rst_list
 
 
-def lexicalize_title(book_title):
-    return [gen_title(book_title), gen_abstract_title(1)]
+def lexicalize_titles(book_titles, realize="abstract"):
+    """
+    @type book_title: C{list} of C{str}
+    @param book_title: list of book title strings
+    
+    @type realize: C{str}
+    @param realize: "abstract", "complete". 
+
+    "abstract" realizes 'das Buch' / 'die Bücher'. "complete" realizes book 
+    titles in the format specified in the OpenCC grammar, 
+    e.g. „ Computational Linguistics. An Introduction “
+    """
+    assert isinstance(book_titles, list), "needs a list of titles as input"
+    
+    if realize == "abstract":
+        num_of_titles = len(book_titles)
+        return gen_abstract_title(num_of_titles)
+    elif realize == "complete":
+        realized_titles = []
+        for title in book_titles:
+            realized_titles.append(gen_title(title))
+        titles_enum = __gen_enumeration(realized_titles, mode="NP")
+        add_nom_prefixes(titles_enum)
+        add_mode_suffix(titles_enum, mode="NP")
+        return titles_enum
+
 
 def gen_title(book_title):
     """
@@ -240,14 +283,14 @@ def gen_title(book_title):
     book_title = book_title.replace(u" ", u"_")
 
     opening_bracket = Diamond()
-    opening_bracket.create_diamond('99', u'a1:anf\xfchrung\xf6ffnen',
+    opening_bracket.create_diamond('99', u'anf\xfchrung\xf6ffnen',
                                    u'anf\xf6ffn', [])
     closing_bracket = Diamond()
-    closing_bracket.create_diamond('66', u'a2:anf\xfchrungschlie\xdfen',
+    closing_bracket.create_diamond('66', u'anf\xfchrungschlie\xdfen',
                                    'anfschl', [])
 
     title_diamond = Diamond()
-    title_diamond.create_diamond('AGENS', 'buchtitel', book_title,
+    title_diamond.create_diamond('NP', 'buchtitel', book_title,
                                  [opening_bracket, closing_bracket])
     return title_diamond
 
@@ -473,18 +516,20 @@ def __gen_keywords(keywords, mode="N"):
         return __gen_enumeration(keyword_diamonds, mode="N") # TODO: dbg,rm
 
 
-def lexicalize_year(year, title, authors): #TODO: authors should be args*
+def lexicalize_year(year, title): #TODO: authors should be args*
     """___ ist 1986 erschienen.
     
     TODO: change nom prefix rules: 1986 -> n1:modus
-    
+    """
     tempus = Diamond()
-    tempus.create_diamond("TEMP:tempus", "", "prop", [])
+    tempus.create_diamond("TEMP:tempus", "", "imperf", [])
 
     adv = Diamond()
     adv.create_diamond("ADV", "modus", year, [])
 
-    agens = lexicalize_title(title)[0]
+    title_realization = random.sample(["abstract", "complete"], 1)
+    agens = lexicalize_title(title, realize=title_realization)
+    agens[Feature("mode")] = "AGENS"
     
     aux = Diamond()
     aux.create_diamond("AUX", "sein", "sein", [tempus, adv, agens])
@@ -492,8 +537,7 @@ def lexicalize_year(year, title, authors): #TODO: authors should be args*
     erschienen = Diamond()
     erschienen.create_diamond("", "inchoativ", "erscheinen", [aux])
     
-    """
-    pass
+    return erschienen
 
 
 def __gen_enumeration(diamonds_list, mode=""):

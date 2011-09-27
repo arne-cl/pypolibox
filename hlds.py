@@ -511,6 +511,15 @@ def add_mode_suffix(diamond, mode="N"):
 
 
 def add_nom_prefixes(sentence):
+    """
+    
+    TODO: differenciate prefixes
+    
+    1986 --> n1:modus
+    Computational_Linguistics --> c1:buchtitel
+    
+    TODO: nom prefixes also present in satop noms: und --> u1:konjunktion
+    """
     prop_dict = defaultdict(int)
     elements = [element for element in sentence.walk()]
 
