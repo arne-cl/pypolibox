@@ -286,7 +286,6 @@ def lexicalize_authors(authors, realize="abstract"):
     "Christopher D. Manning"]
     
     @type realize: C{str}
-    
     @param realize: "abstract", "lastnames", "complete". 
     "abstract" realizes 'das Buch' / 'die Bücher'. "lastnames" realizes 
     only the last names of authors, while "complete" realizes their given 
@@ -395,9 +394,14 @@ def __gen_complete_name(name):
 
 
 
-def lexicalize_keywords(keywords):
+def lexicalize_keywords(keywords, realize="abstract"):
     """
     @type keywords: C{frozenset} of C{str}
+
+    @type realize: C{str}
+    @param realize: "abstract", "complete". 
+    "abstract" realizes 'das Thema' / 'die Themen'. complete realizes an 
+    enumeration of those keywords.
     """
     num_of_keywords = len(keywords)
 
@@ -413,7 +417,14 @@ def lexicalize_keywords(keywords):
     keyword_description.update({identifier: keywords})
     add_nom_prefixes(keyword_description)
     add_mode_suffix(keyword_description, mode="N")
-    return [abstract_keywords, keyword_description]
+
+    assert realize in ("abstract", "complete"), \
+        "choose 1 of these keyword realizations: abstract, complete"
+
+    if realize == "abstract":
+        return abstract_keywords
+    elif realize == "complete":
+        return keyword_description
 
 
 
