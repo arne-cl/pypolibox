@@ -276,7 +276,7 @@ def gen_abstract_title(number_of_books):
     return title
 
 
-def lexicalize_authors(authors):
+def lexicalize_authors(authors, realize="abstract"):
     """
     converts a list of authors into several possible HLDS diamond
     structures, which can be used for text generation.
@@ -284,6 +284,13 @@ def lexicalize_authors(authors):
     @type name: C{list} of C{str}
     @param name: list of names, e.g. ["Ronald Hausser", 
     "Christopher D. Manning"]
+    
+    @type realize: C{str}
+    
+    @param realize: "abstract", "lastnames", "complete". 
+    "abstract" realizes 'das Buch' / 'die Bücher'. "lastnames" realizes 
+    only the last names of authors, while "complete" realizes their given 
+    and last names.
 
     @rtype: C{list} of C{Diamond}s
     @return: a list of 3 Diamond instance. the first generates "der Autor", the
@@ -308,8 +315,16 @@ def lexicalize_authors(authors):
         add_nom_prefixes(realisation)
         add_mode_suffix(realisation, mode="NP")
         add_mode_suffix(realisation, mode="N")
-            
-    return [abstract_authors, lastnames_enum, complete_names_enum]
+    
+    assert realize in ("abstract", "lastnames", "complete"), \
+        "choose 1 of these author realizations: abstract, lastnames, complete"
+    
+    if realize == "abstract":
+        return abstract_authors
+    elif realize == "lastnames":
+        return lastnames_enum
+    elif realize == "complete":
+        return complete_names_enum
 
 
 def __gen_abstract_autor(num_of_authors):
@@ -445,6 +460,29 @@ def __gen_keywords(keywords, mode="N"):
     elif isinstance(keywords, list) and len(keywords) > 1:
         keyword_diamonds = [gen_keyword(kw, mode="N") for kw in keywords]
         return __gen_enumeration(keyword_diamonds, mode="N") # TODO: dbg,rm
+
+
+def lexicalize_year(year, title, authors): #TODO: authors should be args*
+    """___ ist 1986 erschienen.
+    
+    TODO: change nom prefix rules: 1986 -> n1:modus
+    
+    tempus = Diamond()
+    tempus.create_diamond("TEMP:tempus", "", "prop", [])
+
+    adv = Diamond()
+    adv.create_diamond("ADV", "modus", year, [])
+
+    agens = lexicalize_title(title)[0]
+    
+    aux = Diamond()
+    aux.create_diamond("AUX", "sein", "sein", [tempus, adv, agens])
+
+    erschienen = Diamond()
+    erschienen.create_diamond("", "inchoativ", "erscheinen", [aux])
+    
+    """
+    pass
 
 
 def __gen_enumeration(diamonds_list, mode=""):
