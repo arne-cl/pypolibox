@@ -255,10 +255,13 @@ def lexicalize_titles(book_titles, realize="abstract"):
     e.g. „ Computational Linguistics. An Introduction “
     """
     assert isinstance(book_titles, list), "needs a list of titles as input"
+    num_of_titles = len(book_titles)
     
     if realize == "abstract":
-        num_of_titles = len(book_titles)
         return gen_abstract_title(num_of_titles)
+    elif realize == "pronoun":
+        return gen_personal_pronoun(num_of_titles, "neut", 3)
+        
     elif realize == "complete":
         realized_titles = []
         for title in book_titles:
@@ -651,3 +654,37 @@ def __create_nested_given_names(given_names):
         return []
 
 
+def gen_personal_pronoun(count, gender, person):
+    """
+    @type count: C{int}
+    @param count: 1 for 'singular'; > 1 for 'plural'
+    
+    @type gender: C{str}
+    @param gender: 'masc', 'fem' or 'neut'
+    
+    @type person: C{int}
+    @param person: 1 for 1st person, 2 for 2nd person ...
+    """
+    if count == 1:
+        numerus = "sing"
+    else:
+        numerus = "plur"
+
+    if numerus == "plur" or gender == "":
+        gender = "fem" # there should be no gender marker in plural, 
+                       # but that doesn't always work with ccg-realize
+        
+    person_prop_str = "{0}te".format(str(person)) # 3 -> 3te
+    
+    pers = Diamond()
+    pers.create_diamond("PERS", "", person_prop_str, [])
+    pro = Diamond()
+    pro.create_diamond("PRO", "", "perspro", [])
+    gen = Diamond()
+    gen.create_diamond("GEN", "", gender, [])
+    num = Diamond()
+    num.create_diamond("NUM", "", numerus, [])
+            
+    pronoun = Diamond()
+    pronoun.create_diamond("", "sem-obj", "", [pers, pro, gen, num])
+    return pronoun
