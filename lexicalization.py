@@ -19,7 +19,8 @@ from commands import getstatusoutput
 from nltk.featstruct import Feature
 from textplan import ConstituentSet, Message
 from hlds import (Diamond, Sentence, create_hlds_testbed, diamond2sentence, 
-                  last_diamond_index, add_nom_prefixes, add_mode_suffix)
+                  last_diamond_index, add_nom_prefixes, add_mode_suffix, 
+                  remove_nom_prefixes)
 from util import ensure_unicode, write_to_file, sql_array_to_set #TODO: dbg, rm
 from database import get_column #TODO: dbg, rm
 
@@ -516,7 +517,7 @@ def __gen_keywords(keywords, mode="N"):
         return __gen_enumeration(keyword_diamonds, mode="N") # TODO: dbg,rm
 
 
-def lexicalize_year(year, title): #TODO: authors should be args*
+def lexicalize_year(year, title, realize="complete"): #TODO: authors should be args*
     """___ ist 1986 erschienen.
     
     TODO: change nom prefix rules: 1986 -> n1:modus
@@ -527,16 +528,18 @@ def lexicalize_year(year, title): #TODO: authors should be args*
     adv = Diamond()
     adv.create_diamond("ADV", "modus", year, [])
 
-    title_realization = random.sample(["abstract", "complete"], 1)
-    agens = lexicalize_title(title, realize=title_realization)
+    agens = lexicalize_titles(title, realize)
     agens[Feature("mode")] = "AGENS"
     
     aux = Diamond()
     aux.create_diamond("AUX", "sein", "sein", [tempus, adv, agens])
 
+    
     erschienen = Diamond()
     erschienen.create_diamond("", "inchoativ", "erscheinen", [aux])
-    
+
+    remove_nom_prefixes(erschienen) #lexicalize_titles() already has prefixes
+    add_nom_prefixes(erschienen)
     return erschienen
 
 

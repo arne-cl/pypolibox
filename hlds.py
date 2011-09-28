@@ -510,26 +510,17 @@ def add_mode_suffix(diamond, mode="N"):
             add_mode_suffix(value, mode)
 
 
-def add_nom_prefixes(sentence):
+def add_nom_prefixes(diamond):
     """
-    
-    TODO: differenciate prefixes
-    
-    1986 --> n1:modus
-    Computational_Linguistics --> c1:buchtitel
-    
     TODO: nom prefixes also present in satop noms: und --> u1:konjunktion
     """
     prop_dict = defaultdict(int)
-    elements = [element for element in sentence.walk()]
+    elements = [element for element in diamond.walk()]
 
     for e in elements:
         if type(e) is Diamond:
             if "nom" in e.keys():
-                if "prop" in e.keys():
-                    nom_prefix_char = e["prop"].lower()[0]
-                else: #if there's no <prop> tag
-                    nom_prefix_char = "x"
+                nom_prefix_char = __determine_nom_prefix(e)
                     
                 prop_dict[nom_prefix_char] += 1
                 nom_without_prefix = e["nom"]
@@ -537,9 +528,36 @@ def add_nom_prefixes(sentence):
                                                prop_dict[nom_prefix_char],
                                                ensure_utf8(nom_without_prefix))
 
-def remove_nomprefixes(sentence):
+def __determine_nom_prefix(diamond):
+    """
+    determines, which character will be used as a prefix for <nom> tags. 
+    usually, its the first character used in the corresponding <prop> tag, 
+    (e.g. prop = "und" will turn nom = "konjunktion" into nom = 
+    "u1:konjunktion", iff its the 1st "konjunktion" beginning with "u" in 
+    that sentence).
+    
+    @type diamond: C{Diamond}
+    
+    @rtype: C{str}
+    @return: a single character
+    """
+    numbers_only = re.compile("\d+$")
+    
+    if "prop" in diamond.keys():
+        if numbers_only.match(diamond["prop"]):
+            nom_prefix_char = "n"
+        else: # <prop> doesn't represent a year, page count etc.
+            nom_prefix_char = diamond["prop"].lower()[0]
+        
+    else: #if there's no <prop> tag
+        nom_prefix_char = "x"
+    
+    return nom_prefix_char
+    
+
+def remove_nom_prefixes(diamond):
     prop_dict = defaultdict(int)
-    elements = [element for element in sentence.walk()]
+    elements = [element for element in diamond.walk()]
     prefix = re.compile("\w\d+:")
 
     for e in elements:
