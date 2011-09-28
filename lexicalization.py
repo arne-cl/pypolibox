@@ -309,14 +309,14 @@ def gen_abstract_title(number_of_books):
     if number_of_books > 1:
         num_str = "plur"
 
+    num = Diamond()
+    num.create_diamond("NUM", "", num_str, [])
+    
     art = Diamond()
     art.create_diamond("ART", "sem-obj", "def", [])
 
-    num = Diamond()
-    num.create_diamond("NUM", "", num_str, [])
-
     title = Diamond()
-    title.create_diamond("", "artefaktum", "Buch", [art, num])
+    title.create_diamond("", "artefaktum", "Buch", [num, art])
     return title
 
 
