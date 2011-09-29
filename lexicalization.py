@@ -34,13 +34,11 @@ def test_keywords():
     I{ccg-realize}.
     """
     keyword_arrays = get_column("keywords")
-    #keyword_set = set()
     for keyword_array in keyword_arrays:
         keyword_list = list(sql_array_to_set(keyword_array))
-        keywords_diamond = __gen_keywords(keyword_list)
-        add_mode_suffix(keywords_diamond, mode="N")
-        add_nom_prefixes(keywords_diamond)
-        print keyword_list, "\n", realize(keywords_diamond, results="all"), "\n\n"
+        lexicalized_keywords = lexicalize_keywords(keyword_list, 
+                                                   realize="complete")
+        print keyword_list, "\n", realize(lexicalized_keywords), "\n\n"
 
 def test_authors():
     """
