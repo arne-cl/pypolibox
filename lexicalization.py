@@ -48,10 +48,10 @@ def test_authors():
     author_arrays = get_column("authors")
     for author_array in author_arrays:
         author_list = list(sql_array_to_set(author_array))
-        complete_names_enum = lexicalize_authors(author_list)[2]
-        #lastnames_enum = lexicalize_authors(author_list)[1]
-        print author_list, "\n", realize(complete_names_enum), "\n\n"
-        #print author_list, "\n", realize(lastnames_enum), "\n\n"
+        lexicalized_authors = lexicalize_authors(author_list, 
+                                                 realize="complete")
+        print author_list, "\n", realize(lexicalized_authors), "\n\n"
+
 
 def test_titles():
     """
