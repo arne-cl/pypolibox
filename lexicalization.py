@@ -465,28 +465,28 @@ def lexicalize_keywords(keywords, realize="abstract"):
 
     @type realize: C{str}
     @param realize: "abstract", "complete". 
-    "abstract" realizes 'das Thema' / 'die Themen'. complete realizes an 
-    enumeration of those keywords.
+    "abstract" realizes 'das Thema' / 'die Themen'. 
+    "complete" realizes an enumeration of those keywords.
     """
-    num_of_keywords = len(keywords)
-
-    abstract_keywords = __gen_abstract_keywords(num_of_keywords)
-    keyword_description = deepcopy(abstract_keywords)
-    
-    keywords = __gen_keywords(keywords, mode="N")
-
-    keyword_description.append_subdiamond(keywords, mode="NOMERG")
-    
-    add_nom_prefixes(keyword_description)
-    add_mode_suffix(keyword_description, mode="N")
-
     assert realize in ("abstract", "complete"), \
         "choose 1 of these keyword realizations: abstract, complete"
-
+    num_of_keywords = len(keywords)
+    abstract_keywords = __gen_abstract_keywords(num_of_keywords)
+    
     if realize == "abstract":
         return abstract_keywords
+    
     elif realize == "complete":
+        keyword_description = deepcopy(abstract_keywords)        
+        keywords = __gen_keywords(keywords, mode="N")
+        keyword_description.append_subdiamond(keywords, mode="NOMERG")
+        
+        add_nom_prefixes(keyword_description)
+        add_mode_suffix(keyword_description, mode="N")
         return keyword_description
+
+
+
 
     
     
