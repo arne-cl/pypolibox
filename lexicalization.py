@@ -18,7 +18,7 @@ from tempfile import NamedTemporaryFile
 from commands import getstatusoutput
 from nltk.featstruct import Feature
 from textplan import ConstituentSet, Message
-from hlds import (Diamond, Sentence, create_hlds_testbed, diamond2sentence, 
+from hlds import (Diamond, Sentence, create_hlds_file, diamond2sentence, 
                   last_diamond_index, add_nom_prefixes, add_mode_suffix, 
                   remove_nom_prefixes)
 from util import ensure_unicode, write_to_file, sql_array_to_set #TODO: dbg, rm
@@ -76,9 +76,6 @@ def realize(sentence, results="all"):
     """
     realizes a sentence by calling OpenCCG's I{ccg-realize} binary.
 
-    TODO: check if 'Best Joined Edges' do play a significant role (they're not
-    always present)
-
     @type sentence: C{str} or C{Diamond} or C{Sentence}
     @param sentence:
      - a string: the path to an HLDS XML sentence file (absolute path or
@@ -102,84 +99,121 @@ def realize(sentence, results="all"):
     grammar_abspath = os.getcwd()
     realizer = os.path.join(OPENCCG_BIN_PATH, "ccg-realize")
 
-    if type(sentence) is str: # realize a file
-        file_path = os.path.join(grammar_abspath, sentence)
-        if os.path.isfile(file_path):
-            status, output = getstatusoutput("{0} {1}".format(realizer,
-                                                              file_path))
-            with open(file_path, "r") as f:
-                sent_xml_str = f.read() # used for results="debug"
+    if isinstance(sentence, str): # sentence is a file path
+        status, output = __realize_from_file(sentence, grammar_abspath, 
+                                             realizer)
 
-            os.chdir(current_dir)
-        else:
-            os.chdir(current_dir)
-            raise Exception, "{0} is not a file.\n" \
-                "Please use an absolute path or one that is relative to:\n" \
-                "{1}".format(file_path, grammar_abspath)
-
-    elif type(sentence) is Diamond or type(sentence) is Sentence:
-        if type(sentence) is Diamond:
-            sentence = diamond2sentence(sentence)
-
-        sent_xml_str = create_hlds_testbed(sentence, mode="realize",
-                                           output="xml")
-
-        tmp_file = NamedTemporaryFile(mode="w", delete=False)
-        tmp_file.write(sent_xml_str)
-        tmp_file.close()
-
-        status, output = getstatusoutput("{0} {1}".format(realizer,
-                                                          tmp_file.name))
-        os.chdir(current_dir)
-
+    elif isinstance(sentence, Diamond):
+        sentence = diamond2sentence(sentence)
+        status, output = __realize_from_sentence_fs(sentence, realizer)
+        
+    elif isinstance(sentence, Sentence):
+        status, output = __realize_from_sentence_fs(sentence, realizer)
+        
     else:
-        os.chdir(current_dir)
-        raise Exception, "Sorry, I can only realize HLDS XML sentence files," \
-            " Sentence and Diamond instances."
+        status = -1
+        output = "Sorry, I can only realize HLDS XML sentence files," \
+                 " Sentence and Diamond instances."
 
-    if status != 0:
+    os.chdir(current_dir)
+
+    if status == 0:
+        return __parse_ccg_output(output, results)
+    else:
         raise Exception, "Error: Can't run ccg-realize properly." \
             "Error message is:\n\n{0}".format(output)
+
+
+
+def __realize_from_file(file_name, grammar_abspath, realizer):
+    """
+    loads an HLDS XML sentence from a file and realizes it with I{ccg-realize}.
+    """
+    file_path = os.path.join(grammar_abspath, file_name)
+    if os.path.isfile(file_path):
+        status, output = getstatusoutput("{0} {1}".format(realizer,
+                                                          file_path))
     else:
-        if results == "debug":
-            input_and_output = \
-                "Input:\n{0}\n\n\nOutput:\n{1}".format(sent_xml_str, output)
-            return input_and_output
+        status = -1
+        output = "{0} is not a file.\n" \
+            "Please use an absolute path or one that is relative to:\n" \
+            "{1}".format(file_path, grammar_abspath)
+    return status, output
 
-        res = re.compile("Complete Edges \(sorted\):\n")
-        complete_vs_best = re.compile("\nBest Edge:\n")
-        sentence_header = re.compile("\{.*?\} \[.*?\] ")
-        sentence_tail = re.compile(" :- ")
 
-        _, results_str = res.split(output)
-        complete_edges_str, best_edge = complete_vs_best.split(results_str)
+def __realize_from_sentence_fs(sentence, realizer):
+    """
+    realizes a C{Sentence} with I{ccg-realize}.
+    
+    @type sentence: C{Sentence}
+    @type realizer: C{str}
+    @param realizer: path to ccg-realizer executable
+    """
+    sentence_xml_str = create_hlds_file(sentence, mode="realize", output="xml")
 
-        if not complete_edges_str: #if there are no complete edges
-            best_vs_best_joined = re.compile("\nBest Joined Edge:\n")
-            best_edge, best_joined = best_vs_best_joined.split(best_edge)
+    tmp_file = NamedTemporaryFile(mode="w", delete=False)
+    tmp_file.write(sentence_xml_str)
+    tmp_file.close()
 
-        if results == "best":
+    status, output = getstatusoutput("{0} {1}".format(realizer, tmp_file.name))
+    return status, output
+
+
+def __parse_ccg_output(output, results="all"):
+    """ 
+    parses the output of I{ccg-realize} and returns the sentence strings 
+    that it could produce.
+    
+    @type output: C{str}
+    @param output: the output string that I{ccg-realize} returned
+    
+    @type results: C{str}
+    @param results:
+    - "debug": return the raw results from ccg-realize
+    - "all": return all strings that ccg-realize could produce ("Complete
+      Edges")
+    - "best": return only the best result from ccg-realize ("Best Edge")    
+    """
+    if results == "debug":
+        return output
+        
+    res = re.compile("Complete Edges \(sorted\):\n")
+    complete_vs_best = re.compile("\nBest Edge:\n")
+    sentence_header = re.compile("\{.*?\} \[.*?\] ")
+    sentence_tail = re.compile(" :- ")
+
+    _, results_str = res.split(output)
+    complete_edges_str, best_edge = complete_vs_best.split(results_str)
+
+    if not complete_edges_str: #if there are no complete edges
+        best_vs_best_joined = re.compile("\nBest Joined Edge:\n")
+        best_edge, best_joined = best_vs_best_joined.split(best_edge)
+
+    if results == "best":
+        _, best_edge_and_tail = sentence_header.split(best_edge)
+        best_result, _ = sentence_tail.split(best_edge_and_tail)
+        return best_result
+
+    elif results == "all":
+        if complete_edges_str:
+            complete_edges_list = complete_edges_str.splitlines()
+            result_edges = []
+            for complete_edge in complete_edges_list:
+                # maxsplit=1 is needed if there are 'Best Joined Edges'
+                _, edge_and_tail = sentence_header.split(complete_edge,
+                                                         maxsplit=1)
+                edge, _ = sentence_tail.split(edge_and_tail, maxsplit=1)
+                result_edges.append(edge)
+            return list(set(result_edges)) # remove duplicates, return a list
+        else: # if there are no complete edges
             _, best_edge_and_tail = sentence_header.split(best_edge)
-            best_result, _ = sentence_tail.split(best_edge_and_tail)
-            return best_result
+            best_edge_result, _ = sentence_tail.split(best_edge_and_tail)
+            _, best_joined_and_tail = sentence_header.split(best_joined)
+            best_joined_result, _ = sentence_tail.split(best_joined_and_tail)
+            return [best_edge_result, best_joined_result]
 
-        elif results == "all":
-            if complete_edges_str:
-                complete_edges_list = complete_edges_str.splitlines()
-                result_edges = []
-                for complete_edge in complete_edges_list:
-                    # maxsplit=1 is needed if there are 'Best Joined Edges'
-                    _, edge_and_tail = sentence_header.split(complete_edge,
-                                                             maxsplit=1)
-                    edge, _ = sentence_tail.split(edge_and_tail, maxsplit=1)
-                    result_edges.append(edge)
-                return list(set(result_edges)) # remove duplicates, return a list
-            else: # if there are no complete edges
-                _, best_edge_and_tail = sentence_header.split(best_edge)
-                best_edge_result, _ = sentence_tail.split(best_edge_and_tail)
-                _, best_joined_and_tail = sentence_header.split(best_joined)
-                best_joined_result, _ = sentence_tail.split(best_joined_and_tail)
-                return [best_edge_result, best_joined_result]
+
+    
 
 
 def linearize_textplan(textplan): #TODO: add better explanation to docstring

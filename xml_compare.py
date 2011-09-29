@@ -63,7 +63,7 @@ def split_testbed(testbed_file=hlds.testbed_file):
 def reconstruct_testbed_files(testbed_file=hlds.testbed_file):
     hlds_reader = hlds.HLDSReader(testbed_file, input_format="file")
     for i, sentence in enumerate(hlds_reader.sentences):
-        sent_xml_str = hlds.create_hlds_testbed(sentence, mode="realize", 
+        sent_xml_str = hlds.create_hlds_file(sentence, mode="realize", 
                                                 output="xml")
         util.write_to_file(sent_xml_str, 
                            "xmltest/testbed%s-reconstructed.xml"

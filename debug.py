@@ -30,12 +30,12 @@ def compare_hlds_variants():
     """
     hlds_reader = hlds.HLDSReader(hlds.testbed_file)
     for i, sentence in enumerate(hlds_reader.sentences):
-        xml_sentence_test = hlds.create_hlds_testbed(sentence, mode="test", 
+        xml_sentence_test = hlds.create_hlds_file(sentence, mode="test", 
                                                      output="xml")
         util.write_to_file(xml_sentence_test, 
                       "xmltest/sentence{0}-converted-test.xml".format(str(i).zfill(3)))
 
-        xml_sentence_realize = hlds.create_hlds_testbed(sentence, mode="test", 
+        xml_sentence_realize = hlds.create_hlds_file(sentence, mode="test", 
                                                         output="xml")        
         util.write_to_file(xml_sentence_test, 
                       "xmltest/sentence{0}-converted-realize.xml".format(str(i).zfill(3)))

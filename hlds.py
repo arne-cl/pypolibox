@@ -281,16 +281,16 @@ def hlds2xml(featstruct):
     
     if isinstance(featstruct, Diamond):
         sentence = diamond2sentence(featstruct)
-        output_str = create_hlds_testbed(sentence, mode="realize", 
+        output_str = create_hlds_file(sentence, mode="realize", 
                                          output="xml")
     
     if isinstance(featstruct, Sentence):
-        output_str = create_hlds_testbed(featstruct, mode="realize", 
+        output_str = create_hlds_file(featstruct, mode="realize", 
                                          output="xml")
  
     return "Input:\n\n{0}\n\nOutput:\n\n{1}".format(input_str, output_str)
 
-def create_hlds_testbed(sent_or_sent_list, mode="test", output="etree"):
+def create_hlds_file(sent_or_sent_list, mode="test", output="etree"):
     """
     this function transforms C{Sentence}s into a a valid HLDS XML testbed file
     
@@ -503,8 +503,8 @@ def test_conversion():
     random_sent_index = random.randrange(0, len(hlds_reader.sentences))
     random_sent_fs = \
         hlds_reader.sentences[random_sent_index]
-    random_sent_xml = create_hlds_testbed([random_sent_fs], output="xml")
-    all_sents_xml = create_hlds_testbed(hlds_reader.sentences, output="xml")
+    random_sent_xml = create_hlds_file([random_sent_fs], output="xml")
+    all_sents_xml = create_hlds_file(hlds_reader.sentences, output="xml")
                                               
     print "random sentence: %i\n" % random_sent_index, random_sent_fs, \
           "\n" * 3, random_sent_xml
@@ -541,9 +541,15 @@ def add_nom_prefixes(diamond):
                     
                 prop_dict[nom_prefix_char] += 1
                 nom_without_prefix = e["nom"]
+                nom_type = type(nom_without_prefix)
+                print nom_type, e["nom"]
                 e["nom"] = "{0}{1}:{2}".format(ensure_utf8(nom_prefix_char), 
                                                prop_dict[nom_prefix_char],
                                                ensure_utf8(nom_without_prefix))
+                if nom_type == unicode:
+                # preserve unicode, if the string was unicode encoded before
+                    e["nom"] = ensure_unicode(e["nom"])
+
 
 def __determine_nom_prefix(diamond):
     """
