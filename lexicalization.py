@@ -242,27 +242,33 @@ def __rstree2list(featstruct):
     return rst_list
 
 
-def lexicalize_titles(book_titles, realize="abstract"):
+def lexicalize_titles(book_titles, authors=None, realize="abstract"):
     """
     @type book_title: C{list} of C{str}
     @param book_title: list of book title strings
     
+    @type authors: C{list} of C{str} OR C{NoneType}
+    @param authors: an I{optional} list of author names
+    
     @type realize: C{str}
     @param realize: "abstract", "complete". 
-
-    "abstract" realizes 'das Buch' / 'die Bücher'. "complete" realizes book 
-    titles in the format specified in the OpenCC grammar, 
-    e.g. „ Computational Linguistics. An Introduction “
+    - "abstract" realizes 'das Buch' / 'die Bücher'
+    - "pronoun" realizes 'es' / 'sie'
+    - "complete" realizes book titles in the format specified in the 
+      OpenCC grammar, e.g. „ Computational Linguistics. An Introduction “
+    - "authors+title" realizes ONE book title and its authors, e.g. Noam 
+      Chomskys „ Syntax “ OR „ Syntax “ von Noam Chomsky
     """
     assert isinstance(book_titles, list), "needs a list of titles as input"
     num_of_titles = len(book_titles)
     
     if realize == "abstract":
         return gen_abstract_title(num_of_titles)
+
     elif realize == "pronoun":
         return gen_personal_pronoun(num_of_titles, "neut", 3)
-        
-    elif realize == "complete":
+
+    elif realize == "complete":            
         realized_titles = []
         for title in book_titles:
             realized_titles.append(gen_title(title))
@@ -270,6 +276,18 @@ def lexicalize_titles(book_titles, realize="abstract"):
         add_nom_prefixes(titles_enum)
         add_mode_suffix(titles_enum, mode="NP")
         return titles_enum
+
+    elif realize == "authors+title":
+        assert authors and isinstance(authors, list), \
+            "authors+title mode needs a non-empty list of authors as input"
+        assert num_of_titles == 1, \
+            "authors+title mode can only realize one book title"
+        title_diamond = gen_title(book_titles[0])
+        authors_diamond = lexicalize_authors(authors, realize="complete")
+        
+        authors_diamond.update({Feature("mode"): "ASS"})
+        
+        return title_diamond, authors_diamond
 
 
 def gen_title(book_title):
@@ -456,12 +474,9 @@ def lexicalize_keywords(keywords, realize="abstract"):
     keyword_description = deepcopy(abstract_keywords)
     
     keywords = __gen_keywords(keywords, mode="N")
-    keywords.update({Feature("mode"): "NOMERG"})
 
-    index = last_diamond_index(abstract_keywords) + 1
-    identifier = "{0}__{1}".format(str(index).zfill(2), 
-                                   keywords[Feature("mode")])
-    keyword_description.update({identifier: keywords})
+    keyword_description.append_subdiamond(keywords, mode="NOMERG")
+    
     add_nom_prefixes(keyword_description)
     add_mode_suffix(keyword_description, mode="N")
 
@@ -473,7 +488,8 @@ def lexicalize_keywords(keywords, realize="abstract"):
     elif realize == "complete":
         return keyword_description
 
-
+    
+    
 
 def __gen_abstract_keywords(num_of_keywords):
     """generates a Diamond for 'das Thema' vs. 'die Themen' """

@@ -220,6 +220,23 @@ class Diamond(FeatDict):
                                                nested_diamond[Feature("mode")])
                 self.update({identifier: nested_diamond})
 
+    def append_subdiamond(self, subdiamond, mode=""):
+        """
+        appends a subdiamond structure to an existing diamond structure, while 
+        allowing to change the mode of the subdiamond
+        
+        @type mode: C{str}
+        @param mode: the mode that the subdiamond shall have. this will also be 
+        used to determine the subdiamonds identifier. if the diamond already 
+        has two subdiamonds (e.g. "01__AGENS" and "02__PATIENS") and add a 
+        third subdiamond with mode "TEMP", its identifier will be "03__TEMP".
+        """
+        subdiamond.update({Feature("mode"): mode})
+        index = last_diamond_index(self) + 1
+        identifier = "{0}__{1}".format(str(index).zfill(2), 
+                                       subdiamond[Feature("mode")])
+        self.update({identifier: subdiamond})
+
 
 def convert_diamond_xml2fs(etree):
     """
@@ -584,7 +601,12 @@ def last_diamond_index(featstruct):
             match = int_prefix.match(key)
             if match:
                 matching_keys.append(match.groups()[0])
-    return int( sorted(matching_keys)[-1] ) # highest index in use
+
+    if matching_keys:
+        return int( sorted(matching_keys)[-1] ) # highest index in use
+    else:
+        raise Exception, \
+        "Featstruct does not have any identifier prefixes, e.g. '01__ART'."
 
 
 def etreeprint(element, debug=True, raw=False):
