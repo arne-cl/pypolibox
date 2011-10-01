@@ -28,7 +28,9 @@ def test_keywords():
 
 def test_authors():
     """
-    realizes three sets of authors with I{ccg-realize}.
+    realizes three sets of authors with I{ccg-realize}. there are realized 
+    as an enumeration of full names, an enumeration of last names as well 
+    as abstractly ("der Autor", "die Autoren").
     """
     author_lists = [[u'Detlef Peter Zaun'],
                     [u'Fernando C. N. Pereira', u'Barbara J. Grosz'],
@@ -38,7 +40,23 @@ def test_authors():
         lexicalized_authors = lexicalize_authors(author_list, 
                                                  realize="complete")
         print "Die Autorenliste: {0}".format(author_list)
-        print "wird generiert als:\n"
+        print "wird mit vollständigen Namen generiert als:\n"
+        printeach(realize(lexicalized_authors))
+        print "\n\n"
+
+    for author_list in author_lists:
+        lexicalized_authors = lexicalize_authors(author_list, 
+                                                 realize="lastnames")
+        print "Die Autorenliste: {0}".format(author_list)
+        print "wird als Nachnamenliste so generiert:\n"
+        printeach(realize(lexicalized_authors))
+        print "\n\n"
+
+    for author_list in author_lists:
+        lexicalized_authors = lexicalize_authors(author_list, 
+                                                 realize="abstract")
+        print "Die Autorenliste: {0}".format(author_list)
+        print "wird abstrahiert generiert als:\n"
         printeach(realize(lexicalized_authors))
         print "\n\n"
 
@@ -112,7 +130,7 @@ def test_pages():
                                        "random book title", 
                                        realize="abstract")))
 
-    print "\n\n", "realize one book title abstractly (pronoun) " \ 
+    print "\n\n", "realize one book title abstractly (pronoun) " \
           "with its number of pages:"
     printeach(realize(lexicalize_pages("193", 
                                        "random book title", 

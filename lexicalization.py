@@ -555,11 +555,21 @@ def lexicalize_year(year, title, realize="complete"): #TODO: authors should be a
 
 
 
-def lexicalize_pages(pages, title, authors=None, realize="complete"):
+def lexicalize_pages(pages, title, authors=None, title_realize="complete"):
     """
     ___ hat einen Umfang von 546 Seiten
     ___ ist 546 Seiten lang
+    
+    @type pages: C{str} OR C{int}
+    @type title: C{str}
+    @type authors: C{list} of C{str} OR C{NoneType}
+    
+    @type title_realize: C{str}
+    @param title_realize: "abstract", "pronoun" or "complete".
     """
+    if isinstance(pages, int):
+        pages = str(pages)
+        
     attrib = Diamond()
     attrib_num = gen_num("plur")
     preposition = gen_prep("von", "zugehörigkeit")
@@ -575,7 +585,7 @@ def lexicalize_pages(pages, title, authors=None, realize="complete"):
     
     umfang = Diamond()
     tempus = gen_tempus("präs")
-    agens = lexicalize_titles([title], authors, realize)
+    agens = lexicalize_titles([title], authors, title_realize)
     agens[Feature("mode")] = "AGENS"
     umfang.create_diamond("","durativ","haben",[tempus, agens, patiens])
     return umfang
