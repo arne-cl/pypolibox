@@ -14,14 +14,33 @@ def test_keywords():
     retrieves all sets of keywords from the database and realizes them with
     I{ccg-realize}.
     """
-    keyword_arrays = get_column("keywords")
-    for keyword_array in keyword_arrays:
-        keyword_list = list(sql_array_to_set(keyword_array))
+    keyword_lists = [["parsing"],
+                     ["statistics","corpus linguistics"],
+                     ["left associative grammar", "chart parsing", "semantics", "pragmatics"]]
+
+    for keyword_list in keyword_lists:
         lexicalized_keywords = lexicalize_keywords(keyword_list, 
                                                    realize="complete")
         print "Die Themenliste: {0}".format(keyword_list)
         print "wird generiert als:\n"
         printeach(realize(lexicalized_keywords))
+        print "\n\n"
+
+
+def test_authors():
+    """
+    realizes three sets of authors with I{ccg-realize}.
+    """
+    author_lists = [[u'Detlef Peter Zaun'],
+                    [u'Fernando C. N. Pereira', u'Barbara J. Grosz'],
+                    [u'Peter Norvig', u'Martin Kay', u'Jean Mark Gawron']]
+    
+    for author_list in author_lists:
+        lexicalized_authors = lexicalize_authors(author_list, 
+                                                 realize="complete")
+        print "Die Autorenliste: {0}".format(author_list)
+        print "wird generiert als:\n"
+        printeach(realize(lexicalized_authors))
         print "\n\n"
 
 

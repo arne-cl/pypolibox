@@ -26,22 +26,6 @@ from database import get_column #TODO: dbg, rm
 
 OPENCCG_BIN_PATH = "/home/guido/bin/openccg/bin"
 GRAMMAR_PATH = "openccg-jpolibox"
-
-
-
-def test_authors():
-    """
-    retrieves all sets of authors from the database and realizes them with 
-    I{ccg-realize}.
-    """
-    author_arrays = get_column("authors")
-    for author_array in author_arrays:
-        author_list = list(sql_array_to_set(author_array))
-        lexicalized_authors = lexicalize_authors(author_list, 
-                                                 realize="complete")
-        print author_list, "\n", realize(lexicalized_authors), "\n\n"
-
-
         
 
 def realize(sentence, results="all"):
