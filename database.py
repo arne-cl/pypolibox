@@ -565,8 +565,7 @@ def get_column(column_name):
 
     col_curs = curs.execute("PRAGMA table_info({0})".format(BOOK_TABLE_NAME))
     columns = [header[1] for header in col_curs]
-    print "available table columns: {0}\n".format(columns)
-
+    #print "available table columns: {0}\n".format(columns)
     results_cursor = curs.execute("select {0} from books".format(column_name))
     results = [result[0] for result in results_cursor]
     conn.close() # close connection to db

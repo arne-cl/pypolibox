@@ -62,26 +62,26 @@ def test_titles():
     num_of_books = lambda : random.randint(1,4)
     book_titles = lambda : random.sample(all_titles, num_of_books())
 
-    #~ print "generating 10 random author+title combinations...\n\n"
-    #~ for i in xrange(10):
-        #~ random_title = random.choice(all_titles)
-        #~ random_authors = random.choice(get_column("authors"))
-        #~ random_authors_list = list(sql_array_to_set(random_authors))
-        #~ realized_titles = realize(lexicalize_titles([random_title], 
-                                                    #~ random_authors_list, 
-                                                    #~ realize="random", 
-                                                    #~ variant="random"))
-        #~ for title in realized_titles:
-            #~ print title
-    
-    print "generating 3 random title combinations...\n\n"
-    for i in xrange(3):
-        temp_titles = book_titles()
-        print "\n\n", temp_titles
-        realized_titles = realize(lexicalize_titles(temp_titles, 
-                                                    realize="complete"))
+    print "generating 10 random author+title combinations...\n\n"
+    for i in xrange(10):
+        random_title = random.choice(all_titles)
+        random_authors = random.choice(get_column("authors"))
+        random_authors_list = list(sql_array_to_set(random_authors))
+        realized_titles = realize(lexicalize_titles([random_title], 
+                                                    random_authors_list, 
+                                                    realize="random", 
+                                                    variant="random"))
         for title in realized_titles:
             print title
+    
+    #~ print "generating 3 random title combinations...\n\n"
+    #~ for i in xrange(3):
+        #~ temp_titles = book_titles()
+        #~ print "\n\n", temp_titles
+        #~ realized_titles = realize(lexicalize_titles(temp_titles, 
+                                                    #~ realize="complete"))
+        #~ for title in realized_titles:
+            #~ print title
             
 
     
