@@ -102,6 +102,30 @@ def test_titles():
                                     authors_realize="preposition")))
 
 
+def test_pages():
+    """
+    realizes some instances of:
+    $title hat einen Umfang von $pages Seiten
+    """
+    print "realize one book title abstractly with its number of pages:"
+    printeach(realize(lexicalize_pages("193", 
+                                       "random book title", 
+                                       realize="abstract")))
+
+    print "\n\n", "realize one book title abstractly (pronoun) " \ 
+          "with its number of pages:"
+    printeach(realize(lexicalize_pages("193", 
+                                       "random book title", 
+                                       realize="pronoun")))
+                                       
+    print "\n\n", "realize one book title concretely with its number of pages:"
+    printeach(realize(lexicalize_pages("193", 
+                                 "Computational Linguistics. An Introduction.", 
+                                       realize="complete")))
+    
+    
+    
+
 def printeach(iterable):
     """prints each element of an iterable on a separate line"""
     for item in iterable:
