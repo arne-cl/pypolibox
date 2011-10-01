@@ -315,7 +315,8 @@ def lexicalize_titles(book_titles, authors=None, realize="abstract",
     
     if realize == "random":
         realize = random.choice(["abstract", "complete", "pronoun", 
-                                 "authors+title", "random"])
+                                 "authors+title"])
+        
     if realize == "abstract":
         return gen_abstract_title(num_of_titles)
 
