@@ -58,21 +58,45 @@ def test_titles():
     retrieves all book titles and realizes 3 random combinations of these with
     I{ccg-realize}.
     """
-    all_titles = get_column("title")
-    num_of_books = lambda : random.randint(1,4)
-    book_titles = lambda : random.sample(all_titles, num_of_books())
+    print "realize one book abstractly:"
+    print realize(lexicalize_titles(["some book"], realize="abstract")), "\n\n"
+    
+    print "realize two books abstractly:"
+    print realize(lexicalize_titles(["some book", "another book"], 
+                                    realize="abstract")), "\n\n"
 
-    print "generating 10 random author+title combinations...\n\n"
-    for i in xrange(10):
-        random_title = random.choice(all_titles)
-        random_authors = random.choice(get_column("authors"))
-        random_authors_list = list(sql_array_to_set(random_authors))
-        realized_titles = realize(lexicalize_titles([random_title], 
-                                                    random_authors_list, 
-                                                    realize="random", 
-                                                    variant="random"))
-        for title in realized_titles:
-            print title
+    print "realize one book abstractly (as a pronoun):"
+    print realize(lexicalize_titles(["some book"], realize="pronoun")), "\n\n"
+    
+    print "realize two books abstractly: (as a pronoun)"
+    print realize(lexicalize_titles(["some book", "another book"], 
+                                    realize="pronoun")), "\n\n"
+
+    print "realize one book abstractly with an author:"
+    print realize(lexicalize_titles(["some book"], ["Christopher D. Manning"], 
+                                    realize="abstract")), "\n\n"
+    
+    print "realize one book abstractly with two authors:"
+    print realize(lexicalize_titles(["some book"], 
+                                    ["Christopher D. Manning", "Alan Davies"], 
+                                    realize="abstract")), "\n\n"
+
+
+    #~ all_titles = get_column("title")
+    #~ num_of_books = lambda : random.randint(1,4)
+    #~ book_titles = lambda : random.sample(all_titles, num_of_books())
+#~ 
+    #~ print "generating 10 random author+title combinations...\n\n"
+    #~ for i in xrange(10):
+        #~ random_title = random.choice(all_titles)
+        #~ random_authors = random.choice(get_column("authors"))
+        #~ random_authors_list = list(sql_array_to_set(random_authors))
+        #~ realized_titles = realize(lexicalize_titles([random_title], 
+                                                    #~ random_authors_list, 
+                                                    #~ realize="random", 
+                                                    #~ variant="random"))
+        #~ for title in realized_titles:
+            #~ print title
     
     #~ print "generating 3 random title combinations...\n\n"
     #~ for i in xrange(3):
@@ -129,15 +153,17 @@ def realize(sentence, results="all"):
     else:
         status = -1
         output = "Sorry, I can only realize HLDS XML sentence files," \
-                 " Sentence and Diamond instances."
+                 " Sentence and Diamond instances. Your input has this type: "\
+                 "{0} and looks like this:\n{1}".format(type(sentence), 
+                                                        sentence)
 
     os.chdir(current_dir)
 
     if status == 0:
         return __parse_ccg_output(output, results)
     else:
-        raise Exception, "Error: Can't run ccg-realize properly." \
-            "Error message is:\n\n{0}".format(output)
+        raise Exception, "Error: Can't run ccg-realize properly. " \
+            "The error message is:\n\n{0}".format(output)
 
 
 def __realize_from_file(file_name, grammar_abspath, realizer):
@@ -290,8 +316,8 @@ def __rstree2list(featstruct):
     return rst_list
 
 
-def lexicalize_titles(book_titles, authors=None, realize="abstract", 
-                      variant="random"):
+def lexicalize_titles(book_titles, authors=None, realize="complete", 
+                      authors_realize="random"):
     """
     @type book_title: C{list} of C{str}
     @param book_title: list of book title strings
@@ -305,54 +331,46 @@ def lexicalize_titles(book_titles, authors=None, realize="abstract",
     - "pronoun" realizes 'es' / 'sie'
     - "complete" realizes book titles in the format specified in the 
       OpenCC grammar, e.g. „ Computational Linguistics. An Introduction “
-    - "authors+title" realizes ONE book title and its authors, e.g. Noam 
-      Chomskys „ Syntax “ OR „ Syntax “ von Noam Chomsky
     """
     assert isinstance(book_titles, list), "needs a list of titles as input"
-    assert realize in ("abstract", "complete", "pronoun", "authors+title", 
-                       "random")
+    assert realize in ("abstract", "complete", "pronoun", "random")
     num_of_titles = len(book_titles)
     
     if realize == "random":
-        realize = random.choice(["abstract", "complete", "pronoun", 
-                                 "authors+title"])
+        realize = random.choice(["abstract", "complete", "pronoun"])
         
     if realize == "abstract":
-        return gen_abstract_title(num_of_titles)
-
+        title_diamond = gen_abstract_title(num_of_titles)
     elif realize == "pronoun":
-        return gen_personal_pronoun(num_of_titles, "neut", 3)
-
-    elif realize == "complete":            
+        title_diamond = gen_personal_pronoun(num_of_titles, "neut", 3)
+    else: # realize == "complete"
         realized_titles = []
         for title in book_titles:
             realized_titles.append(gen_title(title))
         titles_enum = __gen_enumeration(realized_titles, mode="NP")
         add_mode_suffix(titles_enum, mode="NP")
-        return titles_enum
+        title_diamond = titles_enum
 
-    elif realize == "authors+title":
-        assert authors and isinstance(authors, list), \
+    if authors: 
+        assert isinstance(authors, list), \
             "authors+title mode needs a non-empty list of authors as input"
         assert num_of_titles == 1, \
             "authors+title mode can only realize one book title"
 
         authors_diamond = lexicalize_authors(authors, realize="complete")
-        title_diamond = gen_title(book_titles[0])
 
-        if variant == "random":
-            variant = random.choice(["possessive", "preposition"])
-
-        if variant == "possessive": # Chomskys Buch         
+        if authors_realize == "random":
+            authors_realize = random.choice(["possessive", "preposition"])
+            
+        if authors_realize == "possessive": # Chomskys Buch         
             title_diamond.append_subdiamond(authors_diamond, mode="ASS")
-            return title_diamond
-
-        if variant == "preposition": # das Buch von Chomsky
+        else: # authors_realize == "preposition": das Buch von Chomsky
             preposition_diamond = gen_prep("von", "zugehörigkeit")
             authors_diamond.append_subdiamond(preposition_diamond)
             title_diamond.append_subdiamond(authors_diamond, mode="ATTRIB")
-            return title_diamond
 
+    return title_diamond
+            
             
 def gen_title(book_title):
     """
