@@ -11,8 +11,7 @@ from lexicalization import *
 
 def test_keywords():
     """
-    retrieves all sets of keywords from the database and realizes them with
-    I{ccg-realize}.
+    realizes three sets of keywords with I{ccg-realize}.
     """
     keyword_lists = [["parsing"],
                      ["statistics","corpus linguistics"],
@@ -50,56 +49,60 @@ def test_titles():
     I{ccg-realize}.
     """
     print "realize one book abstractly:"
-    print realize(lexicalize_titles(["some book"], realize="abstract")), "\n\n"
+    printeach(realize(lexicalize_titles(["some book"], realize="abstract")))
     
-    print "realize two books abstractly:"
-    print realize(lexicalize_titles(["some book", "another book"], 
-                                    realize="abstract")), "\n\n"
+    print "\n\n", "realize two books abstractly:"
+    printeach(realize(lexicalize_titles(["some book", "another book"], 
+                                        realize="abstract")))
 
-    print "realize one book abstractly (as a pronoun):"
-    print realize(lexicalize_titles(["some book"], realize="pronoun")), "\n\n"
+    print "\n\n", "realize one book abstractly (as a pronoun):"
+    printeach(realize(lexicalize_titles(["some book"], realize="pronoun")))
     
     # TODO: realized wrongly ("ihnen" instead of "sie")
-    print "realize two books abstractly: (as a pronoun)"
-    print realize(lexicalize_titles(["some book", "another book"], 
-                                    realize="pronoun")), "\n\n"
+    print "\n\n", "realize two books abstractly: (as a pronoun)"
+    printeach(realize(lexicalize_titles(["some book", "another book"], 
+                                        realize="pronoun")))
 
-    print "realize one book abstractly with an author:"
-    print realize(lexicalize_titles(["some book"], ["Christopher D. Manning"], 
-                                    realize="abstract")), "\n\n"
+    print "\n\n", "realize one book abstractly with an author:"
+    printeach(realize(lexicalize_titles(["some book"], 
+                                        ["Christopher D. Manning"], 
+                                        realize="abstract")))
     
-    print "realize one book abstractly with two authors:"
-    print realize(lexicalize_titles(["some book"], 
-                                    ["Christopher D. Manning", "Alan Davies"], 
-                                    realize="abstract")), "\n\n"
+    print "\n\n", "realize one book abstractly with two authors:"
+    printeach(realize(lexicalize_titles(["some book"], 
+                                        ["Christopher D. Manning", 
+                                         "Alan Davies"], 
+                                        realize="abstract")))
 
-    print "realize one book concretely:"
-    print realize(lexicalize_titles(["Natural Language Processing"], 
-                                    realize="complete")), "\n\n"
+    print "\n\n", "realize one book concretely:"
+    printeach(realize(lexicalize_titles(["Natural Language Processing"], 
+                                    realize="complete")))
 
-    print "realize two books concretely:"
-    print realize(lexicalize_titles(["Text Processing in Python", 
+    print "\n\n", "realize two books concretely:"
+    printeach(realize(lexicalize_titles(["Text Processing in Python", 
                                      "Natural Language Processing"], 
-                                    realize="complete")), "\n\n"
+                                    realize="complete")))
 
-    print "realize one book concretely with one author (possessive):"
-    print realize(lexicalize_titles(["Natural Language Understanding"],
-                                    ["James Allen"],
-                                    realize="complete",
-                                    authors_realize="possessive")), "\n\n"
+    print "\n\n", "realize one book concretely with one author (possessive):"
+    printeach(realize(lexicalize_titles(["Natural Language Understanding"],
+                                        ["James Allen"],
+                                        realize="complete",
+                                        authors_realize="possessive")))
     
-    print "realize one book concretely with one author (preposition):"
-    print realize(lexicalize_titles(["Natural Language Understanding"],
-                                    ["James Allen"],
-                                    realize="complete",
-                                    authors_realize="preposition")), "\n\n"
+    print "\n\n", "realize one book concretely with one author (preposition):"
+    printeach(realize(lexicalize_titles(["Natural Language Understanding"],
+                                        ["James Allen"],
+                                        realize="complete",
+                                        authors_realize="preposition")))
     
-    print "realize one book concretely with two authors (preposition):"
-    print realize(lexicalize_titles(["Einführung in die Automatentheorie, Formale Sprachen und Komplexitätstheorie"],
+    print "\n\n", "realize one book concretely with two authors (preposition):"
+    printeach(realize(lexicalize_titles(["Einführung in die Automatentheorie, Formale Sprachen und Komplexitätstheorie"],
                                     ["John E. Hopcroft", "Jeffrey D. Ullman"],
                                     realize="complete",
-                                    authors_realize="preposition")), "\n\n"
+                                    authors_realize="preposition")))
+
 
 def printeach(iterable):
+    """prints each element of an iterable on a separate line"""
     for item in iterable:
         print item
