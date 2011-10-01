@@ -405,12 +405,9 @@ def __gen_abstract_autor(num_of_authors):
     elif num_of_authors > 1:
         num_str = "plur"
 
-    art = Diamond()
-    art.create_diamond("ART", "sem-obj", "def", [])
-    gen = Diamond()
-    gen.create_diamond("GEN", "", "mask", [])
-    num = Diamond()
-    num.create_diamond("NUM", "", num_str, [])
+    art = gen_art("def")
+    gen = gen_gender("mask")
+    num = gen_num(num_str)
 
     der_autor = Diamond()
     der_autor.create_diamond("", u"bel-phys-körper", "Autor",
@@ -735,6 +732,12 @@ def gen_art(article_type="def"):
     article_diamond = Diamond()
     article_diamond.create_diamond("ART", "sem-obj", article_type, [])
     return article_diamond
+
+def gen_gender(genus="mask"):
+    """generates a C{Diamond} representing masculine, feminine or neuter"""
+    gender_diamond = Diamond()
+    gender_diamond.create_diamond("GEN", "", genus, [])
+    return gender_diamond
     
 def gen_num(numerus="sing"):
     """generates a C{Diamond} representing singular or plural"""
