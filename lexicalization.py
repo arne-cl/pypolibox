@@ -361,38 +361,33 @@ def lexicalize_authors(authors, realize="abstract"):
     only the last names of authors, while "complete" realizes their given 
     and last names.
 
-    @rtype: C{list} of C{Diamond}s
-    @return: a list of 3 Diamond instance. the first generates "der Autor", the
-    second the authors lastnames and the last one generates the complete names 
-    of the authors.
+    @rtype: C{Diamond}
+    @return: a Diamond instance, which generates "der Autor"/"die Autoren", 
+    the authors last names or the complete names of the authors.
     """
     assert isinstance(authors, list), "needs a list of name strings as input"
-    num_of_authors = len(authors)
-    
-    abstract_authors = __gen_abstract_autor(num_of_authors)
-
-    lastnames = []
-    complete_names = []
-    for author in authors:
-        lastnames.append(__gen_lastname_only(author))
-        complete_names.append(__gen_complete_name(author))
-        
-    lastnames_enum = __gen_enumeration(lastnames, mode="NP")
-    complete_names_enum = __gen_enumeration(complete_names, mode="NP")
-
-    for realisation in (abstract_authors, lastnames_enum, complete_names_enum):
-        add_mode_suffix(realisation, mode="NP")
-        add_mode_suffix(realisation, mode="N")
-    
     assert realize in ("abstract", "lastnames", "complete"), \
         "choose 1 of these author realizations: abstract, lastnames, complete"
-    
+
     if realize == "abstract":
-        return abstract_authors
+        num_of_authors = len(authors)
+        authors_diamond = __gen_abstract_autor(num_of_authors)
+
     elif realize == "lastnames":
-        return lastnames_enum
+        lastnames = []
+        for author in authors:
+            lastnames.append(__gen_lastname_only(author))
+        authors_diamond = __gen_enumeration(lastnames, mode="NP")
+        
     elif realize == "complete":
-        return complete_names_enum
+        complete_names = []
+        for author in authors:
+            complete_names.append(__gen_complete_name(author))
+        authors_diamond = __gen_enumeration(complete_names, mode="NP")
+
+    add_mode_suffix(authors_diamond, mode="NP")
+    add_mode_suffix(authors_diamond, mode="N")
+    return authors_diamond
 
 
 def __gen_abstract_autor(num_of_authors):
