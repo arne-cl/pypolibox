@@ -303,9 +303,14 @@ def lexicalize_titles(book_titles, authors=None, realize="complete",
         authors_diamond = lexicalize_authors(authors, realize="complete")
 
         if authors_realize == "random":
-            authors_realize = random.choice(["possessive", "preposition"])
+            if len(authors) == 1:
+                authors_realize = random.choice(["possessive", "preposition"])
+            else: # possessive form doesn't work w/ more than one author
+                authors_realize == "preposition"
             
-        if authors_realize == "possessive": # Chomskys Buch         
+        if authors_realize == "possessive": # Chomskys Buch
+            assert len(authors) == 1, \
+                "can't realize possesive form with more than one author"
             title_diamond.append_subdiamond(authors_diamond, mode="ASS")
         else: # authors_realize == "preposition": das Buch von Chomsky
             preposition_diamond = gen_prep("von", "zugehörigkeit")

@@ -54,13 +54,6 @@ def test_titles():
                                     realize="complete",
                                     authors_realize="preposition")), "\n\n"
     
-    # TODO: sometimes (!) realized wrongly
-    print "realize one book concretely with two authors (possessive):"
-    print realize(lexicalize_titles(["Einführung in die Automatentheorie, Formale Sprachen und Komplexitätstheorie"],
-                                    ["John E. Hopcroft", "Jeffrey D. Ullman"],
-                                    realize="complete",
-                                    authors_realize="possessive")), "\n\n"
-
     print "realize one book concretely with two authors (preposition):"
     print realize(lexicalize_titles(["Einführung in die Automatentheorie, Formale Sprachen und Komplexitätstheorie"],
                                     ["John E. Hopcroft", "Jeffrey D. Ullman"],
