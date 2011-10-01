@@ -53,64 +53,7 @@ def test_authors():
         print author_list, "\n", realize(lexicalized_authors), "\n\n"
 
 
-def test_titles():
-    """
-    retrieves all book titles and realizes 3 random combinations of these with
-    I{ccg-realize}.
-    """
-    print "realize one book abstractly:"
-    print realize(lexicalize_titles(["some book"], realize="abstract")), "\n\n"
-    
-    print "realize two books abstractly:"
-    print realize(lexicalize_titles(["some book", "another book"], 
-                                    realize="abstract")), "\n\n"
-
-    print "realize one book abstractly (as a pronoun):"
-    print realize(lexicalize_titles(["some book"], realize="pronoun")), "\n\n"
-    
-    print "realize two books abstractly: (as a pronoun)"
-    print realize(lexicalize_titles(["some book", "another book"], 
-                                    realize="pronoun")), "\n\n"
-
-    print "realize one book abstractly with an author:"
-    print realize(lexicalize_titles(["some book"], ["Christopher D. Manning"], 
-                                    realize="abstract")), "\n\n"
-    
-    print "realize one book abstractly with two authors:"
-    print realize(lexicalize_titles(["some book"], 
-                                    ["Christopher D. Manning", "Alan Davies"], 
-                                    realize="abstract")), "\n\n"
-
-
-    #~ all_titles = get_column("title")
-    #~ num_of_books = lambda : random.randint(1,4)
-    #~ book_titles = lambda : random.sample(all_titles, num_of_books())
-#~ 
-    #~ print "generating 10 random author+title combinations...\n\n"
-    #~ for i in xrange(10):
-        #~ random_title = random.choice(all_titles)
-        #~ random_authors = random.choice(get_column("authors"))
-        #~ random_authors_list = list(sql_array_to_set(random_authors))
-        #~ realized_titles = realize(lexicalize_titles([random_title], 
-                                                    #~ random_authors_list, 
-                                                    #~ realize="random", 
-                                                    #~ variant="random"))
-        #~ for title in realized_titles:
-            #~ print title
-    
-    #~ print "generating 3 random title combinations...\n\n"
-    #~ for i in xrange(3):
-        #~ temp_titles = book_titles()
-        #~ print "\n\n", temp_titles
-        #~ realized_titles = realize(lexicalize_titles(temp_titles, 
-                                                    #~ realize="complete"))
-        #~ for title in realized_titles:
-            #~ print title
-            
-
-    
         
-                                                   
 
 def realize(sentence, results="all"):
     """
