@@ -330,16 +330,8 @@ def gen_abstract_title(number_of_books):
     @type number_of_books: C{int}
     @rtype: C{Diamond}
     """
-    if number_of_books is 1:
-        num_str = "sing"
-    if number_of_books > 1:
-        num_str = "plur"
-
-    num = Diamond()
-    num.create_diamond("NUM", "", num_str, [])
-    
-    art = Diamond()
-    art.create_diamond("ART", "sem-obj", "def", [])
+    num = gen_num(number_of_books)
+    art = gen_art("def")
 
     title = Diamond()
     title.create_diamond("", "artefaktum", "Buch", [num, art])
@@ -400,14 +392,9 @@ def __gen_abstract_autor(num_of_authors):
 
     @rtype: C{Diamond}
     """
-    if num_of_authors == 1:
-        num_str = "sing"
-    elif num_of_authors > 1:
-        num_str = "plur"
-
     art = gen_art("def")
     gen = gen_gender("mask")
-    num = gen_num(num_str)
+    num = gen_num(num_of_authors)
 
     der_autor = Diamond()
     der_autor.create_diamond("", u"bel-phys-körper", "Autor",
@@ -482,18 +469,10 @@ def lexicalize_keywords(keywords, realize="abstract"):
 
 def __gen_abstract_keywords(num_of_keywords):
     """generates a Diamond for 'das Thema' vs. 'die Themen' """
+    num = gen_num(num_of_keywords)
+    art = gen_art("def")
+
     abstract_keywords = Diamond()
-
-    if num_of_keywords == 1:
-        num_prop = "sing"
-    if num_of_keywords > 1:
-        num_prop = "plur"
-
-    num = Diamond()
-    num.create_diamond("NUM", "", num_prop, [])
-    art = Diamond()
-    art.create_diamond("ART", "sem-obj", "def", [])
-
     abstract_keywords.create_diamond("", "art", "Thema", [num, art])
     return abstract_keywords
 
@@ -511,8 +490,8 @@ def __gen_keywords(keywords, mode="N"):
     def gen_keyword(keyword, mode="N"):
         """takes a keyword (string) and converts it into a C{Diamond}"""
         fixed_keyword = keyword.replace(" ", "_")
-        num = Diamond()
-        num.create_diamond("NUM", "", "sing", [])
+
+        num = gen_num("sing")
         keyword_diamond = Diamond()
         keyword_diamond.create_diamond(mode, "sorte", fixed_keyword, [num])
         return keyword_diamond
@@ -702,14 +681,10 @@ def gen_personal_pronoun(count, gender, person):
     @type person: C{int}
     @param person: 1 for 1st person, 2 for 2nd person ...
     """
-    if count == 1:
-        numerus = "sing"
-    else:
-        numerus = "plur"
-
-    if numerus == "plur" or gender == "":
+    if count > 1 or gender == "":
         gender = "fem" # there should be no gender marker in plural, 
-                       # but that doesn't always work with ccg-realize
+                       # but that doesn't always work with ccg-realize, so
+                       # we'll always stick to "feminine", which seems to work.
         
     person_prop_str = "{0}te".format(str(person)) # 3 -> 3te
     
@@ -717,10 +692,9 @@ def gen_personal_pronoun(count, gender, person):
     pers.create_diamond("PERS", "", person_prop_str, [])
     pro = Diamond()
     pro.create_diamond("PRO", "", "perspro", [])
-    gen = Diamond()
-    gen.create_diamond("GEN", "", gender, [])
-    num = Diamond()
-    num.create_diamond("NUM", "", numerus, [])
+
+    gen = gen_gender(gender)
+    num = gen_num(count)
             
     pronoun = Diamond()
     pronoun.create_diamond("", "sem-obj", "", [pers, pro, gen, num])
