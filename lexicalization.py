@@ -739,8 +739,23 @@ def gen_gender(genus="mask"):
     gender_diamond.create_diamond("GEN", "", genus, [])
     return gender_diamond
     
-def gen_num(numerus="sing"):
-    """generates a C{Diamond} representing singular or plural"""
+def gen_num(numerus=1):
+    """
+    generates a C{Diamond} representing singular or plural
+    
+    @type numerus: C{str} or C{int}
+    @param numerus: either a string representing singular or plural 
+    ("sing", "plur"), or an integer.
+    @rtype: C{Diamond}
+    """
+    if isinstance(numerus, int):
+        assert numerus > 0, "count has to be >= 1"
+        if numerus == 1:
+            numerus = "sing"
+        elif numerus > 1:
+            numerus = "plur"
+
+    assert numerus in ("sing", "plur")
     numerus_diamond = Diamond()
     numerus_diamond.create_diamond("NUM", "", numerus, [])
     return numerus_diamond
