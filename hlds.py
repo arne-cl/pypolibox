@@ -193,33 +193,6 @@ class Diamond(FeatDict):
             ...
         </diamond>
     """    
-    def create_diamond(self, mode, nom, prop, nested_diamonds_list):
-        """
-        creates an HLDS feature structure from scratch (in contrast to 
-        convert_diamond_xml2fs, which converts an HLDS XML structure into 
-        its corresponding feature structure representation)
-        
-        NOTE: I'd like to simply put this into __init__, but I don't know how 
-        to subclass FeatDict properly. FeatDict.__new__ complains about 
-        Diamond.__init__(self, mode, nom, prop, nested_diamonds_list) having 
-        too many arguments.
-        
-        @type mode: C{Str}
-        @type nom: C{Str}
-        @type prop: C{Str}
-        @type nested_diamonds_list: C{list}
-        """
-        self[Feature('mode')] = mode
-        if nom:
-            self.update({"nom": nom})
-        if prop:
-            self.update({"prop": prop})
-        if nested_diamonds_list:
-            for i, nested_diamond in enumerate(nested_diamonds_list):
-                identifier = "{0}__{1}".format(str(i).zfill(2), 
-                                               nested_diamond[Feature("mode")])
-                self.update({identifier: nested_diamond})
-
     def append_subdiamond(self, subdiamond, mode=None):
         """
         appends a subdiamond structure to an existing diamond structure, while 
@@ -239,6 +212,37 @@ class Diamond(FeatDict):
         identifier = "{0}__{1}".format(str(index).zfill(2), 
                                        subdiamond[Feature("mode")])
         self.update({identifier: subdiamond})
+
+
+def create_diamond(mode, nom, prop, nested_diamonds_list):
+    """
+    creates an HLDS feature structure from scratch (in contrast to 
+    convert_diamond_xml2fs, which converts an HLDS XML structure into 
+    its corresponding feature structure representation)
+    
+    NOTE: I'd like to simply put this into __init__, but I don't know how 
+    to subclass FeatDict properly. FeatDict.__new__ complains about 
+    Diamond.__init__(self, mode, nom, prop, nested_diamonds_list) having 
+    too many arguments.
+    
+    @type mode: C{Str}
+    @type nom: C{Str}
+    @type prop: C{Str}
+    @type nested_diamonds_list: C{list}
+    """
+    diamond = Diamond()
+    diamond[Feature('mode')] = mode
+
+    if nom:
+        diamond.update({"nom": nom})
+    if prop:
+        diamond.update({"prop": prop})
+    if nested_diamonds_list:
+        for i, nested_diamond in enumerate(nested_diamonds_list):
+            identifier = "{0}__{1}".format(str(i).zfill(2), 
+                                           nested_diamond[Feature("mode")])
+            diamond.update({identifier: nested_diamond})
+    return diamond
 
 
 def convert_diamond_xml2fs(etree):
@@ -266,9 +270,7 @@ def convert_diamond_xml2fs(etree):
         elif child.tag == "prop":
             prop = ensure_utf8(child.attrib["name"])
 
-    diamond = Diamond()
-    diamond.create_diamond(mode, nom, prop, nested_diamonds)
-    return diamond
+    return create_diamond(mode, nom, prop, nested_diamonds)
  
 
 def hlds2xml(featstruct):

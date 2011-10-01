@@ -18,9 +18,8 @@ from tempfile import NamedTemporaryFile
 from commands import getstatusoutput
 from nltk.featstruct import Feature
 from textplan import ConstituentSet, Message
-from hlds import (Diamond, Sentence, create_hlds_file, diamond2sentence, 
-                  last_diamond_index, add_nom_prefixes, add_mode_suffix, 
-                  remove_nom_prefixes)
+from hlds import (Diamond, Sentence, create_diamond, create_hlds_file, 
+                  diamond2sentence, last_diamond_index, add_nom_prefixes, add_mode_suffix, remove_nom_prefixes)
 from util import ensure_unicode, write_to_file, sql_array_to_set #TODO: dbg, rm
 from database import get_column #TODO: dbg, rm
 
@@ -309,18 +308,14 @@ def gen_title(book_title):
     book_title = ensure_unicode(book_title)
     book_title = book_title.replace(u" ", u"_")
 
-    opening_bracket = Diamond()
-    opening_bracket.create_diamond('99', u'anf\xfchrung\xf6ffnen',
-                                   u'anf\xf6ffn', [])
-    closing_bracket = Diamond()
-    closing_bracket.create_diamond('66', u'anf\xfchrungschlie\xdfen',
-                                   'anfschl', [])
+    opening_bracket = create_diamond('99', u'anf\xfchrung\xf6ffnen',
+                                     u'anf\xf6ffn', [])
+    closing_bracket = create_diamond('66', u'anf\xfchrungschlie\xdfen',
+                                     'anfschl', [])
 
-    title_diamond = Diamond()
-    title_diamond.create_diamond('NP', 'buchtitel', book_title,
-                                 [opening_bracket, closing_bracket])
-    return title_diamond
-
+    return create_diamond('NP', 'buchtitel', book_title, 
+                          [opening_bracket, closing_bracket])
+    
 
 def gen_abstract_title(number_of_books):
     """
@@ -332,10 +327,7 @@ def gen_abstract_title(number_of_books):
     """
     num = gen_num(number_of_books)
     art = gen_art("def")
-
-    title = Diamond()
-    title.create_diamond("", "artefaktum", "Buch", [num, art])
-    return title
+    return create_diamond("", "artefaktum", "Buch", [num, art])
 
 
 def lexicalize_authors(authors, realize="abstract"):
@@ -395,11 +387,8 @@ def __gen_abstract_autor(num_of_authors):
     art = gen_art("def")
     gen = gen_gender("mask")
     num = gen_num(num_of_authors)
+    return create_diamond("", u"bel-phys-körper", "Autor", [art, gen, num])
 
-    der_autor = Diamond()
-    der_autor.create_diamond("", u"bel-phys-körper", "Autor",
-                            [art, gen, num])
-    return der_autor
 
 
 def __gen_lastname_only(name):
@@ -414,10 +403,7 @@ def __gen_lastname_only(name):
     @rtype: C{Diamond}
     """
     _, lastname_str = __split_name(name)
-    lastname_only = Diamond()
-    lastname = Diamond()
-    lastname.create_diamond("NP", "nachname", lastname_str, [])
-    return lastname
+    return create_diamond("NP", "nachname", lastname_str, [])
 
 
 def __gen_complete_name(name):
@@ -429,16 +415,12 @@ def __gen_complete_name(name):
     @rtype: C{Diamond}
     """
     given_names, lastname_str = __split_name(name)
-    complete_name = Diamond()
     if given_names:
         given_names_diamond = __create_nested_given_names(given_names)
-        complete_name.create_diamond("NP", "nachname", lastname_str,
-                                     [given_names_diamond])
+        return create_diamond("NP", "nachname", lastname_str, 
+                              [given_names_diamond])
     else: #if name string does not contain ' ', i.e. only last name is given
-        complete_name.create_diamond("NP", "nachname", lastname_str, [])
-
-    return complete_name
-
+        return create_diamond("NP", "nachname", lastname_str, [])
 
 
 def lexicalize_keywords(keywords, realize="abstract"):
@@ -471,10 +453,7 @@ def __gen_abstract_keywords(num_of_keywords):
     """generates a Diamond for 'das Thema' vs. 'die Themen' """
     num = gen_num(num_of_keywords)
     art = gen_art("def")
-
-    abstract_keywords = Diamond()
-    abstract_keywords.create_diamond("", "art", "Thema", [num, art])
-    return abstract_keywords
+    return create_diamond("", "art", "Thema", [num, art])
 
 
 def __gen_keywords(keywords, mode="N"):
@@ -490,11 +469,8 @@ def __gen_keywords(keywords, mode="N"):
     def gen_keyword(keyword, mode="N"):
         """takes a keyword (string) and converts it into a C{Diamond}"""
         fixed_keyword = keyword.replace(" ", "_")
-
         num = gen_num("sing")
-        keyword_diamond = Diamond()
-        keyword_diamond.create_diamond(mode, "sorte", fixed_keyword, [num])
-        return keyword_diamond
+        return create_diamond(mode, "sorte", fixed_keyword, [num])
 
     if isinstance(keywords, list) and len(keywords) == 1:
         return gen_keyword(keywords[0], mode="N")
@@ -508,21 +484,13 @@ def __gen_keywords(keywords, mode="N"):
 def lexicalize_year(year, title, realize="complete"): #TODO: authors should be args*
     """___ ist 1986 erschienen.
     """
-    tempus = Diamond()
-    tempus.create_diamond("TEMP:tempus", "", "imperf", [])
-
-    adv = Diamond()
-    adv.create_diamond("ADV", "modus", year, [])
-
+    tempus = gen_tempus("imperf")
+    adv = create_diamond("ADV", "modus", year, [])
     agens = lexicalize_titles(title, realize)
     agens[Feature("mode")] = "AGENS"
     
-    aux = Diamond()
-    aux.create_diamond("AUX", "sein", "sein", [tempus, adv, agens])
-    
-    erschienen = Diamond()
-    erschienen.create_diamond("", "inchoativ", "erscheinen", [aux])
-    return erschienen
+    aux = create_diamond("AUX", "sein", "sein", [tempus, adv, agens])
+    return create_diamond("", "inchoativ", "erscheinen", [aux])
 
 
 
@@ -541,25 +509,21 @@ def lexicalize_pages(pages, title, authors=None, title_realize="complete"):
     if isinstance(pages, int):
         pages = str(pages)
         
-    attrib = Diamond()
     attrib_num = gen_num("plur")
     preposition = gen_prep("von", "zugehörigkeit")
     mod = gen_mod("600", "kardinal")
-    attrib.create_diamond("ATTRIB", "artefaktum", "Seite", 
-                          [attrib_num, preposition, mod])
+    attrib = create_diamond("ATTRIB", "artefaktum", "Seite", 
+                            [attrib_num, preposition, mod])
 
-    patiens = Diamond()    
     patiens_num = gen_num("sing")
     art = gen_art("indef")
-    patiens.create_diamond("PATIENS", "abstraktum", "Umfang", 
-                           [patiens_num, art, attrib])
+    patiens = create_diamond("PATIENS", "abstraktum", "Umfang", 
+                             [patiens_num, art, attrib])
     
-    umfang = Diamond()
     tempus = gen_tempus("präs")
     agens = lexicalize_titles([title], authors, title_realize)
     agens[Feature("mode")] = "AGENS"
-    umfang.create_diamond("","durativ","haben",[tempus, agens, patiens])
-    return umfang
+    return create_diamond("","durativ","haben",[tempus, agens, patiens])
 
 
 def __gen_enumeration(diamonds_list, mode=""):
@@ -584,14 +548,11 @@ def __gen_enumeration(diamonds_list, mode=""):
     if len(diamonds_list) is 1:
         return diamonds_list[0]
     if len(diamonds_list) is 2:
-        enumeration = Diamond()
-        enumeration.create_diamond(mode, "konjunktion", "und", diamonds_list)
+        return create_diamond(mode, "konjunktion", "und", diamonds_list)
     if len(diamonds_list) > 2:
-        enumeration = Diamond()
         nested_komma_enum = __gen_komma_enumeration(diamonds_list[:-1], mode)
-        enumeration.create_diamond(mode, "konjunktion", "und",
-                                   [nested_komma_enum, diamonds_list[-1]])
-    return enumeration
+        return create_diamond(mode, "konjunktion", "und", 
+                              [nested_komma_enum, diamonds_list[-1]])
 
 
 def __gen_komma_enumeration(diamonds_list, mode=""):
@@ -615,14 +576,12 @@ def __gen_komma_enumeration(diamonds_list, mode=""):
     if len(diamonds_list) == 1:
         return diamonds_list[0]
     if len(diamonds_list) == 2:
-        komma_enum = Diamond()
-        komma_enum.create_diamond(mode, "konjunktion", "komma", diamonds_list)
+        return create_diamond(mode, "konjunktion", "komma", diamonds_list)
     if len(diamonds_list) > 2:
-        komma_enum = Diamond()
         nested_komma_enum = __gen_komma_enumeration(diamonds_list[:-1], mode)
-        komma_enum.create_diamond(mode, "konjunktion", "komma",
-                                  [nested_komma_enum, diamonds_list[-1]])
-    return komma_enum
+        return create_diamond(mode, "konjunktion", "komma",
+                              [nested_komma_enum, diamonds_list[-1]])
+
 
 
 def __split_name(name):
@@ -655,16 +614,14 @@ def __create_nested_given_names(given_names):
     """
     if given_names:
         preceding_names, last_given_name = given_names[:-1], given_names[-1]
-        diamond = Diamond()
         nested_diamond = __create_nested_given_names(preceding_names)
 
         if type(nested_diamond) is list:
-            diamond.create_diamond("N1", "vorname", last_given_name,
-                                   nested_diamond)
+            return create_diamond("N1", "vorname", last_given_name, 
+                                  nested_diamond)
         elif type(nested_diamond) is Diamond:
-            diamond.create_diamond("N1", "vorname", last_given_name,
-                                   [nested_diamond])
-        return diamond
+            return create_diamond("N1", "vorname", last_given_name,
+                                  [nested_diamond])
 
     else: # given_names list is empty
         return []
@@ -688,30 +645,20 @@ def gen_personal_pronoun(count, gender, person):
         
     person_prop_str = "{0}te".format(str(person)) # 3 -> 3te
     
-    pers = Diamond()
-    pers.create_diamond("PERS", "", person_prop_str, [])
-    pro = Diamond()
-    pro.create_diamond("PRO", "", "perspro", [])
-
+    pers = create_diamond("PERS", "", person_prop_str, [])
+    pro = create_diamond("PRO", "", "perspro", [])
     gen = gen_gender(gender)
     num = gen_num(count)
-            
-    pronoun = Diamond()
-    pronoun.create_diamond("", "sem-obj", "", [pers, pro, gen, num])
-    return pronoun
+    return create_diamond("", "sem-obj", "", [pers, pro, gen, num])
 
 
 def gen_art(article_type="def"):
     """generates a C{Diamond} describing an article"""
-    article_diamond = Diamond()
-    article_diamond.create_diamond("ART", "sem-obj", article_type, [])
-    return article_diamond
+    return create_diamond("ART", "sem-obj", article_type, [])
 
 def gen_gender(genus="mask"):
     """generates a C{Diamond} representing masculine, feminine or neuter"""
-    gender_diamond = Diamond()
-    gender_diamond.create_diamond("GEN", "", genus, [])
-    return gender_diamond
+    return create_diamond("GEN", "", genus, [])
     
 def gen_num(numerus=1):
     """
@@ -730,26 +677,17 @@ def gen_num(numerus=1):
             numerus = "plur"
 
     assert numerus in ("sing", "plur")
-    numerus_diamond = Diamond()
-    numerus_diamond.create_diamond("NUM", "", numerus, [])
-    return numerus_diamond
+    return create_diamond("NUM", "", numerus, [])
     
 def gen_mod(modifier, modifier_type="kardinal"):
     """generates a C{Diamond} representing a modifier"""
-    modifier_diamond = Diamond()
-    modifier_diamond.create_diamond("MOD", modifier_type, modifier, [])
-    return modifier_diamond
+    return create_diamond("MOD", modifier_type, modifier, [])
     
 def gen_prep(preposition, preposition_type="zugehörigkeit"):
     """generates a C{Diamond} representing a preposition"""
-    preposition_diamond = Diamond()
-    preposition_diamond.create_diamond("PRÄP", preposition_type, preposition, 
-                                       [])
-    return preposition_diamond
+    return create_diamond("PRÄP", preposition_type, preposition, [])
     
 def gen_tempus(tense="präs"):
     """generates a C{Diamond} representing a tense form"""
-    tense_diamond = Diamond()
-    tense_diamond.create_diamond("TEMP:tempus", "", tense, [])
-    return tense_diamond
+    return create_diamond("TEMP:tempus", "", tense, [])
     
