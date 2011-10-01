@@ -78,29 +78,31 @@ def realize(sentence, results="all"):
     containing "all" results that could be realized by OpenCCG
     """
     current_dir = os.getcwd()
-    os.chdir(GRAMMAR_PATH)
-    grammar_abspath = os.getcwd()
-    realizer = os.path.join(OPENCCG_BIN_PATH, "ccg-realize")
 
-    if isinstance(sentence, str): # sentence is a file path
-        status, output = __realize_from_file(sentence, grammar_abspath, 
-                                             realizer)
-
-    elif isinstance(sentence, Diamond):
-        sentence = diamond2sentence(sentence)
-        status, output = __realize_from_sentence_fs(sentence, realizer)
-        
-    elif isinstance(sentence, Sentence):
-        status, output = __realize_from_sentence_fs(sentence, realizer)
-        
-    else:
-        status = -1
-        output = "Sorry, I can only realize HLDS XML sentence files," \
-                 " Sentence and Diamond instances. Your input has this type: "\
-                 "{0} and looks like this:\n{1}".format(type(sentence), 
-                                                        sentence)
-
-    os.chdir(current_dir)
+    try:
+        os.chdir(GRAMMAR_PATH)
+        grammar_abspath = os.getcwd()
+        realizer = os.path.join(OPENCCG_BIN_PATH, "ccg-realize")
+    
+        if isinstance(sentence, str): # sentence is a file path
+            status, output = __realize_from_file(sentence, grammar_abspath, 
+                                                 realizer)
+    
+        elif isinstance(sentence, Diamond):
+            sentence = diamond2sentence(sentence)
+            status, output = __realize_from_sentence_fs(sentence, realizer)
+            
+        elif isinstance(sentence, Sentence):
+            status, output = __realize_from_sentence_fs(sentence, realizer)
+            
+        else:
+            status = -1
+            output = "Sorry, I can only realize HLDS XML sentence files," \
+                     " Sentence and Diamond instances. Your input has this type: "\
+                     "{0} and looks like this:\n{1}".format(type(sentence), 
+                                                            sentence)
+    finally: #NEVER ever stay in the openccg directory
+        os.chdir(current_dir)
 
     if status == 0:
         return __parse_ccg_output(output, results)
