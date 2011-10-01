@@ -28,17 +28,6 @@ OPENCCG_BIN_PATH = "/home/guido/bin/openccg/bin"
 GRAMMAR_PATH = "openccg-jpolibox"
 
 
-def test_keywords():
-    """
-    retrieves all sets of keywords from the database and realizes them with
-    I{ccg-realize}.
-    """
-    keyword_arrays = get_column("keywords")
-    for keyword_array in keyword_arrays:
-        keyword_list = list(sql_array_to_set(keyword_array))
-        lexicalized_keywords = lexicalize_keywords(keyword_list, 
-                                                   realize="complete")
-        print keyword_list, "\n", realize(lexicalized_keywords), "\n\n"
 
 def test_authors():
     """

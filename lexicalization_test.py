@@ -2,7 +2,28 @@
 # -*- coding: utf-8 -*-
 # Author: Arne Neumann <arne-neumann@web.de>
 
+"""
+This module contains all functions that are necessary to evaluate the 
+lexicalization process.
+"""
+
 from lexicalization import *
+
+def test_keywords():
+    """
+    retrieves all sets of keywords from the database and realizes them with
+    I{ccg-realize}.
+    """
+    keyword_arrays = get_column("keywords")
+    for keyword_array in keyword_arrays:
+        keyword_list = list(sql_array_to_set(keyword_array))
+        lexicalized_keywords = lexicalize_keywords(keyword_list, 
+                                                   realize="complete")
+        print "Die Themenliste: {0}".format(keyword_list)
+        print "wird generiert als:\n"
+        printeach(realize(lexicalized_keywords))
+        print "\n\n"
+
 
 def test_titles():
     """
@@ -60,3 +81,6 @@ def test_titles():
                                     realize="complete",
                                     authors_realize="preposition")), "\n\n"
 
+def printeach(iterable):
+    for item in iterable:
+        print item
