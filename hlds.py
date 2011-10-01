@@ -220,19 +220,22 @@ class Diamond(FeatDict):
                                                nested_diamond[Feature("mode")])
                 self.update({identifier: nested_diamond})
 
-    def append_subdiamond(self, subdiamond, mode=""):
+    def append_subdiamond(self, subdiamond, mode=None):
         """
         appends a subdiamond structure to an existing diamond structure, while 
         allowing to change the mode of the subdiamond
         
-        @type mode: C{str}
+        @type mode: C{str} or C{NoneType}
         @param mode: the mode that the subdiamond shall have. this will also be 
         used to determine the subdiamonds identifier. if the diamond already 
         has two subdiamonds (e.g. "01__AGENS" and "02__PATIENS") and add a 
         third subdiamond with mode "TEMP", its identifier will be "03__TEMP".
         """
-        subdiamond.update({Feature("mode"): mode})
         index = last_diamond_index(self) + 1
+        
+        if mode: #change mode only if not None
+            subdiamond.update({Feature("mode"): mode})
+
         identifier = "{0}__{1}".format(str(index).zfill(2), 
                                        subdiamond[Feature("mode")])
         self.update({identifier: subdiamond})
@@ -529,7 +532,25 @@ def add_mode_suffix(diamond, mode="N"):
 
 def add_nom_prefixes(diamond):
     """
-    TODO: nom prefixes also present in satop noms: und --> u1:konjunktion
+    Adds a prefix/index to the name attribute of every <nom> tag of a 
+    C{Diamond} or C{Sentence} structure. Without this, I{ccg-realize} will 
+    only produce gibberish.
+    
+    Every <nom> tag has a 'name' attribute, which contains a category/type-like
+    description of the corresponding <prop> tag's name attribute, e.g.::
+    
+        <diamond mode="PRÄP">
+            <nom name="v1:zugehörigkeit"/>
+            <prop name="von"/>
+        </diamond>
+
+    Here 'zugehörigkeit' is the name of a category that the preposition 
+    'von' belongs to. usually, the nom prefix is the first character of the 
+    prop name attribute with an added index. index iteration is done by a 
+    depth-first walk through all diamonds contained in the given feature 
+    structure. In this example 'v1:zugehörigkeit' means, that "von" is the 
+    first C{diamond} in the structure that starts with 'v' and belongs to 
+    the category 'zugehörigkeit'.
     """
     prop_dict = defaultdict(int)
     elements = [element for element in diamond.walk()]
@@ -542,7 +563,6 @@ def add_nom_prefixes(diamond):
                 prop_dict[nom_prefix_char] += 1
                 nom_without_prefix = e["nom"]
                 nom_type = type(nom_without_prefix)
-                print nom_type, e["nom"]
                 e["nom"] = "{0}{1}:{2}".format(ensure_utf8(nom_prefix_char), 
                                                prop_dict[nom_prefix_char],
                                                ensure_utf8(nom_without_prefix))

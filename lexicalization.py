@@ -55,20 +55,36 @@ def test_authors():
 
 def test_titles():
     """
-    retrieves all book titles and realizes 10 random combinations of these with
+    retrieves all book titles and realizes 3 random combinations of these with
     I{ccg-realize}.
     """
     all_titles = get_column("title")
     num_of_books = lambda : random.randint(1,4)
     book_titles = lambda : random.sample(all_titles, num_of_books())
+
+    #~ print "generating 10 random author+title combinations...\n\n"
+    #~ for i in xrange(10):
+        #~ random_title = random.choice(all_titles)
+        #~ random_authors = random.choice(get_column("authors"))
+        #~ random_authors_list = list(sql_array_to_set(random_authors))
+        #~ realized_titles = realize(lexicalize_titles([random_title], 
+                                                    #~ random_authors_list, 
+                                                    #~ realize="random", 
+                                                    #~ variant="random"))
+        #~ for title in realized_titles:
+            #~ print title
     
-    for i in xrange(10):
+    print "generating 3 random title combinations...\n\n"
+    for i in xrange(3):
         temp_titles = book_titles()
         print "\n\n", temp_titles
         realized_titles = realize(lexicalize_titles(temp_titles, 
                                                     realize="complete"))
         for title in realized_titles:
             print title
+            
+
+    
         
                                                    
 
@@ -124,7 +140,6 @@ def realize(sentence, results="all"):
             "Error message is:\n\n{0}".format(output)
 
 
-
 def __realize_from_file(file_name, grammar_abspath, realizer):
     """
     loads an HLDS XML sentence from a file and realizes it with I{ccg-realize}.
@@ -149,6 +164,7 @@ def __realize_from_sentence_fs(sentence, realizer):
     @type realizer: C{str}
     @param realizer: path to ccg-realizer executable
     """
+    add_nom_prefixes(sentence)
     sentence_xml_str = create_hlds_file(sentence, mode="realize", output="xml")
 
     tmp_file = NamedTemporaryFile(mode="w", delete=False)
@@ -163,6 +179,9 @@ def __parse_ccg_output(output, results="all"):
     """ 
     parses the output of I{ccg-realize} and returns the sentence strings 
     that it could produce.
+    
+    NOTE: if parsing should fail, try to reset I{OpenCCG} settings by 
+    calling I{tccg} and entering I{:reset}.
     
     @type output: C{str}
     @param output: the output string that I{ccg-realize} returned
@@ -211,9 +230,6 @@ def __parse_ccg_output(output, results="all"):
             _, best_joined_and_tail = sentence_header.split(best_joined)
             best_joined_result, _ = sentence_tail.split(best_joined_and_tail)
             return [best_edge_result, best_joined_result]
-
-
-    
 
 
 def linearize_textplan(textplan): #TODO: add better explanation to docstring
@@ -274,7 +290,8 @@ def __rstree2list(featstruct):
     return rst_list
 
 
-def lexicalize_titles(book_titles, authors=None, realize="abstract"):
+def lexicalize_titles(book_titles, authors=None, realize="abstract", 
+                      variant="random"):
     """
     @type book_title: C{list} of C{str}
     @param book_title: list of book title strings
@@ -283,7 +300,7 @@ def lexicalize_titles(book_titles, authors=None, realize="abstract"):
     @param authors: an I{optional} list of author names
     
     @type realize: C{str}
-    @param realize: "abstract", "complete". 
+    @param realize: "abstract", "complete", "pronoun" or "authors+title" 
     - "abstract" realizes 'das Buch' / 'die Bücher'
     - "pronoun" realizes 'es' / 'sie'
     - "complete" realizes book titles in the format specified in the 
@@ -292,8 +309,13 @@ def lexicalize_titles(book_titles, authors=None, realize="abstract"):
       Chomskys „ Syntax “ OR „ Syntax “ von Noam Chomsky
     """
     assert isinstance(book_titles, list), "needs a list of titles as input"
+    assert realize in ("abstract", "complete", "pronoun", "authors+title", 
+                       "random")
     num_of_titles = len(book_titles)
     
+    if realize == "random":
+        realize = random.choice(["abstract", "complete", "pronoun", 
+                                 "authors+title", "random"])
     if realize == "abstract":
         return gen_abstract_title(num_of_titles)
 
@@ -305,7 +327,6 @@ def lexicalize_titles(book_titles, authors=None, realize="abstract"):
         for title in book_titles:
             realized_titles.append(gen_title(title))
         titles_enum = __gen_enumeration(realized_titles, mode="NP")
-        add_nom_prefixes(titles_enum)
         add_mode_suffix(titles_enum, mode="NP")
         return titles_enum
 
@@ -314,14 +335,24 @@ def lexicalize_titles(book_titles, authors=None, realize="abstract"):
             "authors+title mode needs a non-empty list of authors as input"
         assert num_of_titles == 1, \
             "authors+title mode can only realize one book title"
-        title_diamond = gen_title(book_titles[0])
+
         authors_diamond = lexicalize_authors(authors, realize="complete")
-        
-        authors_diamond.update({Feature("mode"): "ASS"})
-        
-        return title_diamond, authors_diamond
+        title_diamond = gen_title(book_titles[0])
 
+        if variant == "random":
+            variant = random.choice(["possessive", "preposition"])
 
+        if variant == "possessive": # Chomskys Buch         
+            title_diamond.append_subdiamond(authors_diamond, mode="ASS")
+            return title_diamond
+
+        if variant == "preposition": # das Buch von Chomsky
+            preposition_diamond = gen_prep("von", "zugehörigkeit")
+            authors_diamond.append_subdiamond(preposition_diamond)
+            title_diamond.append_subdiamond(authors_diamond, mode="ATTRIB")
+            return title_diamond
+
+            
 def gen_title(book_title):
     """
     Converts a book title (string) into its corresponding HLDS diamond
@@ -408,7 +439,6 @@ def lexicalize_authors(authors, realize="abstract"):
     complete_names_enum = __gen_enumeration(complete_names, mode="NP")
 
     for realisation in (abstract_authors, lastnames_enum, complete_names_enum):
-        add_nom_prefixes(realisation)
         add_mode_suffix(realisation, mode="NP")
         add_mode_suffix(realisation, mode="N")
     
@@ -490,7 +520,6 @@ def __gen_complete_name(name):
 
 
 
-
 def lexicalize_keywords(keywords, realize="abstract"):
     """
     @type keywords: C{frozenset} of C{str}
@@ -513,15 +542,9 @@ def lexicalize_keywords(keywords, realize="abstract"):
         keywords = __gen_keywords(keywords, mode="N")
         keyword_description.append_subdiamond(keywords, mode="NOMERG")
         
-        add_nom_prefixes(keyword_description)
         add_mode_suffix(keyword_description, mode="N")
         return keyword_description
 
-
-
-
-    
-    
 
 def __gen_abstract_keywords(num_of_keywords):
     """generates a Diamond for 'das Thema' vs. 'die Themen' """
@@ -568,10 +591,9 @@ def __gen_keywords(keywords, mode="N"):
         return __gen_enumeration(keyword_diamonds, mode="N") # TODO: dbg,rm
 
 
+
 def lexicalize_year(year, title, realize="complete"): #TODO: authors should be args*
     """___ ist 1986 erschienen.
-    
-    TODO: change nom prefix rules: 1986 -> n1:modus
     """
     tempus = Diamond()
     tempus.create_diamond("TEMP:tempus", "", "imperf", [])
@@ -584,14 +606,37 @@ def lexicalize_year(year, title, realize="complete"): #TODO: authors should be a
     
     aux = Diamond()
     aux.create_diamond("AUX", "sein", "sein", [tempus, adv, agens])
-
     
     erschienen = Diamond()
     erschienen.create_diamond("", "inchoativ", "erscheinen", [aux])
-
-    remove_nom_prefixes(erschienen) #lexicalize_titles() already has prefixes
-    add_nom_prefixes(erschienen)
     return erschienen
+
+
+
+def lexicalize_pages(pages, title, authors=None, realize="complete"):
+    """
+    ___ hat einen Umfang von 546 Seiten
+    ___ ist 546 Seiten lang
+    """
+    attrib = Diamond()
+    attrib_num = gen_num("plur")
+    preposition = gen_prep("von", "zugehörigkeit")
+    mod = gen_mod("600", "kardinal")
+    attrib.create_diamond("ATTRIB", "artefaktum", "Seite", 
+                          [attrib_num, preposition, mod])
+
+    patiens = Diamond()    
+    patiens_num = gen_num("sing")
+    art = gen_art("indef")
+    patiens.create_diamond("PATIENS", "abstraktum", "Umfang", 
+                           [patiens_num, art, attrib])
+    
+    umfang = Diamond()
+    tempus = gen_tempus("präs")
+    agens = lexicalize_titles([title], authors, realize)
+    agens[Feature("mode")] = "AGENS"
+    umfang.create_diamond("","durativ","haben",[tempus, agens, patiens])
+    return umfang
 
 
 def __gen_enumeration(diamonds_list, mode=""):
@@ -736,3 +781,36 @@ def gen_personal_pronoun(count, gender, person):
     pronoun = Diamond()
     pronoun.create_diamond("", "sem-obj", "", [pers, pro, gen, num])
     return pronoun
+
+
+def gen_art(article_type="def"):
+    """generates a C{Diamond} describing an article"""
+    article_diamond = Diamond()
+    article_diamond.create_diamond("ART", "sem-obj", article_type, [])
+    return article_diamond
+    
+def gen_num(numerus="sing"):
+    """generates a C{Diamond} representing singular or plural"""
+    numerus_diamond = Diamond()
+    numerus_diamond.create_diamond("NUM", "", numerus, [])
+    return numerus_diamond
+    
+def gen_mod(modifier, modifier_type="kardinal"):
+    """generates a C{Diamond} representing a modifier"""
+    modifier_diamond = Diamond()
+    modifier_diamond.create_diamond("MOD", modifier_type, modifier, [])
+    return modifier_diamond
+    
+def gen_prep(preposition, preposition_type="zugehörigkeit"):
+    """generates a C{Diamond} representing a preposition"""
+    preposition_diamond = Diamond()
+    preposition_diamond.create_diamond("PRÄP", preposition_type, preposition, 
+                                       [])
+    return preposition_diamond
+    
+def gen_tempus(tense="präs"):
+    """generates a C{Diamond} representing a tense form"""
+    tense_diamond = Diamond()
+    tense_diamond.create_diamond("TEMP:tempus", "", tense, [])
+    return tense_diamond
+    
