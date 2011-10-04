@@ -458,7 +458,7 @@ def lexicalize_keywords(keywords, lexicalized_title=None,
                               [temp, agens, patiens])
     elif lexeme == "eingehen":
         preposition = gen_prep("auf", "zusammenhang")
-        patiens.prepend_subdiamond(preposition)
+        patiens.insert_subdiamond(1, preposition)
         aux = create_diamond("AUX", "partverbstamm", "ein-gehen", 
                              [temp, agens, patiens])
         return create_diamond("", "infinitum", "ein-X-trans", [aux])
