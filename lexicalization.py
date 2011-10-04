@@ -462,7 +462,10 @@ def lexicalize_keywords(keywords, lexicalized_title=None,
         aux = create_diamond("AUX", "partverbstamm", "ein-gehen", 
                              [temp, agens, patiens])
         return create_diamond("", "infinitum", "ein-X-trans", [aux])
-
+    elif lexeme == "aufgreifen":
+        aux = create_diamond("AUX", "partverbstamm", "auf-greifen", 
+                             [temp, agens, patiens])
+        return create_diamond("", "infinitum", "auf-X-trans", [aux])
 
 def __gen_abstract_keywords(num_of_keywords):
     """generates a Diamond for 'das Thema' vs. 'die Themen' """
