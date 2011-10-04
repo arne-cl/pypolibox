@@ -423,7 +423,9 @@ def __gen_complete_name(name):
         return create_diamond("NP", "nachname", lastname_str, [])
 
 
-def lexicalize_keywords(keywords, realize="abstract"):
+def lexicalize_keywords(keywords, lexicalized_title=None, 
+                        lexicalized_authors = None, realize="abstract", 
+                        lexeme="behandeln"):
     """
     @type keywords: C{frozenset} of C{str}
 
@@ -435,18 +437,31 @@ def lexicalize_keywords(keywords, realize="abstract"):
     assert realize in ("abstract", "complete"), \
         "choose 1 of these keyword realizations: abstract, complete"
     num_of_keywords = len(keywords)
-    abstract_keywords = __gen_abstract_keywords(num_of_keywords)
     
     if realize == "abstract":
-        return abstract_keywords
-    
+        patiens = __gen_abstract_keywords(num_of_keywords)
     elif realize == "complete":
-        keyword_description = deepcopy(abstract_keywords)        
-        keywords = __gen_keywords(keywords, mode="N")
-        keyword_description.append_subdiamond(keywords, mode="NOMERG")
-        
-        add_mode_suffix(keyword_description, mode="N")
-        return keyword_description
+        patiens = __gen_keywords(keywords, mode="N")
+
+    patiens.change_mode("PATIENS")
+    
+    if lexicalized_title and isinstance(lexicalized_title, Diamond):
+        agens = lexicalized_title
+    elif lexicalized_authors and isinstance(lexicalized_authors, Diamond):
+        agens = lexicalized_authors
+    
+    agens.change_mode("AGENS")
+    temp = gen_tempus("präs")
+    
+    if lexeme in ("behandeln", "beschreiben"):
+        return create_diamond("", "handlung", lexeme, 
+                              [temp, agens, patiens])
+    elif lexeme == "eingehen":
+        preposition = gen_prep("auf", "zusammenhang")
+        patiens.prepend_subdiamond(preposition)
+        aux = create_diamond("AUX", "partverbstamm", "ein-gehen", 
+                             [temp, agens, patiens])
+        return create_diamond("", "infinitum", "ein-X-trans", [aux])
 
 
 def __gen_abstract_keywords(num_of_keywords):
@@ -459,12 +474,15 @@ def __gen_abstract_keywords(num_of_keywords):
 def __gen_keywords(keywords, mode="N"):
     """
     takes a list of keyword (strings) and converts them into a nested
-    C{Diamond} structure
+    C{Diamond} structure and prepends "das Thema" or "die Themen"
 
     @type keywords: C{list} of C{str}
     @rtype: C{Diamond}
     """
     assert isinstance(keywords, list), "input needs to be a list"
+
+    num_of_keywords = len(keywords)
+    keyword_description = __gen_abstract_keywords(num_of_keywords)
     
     def gen_keyword(keyword, mode="N"):
         """takes a keyword (string) and converts it into a C{Diamond}"""
@@ -473,11 +491,16 @@ def __gen_keywords(keywords, mode="N"):
         return create_diamond(mode, "sorte", fixed_keyword, [num])
 
     if isinstance(keywords, list) and len(keywords) == 1:
-        return gen_keyword(keywords[0], mode="N")
+        result_diamond = gen_keyword(keywords[0], mode="N")
 
     elif isinstance(keywords, list) and len(keywords) > 1:
         keyword_diamonds = [gen_keyword(kw, mode="N") for kw in keywords]
-        return __gen_enumeration(keyword_diamonds, mode="N") # TODO: dbg,rm
+        result_diamond = __gen_enumeration(keyword_diamonds, mode="N")
+        
+    keyword_description.append_subdiamond(result_diamond, mode="NOMERG")    
+    add_mode_suffix(keyword_description, mode="N")
+    return keyword_description
+    
 
 
 

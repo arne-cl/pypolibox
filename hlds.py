@@ -247,6 +247,15 @@ class Diamond(FeatDict):
         for diamond in prefixless_subdiamonds:
             self.append_subdiamond(diamond)
 
+    def change_mode(self, mode):
+        """
+        changes the mode of a C{Diamond}, which is sometimes needed when 
+        embedding it into another C{Diamond} or C{Sentence}.
+        
+        @type mode: C{str}
+        """
+        self[Feature('mode')] = mode
+
 
 def create_diamond(mode, nom, prop, nested_diamonds_list):
     """
