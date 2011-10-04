@@ -128,18 +128,18 @@ def test_pages():
     print "realize one book title abstractly with its number of pages:"
     printeach(realize(lexicalize_pages("193", 
                                        "random book title", 
-                                       realize="abstract")))
+                                       title_realize="abstract")))
 
     print "\n\n", "realize one book title abstractly (pronoun) " \
           "with its number of pages:"
     printeach(realize(lexicalize_pages("193", 
                                        "random book title", 
-                                       realize="pronoun")))
+                                       title_realize="pronoun")))
                                        
     print "\n\n", "realize one book title concretely with its number of pages:"
     printeach(realize(lexicalize_pages("193", 
                                  "Computational Linguistics. An Introduction.", 
-                                       realize="complete")))
+                                       title_realize="complete")))
     
     
     

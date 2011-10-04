@@ -45,6 +45,7 @@ import sys
 import re
 import random
 from collections import defaultdict
+from operator import itemgetter
 from lxml import etree
 from lxml.builder import ElementMaker
 from nltk.featstruct import Feature, FeatDict
@@ -201,8 +202,8 @@ class Diamond(FeatDict):
         @type mode: C{str} or C{NoneType}
         @param mode: the mode that the subdiamond shall have. this will also be 
         used to determine the subdiamonds identifier. if the diamond already 
-        has two subdiamonds (e.g. "01__AGENS" and "02__PATIENS") and add a 
-        third subdiamond with mode "TEMP", its identifier will be "03__TEMP".
+        has two subdiamonds (e.g. "00__AGENS" and "01__PATIENS") and add a 
+        third subdiamond with mode "TEMP", its identifier will be "02__TEMP".
         """
         index = last_diamond_index(self) + 1
         
@@ -212,6 +213,39 @@ class Diamond(FeatDict):
         identifier = "{0}__{1}".format(str(index).zfill(2), 
                                        subdiamond[Feature("mode")])
         self.update({identifier: subdiamond})
+
+    def prepend_subdiamond(self, subdiamond_to_prepend, mode=None):
+        """
+        prepends a subdiamond structure to an existing diamond structure, while 
+        allowing to change the mode of the subdiamond
+        
+        @type subdiamond_to_prepend: C{Diamond}
+        
+        @type mode: C{str} or C{NoneType}
+        @param mode: the mode that the subdiamond shall have. this will 
+        also be used to determine the subdiamonds identifier. if the 
+        diamond already has two subdiamonds (e.g. "00__AGENS" and 
+        "01__PATIENS") and we'll prepend a third subdiamond with mode 
+        "TEMP", its identifier will be "00__TEMP", while the remaining two 
+        subdiamond identifiers will will be incremented by 1, e.g. 
+        "01__AGENS" and "02__PATIENS".
+        """
+        if mode: #change mode only if not None
+            subdiamond.update({Feature("mode"): mode})
+
+        # a featstruct is essentially a dictionary, so we'll need to sort it!
+        existing_subdiamonds = sorted([(dkey,d) for (dkey,d) in self.items() 
+                                            if isinstance(d, Diamond)], 
+                                      key=itemgetter(0))
+        
+        prefixless_subdiamonds = []
+        for diamond_key, diamond in existing_subdiamonds:
+            prefixless_subdiamonds.append(diamond)
+            self.pop(diamond_key)
+            
+        self.append_subdiamond(subdiamond_to_prepend)
+        for diamond in existing_subdiamonds:
+            self.append_subdiamond(diamond)
 
 
 def create_diamond(mode, nom, prop, nested_diamonds_list):
@@ -615,26 +649,28 @@ def remove_nom_prefixes(diamond):
 def last_diamond_index(featstruct):
     """
     Returns the highest index currently used withing a given C{Diamond} or 
-    C{Sentence}. E.g., if this structure contains three diamonds ("01__ART", 
-    "02__NUM" and "03__TEMP"), the return value will be 3
+    C{Sentence}. E.g., if this structure contains three diamonds 
+    ("00__ART", "01__NUM" and "02__TEMP"), the return value will be 2. The 
+    return value is -1, if the feature structure doesn't contain any 
+    C{Diamond}s.
     
     @type featstruct: C{Diamond} or C{Sentence}
     @rtype: C{int}
     """
-    int_prefix = re.compile("(\d+)__")
-    diamond_keys = featstruct.keys()
-    matching_keys = []
-    for key in diamond_keys:
-        if isinstance(key, (str, unicode) ):
-            match = int_prefix.match(key)
-            if match:
-                matching_keys.append(match.groups()[0])
+    #~ int_prefix = re.compile("(\d+)__")
+    diamond_keys = [k for (k,v) in featstruct.items() if isinstance(v, Diamond)]
+    return len(diamond_keys) - 1
 
-    if matching_keys:
-        return int( sorted(matching_keys)[-1] ) # highest index in use
-    else:
-        raise Exception, \
-        "Featstruct does not have any identifier prefixes, e.g. '01__ART'."
+    #~ matching_keys = []
+    #~ for key in diamond_keys:
+        #~ match = int_prefix.match(key)
+        #~ if match:
+            #~ matching_keys.append(match.groups()[0])
+#~ 
+    #~ if matching_keys:
+        #~ return int( sorted(matching_keys)[-1] ) # highest index in use
+    #~ else:
+        #~ return -1 #Featstruct does not have any diamonds in it, yet
 
 
 def etreeprint(element, debug=True, raw=False):
