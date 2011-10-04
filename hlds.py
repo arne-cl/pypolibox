@@ -244,7 +244,7 @@ class Diamond(FeatDict):
             self.pop(diamond_key)
             
         self.append_subdiamond(subdiamond_to_prepend)
-        for diamond in existing_subdiamonds:
+        for diamond in prefixless_subdiamonds:
             self.append_subdiamond(diamond)
 
 

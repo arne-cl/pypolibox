@@ -288,7 +288,7 @@ def lexicalize_titles(book_titles, authors=None, realize="complete",
             title_diamond.append_subdiamond(authors_diamond, mode="ASS")
         else: # authors_realize == "preposition": das Buch von Chomsky
             preposition_diamond = gen_prep("von", "zugehörigkeit")
-            authors_diamond.append_subdiamond(preposition_diamond)
+            authors_diamond.prepend_subdiamond(preposition_diamond)
             title_diamond.append_subdiamond(authors_diamond, mode="ATTRIB")
 
     return title_diamond
