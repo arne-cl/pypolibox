@@ -200,10 +200,12 @@ class Diamond(FeatDict):
         allowing to change the mode of the subdiamond
         
         @type mode: C{str} or C{NoneType}
-        @param mode: the mode that the subdiamond shall have. this will also be 
-        used to determine the subdiamonds identifier. if the diamond already 
-        has two subdiamonds (e.g. "00__AGENS" and "01__PATIENS") and add a 
-        third subdiamond with mode "TEMP", its identifier will be "02__TEMP".
+        @param mode: the mode that the subdiamond shall have. this will 
+        also be used to determine the subdiamonds identifier. if the 
+        diamond already has two subdiamonds (e.g. "00__AGENS" and 
+        "01__PATIENS") and add a third subdiamond with mode "TEMP", its 
+        identifier will be "02__TEMP". if mode is None, the subdiamonds 
+        mode will be left untouched.
         """
         index = last_diamond_index(self) + 1
         
@@ -228,7 +230,8 @@ class Diamond(FeatDict):
         "01__PATIENS") and we'll prepend a third subdiamond with mode 
         "TEMP", its identifier will be "00__TEMP", while the remaining two 
         subdiamond identifiers will will be incremented by 1, e.g. 
-        "01__AGENS" and "02__PATIENS".
+        "01__AGENS" and "02__PATIENS". if mode is None, the subdiamonds 
+        mode will be left untouched.
         """
         if mode: #change mode only if not None
             subdiamond.update({Feature("mode"): mode})
@@ -244,6 +247,41 @@ class Diamond(FeatDict):
             self.pop(diamond_key)
             
         self.append_subdiamond(subdiamond_to_prepend)
+        for diamond in prefixless_subdiamonds:
+            self.append_subdiamond(diamond)
+
+    def insert_subdiamond(self, index, subdiamond_to_insert, mode=None):
+        """
+        insert a C{Diamond} into this one before the index, while 
+        allowing to change the mode of the subdiamond.
+        
+        @type index: C{int}
+        @type subdiamond_to_insert: C{Diamond}
+
+        @type mode: C{str} or C{NoneType}
+        @param mode: the mode that the subdiamond shall have. this will 
+        also be used to determine the subdiamonds identifier. if the 
+        diamond already has two subdiamonds (e.g. "00__AGENS" and 
+        "01__PATIENS") and we'll insert a third subdiamond at index '1' 
+        with mode "TEMP", its identifier will be "01__TEMP", while the 
+        remaining two subdiamond identifiers will will be changed 
+        accordingly, e.g. "00__AGENS" and "02__PATIENS".
+        if mode is None, the subdiamonds mode will be left untouched.
+        """
+        if mode: #change mode only if not None
+            subdiamond.update({Feature("mode"): mode})
+
+        # a featstruct is essentially a dictionary, so we'll need to sort it!
+        existing_subdiamonds = sorted([(dkey,d) for (dkey,d) in self.items() 
+                                            if isinstance(d, Diamond)], 
+                                      key=itemgetter(0))
+        
+        prefixless_subdiamonds = []
+        for diamond_key, diamond in existing_subdiamonds:
+            prefixless_subdiamonds.append(diamond)
+            self.pop(diamond_key)
+            
+        prefixless_subdiamonds.insert(index, subdiamond_to_insert)
         for diamond in prefixless_subdiamonds:
             self.append_subdiamond(diamond)
 
