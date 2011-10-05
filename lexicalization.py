@@ -578,7 +578,8 @@ def lexicalize_pages(pages, lexicalized_title, lexeme="länge"):
                               [tempus, title, prkompl])
 
 
-def lexicalize_examples(examples, plang, lexicalized_title, lexeme="enthält"):
+def lexicalize_examples(examples, lexicalized_title, lexicalized_plang=None,
+                        lexeme="enthalten"):
     """
     ___ enthält Code-Beispiele in den Programmiersprachen A und B.
     
@@ -586,33 +587,72 @@ def lexicalize_examples(examples, plang, lexicalized_title, lexeme="enthält"):
     """
     if isinstance(examples, int):
         examples = str(examples)
-    
-    if examples == '0':
-        pass
-    elif examples == '1':
-        if plang:
-            programming_languages = list(sql_array_to_set(plang))
-        else: #no programming language specified --> pseudo-code?
-            pass
-
-
-def lexicalize_plang(plang, lexicalized_title=None, lexicalized_authors=None):
-    """
-    das Buch verwendet die Programmiersprache(n) X (und Y)
-    der Autor/ die Autoren verwenden die Programmiersprache(n) X (und Y)
-    """
-    assert lexicalized_title or lexicalized_authors, \
-        "requires either a lexicalized title or a lexicalized set of authors"
-
+        
     temp = gen_tempus("präs")
-    if lexicalized_title:
-        agens = lexicalized_title
-    elif lexicalized_authors:
-        agens = lexicalized_authors
-    
+    agens = lexicalized_title
     agens.change_mode("AGENS")
-    patiens = __gen_plang(plang, mode="PATIENS")
-    return create_diamond("", "handlung", "verwenden", [temp, agens, patiens])
+    
+    example_num = gen_num("plur")
+    
+    if lexeme == "enthalten":
+        if lexicalized_plang: #enthält Code-Bsp. in der Prog.sprache X
+            attrib = lexicalized_plang
+            preposition = gen_prep("in", "zusammenhang")
+            attrib.insert_subdiamond(1, preposition)
+            attrib.change_mode("ATTRIB")
+            
+            patiens = create_diamond("PATIENS", "abstraktum", "Code-Beispiel", 
+                                     [example_num, attrib])
+            return create_diamond("", "durativ", lexeme, 
+                                  [temp, agens, patiens])                                
+        else: #enthält keine Code-Beispiele
+            art = gen_art("quantkein")
+            patiens = create_diamond("PATIENS", "abstraktum", "Code-Beispiel", 
+                                     [example_num, art])
+            return create_diamond("", "durativ", lexeme, 
+                                  [temp, agens, patiens])
+
+    elif lexeme == "beinhalten":
+        pass
+    elif lexeme == "verwenden":
+        pass
+    elif lexeme == "vorstellen":
+        pass
+
+
+
+def lexicalize_plang(plang, lexicalized_title=None, lexicalized_authors=None,
+                     realize="embedded"):
+    """
+    @type plang: C{str}
+    @param plang: an 'sql string array' containing one or more programming 
+    languages, e.g. '[Python]' or '[Lisp][Ruby][C++]'.
+    
+    @type realize: C{str}
+    @param realize: "embedded" or "complete".
+    if "embedded", the function will just generate a noun phrase, e.g. "die 
+    Programmiersprache Perl". if "complete", it will generate a sentence, 
+    e.g. "das Buch verwendet die Programmiersprache(n) X (und Y)" or "der 
+    Autor/ die Autoren verwenden die Programmiersprache(n) X (und Y)".
+    """
+    assert lexicalized_title or lexicalized_authors or realize == "embedded", \
+        "requires either a lexicalized title, a lexicalized set of authors or"\
+        "realize parameter == 'embedded'"
+    if realize == "embedded":
+        return __gen_plang(plang, mode="N")
+        #just realize a noun prase, e.g. "die Prog.sprachen A und B"
+
+    elif realize == "complete":
+        temp = gen_tempus("präs")
+        if lexicalized_title:
+            agens = lexicalized_title
+        elif lexicalized_authors:
+            agens = lexicalized_authors
+        
+        agens.change_mode("AGENS")
+        patiens = __gen_plang(plang, mode="PATIENS")
+        return create_diamond("", "handlung", "verwenden", 
+                              [temp, agens, patiens])
 
 
 def __gen_plang(plang, mode=""):
