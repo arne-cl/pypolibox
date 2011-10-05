@@ -61,11 +61,15 @@ def realize(sentence, results="all"):
                                                  realizer)
     
         elif isinstance(sentence, Diamond):
-            sentence = diamond2sentence(sentence)
-            status, output = __realize_from_sentence_fs(sentence, realizer)
+            temp_sentence = deepcopy(sentence)
+            temp_sentence = diamond2sentence(temp_sentence)
+            status, output = __realize_from_sentence_fs(temp_sentence, 
+                                                        realizer)
             
         elif isinstance(sentence, Sentence):
-            status, output = __realize_from_sentence_fs(sentence, realizer)
+            temp_sentence = deepcopy(sentence)
+            status, output = __realize_from_sentence_fs(temp_sentence, 
+                                                        realizer)
             
         else:
             status = -1
@@ -520,9 +524,10 @@ def lexicalize_year(year, title, realize="complete"): #TODO: authors should be a
 
 
 
-def lexicalize_pages(pages, title, authors=None, title_realize="complete"):
+def lexicalize_pages(pages, lexicalized_title, lexeme="länge"):
     """
     ___ hat einen Umfang von 546 Seiten
+    ___ umfasst 546 Seiten
     ___ ist 546 Seiten lang
     
     @type pages: C{str} OR C{int}
@@ -534,23 +539,111 @@ def lexicalize_pages(pages, title, authors=None, title_realize="complete"):
     """
     if isinstance(pages, int):
         pages = str(pages)
-        
-    attrib_num = gen_num("plur")
-    preposition = gen_prep("von", "zugehörigkeit")
-    mod = gen_mod("600", "kardinal")
-    attrib = create_diamond("ATTRIB", "artefaktum", "Seite", 
-                            [attrib_num, preposition, mod])
-
-    patiens_num = gen_num("sing")
-    art = gen_art("indef")
-    patiens = create_diamond("PATIENS", "abstraktum", "Umfang", 
-                             [patiens_num, art, attrib])
     
     tempus = gen_tempus("präs")
-    agens = lexicalize_titles([title], authors, title_realize)
-    agens[Feature("mode")] = "AGENS"
-    return create_diamond("","durativ","haben",[tempus, agens, patiens])
+    title = lexicalized_title
+    title.change_mode("AGENS")
+    
+    pages_num = gen_num("plur")
+    pages_mod = gen_mod(pages, "kardinal")
+    pages_nom = "artefaktum"
+    pages_prop = "Seite"
+    
+    if lexeme == "umfang": 
+        preposition = gen_prep("von", u"zugehörigkeit")
+        attrib = create_diamond("ATTRIB", pages_nom, pages_prop, 
+                                [pages_num, preposition, pages_mod])
+    
+        patiens_num = gen_num("sing")
+        art = gen_art("indef")
+        patiens = create_diamond("PATIENS", "abstraktum", "Umfang", 
+                                 [patiens_num, art, attrib])
+        
+        return create_diamond("","durativ","haben", [tempus, title, patiens])
+    
+    elif lexeme == "umfassen":
+        patiens = create_diamond("PATIENS", pages_nom, pages_prop, 
+                                 [pages_num, pages_mod])
+        return create_diamond("", "handlung", "umfassen",
+                              [tempus, title, patiens])
 
+    elif lexeme == "länge":
+        title.change_mode("SUBJ")
+        komp_mod = create_diamond("MOD", "eigenschaft", "lang", 
+                                  [gen_komp("pos")])
+        prkompl = create_diamond("PRKOMPL", pages_nom, pages_prop, 
+                                 [pages_num, pages_mod, komp_mod])
+        return create_diamond("", u"prädikation", "sein-kop", 
+                              [tempus, title, prkompl])
+
+
+def lexicalize_examples(examples, plang, lexicalized_title, lexeme="enthält"):
+    """
+    ___ enthält Code-Beispiele in den Programmiersprachen A und B.
+    
+    @type examples: C{int} or C{str}
+    """
+    if isinstance(examples, int):
+        examples = str(examples)
+    
+    if examples == '0':
+        pass
+    elif examples == '1':
+        if plang:
+            programming_languages = list(sql_array_to_set(plang))
+        else: #no programming language specified --> pseudo-code?
+            pass
+
+
+def lexicalize_plang(plang, lexicalized_title=None, lexicalized_authors=None):
+    """
+    das Buch verwendet die Programmiersprache(n) X (und Y)
+    der Autor/ die Autoren verwenden die Programmiersprache(n) X (und Y)
+    """
+    assert lexicalized_title or lexicalized_authors, \
+        "requires either a lexicalized title or a lexicalized set of authors"
+
+    temp = gen_tempus("präs")
+    if lexicalized_title:
+        agens = lexicalized_title
+    elif lexicalized_authors:
+        agens = lexicalized_authors
+    
+    agens.change_mode("AGENS")
+    patiens = __gen_plang(plang, mode="PATIENS")
+    return create_diamond("", "handlung", "verwenden", [temp, agens, patiens])
+
+
+def __gen_plang(plang, mode=""):
+    """
+    generates a C{Diamond} representing programming languages, e.g. 'die Programmiersprache X' or 'die Programmiersprachen X und Y'.
+    
+    @type plang: C{str}
+    @param plang: an 'sql string array' containing one or more programming 
+    languages, e.g. '[Python]' or '[Lisp][Ruby][C++]'.
+    
+    @type mode: C{str}
+    @param mode: sets the mode attribute of the resulting C{Diamond}
+    
+    @rtype: C{Diamond}
+    """
+    assert plang, "at least one programming language should be defined"
+    proglangs = list(sql_array_to_set(plang))
+    num_of_proglangs = len(proglangs)
+
+    proglang_diamonds = []
+    for proglang in proglangs:
+        proglang_diamonds.append(create_diamond("N", "sorte", proglang, 
+                                 [gen_num("sing")]))
+    
+    proglang_enum = __gen_enumeration(proglang_diamonds, mode="N")
+    proglang_enum.change_mode("NOMERG")
+    num = gen_num(num_of_proglangs)
+    art = gen_art("def")
+    
+    return create_diamond(mode, "art", "Programmiersprache", 
+                         [num, art, proglang_enum])
+    
 
 def __gen_enumeration(diamonds_list, mode=""):
     """
@@ -607,7 +700,6 @@ def __gen_komma_enumeration(diamonds_list, mode=""):
         nested_komma_enum = __gen_komma_enumeration(diamonds_list[:-1], mode)
         return create_diamond(mode, "konjunktion", "komma",
                               [nested_komma_enum, diamonds_list[-1]])
-
 
 
 def __split_name(name):
@@ -717,3 +809,9 @@ def gen_tempus(tense="präs"):
     """generates a C{Diamond} representing a tense form"""
     return create_diamond("TEMP:tempus", "", tense, [])
     
+def gen_komp(modality="komp"):
+    """
+    generates a C{Diamond} expressing adjective modality, i.e. positiv, komperativ or superlativ.
+    """
+    assert modality in ("pos", "komp", "super")
+    return create_diamond("KOMP", "", modality, [])
