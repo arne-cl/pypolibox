@@ -20,7 +20,8 @@ from nltk.featstruct import Feature
 from textplan import ConstituentSet, Message
 from hlds import (Diamond, Sentence, create_diamond, create_hlds_file, 
                   diamond2sentence, last_diamond_index, add_nom_prefixes, add_mode_suffix, remove_nom_prefixes)
-from util import ensure_unicode, write_to_file, sql_array_to_set #TODO: dbg, rm
+from util import (ensure_unicode, write_to_file, sql_array_to_set, 
+                  sql_array_to_list)
 from database import get_column #TODO: dbg, rm
 
 OPENCCG_BIN_PATH = "/home/guido/bin/openccg/bin"
@@ -628,18 +629,20 @@ def __gen_plang(plang, mode=""):
     @rtype: C{Diamond}
     """
     assert plang, "at least one programming language should be defined"
-    proglangs = list(sql_array_to_set(plang))
+    proglangs = sql_array_to_list(plang)
     num_of_proglangs = len(proglangs)
+
+    num = gen_num(num_of_proglangs)
+    art = gen_art("def")
 
     proglang_diamonds = []
     for proglang in proglangs:
         proglang_diamonds.append(create_diamond("N", "sorte", proglang, 
                                  [gen_num("sing")]))
-    
+
     proglang_enum = __gen_enumeration(proglang_diamonds, mode="N")
     proglang_enum.change_mode("NOMERG")
-    num = gen_num(num_of_proglangs)
-    art = gen_art("def")
+    add_mode_suffix(proglang_enum, mode="N")
     
     return create_diamond(mode, "art", "Programmiersprache", 
                          [num, art, proglang_enum])
