@@ -52,9 +52,9 @@ def sql_array_to_set(sql_array):
     more items delimited by '[' and ']', e.g. "[Noam Chomsky]" or "[Noam 
     Chomsky][Alan Touring]"
     
-    @rtype: C{list} of C{str}
+    @rtype: C{set} of C{str}
     
-    @return: a list of strings, where each string represents one item from 
+    @return: a set of strings, where each string represents one item from 
     the database, e.g. ["Noam Chomsky", "Alan Touring"]    
     """
     item = re.compile("\[(.*?)\]")
@@ -63,6 +63,27 @@ def sql_array_to_set(sql_array):
     for i in items:
         item_set.add(i)
     return item_set
+
+def sql_array_to_list(sql_array):
+    """ converts SQL string "arrays" into a list of strings
+    
+    Our book database uses '[' and ']' to handle attributes w/ more than one
+    value: e.g. authors = '[Noam Chomsky][Alan Touring]'. This function 
+    turns those multi-value strings into a set with separate values.
+
+    @type sql_array: C{str}    
+    @param sql_array: a string from the database that represents one or 
+    more items delimited by '[' and ']', e.g. "[Noam Chomsky]" or "[Noam 
+    Chomsky][Alan Touring]"
+    
+    @rtype: C{list} of C{str}
+    @return: a list of strings, where each string represents one item from 
+    the database, e.g. ["Noam Chomsky", "Alan Touring"]    
+    """
+    item = re.compile("\[(.*?)\]")
+    return item.findall(sql_array)
+
+
 
 def exists(thing, namespace):
     """checks if a variable/object/instance exists in the given namespace
