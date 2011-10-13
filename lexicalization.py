@@ -549,6 +549,9 @@ def lexicalize_pages(pages, lexicalized_title, lexeme="länge"):
     pages_mod = gen_mod(pages, "kardinal")
     pages_nom = "artefaktum"
     pages_prop = "Seite"
+
+    if lexeme == "random":
+        lexeme = random.choice(["umfang", "umfassen", "länge"])
     
     if lexeme == "umfang": 
         preposition = gen_prep("von", u"zugehörigkeit")
@@ -578,12 +581,57 @@ def lexicalize_pages(pages, lexicalized_title, lexeme="länge"):
                               [tempus, title, prkompl])
 
 
-def lexicalize_examples(examples, lexicalized_title, lexicalized_plang=None,
-                        lexeme="enthalten"):
+def lexicalize_authors_examples(examples, lexicalized_authors, 
+                                lexicalized_plang=None, lexeme="verwenden"):
     """
-    ___ enthält Code-Beispiele in den Programmiersprachen A und B.
+    'der Autor stellt Code-Beispiele in der Programmiersprache X vor'
+    'der Autor verwendet keine Code-Beispiele'
+    'die Autoren verwenden die Programmiersprache Y für ihre Code-Beispiele'
+    """
+    temp = gen_tempus("präs")
+    agens = lexicalized_authors
+    agens.change_mode("AGENS")
+
+    modifier = lexicalized_plang
+    preposition = gen_prep("in", "zusammenhang")
+    modifier.insert_subdiamond(1, preposition)
+    modifier.change_mode("ATTRIB")
+
+    if lexeme == "vorstellen" and lexicalized_plang:
+        patiens = create_diamond("PATIENS", "abstraktum", "Code-Beispiel",
+                                 [gen_num("plur"), modifier])
+        aux = create_diamond("AUX", "partverbstamm", "vor-stellen", 
+                             [temp, agens, patiens])
+        return create_diamond("", "infinitum", "vor-X-trans", [aux])
+
+    elif lexeme == "verwenden":
+        if lexicalized_plang:
+            num = gen_num("plur")
+            prep = gen_prep("für", "erhalt")
+            attrib = create_diamond("ATTRIB", "abstraktum", "Code-Beispiel", 
+                                    [num, prep, art])
+            patiens = lexicalized_plang
+            patiens.append_subdiamond(attrib, mode="ATTRIB")
+            return create_diamond("", "handlung", "verwenden", 
+                                  [temp, agens, patiens])
+            
+        else: #enthält keine Code-Beispiele
+            #~ modifier = gen_art("quantkein")
+            pass
+            
+
+def lexicalize_title_examples(examples, lexicalized_title, 
+                              lexicalized_plang=None, lexeme="enthalten"):
+    """
+    das Buch enthält Code-Beispiele in den Programmiersprachen A und B.
+    „On Syntax“ beinhaltet keine Code-Beispiele. 
     
     @type examples: C{int} or C{str}
+    @type lexicalized_title: C{Diamond}
+    @type lexicalized_plang: C{Diamond} or C{NoneType}
+    
+    @type lexeme: C{str}
+    @param lexeme: "beinhalten" or "enthalten".
     """
     if isinstance(examples, int):
         examples = str(examples)
@@ -591,33 +639,48 @@ def lexicalize_examples(examples, lexicalized_title, lexicalized_plang=None,
     temp = gen_tempus("präs")
     agens = lexicalized_title
     agens.change_mode("AGENS")
-    
-    example_num = gen_num("plur")
-    
-    if lexeme == "enthalten":
-        if lexicalized_plang: #enthält Code-Bsp. in der Prog.sprache X
-            attrib = lexicalized_plang
-            preposition = gen_prep("in", "zusammenhang")
-            attrib.insert_subdiamond(1, preposition)
-            attrib.change_mode("ATTRIB")
-            
-            patiens = create_diamond("PATIENS", "abstraktum", "Code-Beispiel", 
-                                     [example_num, attrib])
-            return create_diamond("", "durativ", lexeme, 
-                                  [temp, agens, patiens])                                
-        else: #enthält keine Code-Beispiele
-            art = gen_art("quantkein")
-            patiens = create_diamond("PATIENS", "abstraktum", "Code-Beispiel", 
-                                     [example_num, art])
-            return create_diamond("", "durativ", lexeme, 
-                                  [temp, agens, patiens])
 
-    elif lexeme == "beinhalten":
-        pass
-    elif lexeme == "verwenden":
-        pass
-    elif lexeme == "vorstellen":
-        pass
+    if lexicalized_plang: #enthält Code-Bsp. in der Prog.sprache X
+        modifier = lexicalized_plang
+        preposition = gen_prep("in", "zusammenhang")
+        modifier.insert_subdiamond(1, preposition)
+        modifier.change_mode("ATTRIB")
+    else: #enthält keine Code-Beispiele
+        modifier = gen_art("quantkein")
+            
+    patiens = create_diamond("PATIENS", "abstraktum", "Code-Beispiel",
+                             [gen_num("plur"), modifier])
+    return create_diamond("", "durativ", lexeme, [temp, agens, patiens])
+
+
+    
+    #~ if lexeme in ("beinhalten", "enthalten", "verwenden"):
+        #~ if lexicalized_plang: #enthält Code-Bsp. in der Prog.sprache X
+            #~ modifier = lexicalized_plang
+            #~ preposition = gen_prep("in", "zusammenhang")
+            #~ modifier.insert_subdiamond(1, preposition)
+            #~ modifier.change_mode("ATTRIB")
+        #~ else: #enthält keine Code-Beispiele
+            #~ modifier = gen_art("quantkein")
+            #~ 
+        #~ patiens = create_diamond(example_mode, example_nom, example_prop,
+                                 #~ [example_num, modifier])
+        #~ return create_diamond("", "durativ", lexeme, [temp, agens, patiens])
+#~ 
+    #~ elif lexeme == "vorstellen":
+        #~ if lexicalized_plang:
+            #~ modifier = lexicalized_plang
+            #~ preposition = gen_prep("in", "zusammenhang")
+            #~ modifier.insert_subdiamond(1, preposition)
+            #~ modifier.change_mode("ATTRIB")
+        #~ else: #enthält keine Code-Beispiele
+            #~ modifier = gen_art("quantkein")
+#~ 
+        #~ patiens = create_diamond(example_mode, example_nom, example_prop,
+                                 #~ [example_num, modifier])
+        #~ aux = create_diamond("AUX", "partverbstamm", "vor-stellen", 
+                             #~ [temp, agens, patiens])
+        #~ return create_diamond("", "infinitum", "vor-X-trans", [aux])
 
 
 
@@ -848,6 +911,10 @@ def gen_prep(preposition, preposition_type="zugehörigkeit"):
     """generates a C{Diamond} representing a preposition"""
     return create_diamond("PRÄP", preposition_type, preposition, [])
     
+def gen_pers(person):
+    """generates a C{Diamond} representing 1st, 2nd or 3rd person"""
+    return create_diamond("PERS", "", "{0}te".format(str(person)), [])
+
 def gen_tempus(tense="präs"):
     """generates a C{Diamond} representing a tense form"""
     return create_diamond("TEMP:tempus", "", tense, [])

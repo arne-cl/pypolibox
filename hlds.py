@@ -720,6 +720,40 @@ def last_diamond_index(featstruct):
         #~ return -1 #Featstruct does not have any diamonds in it, yet
 
 
+def featstruct2avm(featstruct):
+    """
+    converts an NLTK feature structure into a printable attribute-value matrix
+    that can be printed with LaTeX's avm environment.
+
+    @type featstruct: C{nltk.featstruct} or C{Diamond} or C{Sentence}
+    @rtype: C{str}
+    """
+    ret_str = "\[ "
+    for key, val in sorted(featstruct.items()):
+
+        if isinstance(val, Diamond): #recursive call
+            diamond_key = val[Feature("mode")].replace("*", "$*$")
+            diamond_val = featstruct2avm(val)
+            ret_str += "{0} & {1} \\\\\n".format( ensure_utf8(diamond_key),
+                                                  ensure_utf8(diamond_val))
+
+        else:
+            if key in (Feature("mode"), Feature("expected_parses")):
+                continue # don't print "mode" or "expected_parses" keys
+            elif key == Feature("root_nom"):
+                key = Feature("nom")
+            elif key == Feature("root_prop"):
+                key = Feature("prop")
+
+            if isinstance(key, Feature):
+                key = key.__str__().replace("*", "$*$")
+            ret_str += "{0} & `{1}' \\\\\n".format( ensure_utf8(key),
+                                                    ensure_utf8(val))
+
+    ret_str += " \]\n"
+    return ret_str
+
+
 def etreeprint(element, debug=True, raw=False):
     """pretty print function for etree trees or elements
     
@@ -751,6 +785,7 @@ if __name__ == "__main__":
             hlds_reader = HLDSReader(arg, input_format="file")
             for sentence in hlds_reader.sentences:
                 print sentence, "\n\n"
+                print featstruct2avm(sentence)
     else:
     # test functionality on a random testbed sentence
         fs_sents, xml_sents = test_conversion()

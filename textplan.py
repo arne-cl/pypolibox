@@ -91,7 +91,7 @@ class Messages:
     def generate_message(self, proposition_type):
         """
         generates a C{Message} from a 'simple' C{Proposition}. Simple 
-        propositions are those kind of propostions that only give information 
+        propositions are those kinds of propostions that only give information 
         about one item (i.e. describe one book) but don't compare two items 
         (e.g. book A is 12 years older than book B).
         """

@@ -134,7 +134,7 @@ class Facts():
 
         The key names should be self-exlanatory. In those cases where they do 
         not exactly match their counterparts in the database, the 
-        corresponding table column name is given in the table above.
+        corresponding database table column name is given in the table above.
 
         @param index: the index of the book in the C{Books} list of books
         @type index: C{int}
