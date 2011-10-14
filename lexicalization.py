@@ -517,7 +517,7 @@ def lexicalize_year(year, title, realize="complete"): #TODO: authors should be a
     """
     tempus = gen_tempus("imperf")
     adv = create_diamond("ADV", "modus", year, [])
-    agens = lexicalize_titles(title, realize)
+    agens = lexicalize_titles(title, realize=realize)
     agens[Feature("mode")] = "AGENS"
     
     aux = create_diamond("AUX", "sein", "sein", [tempus, adv, agens])

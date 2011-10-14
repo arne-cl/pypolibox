@@ -722,7 +722,7 @@ def last_diamond_index(featstruct):
 
 def featstruct2avm(featstruct):
     """
-    converts an NLTK feature structure into a printable attribute-value matrix
+    converts an NLTK feature structure into an attribute-value matrix
     that can be printed with LaTeX's avm environment.
 
     @type featstruct: C{nltk.featstruct} or C{Diamond} or C{Sentence}
