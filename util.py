@@ -6,8 +6,29 @@ needed to run pypolibox, but are not particularly interesting (e.g. format
 converters, existence checks etc.).
 """
 
+import os
 import re
 import cPickle as pickle
+import yaml
+
+def load_settings(path="."):
+    """
+    loads settings from a central configurations file (pypolibox.yml in YAML
+    format)
+
+    return: settings in YAML format
+    rtype: C{dict}
+    """
+    try:
+        config_file_path = os.path.join(path, "pypolibox.yml")
+        config_file = open(config_file_path, "r")
+        settings = yaml.load(config_file)
+        return settings
+    except IOError, ioerror_string:
+        config_yaml_error = "If you haven't created a config file yet, see " \
+                        "pypolibox.yml.example, edit it and save it as pypolibox.yml"
+        print "{0}: {1}".format(ioerror_string, config_yaml_error)
+
 
 def ensure_utf8(string):
     """

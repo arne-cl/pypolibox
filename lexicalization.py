@@ -21,12 +21,11 @@ from textplan import ConstituentSet, Message
 from hlds import (Diamond, Sentence, create_diamond, create_hlds_file, 
                   diamond2sentence, last_diamond_index, add_nom_prefixes, add_mode_suffix, remove_nom_prefixes)
 from util import (ensure_unicode, write_to_file, sql_array_to_set, 
-                  sql_array_to_list)
+                  sql_array_to_list, load_settings)
 from database import get_column #TODO: dbg, rm
 
-OPENCCG_BIN_PATH = "/home/guido/bin/openccg/bin"
-GRAMMAR_PATH = "openccg-jpolibox"
-        
+SETTINGS = load_settings()
+      
 
 def realize(sentence, results="all"):
     """
@@ -53,9 +52,9 @@ def realize(sentence, results="all"):
     current_dir = os.getcwd()
 
     try:
-        os.chdir(GRAMMAR_PATH)
+        os.chdir(SETTINGS["GRAMMAR_PATH"])
         grammar_abspath = os.getcwd()
-        realizer = os.path.join(OPENCCG_BIN_PATH, "ccg-realize")
+        realizer = os.path.join(SETTINGS["OPENCCG_BIN_PATH"], "ccg-realize")
     
         if isinstance(sentence, str): # sentence is a file path
             status, output = __realize_from_file(sentence, grammar_abspath, 
