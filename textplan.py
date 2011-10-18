@@ -309,7 +309,7 @@ class TextPlan(nltk.featstruct.FeatDict):
     """
     def __init__(self, book_score=None, dtype='TextPlan', text=None,
                  children=None):
-        self[nltk.featstruct.Feature('type',display='prefix')] = 'DPDocument'
+        self[nltk.featstruct.Feature('type',display='prefix')] = 'TextPlan'
         self['title'] = nltk.featstruct.FeatDict({'type': dtype, 'text':text, 
                                                   'book score': book_score})
         self['children'] = children

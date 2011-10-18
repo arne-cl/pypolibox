@@ -48,6 +48,7 @@ from collections import defaultdict
 from operator import itemgetter
 from lxml import etree
 from lxml.builder import ElementMaker
+import nltk
 from nltk.featstruct import Feature, FeatDict
 from util import ensure_utf8, ensure_unicode, write_to_file
 
@@ -720,7 +721,7 @@ def last_diamond_index(featstruct):
         #~ return -1 #Featstruct does not have any diamonds in it, yet
 
 
-def featstruct2avm(featstruct):
+def featstruct2avm(featstruct, mode="non-recursive"):
     """
     converts an NLTK feature structure into an attribute-value matrix
     that can be printed with LaTeX's avm environment.
@@ -731,13 +732,20 @@ def featstruct2avm(featstruct):
     ret_str = "\[ "
     for key, val in sorted(featstruct.items()):
 
-        if isinstance(val, Diamond): #recursive call
-            diamond_key = val[Feature("mode")].replace("*", "$*$")
-            diamond_val = featstruct2avm(val)
+        if isinstance(val, Diamond): #handles nested Diamond structures
+            diamond_key = val[Feature("mode")]
+            diamond_val = featstruct2avm(val, mode="recursive")
             ret_str += "{0} & {1} \\\\\n".format( ensure_utf8(diamond_key),
                                                   ensure_utf8(diamond_val))
 
-        else:
+        elif isinstance(val, nltk.FeatStruct):
+        #every other subclass of FeatStruct incl. FeatStruct
+            nested_featstruct = featstruct2avm(val, mode="recursive")
+            ret_str += "{0} & {1} \\\\\n".format( ensure_utf8(key),
+                                                  ensure_utf8(nested_featstruct))
+            
+            
+        else: # normal key, value pairs within a FeatStruct
             if key in (Feature("mode"), Feature("expected_parses")):
                 continue # don't print "mode" or "expected_parses" keys
             elif key == Feature("root_nom"):
@@ -745,12 +753,14 @@ def featstruct2avm(featstruct):
             elif key == Feature("root_prop"):
                 key = Feature("prop")
 
-            if isinstance(key, Feature):
-                key = key.__str__().replace("*", "$*$")
             ret_str += "{0} & `{1}' \\\\\n".format( ensure_utf8(key),
                                                     ensure_utf8(val))
 
     ret_str += " \]\n"
+
+    if mode == "non-recursive":
+        clean_ret_str = ret_str.replace("*", "$*$").replace("_", "\_")
+        ret_str = "{0}\n{1}{2}".format('\\begin{avm}', clean_ret_str, '\\end{avm}')
     return ret_str
 
 
