@@ -7,38 +7,35 @@ HLDS (Hybrid Logic Dependency Semantics) is the format internally used by the
 OpenCCG realizer. This module shall allow the conversion between HLDS-XML 
 files and NLTK feature structures.
 
-Sentences are represented as <item> structures in HLDS::
+Phrase specifications are represented as <satop> structures in HLDS::
         
-    <item numOfParses="4" string="er beschreibt sie">
-        <xml>
-            <lf>
-                <satop nom="b1:handlung">
-                    <prop name="beschreiben"/>
-                    <diamond mode="TEMP">
-                        <prop name="präs"/>
+    <xml>
+        <lf>
+            <satop nom="b1:handlung">
+                <prop name="beschreiben"/>
+                <diamond mode="TEMP">
+                    <prop name="präs"/>
+                </diamond>
+                <diamond mode="AGENS">
+                    <nom name="x1:sem-obj"/>
+                    <diamond mode="PRO">
+                        <prop name="perspro"/>
                     </diamond>
-                    <diamond mode="AGENS">
-                        <nom name="x1:sem-obj"/>
-                        <diamond mode="PRO">
-                            <prop name="perspro"/>
-                        </diamond>
-                        <diamond mode="GEN">
-                            <prop name="mask"/>
-                        </diamond>
-                        ...
+                    <diamond mode="GEN">
+                        <prop name="mask"/>
                     </diamond>
-                    <diamond mode="PATIENS">
-                        <nom name="x2:sem-obj"/>
-                        <diamond mode="PRO">
-                            <prop name="perspro"/>
-                        </diamond>
-                        ...
+                    ...
+                </diamond>
+                <diamond mode="PATIENS">
+                    <nom name="x2:sem-obj"/>
+                    <diamond mode="PRO">
+                        <prop name="perspro"/>
                     </diamond>
-                </satop>
-            </lf>
-            <!--<target>er beschreibt sie</target>-->
-        </xml>
-    </item>
+                    ...
+                </diamond>
+            </satop>
+        </lf>
+    </xml>
 """
 
 import sys
@@ -119,13 +116,15 @@ class HLDSReader():
             if target_element is not None:
                 sentence_string = target_element.text
             else:
-                sentence_string = "" #TODO: parse str from xml comment w/ iterparse
+                sentence_string = ""
             
             expected_parses = 1 
                 
         # <satop nom="b1:handlung">
         #   <prop name="beschreiben"/>
-        root_prop = satop.find("prop").attrib["name"]
+        root_prop = "" # some HLDS satop structures don't have a <prop> tag
+        if satop.find("prop"):
+            root_prop = satop.find("prop").attrib["name"]
         root_nom = satop.attrib["nom"]
         elements = []
         
@@ -376,6 +375,7 @@ def hlds2xml(featstruct):
                                          output="xml")
  
     return "Input:\n\n{0}\n\nOutput:\n\n{1}".format(input_str, output_str)
+
 
 def create_hlds_file(sent_or_sent_list, mode="test", output="etree"):
     """
@@ -705,20 +705,8 @@ def last_diamond_index(featstruct):
     @type featstruct: C{Diamond} or C{Sentence}
     @rtype: C{int}
     """
-    #~ int_prefix = re.compile("(\d+)__")
     diamond_keys = [k for (k,v) in featstruct.items() if isinstance(v, Diamond)]
     return len(diamond_keys) - 1
-
-    #~ matching_keys = []
-    #~ for key in diamond_keys:
-        #~ match = int_prefix.match(key)
-        #~ if match:
-            #~ matching_keys.append(match.groups()[0])
-#~ 
-    #~ if matching_keys:
-        #~ return int( sorted(matching_keys)[-1] ) # highest index in use
-    #~ else:
-        #~ return -1 #Featstruct does not have any diamonds in it, yet
 
 
 def featstruct2avm(featstruct, mode="non-recursive"):
