@@ -66,18 +66,25 @@ class TextPlans:
         for index, book in enumerate(allmessages.books):
             before = time()
             
-            messages = book.messages.values() # all messages about a single book
+            messages = book.messages.values() #all messages about a single book
             plan = generate_textplan(messages, rules, book.book_score)
             
             after = time()
             time_diff = after - before
             self.document_plans.append(plan)
-            print "Plan {0}: generated in {1} seconds.\n".format(index, time_diff, plan)
+            print "Plan {0}: generated in {1} seconds.\n".format(index,
+                                                                 time_diff,
+                                                                 plan)
+            book_title = book.messages['id']['title']
+            
             if index > 0:
                 lastbook = allmessages.books[index-1]
-                print "Comparing '{0}' with '{1}':\n\n{2}".format(book.messages['id']['title'], lastbook.messages['id']['title'], plan)
+                lastbook_title = lastbook.messages['id']['title']
+                print "Comparing '{0}' " \
+                      "with '{1}':\n\n{2}".format(book_title, lastbook_title,
+                                                  plan)
             else:
-                print "Describing '{0}':\n\n{1}".format(book.messages['id']['title'], plan)
+                print "Describing '{0}':\n\n{1}".format(book_title, plan)
 
 
 
@@ -148,7 +155,8 @@ def __bottom_up_search(messages, rules):
         try:
             options = [rule.get_options(messages) for rule in rules]
         except:
-            raise Exception('ERROR: Rule {0} had trouble with these messages: {1}'.format(rule, messages))
+            raise Exception('ERROR: Rule {0} had trouble with these ' \
+                            'messages: {1}'.format(rule, messages))
             print "ERROR" #TODO: remove after debugging
             
         options = flatten(options)

@@ -46,7 +46,7 @@ def lexicalize_titles(book_titles, authors=None, realize="complete",
         realized_titles = []
         for title in book_titles:
             realized_titles.append(gen_title(title))
-        titles_enum = __gen_enumeration(realized_titles, mode="NP")
+        titles_enum = gen_enumeration(realized_titles, mode="NP")
         add_mode_suffix(titles_enum, mode="NP")
         title_diamond = titles_enum
 
@@ -102,19 +102,19 @@ def lexicalize_authors(authors, realize="abstract"):
 
     if realize == "abstract":
         num_of_authors = len(authors)
-        authors_diamond = __gen_abstract_autor(num_of_authors)
+        authors_diamond = gen_abstract_autor(num_of_authors)
 
     elif realize == "lastnames":
         lastnames = []
         for author in authors:
-            lastnames.append(__gen_lastname_only(author))
-        authors_diamond = __gen_enumeration(lastnames, mode="NP")
+            lastnames.append(gen_lastname_only(author))
+        authors_diamond = gen_enumeration(lastnames, mode="NP")
         
     elif realize == "complete":
         complete_names = []
         for author in authors:
-            complete_names.append(__gen_complete_name(author))
-        authors_diamond = __gen_enumeration(complete_names, mode="NP")
+            complete_names.append(gen_complete_name(author))
+        authors_diamond = gen_enumeration(complete_names, mode="NP")
 
     add_mode_suffix(authors_diamond, mode="NP")
     add_mode_suffix(authors_diamond, mode="N")
@@ -138,9 +138,9 @@ def lexicalize_keywords(keywords, lexicalized_title=None,
     num_of_keywords = len(keywords)
     
     if realize == "abstract":
-        patiens = __gen_abstract_keywords(num_of_keywords)
+        patiens = gen_abstract_keywords(num_of_keywords)
     elif realize == "complete":
-        patiens = __gen_keywords(keywords, mode="N")
+        patiens = gen_keywords(keywords, mode="N")
 
     patiens.change_mode("PATIENS")
     
@@ -360,7 +360,7 @@ def lexicalize_plang(plang, lexicalized_title=None, lexicalized_authors=None,
         "requires either a lexicalized title, a lexicalized set of authors or"\
         "realize parameter == 'embedded'"
     if realize == "embedded":
-        return __gen_plang(plang, mode="N")
+        return gen_plang(plang, mode="N")
         #just realize a noun prase, e.g. "die Prog.sprachen A und B"
 
     elif realize == "complete":
@@ -371,14 +371,14 @@ def lexicalize_plang(plang, lexicalized_title=None, lexicalized_authors=None,
             agens = lexicalized_authors
         
         agens.change_mode("AGENS")
-        patiens = __gen_plang(plang, mode="PATIENS")
+        patiens = gen_plang(plang, mode="PATIENS")
         return create_diamond("", "handlung", "verwenden", 
                               [temp, agens, patiens])
 
 
     
 
-def __gen_enumeration(diamonds_list, mode=""):
+def gen_enumeration(diamonds_list, mode=""):
     """
     Takes a list of Diamond instances and combines them into a nested Diamond.
     This nested Diamond can be used to generate an enumeration, such as::
@@ -402,14 +402,14 @@ def __gen_enumeration(diamonds_list, mode=""):
     if len(diamonds_list) is 2:
         return create_diamond(mode, "konjunktion", "und", diamonds_list)
     if len(diamonds_list) > 2:
-        nested_komma_enum = __gen_komma_enumeration(diamonds_list[:-1], mode)
+        nested_komma_enum = gen_komma_enumeration(diamonds_list[:-1], mode)
         return create_diamond(mode, "konjunktion", "und", 
                               [nested_komma_enum, diamonds_list[-1]])
 
 
-def __gen_komma_enumeration(diamonds_list, mode=""):
+def gen_komma_enumeration(diamonds_list, mode=""):
     """
-    This function will be called by __gen_enumeration() and takes a list of
+    This function will be called by gen_enumeration() and takes a list of
     Diamond instances and combines them into a nested Diamond, expressing comma
     separated items, e.g.:
 
@@ -430,7 +430,7 @@ def __gen_komma_enumeration(diamonds_list, mode=""):
     if len(diamonds_list) == 2:
         return create_diamond(mode, "konjunktion", "komma", diamonds_list)
     if len(diamonds_list) > 2:
-        nested_komma_enum = __gen_komma_enumeration(diamonds_list[:-1], mode)
+        nested_komma_enum = gen_komma_enumeration(diamonds_list[:-1], mode)
         return create_diamond(mode, "konjunktion", "komma",
                               [nested_komma_enum, diamonds_list[-1]])
 
@@ -451,7 +451,7 @@ def __split_name(name):
     return given_names, last_name
 
 
-def __create_nested_given_names(given_names):
+def gen_nested_given_names(given_names):
     """
     given names are represented as nested (diamond) structures in HLDS
     (instead of using indices to specify the first given name, second given
@@ -465,7 +465,7 @@ def __create_nested_given_names(given_names):
     """
     if given_names:
         preceding_names, last_given_name = given_names[:-1], given_names[-1]
-        nested_diamond = __create_nested_given_names(preceding_names)
+        nested_diamond = gen_nested_given_names(preceding_names)
 
         if type(nested_diamond) is list:
             return create_diamond("N1", "vorname", last_given_name, 
@@ -590,7 +590,7 @@ def gen_abstract_title(number_of_books):
     art = gen_art("def")
     return create_diamond("", "artefaktum", "Buch", [num, art])
 
-def __gen_abstract_autor(num_of_authors):
+def gen_abstract_autor(num_of_authors):
     """
     given an integer (number of authors), returns a Diamond instance which
     generates "der Autor" or "die Autoren".
@@ -607,7 +607,7 @@ def __gen_abstract_autor(num_of_authors):
 
 
 
-def __gen_lastname_only(name):
+def gen_lastname_only(name):
     """
     given an authors name ("Christopher D. Manning"), the function returns a
     Diamond instance which can be used to realize the author's last name.
@@ -622,7 +622,7 @@ def __gen_lastname_only(name):
     return create_diamond("NP", "nachname", lastname_str, [])
 
 
-def __gen_complete_name(name):
+def gen_complete_name(name):
     """
     takes a name as a string and returns a corresponding nested HLDS diamond
     structure.
@@ -632,21 +632,21 @@ def __gen_complete_name(name):
     """
     given_names, lastname_str = __split_name(name)
     if given_names:
-        given_names_diamond = __create_nested_given_names(given_names)
+        given_names_diamond = gen_nested_given_names(given_names)
         return create_diamond("NP", "nachname", lastname_str, 
                               [given_names_diamond])
     else: #if name string does not contain ' ', i.e. only last name is given
         return create_diamond("NP", "nachname", lastname_str, [])
 
 
-def __gen_abstract_keywords(num_of_keywords):
+def gen_abstract_keywords(num_of_keywords):
     """generates a Diamond for 'das Thema' vs. 'die Themen' """
     num = gen_num(num_of_keywords)
     art = gen_art("def")
     return create_diamond("", "art", "Thema", [num, art])
 
 
-def __gen_keywords(keywords, mode="N"):
+def gen_keywords(keywords, mode="N"):
     """
     takes a list of keyword (strings) and converts them into a nested
     C{Diamond} structure and prepends "das Thema" or "die Themen"
@@ -657,7 +657,7 @@ def __gen_keywords(keywords, mode="N"):
     assert isinstance(keywords, list), "input needs to be a list"
 
     num_of_keywords = len(keywords)
-    keyword_description = __gen_abstract_keywords(num_of_keywords)
+    keyword_description = gen_abstract_keywords(num_of_keywords)
     
     def gen_keyword(keyword, mode):
         """takes a keyword (string) and converts it into a C{Diamond}"""
@@ -670,13 +670,13 @@ def __gen_keywords(keywords, mode="N"):
 
     elif isinstance(keywords, list) and len(keywords) > 1:
         keyword_diamonds = [gen_keyword(kw, mode) for kw in keywords]
-        result_diamond = __gen_enumeration(keyword_diamonds, mode)
+        result_diamond = gen_enumeration(keyword_diamonds, mode)
         
     keyword_description.append_subdiamond(result_diamond, mode="NOMERG")    
     add_mode_suffix(keyword_description, mode)
     return keyword_description
 
-def __gen_plang(plang, mode=""):
+def gen_plang(plang, mode=""):
     """
     generates a C{Diamond} representing programming languages, e.g. 'die Programmiersprache X' or 'die Programmiersprachen X und Y'.
     
@@ -701,7 +701,7 @@ def __gen_plang(plang, mode=""):
         proglang_diamonds.append(create_diamond("N", "sorte", proglang, 
                                  [gen_num("sing")]))
 
-    proglang_enum = __gen_enumeration(proglang_diamonds, mode="N")
+    proglang_enum = gen_enumeration(proglang_diamonds, mode="N")
     proglang_enum.change_mode("NOMERG")
     add_mode_suffix(proglang_enum, mode="N")
     
