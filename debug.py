@@ -10,14 +10,15 @@ provides short cuts to generate frequently needed data.
 
 from lxml import etree
 from nltk.featstruct import Feature
+
 from database import Query, Results, Books, get_column
 from facts import AllFacts
 from propositions import AllPropositions
-from textplan import (ConstituentSet, TextPlan, TextPlans, Rules, AllMessages,
-                      Messages, Message, generate_textplan)
+from textplan import TextPlan, TextPlans, generate_textplan
+from messages import Message, Messages, AllMessages
+from rules import Rules, ConstituentSet
 from lexicalization import gen_title, lexicalize_authors
 from realization import realize
-
 import util
 import hlds
 
@@ -201,8 +202,8 @@ def msgtypes(messages):
     if isinstance(messages, Messages):
         for i, message in enumerate(messages.messages.values()):
             print i, __msgtype_print(message)    
-    elif isinstance(messages, list):
-    # if messages is a list of C{Message}/C{ConstituentSet} instances
+    elif isinstance(messages, (list, set)):
+    # if messages is a list/set of C{Message}/C{ConstituentSet} instances
         for i, message in enumerate(messages):
             print i, __msgtype_print(message)
     elif isinstance(messages, Message):

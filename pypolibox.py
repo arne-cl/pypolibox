@@ -16,8 +16,9 @@ import sys
 from database import Query, Results, Book, Books
 from facts import Facts, AllFacts
 from propositions import Propositions, AllPropositions
-from textplan import (TextPlan, TextPlans, Message, Messages, AllMessages, 
-                      ConstituentSet, Rule, Rules, generate_textplan)
+from textplan import TextPlan, TextPlans, generate_textplan
+from messages import Message, Messages, AllMessages
+from rules import ConstituentSet, Rule, Rules
 import debug
 
 

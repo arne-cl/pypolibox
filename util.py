@@ -4,6 +4,9 @@
 The C{util} module contains a number of 'bread and butter' functions that are 
 needed to run pypolibox, but are not particularly interesting (e.g. format 
 converters, existence checks etc.).
+
+There shouldn't be any code in this module that require loading other
+modules from pypolibox!
 """
 
 import os
@@ -132,3 +135,15 @@ def write_to_file(str_or_obj, file_path):
         pickle.dump(str_or_obj, f_obj)
     f_obj.close()
 
+
+def exists(thing, namespace):
+    """checks if a variable/object/instance exists in the given namespace
+    
+    @type thing: C{str}
+    @type namespace: C{dict}
+    @rtype: C{bool}
+    """
+    if namespace.has_key(thing):
+        return True
+    else:
+        return False
