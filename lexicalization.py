@@ -141,41 +141,6 @@ def lexicalize_titles(book_titles, authors=None, realize="complete",
     return title_diamond
             
             
-def gen_title(book_title):
-    """
-    Converts a book title (string) into its corresponding HLDS diamond
-    structure. Since book titles are hard coded into the grammar, the OpenCCG
-    output will differ somewhat, e.g.::
-
-        'Computational Linguistics' --> '„ Computational Linguistics “'
-
-    @type book_title: C{unicode}
-    @rtype: C{Diamond}
-    """
-    book_title = ensure_unicode(book_title)
-    book_title = book_title.replace(u" ", u"_")
-
-    opening_bracket = create_diamond('99', u'anf\xfchrung\xf6ffnen',
-                                     u'anf\xf6ffn', [])
-    closing_bracket = create_diamond('66', u'anf\xfchrungschlie\xdfen',
-                                     'anfschl', [])
-
-    return create_diamond('NP', 'buchtitel', book_title, 
-                          [opening_bracket, closing_bracket])
-    
-
-def gen_abstract_title(number_of_books):
-    """
-    given an integer representing a number of books returns a Diamond, which
-    can be realized as either "das Buch" or "die Bücher"
-
-    @type number_of_books: C{int}
-    @rtype: C{Diamond}
-    """
-    num = gen_num(number_of_books)
-    art = gen_art("def")
-    return create_diamond("", "artefaktum", "Buch", [num, art])
-
 
 def lexicalize_authors(authors, realize="abstract"):
     """
@@ -220,54 +185,6 @@ def lexicalize_authors(authors, realize="abstract"):
     add_mode_suffix(authors_diamond, mode="N")
     return authors_diamond
 
-
-def __gen_abstract_autor(num_of_authors):
-    """
-    given an integer (number of authors), returns a Diamond instance which
-    generates "der Autor" or "die Autoren".
-
-    @type num_of_authors: C{int}
-    @param num_of_authors: the number of authors of a book
-
-    @rtype: C{Diamond}
-    """
-    art = gen_art("def")
-    gen = gen_gender("mask")
-    num = gen_num(num_of_authors)
-    return create_diamond("", u"bel-phys-körper", "Autor", [art, gen, num])
-
-
-
-def __gen_lastname_only(name):
-    """
-    given an authors name ("Christopher D. Manning"), the function returns a
-    Diamond instance which can be used to realize the author's last name.
-
-    NOTE: This does not work with last names that include whitespace, e.g.
-    "du Bois" or "von Neumann".
-
-    @type name: C{str}
-    @rtype: C{Diamond}
-    """
-    _, lastname_str = __split_name(name)
-    return create_diamond("NP", "nachname", lastname_str, [])
-
-
-def __gen_complete_name(name):
-    """
-    takes a name as a string and returns a corresponding nested HLDS diamond
-    structure.
-
-    @type name: C{str}
-    @rtype: C{Diamond}
-    """
-    given_names, lastname_str = __split_name(name)
-    if given_names:
-        given_names_diamond = __create_nested_given_names(given_names)
-        return create_diamond("NP", "nachname", lastname_str, 
-                              [given_names_diamond])
-    else: #if name string does not contain ' ', i.e. only last name is given
-        return create_diamond("NP", "nachname", lastname_str, [])
 
 
 def lexicalize_keywords(keywords, lexicalized_title=None, 
@@ -314,44 +231,7 @@ def lexicalize_keywords(keywords, lexicalized_title=None,
                              [temp, agens, patiens])
         return create_diamond("", "infinitum", "auf-X-trans", [aux])
 
-def __gen_abstract_keywords(num_of_keywords):
-    """generates a Diamond for 'das Thema' vs. 'die Themen' """
-    num = gen_num(num_of_keywords)
-    art = gen_art("def")
-    return create_diamond("", "art", "Thema", [num, art])
-
-
-def __gen_keywords(keywords, mode="N"):
-    """
-    takes a list of keyword (strings) and converts them into a nested
-    C{Diamond} structure and prepends "das Thema" or "die Themen"
-
-    @type keywords: C{list} of C{str}
-    @rtype: C{Diamond}
-    """
-    assert isinstance(keywords, list), "input needs to be a list"
-
-    num_of_keywords = len(keywords)
-    keyword_description = __gen_abstract_keywords(num_of_keywords)
     
-    def gen_keyword(keyword, mode):
-        """takes a keyword (string) and converts it into a C{Diamond}"""
-        fixed_keyword = keyword.replace(" ", "_")
-        num = gen_num("sing")
-        return create_diamond(mode, "sorte", fixed_keyword, [num])
-
-    if isinstance(keywords, list) and len(keywords) == 1:
-        result_diamond = gen_keyword(keywords[0], mode)
-
-    elif isinstance(keywords, list) and len(keywords) > 1:
-        keyword_diamonds = [gen_keyword(kw, mode) for kw in keywords]
-        result_diamond = __gen_enumeration(keyword_diamonds, mode)
-        
-    keyword_description.append_subdiamond(result_diamond, mode="NOMERG")    
-    add_mode_suffix(keyword_description, mode)
-    return keyword_description
-    
-
 
 #TODO: lexicalize_year(): authors should be args*
 def lexicalize_year(year, title, realize="complete"):
@@ -561,37 +441,6 @@ def lexicalize_plang(plang, lexicalized_title=None, lexicalized_authors=None,
                               [temp, agens, patiens])
 
 
-def __gen_plang(plang, mode=""):
-    """
-    generates a C{Diamond} representing programming languages, e.g. 'die Programmiersprache X' or 'die Programmiersprachen X und Y'.
-    
-    @type plang: C{str}
-    @param plang: an 'sql string array' containing one or more programming 
-    languages, e.g. '[Python]' or '[Lisp][Ruby][C++]'.
-    
-    @type mode: C{str}
-    @param mode: sets the mode attribute of the resulting C{Diamond}
-    
-    @rtype: C{Diamond}
-    """
-    assert plang, "at least one programming language should be defined"
-    proglangs = sql_array_to_list(plang)
-    num_of_proglangs = len(proglangs)
-
-    num = gen_num(num_of_proglangs)
-    art = gen_art("def")
-
-    proglang_diamonds = []
-    for proglang in proglangs:
-        proglang_diamonds.append(create_diamond("N", "sorte", proglang, 
-                                 [gen_num("sing")]))
-
-    proglang_enum = __gen_enumeration(proglang_diamonds, mode="N")
-    proglang_enum.change_mode("NOMERG")
-    add_mode_suffix(proglang_enum, mode="N")
-    
-    return create_diamond(mode, "art", "Programmiersprache", 
-                         [num, art, proglang_enum])
     
 
 def __gen_enumeration(diamonds_list, mode=""):
@@ -769,3 +618,157 @@ def gen_komp(modality="komp"):
     """
     assert modality in ("pos", "komp", "super")
     return create_diamond("KOMP", "", modality, [])
+
+
+def gen_title(book_title):
+    """
+    Converts a book title (string) into its corresponding HLDS diamond
+    structure. Since book titles are hard coded into the grammar, the OpenCCG
+    output will differ somewhat, e.g.::
+
+        'Computational Linguistics' --> '„ Computational Linguistics “'
+
+    @type book_title: C{unicode}
+    @rtype: C{Diamond}
+    """
+    book_title = ensure_unicode(book_title)
+    book_title = book_title.replace(u" ", u"_")
+
+    opening_bracket = create_diamond('99', u'anf\xfchrung\xf6ffnen',
+                                     u'anf\xf6ffn', [])
+    closing_bracket = create_diamond('66', u'anf\xfchrungschlie\xdfen',
+                                     'anfschl', [])
+
+    return create_diamond('NP', 'buchtitel', book_title, 
+                          [opening_bracket, closing_bracket])
+    
+
+def gen_abstract_title(number_of_books):
+    """
+    given an integer representing a number of books returns a Diamond, which
+    can be realized as either "das Buch" or "die Bücher"
+
+    @type number_of_books: C{int}
+    @rtype: C{Diamond}
+    """
+    num = gen_num(number_of_books)
+    art = gen_art("def")
+    return create_diamond("", "artefaktum", "Buch", [num, art])
+
+def __gen_abstract_autor(num_of_authors):
+    """
+    given an integer (number of authors), returns a Diamond instance which
+    generates "der Autor" or "die Autoren".
+
+    @type num_of_authors: C{int}
+    @param num_of_authors: the number of authors of a book
+
+    @rtype: C{Diamond}
+    """
+    art = gen_art("def")
+    gen = gen_gender("mask")
+    num = gen_num(num_of_authors)
+    return create_diamond("", u"bel-phys-körper", "Autor", [art, gen, num])
+
+
+
+def __gen_lastname_only(name):
+    """
+    given an authors name ("Christopher D. Manning"), the function returns a
+    Diamond instance which can be used to realize the author's last name.
+
+    NOTE: This does not work with last names that include whitespace, e.g.
+    "du Bois" or "von Neumann".
+
+    @type name: C{str}
+    @rtype: C{Diamond}
+    """
+    _, lastname_str = __split_name(name)
+    return create_diamond("NP", "nachname", lastname_str, [])
+
+
+def __gen_complete_name(name):
+    """
+    takes a name as a string and returns a corresponding nested HLDS diamond
+    structure.
+
+    @type name: C{str}
+    @rtype: C{Diamond}
+    """
+    given_names, lastname_str = __split_name(name)
+    if given_names:
+        given_names_diamond = __create_nested_given_names(given_names)
+        return create_diamond("NP", "nachname", lastname_str, 
+                              [given_names_diamond])
+    else: #if name string does not contain ' ', i.e. only last name is given
+        return create_diamond("NP", "nachname", lastname_str, [])
+
+
+def __gen_abstract_keywords(num_of_keywords):
+    """generates a Diamond for 'das Thema' vs. 'die Themen' """
+    num = gen_num(num_of_keywords)
+    art = gen_art("def")
+    return create_diamond("", "art", "Thema", [num, art])
+
+
+def __gen_keywords(keywords, mode="N"):
+    """
+    takes a list of keyword (strings) and converts them into a nested
+    C{Diamond} structure and prepends "das Thema" or "die Themen"
+
+    @type keywords: C{list} of C{str}
+    @rtype: C{Diamond}
+    """
+    assert isinstance(keywords, list), "input needs to be a list"
+
+    num_of_keywords = len(keywords)
+    keyword_description = __gen_abstract_keywords(num_of_keywords)
+    
+    def gen_keyword(keyword, mode):
+        """takes a keyword (string) and converts it into a C{Diamond}"""
+        fixed_keyword = keyword.replace(" ", "_")
+        num = gen_num("sing")
+        return create_diamond(mode, "sorte", fixed_keyword, [num])
+
+    if isinstance(keywords, list) and len(keywords) == 1:
+        result_diamond = gen_keyword(keywords[0], mode)
+
+    elif isinstance(keywords, list) and len(keywords) > 1:
+        keyword_diamonds = [gen_keyword(kw, mode) for kw in keywords]
+        result_diamond = __gen_enumeration(keyword_diamonds, mode)
+        
+    keyword_description.append_subdiamond(result_diamond, mode="NOMERG")    
+    add_mode_suffix(keyword_description, mode)
+    return keyword_description
+
+def __gen_plang(plang, mode=""):
+    """
+    generates a C{Diamond} representing programming languages, e.g. 'die Programmiersprache X' or 'die Programmiersprachen X und Y'.
+    
+    @type plang: C{str}
+    @param plang: an 'sql string array' containing one or more programming 
+    languages, e.g. '[Python]' or '[Lisp][Ruby][C++]'.
+    
+    @type mode: C{str}
+    @param mode: sets the mode attribute of the resulting C{Diamond}
+    
+    @rtype: C{Diamond}
+    """
+    assert plang, "at least one programming language should be defined"
+    proglangs = sql_array_to_list(plang)
+    num_of_proglangs = len(proglangs)
+
+    num = gen_num(num_of_proglangs)
+    art = gen_art("def")
+
+    proglang_diamonds = []
+    for proglang in proglangs:
+        proglang_diamonds.append(create_diamond("N", "sorte", proglang, 
+                                 [gen_num("sing")]))
+
+    proglang_enum = __gen_enumeration(proglang_diamonds, mode="N")
+    proglang_enum.change_mode("NOMERG")
+    add_mode_suffix(proglang_enum, mode="N")
+    
+    return create_diamond(mode, "art", "Programmiersprache", 
+                         [num, art, proglang_enum])
