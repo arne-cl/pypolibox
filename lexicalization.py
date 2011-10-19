@@ -52,18 +52,18 @@ def linearize_textplan(textplan): #TODO: add better explanation to docstring
 
     rest = rst_list[start+1:]
     # if rst_list contains only one element, this loop won't be executed at all
-    for i, featstruct in enumerate(rest):
-        if type(featstruct[Feature("satellite")]) is Message:
-            structure = ConstituentSet(relType=featstruct[Feature("relType")],
-                                       satellite=featstruct[Feature("satellite")])
+    for i, fstruct in enumerate(rest):
+        if type(fstruct[Feature("satellite")]) is Message:
+            structure = ConstituentSet(relType=fstruct[Feature("relType")],
+                                       satellite=fstruct[Feature("satellite")])
             linearized_structures.append(structure)
 
-        elif type(featstruct[Feature("satellite")]) is ConstituentSet:
+        elif type(fstruct[Feature("satellite")]) is ConstituentSet:
         # if the satellite is nested further
-            structure = ConstituentSet(relType=featstruct[Feature("relType")])
+            structure = ConstituentSet(relType=fstruct[Feature("relType")])
             linearized_structures.append(structure)
 
-            nested_structure = featstruct[Feature("satellite")]
+            nested_structure = fstruct[Feature("satellite")]
             linearized_structures.append(nested_structure)
     return linearized_structures
 
@@ -127,7 +127,7 @@ def lexicalize_titles(book_titles, authors=None, realize="complete",
             if len(authors) == 1:
                 authors_realize = random.choice(["possessive", "preposition"])
             else: # possessive form doesn't work w/ more than one author
-                authors_realize == "preposition"
+                authors_realize = "preposition"
             
         if authors_realize == "possessive": # Chomskys Buch
             assert len(authors) == 1, \
@@ -334,27 +334,27 @@ def __gen_keywords(keywords, mode="N"):
     num_of_keywords = len(keywords)
     keyword_description = __gen_abstract_keywords(num_of_keywords)
     
-    def gen_keyword(keyword, mode="N"):
+    def gen_keyword(keyword, mode):
         """takes a keyword (string) and converts it into a C{Diamond}"""
         fixed_keyword = keyword.replace(" ", "_")
         num = gen_num("sing")
         return create_diamond(mode, "sorte", fixed_keyword, [num])
 
     if isinstance(keywords, list) and len(keywords) == 1:
-        result_diamond = gen_keyword(keywords[0], mode="N")
+        result_diamond = gen_keyword(keywords[0], mode)
 
     elif isinstance(keywords, list) and len(keywords) > 1:
-        keyword_diamonds = [gen_keyword(kw, mode="N") for kw in keywords]
-        result_diamond = __gen_enumeration(keyword_diamonds, mode="N")
+        keyword_diamonds = [gen_keyword(kw, mode) for kw in keywords]
+        result_diamond = __gen_enumeration(keyword_diamonds, mode)
         
     keyword_description.append_subdiamond(result_diamond, mode="NOMERG")    
-    add_mode_suffix(keyword_description, mode="N")
+    add_mode_suffix(keyword_description, mode)
     return keyword_description
     
 
 
-
-def lexicalize_year(year, title, realize="complete"): #TODO: authors should be args*
+#TODO: lexicalize_year(): authors should be args*
+def lexicalize_year(year, title, realize="complete"):
     """___ ist 1986 erschienen.
     """
     tempus = gen_tempus("imperf")
@@ -764,7 +764,8 @@ def gen_tempus(tense="präs"):
     
 def gen_komp(modality="komp"):
     """
-    generates a C{Diamond} expressing adjective modality, i.e. positiv, komperativ or superlativ.
+    generates a C{Diamond} expressing adjective modality, i.e. 'positiv',
+    'komperativ' or 'superlativ'.
     """
     assert modality in ("pos", "komp", "super")
     return create_diamond("KOMP", "", modality, [])
