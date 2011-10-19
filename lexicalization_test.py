@@ -7,7 +7,10 @@ This module contains all functions that are necessary to evaluate the
 lexicalization process.
 """
 
-from lexicalization import *
+from lexicalization import (lexicalize_authors, lexicalize_keywords,
+                            lexicalize_pages, lexicalize_titles)
+
+from realization import realize
 
 def test_keywords():
     """
@@ -120,26 +123,26 @@ def test_titles():
                                     authors_realize="preposition")))
 
 
-def test_pages():
-    """
-    realizes some instances of:
-    $title hat einen Umfang von $pages Seiten
-    """
-    print "realize one book title abstractly with its number of pages:"
-    printeach(realize(lexicalize_pages("193", 
-                                       "random book title", 
-                                       title_realize="abstract")))
-
-    print "\n\n", "realize one book title abstractly (pronoun) " \
-          "with its number of pages:"
-    printeach(realize(lexicalize_pages("193", 
-                                       "random book title", 
-                                       title_realize="pronoun")))
-                                       
-    print "\n\n", "realize one book title concretely with its number of pages:"
-    printeach(realize(lexicalize_pages("193", 
-                                 "Computational Linguistics. An Introduction.", 
-                                       title_realize="complete")))
+#~ def test_pages():
+    #~ """
+    #~ realizes some instances of:
+    #~ $title hat einen Umfang von $pages Seiten
+    #~ """
+    #~ print "realize one book title abstractly with its number of pages:"
+    #~ printeach(realize(lexicalize_pages("193", 
+                                       #~ "random book title", 
+                                       #~ title_realize="abstract")))
+#~ 
+    #~ print "\n\n", "realize one book title abstractly (pronoun) " \
+          #~ "with its number of pages:"
+    #~ printeach(realize(lexicalize_pages("193", 
+                                       #~ "random book title", 
+                                       #~ title_realize="pronoun")))
+                                       #~ 
+    #~ print "\n\n", "realize one book title concretely with its number of pages:"
+    #~ printeach(realize(lexicalize_pages("193", 
+                                 #~ "Computational Linguistics. An Introduction.", 
+                                       #~ title_realize="complete")))
     
     
     
