@@ -11,6 +11,7 @@ import re
 import cPickle as pickle
 import yaml
 
+
 def load_settings(path="."):
     """
     loads settings from a central configurations file (pypolibox.yml in YAML
@@ -26,7 +27,7 @@ def load_settings(path="."):
         return settings
     except IOError, ioerror_string:
         config_yaml_error = "If you haven't created a config file yet, see " \
-                        "pypolibox.yml.example, edit it and save it as pypolibox.yml"
+            "pypolibox.yml.example, edit it and save it as pypolibox.yml"
         print "{0}: {1}".format(ioerror_string, config_yaml_error)
 
 
@@ -106,19 +107,8 @@ def sql_array_to_list(sql_array):
 
 
 
-def exists(thing, namespace):
-    """checks if a variable/object/instance exists in the given namespace
-    
-    @type thing: C{str}
-    @type namespace: C{dict}
-    @rtype: C{bool}
-    """
-    if namespace.has_key(thing):
-        return True
-    else:
-        return False
-
 def msgs_instance_to_list_of_msgs(messages_instance):
+    """converts a C{Messages} instance into a list of C{Message} instances"""
     return [message for message in messages_instance.messages.values()]
     
 def freeze_all_messages(message_list):
@@ -135,10 +125,10 @@ def write_to_file(str_or_obj, file_path):
     takes a string and writes it to a file or takes any other object, pickles 
     it and writes it to a file
     """
-    f = open(file_path, "w")
+    f_obj = open(file_path, "w")
     if type(str_or_obj) is str:
-        f.write(str_or_obj)
+        f_obj.write(str_or_obj)
     else:
-        pickle.dump(str_or_obj, f)
-    f.close()
-    
+        pickle.dump(str_or_obj, f_obj)
+    f_obj.close()
+

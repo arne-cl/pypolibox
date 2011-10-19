@@ -3,8 +3,8 @@
 # Author: Arne Neumann <arne-neumann@web.de>
 
 """
-This module shall take HLDS XML structures, realize them with the OpenCCG
-surface realizer and parse its output.
+The C{realization} module shall take HLDS XML structures, realize them with
+the OpenCCG surface realizer and parse its output.
 """
 
 import os

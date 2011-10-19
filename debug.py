@@ -15,7 +15,8 @@ from facts import AllFacts
 from propositions import AllPropositions
 from textplan import (ConstituentSet, TextPlan, TextPlans, Rules, AllMessages,
                       Messages, Message, generate_textplan)
-from lexicalization import gen_title, realize, lexicalize_authors
+from lexicalization import gen_title, lexicalize_authors
+from realization import realize
 
 import util
 import hlds
