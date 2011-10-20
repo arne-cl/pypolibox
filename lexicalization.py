@@ -7,6 +7,7 @@ This module shall convert C{TextPlan}s into HLDS XML structures which can
 be utilized by the OpenCCG surface realizer to produce natural language text.
 """
 
+import re
 import random
 from nltk.featstruct import Feature
 from textplan import ConstituentSet, Message, linearize_textplan
@@ -301,15 +302,16 @@ def lexicalize_plang(plang, lexicalized_title=None, lexicalized_authors=None,
         return create_diamond("", "handlung", "verwenden", 
                               [temp, agens, patiens])
 
-
-def lexicalize_titles(book_titles, authors=None, realize="complete", 
-                      authors_realize="random"):
+#... #TODO: how many authors does a lexicalized_authors diamond describe?
+def lexicalize_titles(book_titles, lexicalized_authors=None,
+                      realize="complete", authors_realize="random"):
     """
     @type book_title: C{list} of C{str}
     @param book_title: list of book title strings
     
-    @type authors: C{list} of C{str} OR C{NoneType}
-    @param authors: an I{optional} list of author names
+    @type lexicalized_authors: C{Diamond} OR C{NoneType}
+    @param authors: an I{optional} C{Diamond} containing a lexicalized
+    authors message
     
     @type realize: C{str}
     @param realize: "abstract", "complete", "pronoun" or "authors+title" 
@@ -337,28 +339,33 @@ def lexicalize_titles(book_titles, authors=None, realize="complete",
         add_mode_suffix(titles_enum, mode="NP")
         title_diamond = titles_enum
 
-    if authors: 
-        assert isinstance(authors, list), \
-            "authors+title mode needs a non-empty list of authors as input"
-        assert num_of_titles == 1, \
-            "authors+title mode can only realize one book title"
-
-        authors_diamond = lexicalize_authors(authors, realize="complete")
+    if lexicalized_authors: 
+        #~ assert __sing_or_plur(lexicalized_authors) == "sing", \
+            #~ "authors+title mode can only realize one book title"
 
         if authors_realize == "random":
-            if len(authors) == 1:
+            if __sing_or_plur(lexicalized_authors) == "sing":
                 authors_realize = random.choice(["possessive", "preposition"])
             else: # possessive form doesn't work w/ more than one author
                 authors_realize = "preposition"
             
         if authors_realize == "possessive": # Chomskys Buch
-            assert len(authors) == 1, \
+            assert __sing_or_plur(lexicalized_authors) == "sing", \
                 "can't realize possesive form with more than one author"
-            title_diamond.append_subdiamond(authors_diamond, mode="ASS")
+            title_diamond.append_subdiamond(lexicalized_authors, mode="ASS")
+
+            article = re.compile("\d+__ART")
+            # remove ARTicle from title: Chomskys das Buch --> Chomskys Buch
+            for key in title_diamond.keys():
+                if isinstance(key, str) and article.match(key):
+                    article_key = article.match(key).group()
+                    title_diamond.pop(article_key)
+
+            
         else: # authors_realize == "preposition": das Buch von Chomsky
             preposition_diamond = gen_prep("von", "zugehörigkeit")
-            authors_diamond.prepend_subdiamond(preposition_diamond)
-            title_diamond.append_subdiamond(authors_diamond, mode="ATTRIB")
+            lexicalized_authors.prepend_subdiamond(preposition_diamond)
+            title_diamond.append_subdiamond(lexicalized_authors, mode="ATTRIB")
 
     return title_diamond
             
@@ -712,3 +719,21 @@ def gen_plang(plang, mode=""):
     
     return create_diamond(mode, "art", "Programmiersprache", 
                          [num, art, proglang_enum])
+
+
+def __sing_or_plur(lexicalized_authors):
+    """
+    does is lexicalized authors diamond describe one or more authors?
+    
+    @type lexicalized_authors: C{Diamond}
+    
+    @rtype: C{str}
+    @return: "sing" or "plur"
+    """
+    if lexicalized_authors["prop"] == "und": # if realized as "lastnames"
+                                             # or "complete" 
+        return "plur"
+    elif "02__NUM" in lexicalized_authors: # if realized as "abstract"
+        return lexicalized_authors["02__NUM"]["prop"]
+    else:
+        return "sing"
