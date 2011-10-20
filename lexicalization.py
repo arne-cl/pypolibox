@@ -15,68 +15,6 @@ from util import ensure_unicode, sql_array_to_list
 from realization import realize as realizer #TODO: dbg, mv to main
 
 
-def lexicalize_titles(book_titles, authors=None, realize="complete", 
-                      authors_realize="random"):
-    """
-    @type book_title: C{list} of C{str}
-    @param book_title: list of book title strings
-    
-    @type authors: C{list} of C{str} OR C{NoneType}
-    @param authors: an I{optional} list of author names
-    
-    @type realize: C{str}
-    @param realize: "abstract", "complete", "pronoun" or "authors+title" 
-    - "abstract" realizes 'das Buch' / 'die Bücher'
-    - "pronoun" realizes 'es' / 'sie'
-    - "complete" realizes book titles in the format specified in the 
-      OpenCC grammar, e.g. „ Computational Linguistics. An Introduction “
-    """
-    assert isinstance(book_titles, list), "needs a list of titles as input"
-    assert realize in ("abstract", "complete", "pronoun", "random")
-    num_of_titles = len(book_titles)
-    
-    if realize == "random":
-        realize = random.choice(["abstract", "complete", "pronoun"])
-        
-    if realize == "abstract":
-        title_diamond = gen_abstract_title(num_of_titles)
-    elif realize == "pronoun":
-        title_diamond = gen_personal_pronoun(num_of_titles, "neut", 3)
-    else: # realize == "complete"
-        realized_titles = []
-        for title in book_titles:
-            realized_titles.append(gen_title(title))
-        titles_enum = gen_enumeration(realized_titles, mode="NP")
-        add_mode_suffix(titles_enum, mode="NP")
-        title_diamond = titles_enum
-
-    if authors: 
-        assert isinstance(authors, list), \
-            "authors+title mode needs a non-empty list of authors as input"
-        assert num_of_titles == 1, \
-            "authors+title mode can only realize one book title"
-
-        authors_diamond = lexicalize_authors(authors, realize="complete")
-
-        if authors_realize == "random":
-            if len(authors) == 1:
-                authors_realize = random.choice(["possessive", "preposition"])
-            else: # possessive form doesn't work w/ more than one author
-                authors_realize = "preposition"
-            
-        if authors_realize == "possessive": # Chomskys Buch
-            assert len(authors) == 1, \
-                "can't realize possesive form with more than one author"
-            title_diamond.append_subdiamond(authors_diamond, mode="ASS")
-        else: # authors_realize == "preposition": das Buch von Chomsky
-            preposition_diamond = gen_prep("von", "zugehörigkeit")
-            authors_diamond.prepend_subdiamond(preposition_diamond)
-            title_diamond.append_subdiamond(authors_diamond, mode="ATTRIB")
-
-    return title_diamond
-            
-            
-
 def lexicalize_authors(authors, realize="abstract"):
     """
     converts a list of authors into several possible HLDS diamond
@@ -120,122 +58,6 @@ def lexicalize_authors(authors, realize="abstract"):
     add_mode_suffix(authors_diamond, mode="N")
     return authors_diamond
 
-
-
-def lexicalize_keywords(keywords, lexicalized_title=None, 
-                        lexicalized_authors = None, realize="abstract", 
-                        lexeme="behandeln"):
-    """
-    @type keywords: C{frozenset} of C{str}
-
-    @type realize: C{str}
-    @param realize: "abstract", "complete". 
-    "abstract" realizes 'das Thema' / 'die Themen'. 
-    "complete" realizes an enumeration of those keywords.
-    """
-    assert realize in ("abstract", "complete"), \
-        "choose 1 of these keyword realizations: abstract, complete"
-    num_of_keywords = len(keywords)
-    
-    if realize == "abstract":
-        patiens = gen_abstract_keywords(num_of_keywords)
-    elif realize == "complete":
-        patiens = gen_keywords(keywords, mode="N")
-
-    patiens.change_mode("PATIENS")
-    
-    if lexicalized_title and isinstance(lexicalized_title, Diamond):
-        agens = lexicalized_title
-    elif lexicalized_authors and isinstance(lexicalized_authors, Diamond):
-        agens = lexicalized_authors
-    
-    agens.change_mode("AGENS")
-    temp = gen_tempus("präs")
-    
-    if lexeme in ("behandeln", "beschreiben"):
-        return create_diamond("", "handlung", lexeme, 
-                              [temp, agens, patiens])
-    elif lexeme == "eingehen":
-        preposition = gen_prep("auf", "zusammenhang")
-        patiens.insert_subdiamond(1, preposition)
-        aux = create_diamond("AUX", "partverbstamm", "ein-gehen", 
-                             [temp, agens, patiens])
-        return create_diamond("", "infinitum", "ein-X-trans", [aux])
-    elif lexeme == "aufgreifen":
-        aux = create_diamond("AUX", "partverbstamm", "auf-greifen", 
-                             [temp, agens, patiens])
-        return create_diamond("", "infinitum", "auf-X-trans", [aux])
-
-    
-
-#TODO: lexicalize_year(): authors should be args*
-def lexicalize_year(year, title, realize="complete"):
-    """___ ist 1986 erschienen.
-    """
-    tempus = gen_tempus("imperf")
-    adv = create_diamond("ADV", "modus", year, [])
-    agens = lexicalize_titles(title, realize=realize)
-    agens[Feature("mode")] = "AGENS"
-    
-    aux = create_diamond("AUX", "sein", "sein", [tempus, adv, agens])
-    return create_diamond("", "inchoativ", "erscheinen", [aux])
-
-
-
-def lexicalize_pages(pages, lexicalized_title, lexeme="länge"):
-    """
-    ___ hat einen Umfang von 546 Seiten
-    ___ umfasst 546 Seiten
-    ___ ist 546 Seiten lang
-    
-    @type pages: C{str} OR C{int}
-    @type title: C{str}
-    @type authors: C{list} of C{str} OR C{NoneType}
-    
-    @type title_realize: C{str}
-    @param title_realize: "abstract", "pronoun" or "complete".
-    """
-    if isinstance(pages, int):
-        pages = str(pages)
-    
-    tempus = gen_tempus("präs")
-    title = lexicalized_title
-    title.change_mode("AGENS")
-    
-    pages_num = gen_num("plur")
-    pages_mod = gen_mod(pages, "kardinal")
-    pages_nom = "artefaktum"
-    pages_prop = "Seite"
-
-    if lexeme == "random":
-        lexeme = random.choice(["umfang", "umfassen", "länge"])
-    
-    if lexeme == "umfang": 
-        preposition = gen_prep("von", u"zugehörigkeit")
-        attrib = create_diamond("ATTRIB", pages_nom, pages_prop, 
-                                [pages_num, preposition, pages_mod])
-    
-        patiens_num = gen_num("sing")
-        art = gen_art("indef")
-        patiens = create_diamond("PATIENS", "abstraktum", "Umfang", 
-                                 [patiens_num, art, attrib])
-        
-        return create_diamond("", "durativ", "haben", [tempus, title, patiens])
-    
-    elif lexeme == "umfassen":
-        patiens = create_diamond("PATIENS", pages_nom, pages_prop, 
-                                 [pages_num, pages_mod])
-        return create_diamond("", "handlung", "umfassen",
-                              [tempus, title, patiens])
-
-    elif lexeme == "länge":
-        title.change_mode("SUBJ")
-        komp_mod = create_diamond("MOD", "eigenschaft", "lang", 
-                                  [gen_komp("pos")])
-        prkompl = create_diamond("PRKOMPL", pages_nom, pages_prop, 
-                                 [pages_num, pages_mod, komp_mod])
-        return create_diamond("", u"prädikation", "sein-kop", 
-                              [tempus, title, prkompl])
 
 
 #TODO: finish writing function lexicalize_authors_examples
@@ -342,6 +164,110 @@ def lexicalize_title_examples(examples, lexicalized_title,
 
 
 
+def lexicalize_keywords(keywords, lexicalized_title=None, 
+                        lexicalized_authors = None, realize="abstract", 
+                        lexeme="behandeln"):
+    """
+    @type keywords: C{frozenset} of C{str}
+
+    @type realize: C{str}
+    @param realize: "abstract", "complete". 
+    "abstract" realizes 'das Thema' / 'die Themen'. 
+    "complete" realizes an enumeration of those keywords.
+    """
+    assert realize in ("abstract", "complete"), \
+        "choose 1 of these keyword realizations: abstract, complete"
+    num_of_keywords = len(keywords)
+    
+    if realize == "abstract":
+        patiens = gen_abstract_keywords(num_of_keywords)
+    elif realize == "complete":
+        patiens = gen_keywords(keywords, mode="N")
+
+    patiens.change_mode("PATIENS")
+    
+    if lexicalized_title and isinstance(lexicalized_title, Diamond):
+        agens = lexicalized_title
+    elif lexicalized_authors and isinstance(lexicalized_authors, Diamond):
+        agens = lexicalized_authors
+    
+    agens.change_mode("AGENS")
+    temp = gen_tempus("präs")
+    
+    if lexeme in ("behandeln", "beschreiben"):
+        return create_diamond("", "handlung", lexeme, 
+                              [temp, agens, patiens])
+    elif lexeme == "eingehen":
+        preposition = gen_prep("auf", "zusammenhang")
+        patiens.insert_subdiamond(1, preposition)
+        aux = create_diamond("AUX", "partverbstamm", "ein-gehen", 
+                             [temp, agens, patiens])
+        return create_diamond("", "infinitum", "ein-X-trans", [aux])
+    elif lexeme == "aufgreifen":
+        aux = create_diamond("AUX", "partverbstamm", "auf-greifen", 
+                             [temp, agens, patiens])
+        return create_diamond("", "infinitum", "auf-X-trans", [aux])
+
+
+def lexicalize_pages(pages, lexicalized_title, lexeme="länge"):
+    """
+    ___ hat einen Umfang von 546 Seiten
+    ___ umfasst 546 Seiten
+    ___ ist 546 Seiten lang
+    
+    @type pages: C{str} OR C{int}
+    @type title: C{str}
+    @type authors: C{list} of C{str} OR C{NoneType}
+    
+    @type title_realize: C{str}
+    @param title_realize: "abstract", "pronoun" or "complete".
+    """
+    if isinstance(pages, int):
+        pages = str(pages)
+    
+    tempus = gen_tempus("präs")
+    title = lexicalized_title
+    title.change_mode("AGENS")
+    
+    pages_num = gen_num("plur")
+    pages_mod = gen_mod(pages, "kardinal")
+    pages_nom = "artefaktum"
+    pages_prop = "Seite"
+
+    if lexeme == "random":
+        lexeme = random.choice(["umfang", "umfassen", "länge"])
+    
+    if lexeme == "umfang": 
+        preposition = gen_prep("von", u"zugehörigkeit")
+        attrib = create_diamond("ATTRIB", pages_nom, pages_prop, 
+                                [pages_num, preposition, pages_mod])
+    
+        patiens_num = gen_num("sing")
+        art = gen_art("indef")
+        patiens = create_diamond("PATIENS", "abstraktum", "Umfang", 
+                                 [patiens_num, art, attrib])
+        
+        return create_diamond("", "durativ", "haben", [tempus, title, patiens])
+    
+    elif lexeme == "umfassen":
+        patiens = create_diamond("PATIENS", pages_nom, pages_prop, 
+                                 [pages_num, pages_mod])
+        return create_diamond("", "handlung", "umfassen",
+                              [tempus, title, patiens])
+
+    elif lexeme == "länge":
+        title.change_mode("SUBJ")
+        komp_mod = create_diamond("MOD", "eigenschaft", "lang", 
+                                  [gen_komp("pos")])
+        prkompl = create_diamond("PRKOMPL", pages_nom, pages_prop, 
+                                 [pages_num, pages_mod, komp_mod])
+        return create_diamond("", u"prädikation", "sein-kop", 
+                              [tempus, title, prkompl])
+
+
+
+
+
 def lexicalize_plang(plang, lexicalized_title=None, lexicalized_authors=None,
                      realize="embedded"):
     """
@@ -374,6 +300,83 @@ def lexicalize_plang(plang, lexicalized_title=None, lexicalized_authors=None,
         patiens = gen_plang(plang, mode="PATIENS")
         return create_diamond("", "handlung", "verwenden", 
                               [temp, agens, patiens])
+
+
+def lexicalize_titles(book_titles, authors=None, realize="complete", 
+                      authors_realize="random"):
+    """
+    @type book_title: C{list} of C{str}
+    @param book_title: list of book title strings
+    
+    @type authors: C{list} of C{str} OR C{NoneType}
+    @param authors: an I{optional} list of author names
+    
+    @type realize: C{str}
+    @param realize: "abstract", "complete", "pronoun" or "authors+title" 
+    - "abstract" realizes 'das Buch' / 'die Bücher'
+    - "pronoun" realizes 'es' / 'sie'
+    - "complete" realizes book titles in the format specified in the 
+      OpenCC grammar, e.g. „ Computational Linguistics. An Introduction “
+    """
+    assert isinstance(book_titles, list), "needs a list of titles as input"
+    assert realize in ("abstract", "complete", "pronoun", "random")
+    num_of_titles = len(book_titles)
+    
+    if realize == "random":
+        realize = random.choice(["abstract", "complete", "pronoun"])
+        
+    if realize == "abstract":
+        title_diamond = gen_abstract_title(num_of_titles)
+    elif realize == "pronoun":
+        title_diamond = gen_personal_pronoun(num_of_titles, "neut", 3)
+    else: # realize == "complete"
+        realized_titles = []
+        for title in book_titles:
+            realized_titles.append(gen_title(title))
+        titles_enum = gen_enumeration(realized_titles, mode="NP")
+        add_mode_suffix(titles_enum, mode="NP")
+        title_diamond = titles_enum
+
+    if authors: 
+        assert isinstance(authors, list), \
+            "authors+title mode needs a non-empty list of authors as input"
+        assert num_of_titles == 1, \
+            "authors+title mode can only realize one book title"
+
+        authors_diamond = lexicalize_authors(authors, realize="complete")
+
+        if authors_realize == "random":
+            if len(authors) == 1:
+                authors_realize = random.choice(["possessive", "preposition"])
+            else: # possessive form doesn't work w/ more than one author
+                authors_realize = "preposition"
+            
+        if authors_realize == "possessive": # Chomskys Buch
+            assert len(authors) == 1, \
+                "can't realize possesive form with more than one author"
+            title_diamond.append_subdiamond(authors_diamond, mode="ASS")
+        else: # authors_realize == "preposition": das Buch von Chomsky
+            preposition_diamond = gen_prep("von", "zugehörigkeit")
+            authors_diamond.prepend_subdiamond(preposition_diamond)
+            title_diamond.append_subdiamond(authors_diamond, mode="ATTRIB")
+
+    return title_diamond
+            
+
+#TODO: lexicalize_year(): authors should be args*
+def lexicalize_year(year, title, realize="complete"):
+    """___ ist 1986 erschienen.
+    """
+    tempus = gen_tempus("imperf")
+    adv = create_diamond("ADV", "modus", year, [])
+    agens = lexicalize_titles(title, realize=realize)
+    agens[Feature("mode")] = "AGENS"
+    
+    aux = create_diamond("AUX", "sein", "sein", [tempus, adv, agens])
+    return create_diamond("", "inchoativ", "erscheinen", [aux])
+
+
+
 
 
     
