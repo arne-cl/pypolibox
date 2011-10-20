@@ -123,7 +123,7 @@ class HLDSReader():
         # <satop nom="b1:handlung">
         #   <prop name="beschreiben"/>
         root_prop = "" # some HLDS satop structures don't have a <prop> tag
-        if satop.find("prop"):
+        if satop.find("prop") is not None:
             root_prop = satop.find("prop").attrib["name"]
         root_nom = satop.attrib["nom"]
         elements = []

@@ -363,13 +363,15 @@ def lexicalize_titles(book_titles, authors=None, realize="complete",
     return title_diamond
             
 
-#TODO: lexicalize_year(): authors should be args*
-def lexicalize_year(year, title, realize="complete"):
-    """___ ist 1986 erschienen.
+
+def lexicalize_year(year, lexicalized_title):
+    """___ ist/sind 1986 erschienen.
+
+    @type year: C{int} or C{str}
     """
     tempus = gen_tempus("imperf")
-    adv = create_diamond("ADV", "modus", year, [])
-    agens = lexicalize_titles(title, realize=realize)
+    adv = create_diamond("ADV", "modus", str(year), [])
+    agens = lexicalized_title
     agens[Feature("mode")] = "AGENS"
     
     aux = create_diamond("AUX", "sein", "sein", [tempus, adv, agens])
