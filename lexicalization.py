@@ -34,6 +34,22 @@ def lexicalize_authors(authors, realize="abstract"):
     @rtype: C{Diamond}
     @return: a Diamond instance, which generates "der Autor"/"die Autoren", 
     the authors last names or the complete names of the authors.
+
+    realize one author abstractly:
+    >>> realizer(lexicalize_authors(['author1'], realize='abstract'))
+    ['dem Autoren', 'den Autoren', 'der Autor', 'des Autors']
+
+    realize two authors abstractly:
+    >>> realizer(lexicalize_authors(['author1', 'author2'], realize='abstract'))
+    ['den Autoren', 'der Autoren', 'die Autoren']
+
+    realize two authors, only using their lastnames:
+    >>> realizer(lexicalize_authors(['Christopher D. Manning', 'Detlef Peter Zaun'], realize='lastnames'))
+    ['Manning und Zaun', 'Mannings und Zauns']
+
+    realize two authors using their full names:
+    >>> realizer(lexicalize_authors(['Christopher D. Manning', 'Detlef Peter Zaun'], realize='complete'))
+    ['Christopher D. Manning und Detlef Peter Zaun', 'Christopher D. Mannings und Detlef Peter Zauns']
     """
     assert isinstance(authors, list), "needs a list of name strings as input"
     assert realize in ("abstract", "lastnames", "complete"), \
@@ -101,6 +117,7 @@ def lexicalize_authors_examples(examples, lexicalized_authors,
             pass
             
 
+#TODO: merge lexicalize_author_examples and lex_title_examples
 def lexicalize_title_examples(examples, lexicalized_title, 
                               lexicalized_plang=None, lexeme="enthalten"):
     """
@@ -168,13 +185,49 @@ def lexicalize_title_examples(examples, lexicalized_title,
 def lexicalize_keywords(keywords, lexicalized_title=None, 
                         lexicalized_authors = None, realize="abstract", 
                         lexeme="behandeln"):
-    """
+    r"""
     @type keywords: C{frozenset} of C{str}
 
     @type realize: C{str}
     @param realize: "abstract", "complete". 
     "abstract" realizes 'das Thema' / 'die Themen'. 
     "complete" realizes an enumeration of those keywords.
+
+    realize one keyword abstractly, using an abstract author and the lexeme
+    I{behandeln}:
+    
+    >>> author = lexicalize_authors(["author1"], realize="abstract")
+    >>> realizer(lexicalize_keywords(["keyword1"], lexicalized_authors=author, realize="abstract", lexeme="behandeln"))
+    ['behandelt der Autor das Thema', 'der Autor behandelt das Thema', 'der Autor das Thema behandelt']
+
+    realize one keyword concretely, using two concrete authors and the lexeme
+    I{beschreiben}:
+    
+    >>> authors = lexicalize_authors(["John E. Hopcroft","Jeffrey D. Ullman"], realize="complete")
+    >>> realizer(lexicalize_keywords(["parsing", "formal languages"], lexicalized_authors=authors, realize="complete", lexeme="beschreiben"))
+    ['John E. Hopcroft und Jeffrey D. Ullman beschreiben die Themen parsing und formal_languages', 'John E. Hopcroft und Jeffrey D. Ullman die Themen parsing und formal_languages beschreiben', 'beschreiben John E. Hopcroft und Jeffrey D. Ullman die Themen parsing und formal_languages']
+
+    realize 4 keywords, using 1 author's last name and the lexeme I{eingehen}:
+    
+    >>> author = lexicalize_authors(["Ralph Grishman"], realize="lastnames")
+    >>> realizer(lexicalize_keywords(["parsing","semantics","discourse","generation"], lexicalized_authors=author, realize="complete", lexeme="eingehen"))
+    ['Grishman geht auf den Themen parsing , semantics , discourse und generation ein', 'Grishman geht auf die Themen parsing , semantics , discourse und generation ein', 'geht Grishman auf den Themen parsing , semantics , discourse und generation ein', 'geht Grishman auf die Themen parsing , semantics , discourse und generation ein']
+
+    TODO: "___ geht auf den Themen ein" is not OK
+
+    realize 1 keyword, using an abstract book title and the lexeme
+    I{aufgreifen}:
+    
+    >>> title = lexicalize_titles(["book1"], realize="abstract")
+    >>> realizer(lexicalize_keywords(["regular expressions"], lexicalized_title=title, realize="complete", lexeme="aufgreifen"))
+    ['das Buch greift das Thema regular_expressions auf', 'greift das Buch das Thema regular_expressions auf']
+
+    realize 2 keywords, using a concrete book title and the lexeme
+    I{beschreiben}:
+    
+    >>> title = lexicalize_titles(["Grundlagen der Computerlinguistik"], realize="complete")
+    >>> realizer(lexicalize_keywords(["grammar", "corpora"], lexicalized_title=title, realize="complete", lexeme="beschreiben"))
+    ['beschreibt \xe2\x80\x9e Grundlagen_der_Computerlinguistik \xe2\x80\x9c die Themen grammar und corpora', '\xe2\x80\x9e Grundlagen_der_Computerlinguistik \xe2\x80\x9c beschreibt die Themen grammar und corpora', '\xe2\x80\x9e Grundlagen_der_Computerlinguistik \xe2\x80\x9c die Themen grammar und corpora beschreibt']
     """
     assert realize in ("abstract", "complete"), \
         "choose 1 of these keyword realizations: abstract, complete"
@@ -186,10 +239,13 @@ def lexicalize_keywords(keywords, lexicalized_title=None,
         patiens = gen_keywords(keywords, mode="N")
 
     patiens.change_mode("PATIENS")
+
+    assert lexicalized_authors or lexicalized_title, \
+        "keywords need a lexicalized title or author(s) to be realized"
     
-    if lexicalized_title and isinstance(lexicalized_title, Diamond):
+    if lexicalized_title:
         agens = lexicalized_title
-    elif lexicalized_authors and isinstance(lexicalized_authors, Diamond):
+    elif lexicalized_authors:
         agens = lexicalized_authors
     
     agens.change_mode("AGENS")
@@ -211,7 +267,7 @@ def lexicalize_keywords(keywords, lexicalized_title=None,
 
 
 def lexicalize_pages(pages, lexicalized_title, lexeme="länge"):
-    """
+    r"""
     ___ hat einen Umfang von 546 Seiten
     ___ umfasst 546 Seiten
     ___ ist 546 Seiten lang
@@ -219,9 +275,22 @@ def lexicalize_pages(pages, lexicalized_title, lexeme="länge"):
     @type pages: C{str} OR C{int}
     @type title: C{str}
     @type authors: C{list} of C{str} OR C{NoneType}
-    
-    @type title_realize: C{str}
-    @param title_realize: "abstract", "pronoun" or "complete".
+    @rtype: C{Diamond}
+
+    realize "$title hat einen Umfang von $pages Seiten":
+    >>> title = lexicalize_titles(["Natural Language Processing"], realize="complete")
+    >>> realizer(lexicalize_pages(600, lexicalized_title=title, lexeme="umfang"))
+    ['hat \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c einen Umfang von 600 Seiten', '\xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c einen Umfang von 600 Seiten hat', '\xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c hat einen Umfang von 600 Seiten']
+
+    realize "$abstracttitle umfasst $pages Seiten"
+    >>> title = lexicalize_titles(["title1"], realize="abstract")
+    >>> realizer(lexicalize_pages(600, lexicalized_title=title, lexeme="umfassen"))
+    ['das Buch 600 Seiten umfasst', 'das Buch umfasst 600 Seiten', 'umfasst das Buch 600 Seiten']
+
+    realize "$abstracttitle ist $pages Seiten lang"
+    >>> title = lexicalize_titles(["title1"], realize="abstract")
+    >>> realizer(lexicalize_pages(600, lexicalized_title=title, lexeme="länge"))
+    ['das Buch 600 Seiten lang ist', 'das Buch ist 600 Seiten lang', 'das Buch ist lange 600 Seiten', 'das Buch lange 600 Seiten ist', 'ist das Buch 600 Seiten lang', 'ist das Buch lange 600 Seiten']
     """
     if isinstance(pages, int):
         pages = str(pages)
@@ -267,11 +336,9 @@ def lexicalize_pages(pages, lexicalized_title, lexeme="länge"):
 
 
 
-
-
-def lexicalize_plang(plang, lexicalized_title=None, lexicalized_authors=None,
+def lexicalize_plang(plang, lexicalized_titles=None, lexicalized_authors=None,
                      realize="embedded"):
-    """
+    r"""
     @type plang: C{str}
     @param plang: an 'sql string array' containing one or more programming 
     languages, e.g. '[Python]' or '[Lisp][Ruby][C++]'.
@@ -282,18 +349,32 @@ def lexicalize_plang(plang, lexicalized_title=None, lexicalized_authors=None,
     Programmiersprache Perl". if "complete", it will generate a sentence, 
     e.g. "das Buch verwendet die Programmiersprache(n) X (und Y)" or "der 
     Autor/ die Autoren verwenden die Programmiersprache(n) X (und Y)".
+
+    realize "die Programmiersprachen A, B und C":
+    >>> realizer(lexicalize_plang("[Python][Lisp][C++]", realize="embedded"))
+    ['den Programmiersprachen Python , Lisp und C++', 'der Programmiersprachen Python , Lisp und C++', 'die Programmiersprachen Python , Lisp und C++']
+
+    realize two authors who use several programming languages:
+    >>> authors = lexicalize_authors(["Horst Lohnstein", "Ralf Klabunde"], realize="lastnames")
+    >>> realizer(lexicalize_plang("[Python][Lisp][C++]", lexicalized_authors=authors, realize="complete"))
+    ['Lohnstein und Klabunde die Programmiersprachen Python , Lisp und C++ verwenden', 'Lohnstein und Klabunde verwenden die Programmiersprachen Python , Lisp und C++', 'verwenden Lohnstein und Klabunde die Programmiersprachen Python , Lisp und C++']
+
+    realize a book title with several programming languages:
+    >>> title = lexicalize_titles(["Natural Language Processing"], realize="complete")
+    >>> realizer(lexicalize_plang("[Python][Lisp][C++]", lexicalized_titles=title, realize="complete"))
+    ['verwendet \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c die Programmiersprachen Python , Lisp und C++', '\xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c die Programmiersprachen Python , Lisp und C++ verwendet', '\xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c verwendet die Programmiersprachen Python , Lisp und C++']
     """
-    assert lexicalized_title or lexicalized_authors or realize == "embedded", \
+    assert lexicalized_titles or lexicalized_authors or realize == "embedded", \
         "requires either a lexicalized title, a lexicalized set of authors or"\
-        "realize parameter == 'embedded'"
+        " realize parameter == 'embedded'"
     if realize == "embedded":
         return gen_plang(plang, mode="N")
         #just realize a noun prase, e.g. "die Prog.sprachen A und B"
 
     elif realize == "complete":
         temp = gen_tempus("präs")
-        if lexicalized_title:
-            agens = lexicalized_title
+        if lexicalized_titles:
+            agens = lexicalized_titles
         elif lexicalized_authors:
             agens = lexicalized_authors
         
@@ -302,7 +383,8 @@ def lexicalize_plang(plang, lexicalized_title=None, lexicalized_authors=None,
         return create_diamond("", "handlung", "verwenden", 
                               [temp, agens, patiens])
 
-#... #TODO: how many authors does a lexicalized_authors diamond describe?
+
+
 def lexicalize_titles(book_titles, lexicalized_authors=None,
                       realize="complete", authors_realize="random"):
     """
@@ -319,6 +401,18 @@ def lexicalize_titles(book_titles, lexicalized_authors=None,
     - "pronoun" realizes 'es' / 'sie'
     - "complete" realizes book titles in the format specified in the 
       OpenCC grammar, e.g. „ Computational Linguistics. An Introduction “
+
+    realize one book title abstractly ("das Buch"):
+    
+    >>> realizer(lexicalize_titles(["foo book"], realize="abstract"))
+    ['das Buch', 'dem Buch', 'des Buches']
+
+    realize two book titles abstractly ("die Bücher"):
+    
+    >>> realizer(lexicalize_titles(["1st book", "2nd book"], realize="abstract"))
+    ['den B\xc3\xbcchern', 'der B\xc3\xbccher', 'die B\xc3\xbccher']
+
+    
     """
     assert isinstance(book_titles, list), "needs a list of titles as input"
     assert realize in ("abstract", "complete", "pronoun", "random")
@@ -737,3 +831,4 @@ def __sing_or_plur(lexicalized_authors):
         return lexicalized_authors["02__NUM"]["prop"]
     else:
         return "sing"
+

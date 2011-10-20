@@ -165,11 +165,13 @@ def __parse_ccg_output(output, results="all"):
                                                          maxsplit=1)
                 edge, _ = sentence_tail.split(edge_and_tail, maxsplit=1)
                 result_edges.append(edge)
-            return list(set(result_edges)) # remove duplicates, return a list
-        else: # if there are no complete edges
+            return sorted(list(set(result_edges)))
+            # remove duplicates, return a sorted list
+        else:
+            # if there are no complete edges
             _, best_edge_and_tail = sentence_header.split(best_edge)
             best_edge_result, _ = sentence_tail.split(best_edge_and_tail)
             _, best_joined_and_tail = sentence_header.split(best_joined)
             best_joined_result, _ = sentence_tail.split(best_joined_and_tail)
-            return [best_edge_result, best_joined_result]
+            return sorted([best_edge_result, best_joined_result])
 
