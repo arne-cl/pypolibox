@@ -148,17 +148,92 @@ def lexicalize_codeexamples(examples, lexicalized_title,
 
 
 
-def lexicalize_exercises(exercises, lexicalize_title):
-    """
+def lexicalize_exercises(exercises, lexicalized_title, lexeme="beinhalten"):
+    r"""
     das Buch enthält/beinhaltet (keine) Übungen.
 
     @type exercises: C{int} or C{str}
     @type lexicalized_title: C{Diamond} describing a book title
+
+    realize "das Buch enthält Übungen":
+
+    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> realizer(lexicalize_exercises(0, title, lexeme="enthalten"))
+    ['das Buch enth\xc3\xa4lt keine \xc3\x9cbungen', 'das Buch keine \xc3\x9cbungen enth\xc3\xa4lt', 'enth\xc3\xa4lt das Buch keine \xc3\x9cbungen']
+
+    realize "das Buch beinhaltet keine Übungen":
+
+    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> realizer(lexicalize_exercises(0, title))
+    ['beinhaltet das Buch keine \xc3\x9cbungen', 'das Buch beinhaltet keine \xc3\x9cbungen', 'das Buch keine \xc3\x9cbungen beinhaltet']
     """
-    pass
+    assert lexeme in ("beinhalten", "enthalten")
+    exercises = int(exercises)
+
+    tempus = gen_tempus("präs")
+    agens = lexicalized_title
+    agens.change_mode("AGENS")
+
+    if exercises == 1:
+        patiens = create_diamond("PATIENS", "abstraktum", u"Übung",
+                                 [gen_num("plur")])
+    else:
+        modifier = gen_art("quantkein")
+        patiens = create_diamond("PATIENS", "abstraktum", u"Übung",
+                                 [gen_num("plur"), modifier])
+    return create_diamond("", "durativ", lexeme, [tempus, agens, patiens])
 
 
-    
+
+def lexicalize_language(language, lexicalized_title, realize="noun"):
+    r"""
+    das Buch ist Deutsch.
+    das Buch ist in deutscher Sprache.
+
+    @type language: C{str}
+    @param language: "English" or "German".
+    @type lexicalized_title: C{Diamond}
+
+    NOTE: negation isn't possible w/ the current grammar ("nicht auf Deutsch")
+
+    realize "das Buch ist in englischer Sprache":
+
+    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> realizer(lexicalize_language("English", title, realize="adjective"))
+    ['das Buch in englischer Sprache ist', 'das Buch ist in englischer Sprache', 'ist das Buch in englischer Sprache']
+
+    realize "das Buch ist auf Deutsch":
+
+    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> realizer(lexicalize_language("German", title, realize="noun"))
+    ['das Buch auf Deutsch ist', 'das Buch ist auf Deutsch', 'ist das Buch auf Deutsch']
+    """
+    assert realize in ("noun", "adjective")
+
+    languages = {"German": "Deutsch", "English": "Englisch"}
+
+    tempus = gen_tempus("präs")
+    subj = lexicalized_title
+    subj.change_mode("SUBJ")
+
+    lang_num = gen_num("sing")
+
+    if realize == "noun":
+        noun_prep = gen_prep("auf", "zusammenhang")
+        language_str = languages[language] # "Deutsch", "Englisch"
+        prkompl = create_diamond("PRKOMPL", "abstraktum", language_str,
+                                 [lang_num, noun_prep])
+    elif realize == "adjective":
+        adjective_prep = gen_prep("in", "zusammenhang")
+        language_str = languages[language].lower() # "deutsch", "englisch"
+        language_mod = gen_mod(language_str, "eigenschaft")
+        language_mod.append_subdiamond(gen_komp("pos"))
+        prkompl = create_diamond("PRKOMPL", "sorte", "Sprache",
+                                 [lang_num, adjective_prep, language_mod])
+
+    return create_diamond("", u"prädikation", "sein-kop",
+                          [tempus, subj, prkompl])
+
 
 def lexicalize_keywords(keywords, lexicalized_title=None,
                         lexicalized_authors = None, realize="abstract",
@@ -368,6 +443,15 @@ def lexicalize_plang(plang, lexicalized_titles=None, lexicalized_authors=None,
         return create_diamond("", "handlung", "verwenden",
                               [temp, agens, patiens])
 
+
+
+def lexicalize_target():
+    r"""
+    das Buch setzt keine Kenntnisse voraus.
+
+    TODO: add to dict: Anfänger, Einsteiger, Fortgeschrittene
+    """
+    ... #todo: write lex_target
 
 
 def lexicalize_titles(book_titles, lexicalized_authors=None,
