@@ -4,7 +4,7 @@
 
 """
 The C{realization} module shall take HLDS XML structures, realize them with
-the OpenCCG surface realizer and parse its output.
+the OpenCCG surface realizer and parse its output string.
 """
 
 import os
