@@ -445,13 +445,70 @@ def lexicalize_plang(plang, lexicalized_titles=None, lexicalized_authors=None,
 
 
 
-def lexicalize_target():
+def lexicalize_target(target, lexicalized_title):
     r"""
-    das Buch setzt keine Kenntnisse voraus.
+    das Buch richtet sich an Anfänger
+                          an Einsteiger mit Grundkenntnissen
+                          an Fortgeschrittene
+                          an Experten
+
+    NOTE: we could add
+    - das Buch setzt keine Kenntnisse voraus
+    - das Buch richtet sich an ein fortgeschrittenes Publikum
+
+    @type target: C{int} or C{str}
+    @type lexicalized_title: C{Diamond}
 
     TODO: add to dict: Anfänger, Einsteiger, Fortgeschrittene
+
+    realize "... richtet sich an Anfänger":
+
+    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> realizer(lexicalize_target(0, title))
+    ['das Buch richtet sich an Anf\xc3\xa4nger', 'richtet sich das Buch an Anf\xc3\xa4nger', 'sich das Buch an Anf\xc3\xa4nger richtet']
+
+    realize "... richtet sich an Einsteiger mit Grundkenntnissen":
+
+    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> realizer(lexicalize_target(1, title))
+    ['das Buch richtet sich an Einsteiger mit Grundkenntnissen', 'richtet sich das Buch an Einsteiger mit Grundkenntnissen', 'sich das Buch an Einsteiger mit Grundkenntnissen richtet']
+
+    realize "... richtet sich an Fortgeschrittene":
+
+    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> realizer(lexicalize_target(2, title))
+    ['das Buch richtet sich an Fortgeschrittene', 'richtet sich das Buch an Fortgeschrittene', 'sich das Buch an Fortgeschrittene richtet']
+
+    realize "... richtet sich an Experten":
+    >>> target = lexicalize_target(3, title)
+    >>> realizer(target)
+    ['das Buch richtet sich an Experten', 'richtet sich das Buch an Experten', 'sich das Buch an Experten richtet']
     """
-    ... #todo: write lex_target
+    target = int(target)
+    targets = {0: "Anfänger", 1: "Einsteiger",
+               2:"Fortgeschritten", 3: "Experte"}
+
+    tempus = gen_tempus("präs")
+    agens = lexicalized_title
+    agens.change_mode("AGENS")
+
+    reflexive_pronoun = gen_pronoun(3, "reflpro", "neut", "sing", mode="PRO")
+
+    target_num = gen_num("plur")
+    target_prep = gen_prep("an", "gerichtetebez")
+
+    patiens = create_diamond("PATIENS", "experte", targets[target],
+                             [target_num, target_prep])
+
+    if target == 1: # add "mit Grundkenntnissen" to "Einsteiger"
+        attrib_num = gen_num("plur")
+        attrib_prep = gen_prep("mit", u"zugehörigkeit")
+        attrib = create_diamond("ATTRIB", "abstraktum", "Grundkenntnis",
+                                [attrib_num, attrib_prep])
+        patiens.append_subdiamond(attrib)
+
+    return create_diamond("", "handlung", "s.richten_an",
+                          [tempus, agens, reflexive_pronoun, patiens])
 
 
 def lexicalize_titles(book_titles, lexicalized_authors=None,
@@ -499,7 +556,7 @@ def lexicalize_titles(book_titles, lexicalized_authors=None,
     realize two book titles abstractly with a pronoun ("sie"):
 
     >>> realized_pronoun = realizer(lexicalize_titles(["book title", "another book"], realize="pronoun"))
-    >>> realized_pronoun in (["sie", "sie"], ["ihrer", "ihrer"], ["ihren", "ihren"])
+    >>> realized_pronoun in (["sie", "sie"], ["ihrer", "ihrer"], ["ihnen", "ihnen"])
     True
 
     realize two book titles concretely:
@@ -719,29 +776,6 @@ def gen_nested_given_names(given_names):
         return []
 
 
-def gen_personal_pronoun(count, gender, person):
-    """
-    @type count: C{int}
-    @param count: 1 for 'singular'; > 1 for 'plural'
-
-    @type gender: C{str}
-    @param gender: 'masc', 'fem' or 'neut'
-
-    @type person: C{int}
-    @param person: 1 for 1st person, 2 for 2nd person ...
-    """
-    if count > 1 or gender == "":
-        gender = "fem" # there should be no gender marker in plural,
-                       # but that doesn't always work with ccg-realize, so
-                       # we'll always stick to "feminine", which seems to work.
-
-    person_prop_str = "{0}te".format(str(person)) # 3 -> 3te
-
-    pers = create_diamond("PERS", "", person_prop_str, [])
-    pro = create_diamond("PRO", "", "perspro", [])
-    gen = gen_gender(gender)
-    num = gen_num(count)
-    return create_diamond("", "sem-obj", "", [pers, pro, gen, num])
 
 
 def gen_art(article_type="def"):
@@ -774,6 +808,61 @@ def gen_num(numerus=1):
 def gen_mod(modifier, modifier_type="kardinal"):
     """generates a C{Diamond} representing a modifier"""
     return create_diamond("MOD", modifier_type, modifier, [])
+
+def gen_personal_pronoun(count, gender, person, mode=""):
+    """
+    @type count: C{int}
+    @param count: 1 for 'singular'; > 1 for 'plural'
+
+    @type gender: C{str}
+    @param gender: 'masc', 'fem' or 'neut'
+
+    @type person: C{int}
+    @param person: 1 for 1st person, 2 for 2nd person ...
+    """
+    if count > 1 or gender == "":
+        gender = "fem" # there should be no gender marker in plural,
+                       # but that doesn't always work with ccg-realize, so
+                       # we'll always stick to "feminine", which seems to work.
+    if count == 1:
+        numerus = "sing"
+    else:
+        numerus = "plur"
+    return gen_pronoun(person, "perspro", gender, numerus, mode)
+
+def gen_pronoun(person, pronoun_type, gender, numerus, mode=""):
+    """
+    generates any kind of pronoun.
+
+    @type person: C{int}
+    @param person: 1 for 1st person, 2 for 2nd person ...
+
+    @type pronoun_type: C{str}
+    @param pronoun_type: type of the pronoun, e.g. "reflpro" or "perspro"
+
+    @type gender: C{str}
+    @param gender: 'masc', 'fem' or 'neut'
+
+    @type numerus: C{str}
+    @param count: "sing" or "plur"
+
+    @type mode: C{str}
+    @param mode: the mode string the resulting diamond should have
+
+    @rtype: C{Diamond}
+    """
+    assert person in (1,2,3)
+    assert gender in ("masc", "fem", "neut")
+    assert numerus in ("sing", "plur")
+
+    person_prop_str = "{0}te".format(str(person)) # 3 -> 3te
+
+    pers = create_diamond("PERS", "", person_prop_str, [])
+    pro = create_diamond("PRO", "", pronoun_type, [])
+    gen = gen_gender(gender)
+    num = gen_num(numerus)
+    return create_diamond(mode, "sem-obj", "", [pers, pro, gen, num])
+
 
 def gen_prep(preposition, preposition_type="zugehörigkeit"):
     """generates a C{Diamond} representing a preposition"""
