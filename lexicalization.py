@@ -235,6 +235,39 @@ def lexicalize_language(language, lexicalized_title, realize="noun"):
                           [tempus, subj, prkompl])
 
 
+def lexicalize_length(length, lexicalized_title, lexicalized_lastbooktitle,
+message_block="lastbook_nomatch"):
+    r"""
+    @type length: C{Diamond}
+    @type lexicalized_title: C{Diamond}
+    @type lexicalized_lastbooktitle: C{Diamond}
+    @type message_block: C{str}
+    @param message_block: "lastbook_nomatch" or "extra"
+
+    TODO: specify input, esp. 'direction' and 'pages'
+    """
+    if direction == "-":
+        comp_lex = "kürzer"
+    else:
+        comp_lex = "länger"
+
+    tempus = gen_tempus("präs")
+    subj = lexicalized_title
+    
+    page_diff = gen_mod(pages, "kardinal")
+    comparison = create_diamond("MOD", "eigenschaft", comp_lex,
+                                [gen_komp("komp")])
+    mod = create_diamond("MOD", "artefaktum", "Seite",
+                         [gen_num("plur"), page_diff, comparison])
+    
+    prkompl = create_diamond("PRKOMPL", "adjunktion", "adjunktor",
+                             [mod, kompar])
+
+    return create_diamond("", u"prädikation", "sein-kop",
+                          [tempus, subj, prkompl])
+
+    
+
 def lexicalize_keywords(keywords, lexicalized_title=None,
                         lexicalized_authors = None, realize="abstract",
                         lexeme="behandeln"):
