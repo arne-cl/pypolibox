@@ -9,7 +9,7 @@ be utilized by the OpenCCG surface realizer to produce natural language text.
 
 import re
 import random
-from nltk.featstruct import Feature
+from nltk.featstruct import Feature, FeatDict
 from textplan import ConstituentSet, Message, linearize_textplan
 from hlds import Diamond, create_diamond, add_mode_suffix
 from util import ensure_unicode, sql_array_to_list
@@ -235,38 +235,117 @@ def lexicalize_language(language, lexicalized_title, realize="noun"):
                           [tempus, subj, prkompl])
 
 
-def lexicalize_length(length, lexicalized_title, lexicalized_lastbooktitle,
-message_block="lastbook_nomatch"):
+def lexicalize_length(length, lexicalized_title,
+                      lexicalized_lastbooktitle=None):
     r"""
-    @type length: C{Diamond}
+    @type length: C{FeatDict}
     @type lexicalized_title: C{Diamond}
-    @type lexicalized_lastbooktitle: C{Diamond}
+    @type lexicalized_lastbooktitle: C{Diamond} or C{NoneType}
     @type message_block: C{str}
     @param message_block: "lastbook_nomatch" or "extra"
 
-    TODO: specify input, esp. 'direction' and 'pages'
+    realize "$thisbook ist 122 Seiten länger als $lastbook":
+
+    >>> length_lastbook_nomatch = FeatDict(direction='+', rating='neutral', type='RelativeVariation', magnitude=FeatDict(number=122, unit="pages"))
+    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> lasttitle = lexicalize_titles(["Natural Language Processing"], realize="complete")
+    >>> realizer(lexicalize_length(length_lastbook_nomatch, title, lasttitle))
+    ['das Buch 122 Seiten l\xc3\xa4nger als \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c ist', 'das Buch ist 122 Seiten l\xc3\xa4nger als \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c', 'ist das Buch 122 Seiten l\xc3\xa4nger als \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c']
+
+    realize "es ist 14 Seiten kürzer als $lastbook":
+
+    >>> length_lastbook_nomatch = FeatDict(direction='-', rating='neutral', type='RelativeVariation', magnitude=FeatDict(number=14, unit="pages"))
+    >>> title = lexicalize_titles(["foo"], realize="pronoun")
+    >>> lasttitle = lexicalize_titles(["Angewandte Computerlinguistik"], realize="complete")
+    >>> realizer(lexicalize_length(length_lastbook_nomatch, title, lasttitle))
+    ['es 14 Seiten k\xc3\xbcrzer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c ist', 'es ist 14 Seiten k\xc3\xbcrzer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c', 'ist es 14 Seiten k\xc3\xbcrzer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c']
+
+    realize within an extra message - "das Buch ist sehr umfangreich":
+
+    >>> length = ("very long", "neutral")
+    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> realizer(lexicalize_length(length, title))
+    ['das Buch ist sehr umfangreich', 'das Buch sehr umfangreich ist', 'ist das Buch sehr umfangreich']
+
+    realize within an extra message - "es ist etwas kurz":
+
+    >>> length = ("very short", "neutral")
+    >>> title = lexicalize_titles(["foo"], realize="pronoun")
+    >>> realizer(lexicalize_length(length, title))
+    ['es etwas kurz ist', 'es ist etwas kurz', 'ist es etwas kurz']
     """
-    if direction == "-":
+    assert isinstance(length, (FeatDict, tuple))
+    
+    if isinstance(length, FeatDict) and "magnitude" in length.keys():
+    # length is part of a 'lastbook_nomatch'
+        return gen_length_lastbook_nomatch(length, lexicalized_title,
+                                             lexicalized_lastbooktitle)
+    elif isinstance(length, tuple): # length is part of 'extra'
+        return gen_length_extra(length, lexicalized_title)
+
+
+def gen_length_lastbook_nomatch(length, lexicalized_title,
+                                lexicalized_lastbooktitle):
+    """
+    @type length: C{Diamond}
+    @param length: a feature structure that compares the length of two books::
+
+        [ direction = '+'                  ]
+        [                                  ]
+        [ magnitude = [ number = 122     ] ]
+        [             [ unit   = 'pages' ] ]
+        [                                  ]
+        [ rating    = 'neutral'            ]
+        [ type      = 'RelativeVariation'  ]
+    """
+    if length["direction"] == "-":
         comp_lex = "kürzer"
     else:
         comp_lex = "länger"
 
     tempus = gen_tempus("präs")
     subj = lexicalized_title
-    
-    page_diff = gen_mod(pages, "kardinal")
+    subj.change_mode("SUBJ")
+
+    page_diff = str(length["magnitude"]["number"])
+    page_diff_diamond = gen_mod(page_diff, "kardinal")
+
     comparison = create_diamond("MOD", "eigenschaft", comp_lex,
                                 [gen_komp("komp")])
+
     mod = create_diamond("MOD", "artefaktum", "Seite",
-                         [gen_num("plur"), page_diff, comparison])
-    
+                         [gen_num("plur"), page_diff_diamond, comparison])
+    kompar = lexicalized_lastbooktitle
+    kompar.change_mode("KOMPAR")
+
     prkompl = create_diamond("PRKOMPL", "adjunktion", "adjunktor",
                              [mod, kompar])
 
     return create_diamond("", u"prädikation", "sein-kop",
                           [tempus, subj, prkompl])
 
-    
+
+def gen_length_extra(length, lexicalized_title):
+    """
+    das Buch ist etwas kurz
+    das Buch ist sehr umfangreich
+    """
+    length_description, rating = length
+
+    tempus = gen_tempus("präs")
+    subj = lexicalized_title
+    subj.change_mode("SUBJ")
+
+    if length_description == "very long":
+        prkompl = create_diamond("PRKOMPL", "eigenschaft", "umfangreich",
+                         [gen_komp("pos"), gen_spez("sehr", "intensivierung")])
+    elif length_description == "very short":
+        prkompl = create_diamond("PRKOMPL", "eigenschaft", "kurz",
+                         [gen_komp("pos"), gen_spez("etwas", u"abschwächung")])
+
+    return create_diamond("", u"prädikation", "sein-kop",
+                          [tempus, subj, prkompl])
+
 
 def lexicalize_keywords(keywords, lexicalized_title=None,
                         lexicalized_authors = None, realize="abstract",
@@ -542,6 +621,32 @@ def lexicalize_target(target, lexicalized_title):
 
     return create_diamond("", "handlung", "s.richten_an",
                           [tempus, agens, reflexive_pronoun, patiens])
+
+
+def lexicalize_recency():
+    """
+[            [               [               [                                [ direction = '+'                  ]                                                                                  ] ] ] ]
+[            [               [               [                                [                                  ]                                                                                  ] ] ] ]
+[            [               [               [                                [ magnitude = [ number = 10      ] ]                                                                                  ] ] ] ]
+[            [               [               [ recency                      = [             [ unit   = 'years' ] ]                                                                                  ] ] ] ]
+[            [               [               [                                [                                  ]                                                                                  ] ] ] ]
+[            [               [               [                                [ rating    = 'neutral'            ]                                                                                  ] ] ] ]
+[            [               [               [                                [ type      = 'RelativeVariation'  ]
+    """
+    pass
+
+def gen_recency_extra(recency):
+    """
+    das Buch ist besonders neu
+    das Buch ist sehr alt
+    [ recency               = ('old','neutral') ]
+    """
+    recency_description, rating = recency
+    if recency_description == "recent":
+        pass
+    elif recency_description == "old":
+        pass
+    pass
 
 
 def lexicalize_titles(book_titles, lexicalized_authors=None,
@@ -917,6 +1022,9 @@ def gen_komp(modality="komp"):
     assert modality in ("pos", "komp", "super")
     return create_diamond("KOMP", "", modality, [])
 
+def gen_spez(specifier, specifier_type):
+    """generates a C{Diamond} which expresses a specifier, e.g. 'sehr'"""
+    return create_diamond("SPEZ", specifier_type, specifier, [])
 
 def gen_title(book_title):
     """
