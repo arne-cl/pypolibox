@@ -275,7 +275,7 @@ def lexicalize_length(length, lexicalized_title,
     ['es etwas kurz ist', 'es ist etwas kurz', 'ist es etwas kurz']
     """
     assert isinstance(length, (FeatDict, tuple))
-    
+
     if isinstance(length, FeatDict) and "magnitude" in length.keys():
     # length is part of a 'lastbook_nomatch'
         return gen_length_lastbook_nomatch(length, lexicalized_title,
@@ -623,30 +623,102 @@ def lexicalize_target(target, lexicalized_title):
                           [tempus, agens, reflexive_pronoun, patiens])
 
 
-def lexicalize_recency():
-    """
-[            [               [               [                                [ direction = '+'                  ]                                                                                  ] ] ] ]
-[            [               [               [                                [                                  ]                                                                                  ] ] ] ]
-[            [               [               [                                [ magnitude = [ number = 10      ] ]                                                                                  ] ] ] ]
-[            [               [               [ recency                      = [             [ unit   = 'years' ] ]                                                                                  ] ] ] ]
-[            [               [               [                                [                                  ]                                                                                  ] ] ] ]
-[            [               [               [                                [ rating    = 'neutral'            ]                                                                                  ] ] ] ]
-[            [               [               [                                [ type      = 'RelativeVariation'  ]
-    """
-    pass
+def lexicalize_recency(recency, lexicalized_title,
+                       lexicalized_lastbooktitle=None):
+    r"""
+    realize "es ist 7 Jahre neuer als $lastbook":
 
-def gen_recency_extra(recency):
+    >>> recency_lastbook_nomatch = FeatDict(direction='+', rating='neutral', type='RelativeVariation', magnitude=FeatDict(number=7, unit="years"))
+    >>> title = lexicalize_titles(["foo"], realize="pronoun")
+    >>> lastbooktitle = lexicalize_titles(["Angewandte Computerlinguistik"], realize="complete")
+    >>> realizer(lexicalize_recency(recency_lastbook_nomatch, title, lastbooktitle))
+    ['es 7 Jahre neuer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c ist', 'es ist 7 Jahre neuer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c', 'ist es 7 Jahre neuer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c']
+
+    realize "das Buch ist 23 Jahre älter als $lastbook":
+
+    >>> recency_lastbook_nomatch = FeatDict(direction='-', rating='neutral', type='RelativeVariation', magnitude=FeatDict(number=23, unit="years"))
+    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> lastbooktitle = lexicalize_titles(["Natural Language Processing"], realize="complete")
+    >>> realizer(lexicalize_recency(recency_lastbook_nomatch, title, lastbooktitle))
+    ['das Buch 23 Jahre \xc3\xa4lter als \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c ist', 'das Buch ist 23 Jahre \xc3\xa4lter als \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c', 'ist das Buch 23 Jahre \xc3\xa4lter als \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c']
+
+    realize "das Buch ist sehr alt":
+
+    >>> recency_extra = ("old", "neutral")
+    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> realizer(lexicalize_recency(recency_extra, title))
+    ['das Buch ist sehr alt', 'das Buch sehr alt ist', 'ist das Buch sehr alt']
+
+    realize "das Buch ist besonders neu":
+
+    >>> recency_extra = ("recent", "neutral")
+    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> realizer(lexicalize_recency(recency_extra, title))
+    ['das Buch besonders neu ist', 'das Buch ist besonders neu', 'ist das Buch besonders neu']
+    """
+    assert isinstance(recency, (FeatDict, tuple))
+    if isinstance(recency, FeatDict):
+        return gen_recency_lastbook_nomatch(recency, lexicalized_title,
+                                            lexicalized_lastbooktitle)
+    else:
+        return gen_recency_extra(recency, lexicalized_title)
+
+
+def gen_recency_lastbook_nomatch(recency, lexicalized_title,
+                                 lexicalized_lastbooktitle):
+    """
+    dieses Buch ist 23 Jahre älter/neuer als das erste Buch.
+    """
+    tempus = gen_tempus("präs")
+    subj = lexicalized_title
+    subj.change_mode("SUBJ")
+
+    if recency["direction"] == "+": # book is more recent than its predecessor
+        comp_adjective = "neuer"
+    else: # book is older than its predecessor
+        comp_adjective = u"älter"
+
+    years = recency["magnitude"]["number"]
+    years_mod = gen_mod(str(years), "kardinal")
+    num = gen_num(years)
+
+    comp_mod = create_diamond("MOD", "eigenschaft", comp_adjective,
+                              [gen_komp("komp")])
+
+    mod = create_diamond("MOD", "art", "Jahr", [num, years_mod, comp_mod])
+
+    kompar = lexicalized_lastbooktitle
+    kompar.change_mode("KOMPAR")
+
+    prkompl = create_diamond("PRKOMPL", "adjunktion", "adjunktor",
+                             [mod, kompar])
+    return create_diamond("", u"prädikation", "sein-kop",
+                         [tempus, subj, prkompl])
+
+
+def gen_recency_extra(recency, lexicalized_title):
     """
     das Buch ist besonders neu
     das Buch ist sehr alt
     [ recency               = ('old','neutral') ]
     """
     recency_description, rating = recency
+
+    tempus = gen_tempus("präs")
+    subj = lexicalized_title
+    subj.change_mode("SUBJ")
+
     if recency_description == "recent":
-        pass
-    elif recency_description == "old":
-        pass
-    pass
+        spez = gen_spez("besonders", "hervorhebung")
+        recency_adverb = "neu"
+    else: #recency_description == "old":
+        spez = gen_spez("sehr", "intensivierung")
+        recency_adverb = "alt"
+
+    prkompl = create_diamond("PRKOMPL", "eigenschaft", recency_adverb,
+                             [gen_komp("pos"), spez])
+    return create_diamond("", u"prädikation", "sein-kop",
+                          [tempus, subj, prkompl])
 
 
 def lexicalize_titles(book_titles, lexicalized_authors=None,

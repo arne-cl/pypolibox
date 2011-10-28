@@ -51,35 +51,6 @@ def compare_hlds_variants():
                       "xmltest/sentence{0}-original-test.xml".format(str(i).zfill(3)))
 
 
-def title_realizer():
-        title_list = get_column("title")
-        diamond_list = [gen_title(title) for title in title_list]
-        realized_sentences = [realize(d) for d in diamond_list]
-        return realized_sentences
-
-def authors_realizer():
-    sets_of_authors = get_column("authors")
-    authors_list = []
-    
-    
-    for author_set_str in sets_of_authors:
-        author_set = util.sql_array_to_set(author_set_str)
-        for author in author_set:
-            authors_list.append(author)
-    
-    authors_diamonds = [lexicalize_author(a)[2] for a in authors_list]
-    
-    #return authors_diamonds
-    
-    results = []
-    for i, d in enumerate(authors_diamonds):
-        try:
-            r = realize(d, results="all")
-            results.append(r)
-            print i, r, "\n\n"
-        except:
-            print i, "***\n\n"
-    return results
                 
 def genprops(querynumber=10):
     """    
@@ -138,7 +109,7 @@ def genallmessages(query):
         books = Books(Results(query))
         return AllMessages(AllPropositions(AllFacts(books)))
     
-def gentextplans(query):
+def gen_textplans(query):
     """
     debug function: generates all text plans for a query.
     
@@ -157,9 +128,8 @@ def gentextplans(query):
         books = Books(Results(Query(query)))
         return TextPlans(AllMessages(AllPropositions(AllFacts(books))))
         
-def test_all_TextPlans():
+def gen_all_textplans():
     """
-    
     generates all text plans for each query in the predefined list of test 
     queries.
     
@@ -169,7 +139,7 @@ def test_all_TextPlans():
     all_TextPlans = []
     for argnumber, arg in enumerate(testqueries):
         print "generating TextPlans for the query:{0}\n".format(arg)
-        TextPlans = gentextplans(argnumber)
+        TextPlans = gen_textplans(argnumber)
         print "generated {0} TextPlans".format(len(TextPlans.document_plans))
         for i, TextPlan in enumerate(TextPlans.document_plans):
             if TextPlan == None:
