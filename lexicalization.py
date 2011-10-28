@@ -721,6 +721,118 @@ def gen_recency_extra(recency, lexicalized_title):
                           [tempus, subj, prkompl])
 
 
+def lexicalize_title(title_tuple, lexicalized_authors=None, realize="complete",
+                     authors_realize=None):
+    r"""
+    @type title: C{tuple} of (C{str}, C{str})
+    @param title: tuple containing a book title and a rating (neutral)
+
+    @type lexicalized_authors: C{Diamond} OR C{NoneType}
+    @param authors: an I{optional} C{Diamond} containing a lexicalized
+    authors message
+
+    @type realize: C{str}
+    @param realize: "abstract", "complete", "pronoun" or "authors+title"
+    - "abstract" realizes 'das Buch'
+    - "pronoun" realizes 'es' /
+    - "complete" realizes book titles in the format specified in the
+      OpenCC grammar, e.g. „ Computational Linguistics. An Introduction “
+
+    @type authors_realize: C{str} or C{NoneType}
+    @param authors_realize: None, "possessive", "preposition", "random".
+    - "possessive" realizes 'Xs Buch'
+    - "preposition" realizes 'das Buch von X (und Y)'
+    - "random" chooses between "possessive" and "preposition"
+    - None just realizes the book title, e.g. "das Buch" or "NLP in Lisp"
+
+    realize one book title abstractly ("das Buch"):
+
+    >>> realizer(lexicalize_title( ("book", "neutral"), realize="abstract"))
+    ['das Buch', 'dem Buch', 'des Buches']
+
+    NOTE: output is undeterministic for this example!
+    realize one book title abstractly with a pronoun ("es"):
+
+    >>> realized_pronoun = realizer(lexicalize_title(("book title", ""), realize="pronoun"))
+    >>> realized_pronoun in (['es', 'es'], ['seiner','seiner'], ['ihm', 'ihm'])
+    True
+
+    realize "das Buch von X und Y":
+
+    >>> authors = lexicalize_authors(["Alan Kay", "John Hopcroft"], realize="lastnames")
+    >>> realizer(lexicalize_title(("title", "neutral"), lexicalized_authors=authors, realize="abstract", authors_realize="preposition"))
+    ['das Buch von Kay und Hopcroft', 'dem Buch von Kay und Hopcroft', 'des Buches von Kay und Hopcroft']
+
+    realize "Xs Buch":
+
+    >>> author = lexicalize_authors(["Alan Kay"], realize="complete")
+    >>> realizer(lexicalize_title(("Natural Language Processing", "neutral"), lexicalized_authors=author, realize="complete", authors_realize="possessive"))
+    ['Alan Kays \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c']
+
+    we can't realize a book title as a pronoun with an author, e.g. "Chomskys
+    es" or "es von Noam Chomsky":
+
+    >>> authors = lexicalize_authors(["Kay", "Manning"], realize="lastnames")
+    >>> lexicalize_title(("a book","") , lexicalized_authors=authors, realize="pronoun")
+    Traceback (most recent call last):
+    AssertionError: can't realize title as pronoun with an author, e.g. 'Chomskys es'
+
+    we can't realize "A und Bs Buch" properly, due to current restrictions in
+    the grammar:
+
+    >>> authors = lexicalize_authors(["Kay", "Manning"], realize="lastnames")
+    >>> realizer(lexicalize_title(("random", ""), lexicalized_authors=authors, realize="abstract", authors_realize="possessive"))
+    Traceback (most recent call last):
+    AssertionError: can't realize possesive form with more than one author
+    """
+    title, rating = title_tuple
+    
+    assert realize in ("abstract", "complete", "pronoun", "random")
+    assert authors_realize in (None, "possessive", "preposition", "random")
+
+    if realize == "random":
+        if authors_realize: #can't realize w/ title pronoun, e.g. "Chomskys es"
+            realize = random.choice(["abstract", "complete"])
+        else:
+            realize = random.choice(["abstract", "complete", "pronoun"])
+
+    if realize == "abstract":
+        title_diamond = gen_abstract_title(1) # singular, i.e. "das Buch"
+    elif realize == "pronoun":
+        assert lexicalized_authors is None, \
+            "can't realize title as pronoun with an author, e.g. 'Chomskys es'"
+        title_diamond = gen_personal_pronoun(1, "neut", 3)
+        # 'es': singular 3rd person neutral
+    elif realize == "complete":
+        title_diamond = gen_title(title)
+
+    if lexicalized_authors:
+        if authors_realize == "random":
+            if __sing_or_plur(lexicalized_authors) == "sing":
+                authors_realize = random.choice(["possessive", "preposition"])
+            else: # possessive form doesn't work w/ more than one author
+                authors_realize = "preposition"
+
+        if authors_realize == "possessive": # Chomskys Buch
+            assert __sing_or_plur(lexicalized_authors) == "sing", \
+                "can't realize possesive form with more than one author"
+            title_diamond.append_subdiamond(lexicalized_authors, mode="ASS")
+
+            article = re.compile("\d+__ART")
+            # remove ARTicle from title: Chomskys das Buch --> Chomskys Buch
+            for key in title_diamond.keys():
+                if isinstance(key, str) and article.match(key):
+                    article_key = article.match(key).group()
+                    title_diamond.pop(article_key)
+        elif authors_realize == "preposition": # das Buch von Chomsky
+            preposition_diamond = gen_prep("von", "zugehörigkeit")
+            lexicalized_authors.prepend_subdiamond(preposition_diamond)
+            title_diamond.append_subdiamond(lexicalized_authors, mode="ATTRIB")
+
+    return title_diamond
+
+
+
 def lexicalize_titles(book_titles, lexicalized_authors=None,
                       realize="complete", authors_realize=None):
     r"""

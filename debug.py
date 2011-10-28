@@ -108,6 +108,21 @@ def genallmessages(query):
     elif isinstance(query, Query):
         books = Books(Results(query))
         return AllMessages(AllPropositions(AllFacts(books)))
+
+def gen_all_messages_of_type(msg_type):
+    """
+    generate all messages for all books from all testqueries, but return
+    only those which match the given message type, e.g. 'id' or 'extra'.
+
+    @type msg_type: C{str}
+    """
+    all_msg_of_type = []
+    for i in range(len(testqueries)):
+        all_msg_of_query_i = genallmessages(i)
+        for book in all_msg_of_query_i.books:
+            if msg_type in book.messages:
+                all_msg_of_type.append(book.messages[msg_type])
+    return all_msg_of_type
     
 def gen_textplans(query):
     """

@@ -20,14 +20,19 @@ def lexicalize_message_block(messageblock):
     lexicalize_function_name = "lexicalize_" + msg_type
     return eval(lexicalize_function_name)(messageblock)
 
+
+
 def lexicalize_id(id_message_block):
     r"""
     pass all the messages directly to their respective lexicalization
     functions.
     """
-    for key in id_message_block.keys():
-        if isinstance(key, str): # don't process C{Feature}s
-            
+    lexicalized_messages = []
+    for msg_name, msg_val in id_message_block.items():
+        if isinstance(msg_name, str): # don't process C{Feature}s
+            lexicalize_function_name = "lexicalize_" + msg_name
+            lexicalized_messages += eval(lexicalize_function_name)(msg_val)
+    return lexicalized_messages
 
 def lexicalize_extra(extra_message_block):
     r"""
