@@ -16,14 +16,14 @@ from util import ensure_unicode, sql_array_to_list
 from realization import realize as realizer #TODO: dbg, mv to main
 
 
-def lexicalize_authors(authors, realize="abstract"):
+def lexicalize_authors(authors_tuple, realize="abstract"):
     """
     converts a list of authors into several possible HLDS diamond
     structures, which can be used for text generation.
 
-    @type name: C{list} of C{str}
-    @param name: list of names, e.g. ["Ronald Hausser",
-    "Christopher D. Manning"]
+    @type authors_tuple: C{tuple} of (C{frozenset} of C{str}, C{str})
+    @param author_tuple: tuple containing a set of names, e.g. (["Ronald
+    Hausser", "Christopher D. Manning"]) and a rating, i.e. "neutral" 
 
     @type realize: C{str}
     @param realize: "abstract", "lastnames", "complete".
@@ -36,22 +36,22 @@ def lexicalize_authors(authors, realize="abstract"):
     the authors last names or the complete names of the authors.
 
     realize one author abstractly:
-    >>> realizer(lexicalize_authors(['author1'], realize='abstract'))
+    >>> realizer(lexicalize_authors((['author1'], ""), realize='abstract'))
     ['dem Autoren', 'den Autoren', 'der Autor', 'des Autors']
 
     realize two authors abstractly:
-    >>> realizer(lexicalize_authors(['author1', 'author2'], realize='abstract'))
+    >>> realizer(lexicalize_authors((['author1', 'author2'], "neutral") , realize='abstract'))
     ['den Autoren', 'der Autoren', 'die Autoren']
 
     realize two authors, only using their lastnames:
-    >>> realizer(lexicalize_authors(['Christopher D. Manning', 'Detlef Peter Zaun'], realize='lastnames'))
+    >>> realizer(lexicalize_authors((['Christopher D. Manning', 'Detlef Peter Zaun'], ""), realize='lastnames'))
     ['Manning und Zaun', 'Mannings und Zauns']
 
     realize two authors using their full names:
-    >>> realizer(lexicalize_authors(['Christopher D. Manning', 'Detlef Peter Zaun'], realize='complete'))
+    >>> realizer(lexicalize_authors((['Christopher D. Manning', 'Detlef Peter Zaun'], ""), realize='complete'))
     ['Christopher D. Manning und Detlef Peter Zaun', 'Christopher D. Mannings und Detlef Peter Zauns']
     """
-    assert isinstance(authors, list), "needs a list of name strings as input"
+    authors, rating = authors_tuple
     assert realize in ("abstract", "lastnames", "complete"), \
         "choose 1 of these author realizations: abstract, lastnames, complete"
 
@@ -95,27 +95,27 @@ def lexicalize_codeexamples(examples, lexicalized_title,
 
     realize "das Buch enthält Code-Beispiele":
 
-    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> realizer(lexicalize_codeexamples(1, lexicalized_title=title, lexeme="enthalten"))
     ['das Buch Code-Beispiele enth\xc3\xa4lt', 'das Buch enth\xc3\xa4lt Code-Beispiele', 'enth\xc3\xa4lt das Buch Code-Beispiele']
 
     realize "das Buch enthält keine Code-Beispiele":
 
-    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> realizer(lexicalize_codeexamples(0, lexicalized_title=title, lexeme="enthalten"))
     ['das Buch enth\xc3\xa4lt keine Code-Beispiele', 'das Buch keine Code-Beispiele enth\xc3\xa4lt', 'enth\xc3\xa4lt das Buch keine Code-Beispiele']
 
     realize "das Buch enthält Code-Beispiele in den Programmiersprachen A + B":
 
-    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> plang = lexicalize_plang("[Ada][Scheme]", realize="embedded")
     >>> realizer(lexicalize_codeexamples(1, lexicalized_title=title, lexicalized_plang=plang, lexeme="enthalten"))
     ['das Buch Code-Beispiele in den Programmiersprachen Ada und Scheme enth\xc3\xa4lt', 'das Buch enth\xc3\xa4lt Code-Beispiele in den Programmiersprachen Ada und Scheme', 'enth\xc3\xa4lt das Buch Code-Beispiele in den Programmiersprachen Ada und Scheme']
 
     realize "d. Buch von X + Y beinhaltet Code-Bsp. in den Prog.sprachen A + B"
 
-    >>> authors = lexicalize_authors(["Alan Kay", "John Hopcroft"], realize="lastnames")
-    >>> title = lexicalize_titles(["foo"], lexicalized_authors=authors, realize="abstract", authors_realize="preposition")
+    >>> authors = lexicalize_authors((["Alan Kay", "John Hopcroft"], ""), realize="lastnames")
+    >>> title = lexicalize_title(("foo", ""), lexicalized_authors=authors, realize="abstract", authors_realize="preposition")
     >>> plang = lexicalize_plang("[Ada][Scheme]", realize="embedded")
     >>> realizer(lexicalize_codeexamples(1, lexicalized_title=title, lexicalized_plang=plang, lexeme="beinhalten"))
     ['beinhaltet das Buch von Kay und Hopcroft Code-Beispiele in den Programmiersprachen Ada und Scheme', 'das Buch von Kay und Hopcroft Code-Beispiele in den Programmiersprachen Ada und Scheme beinhaltet', 'das Buch von Kay und Hopcroft beinhaltet Code-Beispiele in den Programmiersprachen Ada und Scheme']
@@ -157,13 +157,13 @@ def lexicalize_exercises(exercises, lexicalized_title, lexeme="beinhalten"):
 
     realize "das Buch enthält Übungen":
 
-    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> realizer(lexicalize_exercises(0, title, lexeme="enthalten"))
     ['das Buch enth\xc3\xa4lt keine \xc3\x9cbungen', 'das Buch keine \xc3\x9cbungen enth\xc3\xa4lt', 'enth\xc3\xa4lt das Buch keine \xc3\x9cbungen']
 
     realize "das Buch beinhaltet keine Übungen":
 
-    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> realizer(lexicalize_exercises(0, title))
     ['beinhaltet das Buch keine \xc3\x9cbungen', 'das Buch beinhaltet keine \xc3\x9cbungen', 'das Buch keine \xc3\x9cbungen beinhaltet']
     """
@@ -198,13 +198,13 @@ def lexicalize_language(language, lexicalized_title, realize="noun"):
 
     realize "das Buch ist in englischer Sprache":
 
-    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> realizer(lexicalize_language("English", title, realize="adjective"))
     ['das Buch in englischer Sprache ist', 'das Buch ist in englischer Sprache', 'ist das Buch in englischer Sprache']
 
     realize "das Buch ist auf Deutsch":
 
-    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> realizer(lexicalize_language("German", title, realize="noun"))
     ['das Buch auf Deutsch ist', 'das Buch ist auf Deutsch', 'ist das Buch auf Deutsch']
     """
@@ -247,30 +247,30 @@ def lexicalize_length(length, lexicalized_title,
     realize "$thisbook ist 122 Seiten länger als $lastbook":
 
     >>> length_lastbook_nomatch = FeatDict(direction='+', rating='neutral', type='RelativeVariation', magnitude=FeatDict(number=122, unit="pages"))
-    >>> title = lexicalize_titles(["foo"], realize="abstract")
-    >>> lasttitle = lexicalize_titles(["Natural Language Processing"], realize="complete")
+    >>> title = lexicalize_title(("foo", ""), realize="abstract")
+    >>> lasttitle = lexicalize_title(("Natural Language Processing", ""), realize="complete")
     >>> realizer(lexicalize_length(length_lastbook_nomatch, title, lasttitle))
     ['das Buch 122 Seiten l\xc3\xa4nger als \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c ist', 'das Buch ist 122 Seiten l\xc3\xa4nger als \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c', 'ist das Buch 122 Seiten l\xc3\xa4nger als \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c']
 
     realize "es ist 14 Seiten kürzer als $lastbook":
 
     >>> length_lastbook_nomatch = FeatDict(direction='-', rating='neutral', type='RelativeVariation', magnitude=FeatDict(number=14, unit="pages"))
-    >>> title = lexicalize_titles(["foo"], realize="pronoun")
-    >>> lasttitle = lexicalize_titles(["Angewandte Computerlinguistik"], realize="complete")
+    >>> title = lexicalize_title(("foo", ""), realize="pronoun")
+    >>> lasttitle = lexicalize_title(("Angewandte Computerlinguistik", ""), realize="complete")
     >>> realizer(lexicalize_length(length_lastbook_nomatch, title, lasttitle))
     ['es 14 Seiten k\xc3\xbcrzer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c ist', 'es ist 14 Seiten k\xc3\xbcrzer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c', 'ist es 14 Seiten k\xc3\xbcrzer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c']
 
     realize within an extra message - "das Buch ist sehr umfangreich":
 
     >>> length = ("very long", "neutral")
-    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> realizer(lexicalize_length(length, title))
     ['das Buch ist sehr umfangreich', 'das Buch sehr umfangreich ist', 'ist das Buch sehr umfangreich']
 
     realize within an extra message - "es ist etwas kurz":
 
     >>> length = ("very short", "neutral")
-    >>> title = lexicalize_titles(["foo"], realize="pronoun")
+    >>> title = lexicalize_title(("foo", ""), realize="pronoun")
     >>> realizer(lexicalize_length(length, title))
     ['es etwas kurz ist', 'es ist etwas kurz', 'ist es etwas kurz']
     """
@@ -361,20 +361,20 @@ def lexicalize_keywords(keywords, lexicalized_title=None,
     realize one keyword abstractly, using an abstract author and the lexeme
     I{behandeln}:
 
-    >>> author = lexicalize_authors(["author1"], realize="abstract")
+    >>> author = lexicalize_authors((["author1"], ""), realize="abstract")
     >>> realizer(lexicalize_keywords(["keyword1"], lexicalized_authors=author, realize="abstract", lexeme="behandeln"))
     ['behandelt der Autor das Thema', 'der Autor behandelt das Thema', 'der Autor das Thema behandelt']
 
     realize one keyword concretely, using two concrete authors and the lexeme
     I{beschreiben}:
 
-    >>> authors = lexicalize_authors(["John E. Hopcroft","Jeffrey D. Ullman"], realize="complete")
+    >>> authors = lexicalize_authors((["John E. Hopcroft","Jeffrey D. Ullman"], ""), realize="complete")
     >>> realizer(lexicalize_keywords(["parsing", "formal languages"], lexicalized_authors=authors, realize="complete", lexeme="beschreiben"))
     ['John E. Hopcroft und Jeffrey D. Ullman beschreiben die Themen parsing und formal_languages', 'John E. Hopcroft und Jeffrey D. Ullman die Themen parsing und formal_languages beschreiben', 'beschreiben John E. Hopcroft und Jeffrey D. Ullman die Themen parsing und formal_languages']
 
     realize 4 keywords, using 1 author's last name and the lexeme I{eingehen}:
 
-    >>> author = lexicalize_authors(["Ralph Grishman"], realize="lastnames")
+    >>> author = lexicalize_authors((["Ralph Grishman"], ""), realize="lastnames")
     >>> realizer(lexicalize_keywords(["parsing","semantics","discourse","generation"], lexicalized_authors=author, realize="complete", lexeme="eingehen"))
     ['Grishman geht auf den Themen parsing , semantics , discourse und generation ein', 'Grishman geht auf die Themen parsing , semantics , discourse und generation ein', 'geht Grishman auf den Themen parsing , semantics , discourse und generation ein', 'geht Grishman auf die Themen parsing , semantics , discourse und generation ein']
 
@@ -383,14 +383,14 @@ def lexicalize_keywords(keywords, lexicalized_title=None,
     realize 1 keyword, using an abstract book title and the lexeme
     I{aufgreifen}:
 
-    >>> title = lexicalize_titles(["book1"], realize="abstract")
+    >>> title = lexicalize_title(("book1", ""), realize="abstract")
     >>> realizer(lexicalize_keywords(["regular expressions"], lexicalized_title=title, realize="complete", lexeme="aufgreifen"))
     ['das Buch greift das Thema regular_expressions auf', 'greift das Buch das Thema regular_expressions auf']
 
     realize 2 keywords, using a concrete book title and the lexeme
     I{beschreiben}:
 
-    >>> title = lexicalize_titles(["Grundlagen der Computerlinguistik"], realize="complete")
+    >>> title = lexicalize_title(("Grundlagen der Computerlinguistik", ""), realize="complete")
     >>> realizer(lexicalize_keywords(["grammar", "corpora"], lexicalized_title=title, realize="complete", lexeme="beschreiben"))
     ['beschreibt \xe2\x80\x9e Grundlagen_der_Computerlinguistik \xe2\x80\x9c die Themen grammar und corpora', '\xe2\x80\x9e Grundlagen_der_Computerlinguistik \xe2\x80\x9c beschreibt die Themen grammar und corpora', '\xe2\x80\x9e Grundlagen_der_Computerlinguistik \xe2\x80\x9c die Themen grammar und corpora beschreibt']
     """
@@ -444,20 +444,20 @@ def lexicalize_pages(pages, lexicalized_title, lexeme="länge"):
 
     realize "$title hat einen Umfang von $pages Seiten":
 
-    >>> title = lexicalize_titles(["Natural Language Processing"], realize="complete")
+    >>> title = lexicalize_title(("Natural Language Processing", ""), realize="complete")
     >>> realizer(lexicalize_pages(600, lexicalized_title=title, lexeme="umfang"))
     ['hat \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c einen Umfang von 600 Seiten', '\xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c einen Umfang von 600 Seiten hat', '\xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c hat einen Umfang von 600 Seiten']
 
     realize "$abstracttitle umfasst $pages Seiten":
 
-    >>> title = lexicalize_titles(["title1"], realize="abstract")
+    >>> title = lexicalize_title(("title1", ""), realize="abstract")
     >>> realizer(lexicalize_pages(600, lexicalized_title=title, lexeme="umfassen"))
     ['das Buch 600 Seiten umfasst', 'das Buch umfasst 600 Seiten', 'umfasst das Buch 600 Seiten']
 
     TODO: generates ungrammatical phrases, e.g. "ist das Buch lange 600 Seiten"
     realize "$abstracttitle ist $pages Seiten lang":
 
-    >>> title = lexicalize_titles(["title1"], realize="abstract")
+    >>> title = lexicalize_title(("title1", ""), realize="abstract")
     >>> realizer(lexicalize_pages(600, lexicalized_title=title, lexeme="länge"))
     ['das Buch 600 Seiten lang ist', 'das Buch ist 600 Seiten lang', 'das Buch ist lange 600 Seiten', 'das Buch lange 600 Seiten ist', 'ist das Buch 600 Seiten lang', 'ist das Buch lange 600 Seiten']
     """
@@ -526,13 +526,13 @@ def lexicalize_plang(plang, lexicalized_titles=None, lexicalized_authors=None,
 
     realize two authors who use several programming languages:
 
-    >>> authors = lexicalize_authors(["Horst Lohnstein", "Ralf Klabunde"], realize="lastnames")
+    >>> authors = lexicalize_authors((["Horst Lohnstein", "Ralf Klabunde"], ""), realize="lastnames")
     >>> realizer(lexicalize_plang("[Python][Lisp][C++]", lexicalized_authors=authors, realize="complete"))
     ['Lohnstein und Klabunde die Programmiersprachen Python , Lisp und C++ verwenden', 'Lohnstein und Klabunde verwenden die Programmiersprachen Python , Lisp und C++', 'verwenden Lohnstein und Klabunde die Programmiersprachen Python , Lisp und C++']
 
     realize a book title with several programming languages:
 
-    >>> title = lexicalize_titles(["Natural Language Processing"], realize="complete")
+    >>> title = lexicalize_title(("Natural Language Processing", ""), realize="complete")
     >>> realizer(lexicalize_plang("[Python][Lisp][C++]", lexicalized_titles=title, realize="complete"))
     ['verwendet \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c die Programmiersprachen Python , Lisp und C++', '\xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c die Programmiersprachen Python , Lisp und C++ verwendet', '\xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c verwendet die Programmiersprachen Python , Lisp und C++']
     """
@@ -575,19 +575,19 @@ def lexicalize_target(target, lexicalized_title):
 
     realize "... richtet sich an Anfänger":
 
-    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> realizer(lexicalize_target(0, title))
     ['das Buch richtet sich an Anf\xc3\xa4nger', 'richtet sich das Buch an Anf\xc3\xa4nger', 'sich das Buch an Anf\xc3\xa4nger richtet']
 
     realize "... richtet sich an Einsteiger mit Grundkenntnissen":
 
-    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> realizer(lexicalize_target(1, title))
     ['das Buch richtet sich an Einsteiger mit Grundkenntnissen', 'richtet sich das Buch an Einsteiger mit Grundkenntnissen', 'sich das Buch an Einsteiger mit Grundkenntnissen richtet']
 
     realize "... richtet sich an Fortgeschrittene":
 
-    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> realizer(lexicalize_target(2, title))
     ['das Buch richtet sich an Fortgeschrittene', 'richtet sich das Buch an Fortgeschrittene', 'sich das Buch an Fortgeschrittene richtet']
 
@@ -629,30 +629,30 @@ def lexicalize_recency(recency, lexicalized_title,
     realize "es ist 7 Jahre neuer als $lastbook":
 
     >>> recency_lastbook_nomatch = FeatDict(direction='+', rating='neutral', type='RelativeVariation', magnitude=FeatDict(number=7, unit="years"))
-    >>> title = lexicalize_titles(["foo"], realize="pronoun")
-    >>> lastbooktitle = lexicalize_titles(["Angewandte Computerlinguistik"], realize="complete")
+    >>> title = lexicalize_title(("foo", ""), realize="pronoun")
+    >>> lastbooktitle = lexicalize_title(("Angewandte Computerlinguistik", ""), realize="complete")
     >>> realizer(lexicalize_recency(recency_lastbook_nomatch, title, lastbooktitle))
     ['es 7 Jahre neuer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c ist', 'es ist 7 Jahre neuer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c', 'ist es 7 Jahre neuer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c']
 
     realize "das Buch ist 23 Jahre älter als $lastbook":
 
     >>> recency_lastbook_nomatch = FeatDict(direction='-', rating='neutral', type='RelativeVariation', magnitude=FeatDict(number=23, unit="years"))
-    >>> title = lexicalize_titles(["foo"], realize="abstract")
-    >>> lastbooktitle = lexicalize_titles(["Natural Language Processing"], realize="complete")
+    >>> title = lexicalize_title(("foo", ""), realize="abstract")
+    >>> lastbooktitle = lexicalize_title(("Natural Language Processing", ""), realize="complete")
     >>> realizer(lexicalize_recency(recency_lastbook_nomatch, title, lastbooktitle))
     ['das Buch 23 Jahre \xc3\xa4lter als \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c ist', 'das Buch ist 23 Jahre \xc3\xa4lter als \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c', 'ist das Buch 23 Jahre \xc3\xa4lter als \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c']
 
     realize "das Buch ist sehr alt":
 
     >>> recency_extra = ("old", "neutral")
-    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> realizer(lexicalize_recency(recency_extra, title))
     ['das Buch ist sehr alt', 'das Buch sehr alt ist', 'ist das Buch sehr alt']
 
     realize "das Buch ist besonders neu":
 
     >>> recency_extra = ("recent", "neutral")
-    >>> title = lexicalize_titles(["foo"], realize="abstract")
+    >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> realizer(lexicalize_recency(recency_extra, title))
     ['das Buch besonders neu ist', 'das Buch ist besonders neu', 'ist das Buch besonders neu']
     """
@@ -759,20 +759,20 @@ def lexicalize_title(title_tuple, lexicalized_authors=None, realize="complete",
 
     realize "das Buch von X und Y":
 
-    >>> authors = lexicalize_authors(["Alan Kay", "John Hopcroft"], realize="lastnames")
+    >>> authors = lexicalize_authors((["Alan Kay", "John Hopcroft"], ""), realize="lastnames")
     >>> realizer(lexicalize_title(("title", "neutral"), lexicalized_authors=authors, realize="abstract", authors_realize="preposition"))
     ['das Buch von Kay und Hopcroft', 'dem Buch von Kay und Hopcroft', 'des Buches von Kay und Hopcroft']
 
     realize "Xs Buch":
 
-    >>> author = lexicalize_authors(["Alan Kay"], realize="complete")
+    >>> author = lexicalize_authors((["Alan Kay"], ""), realize="complete")
     >>> realizer(lexicalize_title(("Natural Language Processing", "neutral"), lexicalized_authors=author, realize="complete", authors_realize="possessive"))
     ['Alan Kays \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c']
 
     we can't realize a book title as a pronoun with an author, e.g. "Chomskys
     es" or "es von Noam Chomsky":
 
-    >>> authors = lexicalize_authors(["Kay", "Manning"], realize="lastnames")
+    >>> authors = lexicalize_authors((["Kay", "Manning"], ""), realize="lastnames")
     >>> lexicalize_title(("a book","") , lexicalized_authors=authors, realize="pronoun")
     Traceback (most recent call last):
     AssertionError: can't realize title as pronoun with an author, e.g. 'Chomskys es'
@@ -780,7 +780,7 @@ def lexicalize_title(title_tuple, lexicalized_authors=None, realize="complete",
     we can't realize "A und Bs Buch" properly, due to current restrictions in
     the grammar:
 
-    >>> authors = lexicalize_authors(["Kay", "Manning"], realize="lastnames")
+    >>> authors = lexicalize_authors((["Kay", "Manning"], ""), realize="lastnames")
     >>> realizer(lexicalize_title(("random", ""), lexicalized_authors=authors, realize="abstract", authors_realize="possessive"))
     Traceback (most recent call last):
     AssertionError: can't realize possesive form with more than one author
@@ -833,136 +833,136 @@ def lexicalize_title(title_tuple, lexicalized_authors=None, realize="complete",
 
 
 
-def lexicalize_titles(book_titles, lexicalized_authors=None,
-                      realize="complete", authors_realize=None):
-    r"""
-    @type book_title: C{list} of C{str}
-    @param book_title: list of book title strings
-
-    @type lexicalized_authors: C{Diamond} OR C{NoneType}
-    @param authors: an I{optional} C{Diamond} containing a lexicalized
-    authors message
-
-    @type realize: C{str}
-    @param realize: "abstract", "complete", "pronoun" or "authors+title"
-    - "abstract" realizes 'das Buch' / 'die Bücher'
-    - "pronoun" realizes 'es' / 'sie'
-    - "complete" realizes book titles in the format specified in the
-      OpenCC grammar, e.g. „ Computational Linguistics. An Introduction “
-
-    @type authors_realize: C{str} or C{NoneType}
-    @param authors_realize: None, "possessive", "preposition", "random".
-    - "possessive" realizes 'Xs Buch'
-    - "preposition" realizes 'das Buch von X (und Y)'
-    - "random" chooses between "possessive" and "preposition"
-    - None just realizes the book title, e.g. "das Buch" or "NLP in Lisp"
-
-    realize one book title abstractly ("das Buch"):
-
-    >>> realizer(lexicalize_titles(["foo book"], realize="abstract"))
-    ['das Buch', 'dem Buch', 'des Buches']
-
-    NOTE: output is undeterministic for this example!
-    realize one book title abstractly with a pronoun ("es"):
-
-    >>> realized_pronoun = realizer(lexicalize_titles(["book title"], realize="pronoun"))
-    >>> realized_pronoun in (['es', 'es'], ['seiner','seiner'], ['ihm', 'ihm'])
-    True
-
-    realize two book titles abstractly ("die Bücher"):
-
-    >>> realizer(lexicalize_titles(["1st book", "2nd book"], realize="abstract"))
-    ['den B\xc3\xbcchern', 'der B\xc3\xbccher', 'die B\xc3\xbccher']
-
-    NOTE: output is undeterministic for this example!
-    realize two book titles abstractly with a pronoun ("sie"):
-
-    >>> realized_pronoun = realizer(lexicalize_titles(["book title", "another book"], realize="pronoun"))
-    >>> realized_pronoun in (["sie", "sie"], ["ihrer", "ihrer"], ["ihnen", "ihnen"])
-    True
-
-    realize two book titles concretely:
-
-    >>> realizer(lexicalize_titles(["Angewandte Computerlinguistik", "Natural Language Understanding"], realize="complete"))
-    ['\xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c und \xe2\x80\x9e Natural_Language_Understanding \xe2\x80\x9c']
-
-    realize "das Buch von X und Y":
-
-    >>> authors = lexicalize_authors(["Alan Kay", "John Hopcroft"], realize="lastnames")
-    >>> realizer(lexicalize_titles(["book title"], lexicalized_authors=authors, realize="abstract", authors_realize="preposition"))
-    ['das Buch von Kay und Hopcroft', 'dem Buch von Kay und Hopcroft', 'des Buches von Kay und Hopcroft']
-
-    realize "Xs Buch":
-
-    >>> author = lexicalize_authors(["Alan Kay"], realize="complete")
-    >>> realizer(lexicalize_titles(["Natural Language Processing"], lexicalized_authors=author, realize="complete", authors_realize="possessive"))
-    ['Alan Kays \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c']
-
-    we can't realize a book title es a pronoun with an author, e.g. "Chomskys
-    es" or "es von Noam Chomsky":
-
-    >>> authors = lexicalize_authors(["Kay", "Manning"], realize="lastnames")
-    >>> lexicalize_titles(["a book"], lexicalized_authors=authors, realize="pronoun")
-    Traceback (most recent call last):
-    AssertionError: can't realize title as pronoun with an author, e.g. 'Chomskys es'
-
-    we can't realize "A und Bs Buch" properly, due to current restrictions in
-    the grammar:
-
-    >>> authors = lexicalize_authors(["Kay", "Manning"], realize="lastnames")
-    >>> realizer(lexicalize_titles(["random book"], lexicalized_authors=authors, realize="abstract", authors_realize="possessive"))
-    Traceback (most recent call last):
-    AssertionError: can't realize possesive form with more than one author
-    """
-    assert isinstance(book_titles, list), "needs a list of titles as input"
-    assert realize in ("abstract", "complete", "pronoun", "random")
-    assert authors_realize in (None, "possessive", "preposition", "random")
-    num_of_titles = len(book_titles)
-
-    if realize == "random":
-        if authors_realize: #can't realize w/ title pronoun, e.g. "Chomskys es"
-            realize = random.choice(["abstract", "complete"])
-        else:
-            realize = random.choice(["abstract", "complete", "pronoun"])
-
-    if realize == "abstract":
-        title_diamond = gen_abstract_title(num_of_titles)
-    elif realize == "pronoun":
-        assert lexicalized_authors is None, \
-            "can't realize title as pronoun with an author, e.g. 'Chomskys es'"
-        title_diamond = gen_personal_pronoun(num_of_titles, "neut", 3)
-    elif realize == "complete":
-        realized_titles = []
-        for title in book_titles:
-            realized_titles.append(gen_title(title))
-        titles_enum = gen_enumeration(realized_titles, mode="NP")
-        add_mode_suffix(titles_enum, mode="NP")
-        title_diamond = titles_enum
-
-    if lexicalized_authors:
-        if authors_realize == "random":
-            if __sing_or_plur(lexicalized_authors) == "sing":
-                authors_realize = random.choice(["possessive", "preposition"])
-            else: # possessive form doesn't work w/ more than one author
-                authors_realize = "preposition"
-
-        if authors_realize == "possessive": # Chomskys Buch
-            assert __sing_or_plur(lexicalized_authors) == "sing", \
-                "can't realize possesive form with more than one author"
-            title_diamond.append_subdiamond(lexicalized_authors, mode="ASS")
-
-            article = re.compile("\d+__ART")
-            # remove ARTicle from title: Chomskys das Buch --> Chomskys Buch
-            for key in title_diamond.keys():
-                if isinstance(key, str) and article.match(key):
-                    article_key = article.match(key).group()
-                    title_diamond.pop(article_key)
-        elif authors_realize == "preposition": # das Buch von Chomsky
-            preposition_diamond = gen_prep("von", "zugehörigkeit")
-            lexicalized_authors.prepend_subdiamond(preposition_diamond)
-            title_diamond.append_subdiamond(lexicalized_authors, mode="ATTRIB")
-
-    return title_diamond
+#~ def lexicalize_titles(book_titles, lexicalized_authors=None,
+                      #~ realize="complete", authors_realize=None):
+    #~ r"""
+    #~ @type book_title: C{list} of C{str}
+    #~ @param book_title: list of book title strings
+#~ 
+    #~ @type lexicalized_authors: C{Diamond} OR C{NoneType}
+    #~ @param authors: an I{optional} C{Diamond} containing a lexicalized
+    #~ authors message
+#~ 
+    #~ @type realize: C{str}
+    #~ @param realize: "abstract", "complete", "pronoun" or "authors+title"
+    #~ - "abstract" realizes 'das Buch' / 'die Bücher'
+    #~ - "pronoun" realizes 'es' / 'sie'
+    #~ - "complete" realizes book titles in the format specified in the
+      #~ OpenCC grammar, e.g. „ Computational Linguistics. An Introduction “
+#~ 
+    #~ @type authors_realize: C{str} or C{NoneType}
+    #~ @param authors_realize: None, "possessive", "preposition", "random".
+    #~ - "possessive" realizes 'Xs Buch'
+    #~ - "preposition" realizes 'das Buch von X (und Y)'
+    #~ - "random" chooses between "possessive" and "preposition"
+    #~ - None just realizes the book title, e.g. "das Buch" or "NLP in Lisp"
+#~ 
+    #~ realize one book title abstractly ("das Buch"):
+#~ 
+    #~ >>> realizer(lexicalize_title(("foo book", ""), realize="abstract"))
+    #~ ['das Buch', 'dem Buch', 'des Buches']
+#~ 
+    #~ NOTE: output is undeterministic for this example!
+    #~ realize one book title abstractly with a pronoun ("es"):
+#~ 
+    #~ >>> realized_pronoun = realizer(lexicalize_title(("book title", ""), realize="pronoun"))
+    #~ >>> realized_pronoun in (['es', 'es'], ['seiner','seiner'], ['ihm', 'ihm'])
+    #~ True
+#~ 
+    #~ realize two book titles abstractly ("die Bücher"):
+#~ 
+    #~ >>> realizer(lexicalize_title(("1st book", "2nd book", ""), realize="abstract"))
+    #~ ['den B\xc3\xbcchern', 'der B\xc3\xbccher', 'die B\xc3\xbccher']
+#~ 
+    #~ NOTE: output is undeterministic for this example!
+    #~ realize two book titles abstractly with a pronoun ("sie"):
+#~ 
+    #~ >>> realized_pronoun = realizer(lexicalize_title(("book title", "another book", ""), realize="pronoun"))
+    #~ >>> realized_pronoun in (["sie", "sie"], ["ihrer", "ihrer"], ["ihnen", "ihnen"])
+    #~ True
+#~ 
+    #~ realize two book titles concretely:
+#~ 
+    #~ >>> realizer(lexicalize_title(("Angewandte Computerlinguistik", "Natural Language Understanding", ""), realize="complete"))
+    #~ ['\xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c und \xe2\x80\x9e Natural_Language_Understanding \xe2\x80\x9c']
+#~ 
+    #~ realize "das Buch von X und Y":
+#~ 
+    #~ >>> authors = lexicalize_authors(["Alan Kay", "John Hopcroft"], realize="lastnames")
+    #~ >>> realizer(lexicalize_title(("book title", ""), lexicalized_authors=authors, realize="abstract", authors_realize="preposition"))
+    #~ ['das Buch von Kay und Hopcroft', 'dem Buch von Kay und Hopcroft', 'des Buches von Kay und Hopcroft']
+#~ 
+    #~ realize "Xs Buch":
+#~ 
+    #~ >>> author = lexicalize_authors(["Alan Kay"], realize="complete")
+    #~ >>> realizer(lexicalize_title(("Natural Language Processing", ""), lexicalized_authors=author, realize="complete", authors_realize="possessive"))
+    #~ ['Alan Kays \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c']
+#~ 
+    #~ we can't realize a book title es a pronoun with an author, e.g. "Chomskys
+    #~ es" or "es von Noam Chomsky":
+#~ 
+    #~ >>> authors = lexicalize_authors(["Kay", "Manning"], realize="lastnames")
+    #~ >>> lexicalize_title(("a book", ""), lexicalized_authors=authors, realize="pronoun")
+    #~ Traceback (most recent call last):
+    #~ AssertionError: can't realize title as pronoun with an author, e.g. 'Chomskys es'
+#~ 
+    #~ we can't realize "A und Bs Buch" properly, due to current restrictions in
+    #~ the grammar:
+#~ 
+    #~ >>> authors = lexicalize_authors(["Kay", "Manning"], realize="lastnames")
+    #~ >>> realizer(lexicalize_title(("random book", ""), lexicalized_authors=authors, realize="abstract", authors_realize="possessive"))
+    #~ Traceback (most recent call last):
+    #~ AssertionError: can't realize possesive form with more than one author
+    #~ """
+    #~ assert isinstance(book_titles, list), "needs a list of titles as input"
+    #~ assert realize in ("abstract", "complete", "pronoun", "random")
+    #~ assert authors_realize in (None, "possessive", "preposition", "random")
+    #~ num_of_titles = len(book_titles)
+#~ 
+    #~ if realize == "random":
+        #~ if authors_realize: #can't realize w/ title pronoun, e.g. "Chomskys es"
+            #~ realize = random.choice(["abstract", "complete"])
+        #~ else:
+            #~ realize = random.choice(["abstract", "complete", "pronoun"])
+#~ 
+    #~ if realize == "abstract":
+        #~ title_diamond = gen_abstract_title(num_of_titles)
+    #~ elif realize == "pronoun":
+        #~ assert lexicalized_authors is None, \
+            #~ "can't realize title as pronoun with an author, e.g. 'Chomskys es'"
+        #~ title_diamond = gen_personal_pronoun(num_of_titles, "neut", 3)
+    #~ elif realize == "complete":
+        #~ realized_titles = []
+        #~ for title in book_titles:
+            #~ realized_titles.append(gen_title(title))
+        #~ titles_enum = gen_enumeration(realized_titles, mode="NP")
+        #~ add_mode_suffix(titles_enum, mode="NP")
+        #~ title_diamond = titles_enum
+#~ 
+    #~ if lexicalized_authors:
+        #~ if authors_realize == "random":
+            #~ if __sing_or_plur(lexicalized_authors) == "sing":
+                #~ authors_realize = random.choice(["possessive", "preposition"])
+            #~ else: # possessive form doesn't work w/ more than one author
+                #~ authors_realize = "preposition"
+#~ 
+        #~ if authors_realize == "possessive": # Chomskys Buch
+            #~ assert __sing_or_plur(lexicalized_authors) == "sing", \
+                #~ "can't realize possesive form with more than one author"
+            #~ title_diamond.append_subdiamond(lexicalized_authors, mode="ASS")
+#~ 
+            #~ article = re.compile("\d+__ART")
+            #~ # remove ARTicle from title: Chomskys das Buch --> Chomskys Buch
+            #~ for key in title_diamond.keys():
+                #~ if isinstance(key, str) and article.match(key):
+                    #~ article_key = article.match(key).group()
+                    #~ title_diamond.pop(article_key)
+        #~ elif authors_realize == "preposition": # das Buch von Chomsky
+            #~ preposition_diamond = gen_prep("von", "zugehörigkeit")
+            #~ lexicalized_authors.prepend_subdiamond(preposition_diamond)
+            #~ title_diamond.append_subdiamond(lexicalized_authors, mode="ATTRIB")
+#~ 
+    #~ return title_diamond
 
 
 
@@ -976,17 +976,17 @@ def lexicalize_year(year, lexicalized_title):
 
     realize a book's year of publishing:
 
-    >>> title = lexicalize_titles(["a book"], realize="abstract")
+    >>> title = lexicalize_title(("a book", ""), realize="abstract")
     >>> realizer(lexicalize_year(1986, lexicalized_title=title))
     ['das Buch 1986 erschienen ist', 'das Buch ist 1986 erschienen', 'ist das Buch 1986 erschienen']
 
-    a more complex example: two unnamed books by the same author were
-    published in $year:
-
-    >>> author = lexicalize_authors(["Alan Kay"], realize="complete")
-    >>> title = lexicalize_titles(["a book", "book 2"], lexicalized_authors=author, realize="abstract", authors_realize="preposition")
-    >>> realizer(lexicalize_year(1986, lexicalized_title=title))
-    ['die B\xc3\xbccher von Alan Kay 1986 erschienen sind', 'die B\xc3\xbccher von Alan Kay sind 1986 erschienen', 'sind die B\xc3\xbccher von Alan Kay 1986 erschienen']
+    #~ a more complex example: two unnamed books by the same author were
+    #~ published in $year:
+#~ 
+    #~ >>> author = lexicalize_authors((["Alan Kay"], ""), realize="complete")
+    #~ >>> title = lexicalize_title(("a book", "book 2", ""), lexicalized_authors=author, realize="abstract", authors_realize="preposition")
+    #~ >>> realizer(lexicalize_year(1986, lexicalized_title=title))
+    #~ ['die B\xc3\xbccher von Alan Kay 1986 erschienen sind', 'die B\xc3\xbccher von Alan Kay sind 1986 erschienen', 'sind die B\xc3\xbccher von Alan Kay 1986 erschienen']
     """
     tempus = gen_tempus("imperf")
     adv = create_diamond("ADV", "modus", str(year), [])

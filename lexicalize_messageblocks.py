@@ -26,6 +26,8 @@ def lexicalize_id(id_message_block):
     r"""
     pass all the messages directly to their respective lexicalization
     functions.
+
+    exception: lexicalize authors and title first and remove them from the set
     """
     lexicalized_messages = []
     for msg_name, msg_val in id_message_block.items():
