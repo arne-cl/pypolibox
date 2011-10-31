@@ -13,7 +13,12 @@ from nltk.featstruct import Feature, FeatDict
 from textplan import ConstituentSet, Message, linearize_textplan
 from hlds import Diamond, create_diamond, add_mode_suffix
 from util import ensure_unicode, sql_array_to_list
-from realization import realize as realizer #TODO: dbg, mv to main
+#from realization import realize as realizer #TODO: dbg, mv to main
+from realization import OpenCCG
+from util import load_settings
+
+SETTINGS = load_settings()
+openccg = OpenCCG(SETTINGS)
 
 
 def lexicalize_authors(authors_tuple, realize="abstract"):
@@ -36,19 +41,19 @@ def lexicalize_authors(authors_tuple, realize="abstract"):
     the authors last names or the complete names of the authors.
 
     realize one author abstractly:
-    >>> realizer(lexicalize_authors((['author1'], ""), realize='abstract'))
+    >>> openccg.realize(lexicalize_authors((['author1'], ""), realize='abstract'))
     ['dem Autoren', 'den Autoren', 'der Autor', 'des Autors']
 
     realize two authors abstractly:
-    >>> realizer(lexicalize_authors((['author1', 'author2'], "neutral") , realize='abstract'))
+    >>> openccg.realize(lexicalize_authors((['author1', 'author2'], "neutral") , realize='abstract'))
     ['den Autoren', 'der Autoren', 'die Autoren']
 
     realize two authors, only using their lastnames:
-    >>> realizer(lexicalize_authors((['Christopher D. Manning', 'Detlef Peter Zaun'], ""), realize='lastnames'))
+    >>> openccg.realize(lexicalize_authors((['Christopher D. Manning', 'Detlef Peter Zaun'], ""), realize='lastnames'))
     ['Manning und Zaun', 'Mannings und Zauns']
 
     realize two authors using their full names:
-    >>> realizer(lexicalize_authors((['Christopher D. Manning', 'Detlef Peter Zaun'], ""), realize='complete'))
+    >>> openccg.realize(lexicalize_authors((['Christopher D. Manning', 'Detlef Peter Zaun'], ""), realize='complete'))
     ['Christopher D. Manning und Detlef Peter Zaun', 'Christopher D. Mannings und Detlef Peter Zauns']
     """
     authors, rating = authors_tuple
@@ -96,20 +101,20 @@ def lexicalize_codeexamples(examples, lexicalized_title,
     realize "das Buch enthält Code-Beispiele":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> realizer(lexicalize_codeexamples(1, lexicalized_title=title, lexeme="enthalten"))
+    >>> openccg.realize(lexicalize_codeexamples(1, lexicalized_title=title, lexeme="enthalten"))
     ['das Buch Code-Beispiele enth\xc3\xa4lt', 'das Buch enth\xc3\xa4lt Code-Beispiele', 'enth\xc3\xa4lt das Buch Code-Beispiele']
 
     realize "das Buch enthält keine Code-Beispiele":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> realizer(lexicalize_codeexamples(0, lexicalized_title=title, lexeme="enthalten"))
+    >>> openccg.realize(lexicalize_codeexamples(0, lexicalized_title=title, lexeme="enthalten"))
     ['das Buch enth\xc3\xa4lt keine Code-Beispiele', 'das Buch keine Code-Beispiele enth\xc3\xa4lt', 'enth\xc3\xa4lt das Buch keine Code-Beispiele']
 
     realize "das Buch enthält Code-Beispiele in den Programmiersprachen A + B":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> plang = lexicalize_plang("[Ada][Scheme]", realize="embedded")
-    >>> realizer(lexicalize_codeexamples(1, lexicalized_title=title, lexicalized_plang=plang, lexeme="enthalten"))
+    >>> openccg.realize(lexicalize_codeexamples(1, lexicalized_title=title, lexicalized_plang=plang, lexeme="enthalten"))
     ['das Buch Code-Beispiele in den Programmiersprachen Ada und Scheme enth\xc3\xa4lt', 'das Buch enth\xc3\xa4lt Code-Beispiele in den Programmiersprachen Ada und Scheme', 'enth\xc3\xa4lt das Buch Code-Beispiele in den Programmiersprachen Ada und Scheme']
 
     realize "d. Buch von X + Y beinhaltet Code-Bsp. in den Prog.sprachen A + B"
@@ -117,7 +122,7 @@ def lexicalize_codeexamples(examples, lexicalized_title,
     >>> authors = lexicalize_authors((["Alan Kay", "John Hopcroft"], ""), realize="lastnames")
     >>> title = lexicalize_title(("foo", ""), lexicalized_authors=authors, realize="abstract", authors_realize="preposition")
     >>> plang = lexicalize_plang("[Ada][Scheme]", realize="embedded")
-    >>> realizer(lexicalize_codeexamples(1, lexicalized_title=title, lexicalized_plang=plang, lexeme="beinhalten"))
+    >>> openccg.realize(lexicalize_codeexamples(1, lexicalized_title=title, lexicalized_plang=plang, lexeme="beinhalten"))
     ['beinhaltet das Buch von Kay und Hopcroft Code-Beispiele in den Programmiersprachen Ada und Scheme', 'das Buch von Kay und Hopcroft Code-Beispiele in den Programmiersprachen Ada und Scheme beinhaltet', 'das Buch von Kay und Hopcroft beinhaltet Code-Beispiele in den Programmiersprachen Ada und Scheme']
     """
     assert lexeme in ("beinhalten", "enthalten")
@@ -158,13 +163,13 @@ def lexicalize_exercises(exercises, lexicalized_title, lexeme="beinhalten"):
     realize "das Buch enthält Übungen":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> realizer(lexicalize_exercises(0, title, lexeme="enthalten"))
+    >>> openccg.realize(lexicalize_exercises(0, title, lexeme="enthalten"))
     ['das Buch enth\xc3\xa4lt keine \xc3\x9cbungen', 'das Buch keine \xc3\x9cbungen enth\xc3\xa4lt', 'enth\xc3\xa4lt das Buch keine \xc3\x9cbungen']
 
     realize "das Buch beinhaltet keine Übungen":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> realizer(lexicalize_exercises(0, title))
+    >>> openccg.realize(lexicalize_exercises(0, title))
     ['beinhaltet das Buch keine \xc3\x9cbungen', 'das Buch beinhaltet keine \xc3\x9cbungen', 'das Buch keine \xc3\x9cbungen beinhaltet']
     """
     assert lexeme in ("beinhalten", "enthalten")
@@ -199,13 +204,13 @@ def lexicalize_language(language, lexicalized_title, realize="noun"):
     realize "das Buch ist in englischer Sprache":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> realizer(lexicalize_language("English", title, realize="adjective"))
+    >>> openccg.realize(lexicalize_language("English", title, realize="adjective"))
     ['das Buch in englischer Sprache ist', 'das Buch ist in englischer Sprache', 'ist das Buch in englischer Sprache']
 
     realize "das Buch ist auf Deutsch":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> realizer(lexicalize_language("German", title, realize="noun"))
+    >>> openccg.realize(lexicalize_language("German", title, realize="noun"))
     ['das Buch auf Deutsch ist', 'das Buch ist auf Deutsch', 'ist das Buch auf Deutsch']
     """
     assert realize in ("noun", "adjective")
@@ -249,7 +254,7 @@ def lexicalize_length(length, lexicalized_title,
     >>> length_lastbook_nomatch = FeatDict(direction='+', rating='neutral', type='RelativeVariation', magnitude=FeatDict(number=122, unit="pages"))
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> lasttitle = lexicalize_title(("Natural Language Processing", ""), realize="complete")
-    >>> realizer(lexicalize_length(length_lastbook_nomatch, title, lasttitle))
+    >>> openccg.realize(lexicalize_length(length_lastbook_nomatch, title, lasttitle))
     ['das Buch 122 Seiten l\xc3\xa4nger als \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c ist', 'das Buch ist 122 Seiten l\xc3\xa4nger als \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c', 'ist das Buch 122 Seiten l\xc3\xa4nger als \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c']
 
     realize "es ist 14 Seiten kürzer als $lastbook":
@@ -257,21 +262,21 @@ def lexicalize_length(length, lexicalized_title,
     >>> length_lastbook_nomatch = FeatDict(direction='-', rating='neutral', type='RelativeVariation', magnitude=FeatDict(number=14, unit="pages"))
     >>> title = lexicalize_title(("foo", ""), realize="pronoun")
     >>> lasttitle = lexicalize_title(("Angewandte Computerlinguistik", ""), realize="complete")
-    >>> realizer(lexicalize_length(length_lastbook_nomatch, title, lasttitle))
+    >>> openccg.realize(lexicalize_length(length_lastbook_nomatch, title, lasttitle))
     ['es 14 Seiten k\xc3\xbcrzer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c ist', 'es ist 14 Seiten k\xc3\xbcrzer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c', 'ist es 14 Seiten k\xc3\xbcrzer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c']
 
     realize within an extra message - "das Buch ist sehr umfangreich":
 
     >>> length = ("very long", "neutral")
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> realizer(lexicalize_length(length, title))
+    >>> openccg.realize(lexicalize_length(length, title))
     ['das Buch ist sehr umfangreich', 'das Buch sehr umfangreich ist', 'ist das Buch sehr umfangreich']
 
     realize within an extra message - "es ist etwas kurz":
 
     >>> length = ("very short", "neutral")
     >>> title = lexicalize_title(("foo", ""), realize="pronoun")
-    >>> realizer(lexicalize_length(length, title))
+    >>> openccg.realize(lexicalize_length(length, title))
     ['es etwas kurz ist', 'es ist etwas kurz', 'ist es etwas kurz']
     """
     assert isinstance(length, (FeatDict, tuple))
@@ -362,20 +367,20 @@ def lexicalize_keywords(keywords, lexicalized_title=None,
     I{behandeln}:
 
     >>> author = lexicalize_authors((["author1"], ""), realize="abstract")
-    >>> realizer(lexicalize_keywords(["keyword1"], lexicalized_authors=author, realize="abstract", lexeme="behandeln"))
+    >>> openccg.realize(lexicalize_keywords(["keyword1"], lexicalized_authors=author, realize="abstract", lexeme="behandeln"))
     ['behandelt der Autor das Thema', 'der Autor behandelt das Thema', 'der Autor das Thema behandelt']
 
     realize one keyword concretely, using two concrete authors and the lexeme
     I{beschreiben}:
 
     >>> authors = lexicalize_authors((["John E. Hopcroft","Jeffrey D. Ullman"], ""), realize="complete")
-    >>> realizer(lexicalize_keywords(["parsing", "formal languages"], lexicalized_authors=authors, realize="complete", lexeme="beschreiben"))
+    >>> openccg.realize(lexicalize_keywords(["parsing", "formal languages"], lexicalized_authors=authors, realize="complete", lexeme="beschreiben"))
     ['John E. Hopcroft und Jeffrey D. Ullman beschreiben die Themen parsing und formal_languages', 'John E. Hopcroft und Jeffrey D. Ullman die Themen parsing und formal_languages beschreiben', 'beschreiben John E. Hopcroft und Jeffrey D. Ullman die Themen parsing und formal_languages']
 
     realize 4 keywords, using 1 author's last name and the lexeme I{eingehen}:
 
     >>> author = lexicalize_authors((["Ralph Grishman"], ""), realize="lastnames")
-    >>> realizer(lexicalize_keywords(["parsing","semantics","discourse","generation"], lexicalized_authors=author, realize="complete", lexeme="eingehen"))
+    >>> openccg.realize(lexicalize_keywords(["parsing","semantics","discourse","generation"], lexicalized_authors=author, realize="complete", lexeme="eingehen"))
     ['Grishman geht auf den Themen parsing , semantics , discourse und generation ein', 'Grishman geht auf die Themen parsing , semantics , discourse und generation ein', 'geht Grishman auf den Themen parsing , semantics , discourse und generation ein', 'geht Grishman auf die Themen parsing , semantics , discourse und generation ein']
 
     TODO: "___ geht auf den Themen ein" is not OK
@@ -384,14 +389,14 @@ def lexicalize_keywords(keywords, lexicalized_title=None,
     I{aufgreifen}:
 
     >>> title = lexicalize_title(("book1", ""), realize="abstract")
-    >>> realizer(lexicalize_keywords(["regular expressions"], lexicalized_title=title, realize="complete", lexeme="aufgreifen"))
+    >>> openccg.realize(lexicalize_keywords(["regular expressions"], lexicalized_title=title, realize="complete", lexeme="aufgreifen"))
     ['das Buch greift das Thema regular_expressions auf', 'greift das Buch das Thema regular_expressions auf']
 
     realize 2 keywords, using a concrete book title and the lexeme
     I{beschreiben}:
 
     >>> title = lexicalize_title(("Grundlagen der Computerlinguistik", ""), realize="complete")
-    >>> realizer(lexicalize_keywords(["grammar", "corpora"], lexicalized_title=title, realize="complete", lexeme="beschreiben"))
+    >>> openccg.realize(lexicalize_keywords(["grammar", "corpora"], lexicalized_title=title, realize="complete", lexeme="beschreiben"))
     ['beschreibt \xe2\x80\x9e Grundlagen_der_Computerlinguistik \xe2\x80\x9c die Themen grammar und corpora', '\xe2\x80\x9e Grundlagen_der_Computerlinguistik \xe2\x80\x9c beschreibt die Themen grammar und corpora', '\xe2\x80\x9e Grundlagen_der_Computerlinguistik \xe2\x80\x9c die Themen grammar und corpora beschreibt']
     """
     assert realize in ("abstract", "complete"), \
@@ -445,20 +450,20 @@ def lexicalize_pages(pages, lexicalized_title, lexeme="länge"):
     realize "$title hat einen Umfang von $pages Seiten":
 
     >>> title = lexicalize_title(("Natural Language Processing", ""), realize="complete")
-    >>> realizer(lexicalize_pages(600, lexicalized_title=title, lexeme="umfang"))
+    >>> openccg.realize(lexicalize_pages(600, lexicalized_title=title, lexeme="umfang"))
     ['hat \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c einen Umfang von 600 Seiten', '\xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c einen Umfang von 600 Seiten hat', '\xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c hat einen Umfang von 600 Seiten']
 
     realize "$abstracttitle umfasst $pages Seiten":
 
     >>> title = lexicalize_title(("title1", ""), realize="abstract")
-    >>> realizer(lexicalize_pages(600, lexicalized_title=title, lexeme="umfassen"))
+    >>> openccg.realize(lexicalize_pages(600, lexicalized_title=title, lexeme="umfassen"))
     ['das Buch 600 Seiten umfasst', 'das Buch umfasst 600 Seiten', 'umfasst das Buch 600 Seiten']
 
     TODO: generates ungrammatical phrases, e.g. "ist das Buch lange 600 Seiten"
     realize "$abstracttitle ist $pages Seiten lang":
 
     >>> title = lexicalize_title(("title1", ""), realize="abstract")
-    >>> realizer(lexicalize_pages(600, lexicalized_title=title, lexeme="länge"))
+    >>> openccg.realize(lexicalize_pages(600, lexicalized_title=title, lexeme="länge"))
     ['das Buch 600 Seiten lang ist', 'das Buch ist 600 Seiten lang', 'das Buch ist lange 600 Seiten', 'das Buch lange 600 Seiten ist', 'ist das Buch 600 Seiten lang', 'ist das Buch lange 600 Seiten']
     """
     if isinstance(pages, int):
@@ -521,19 +526,19 @@ def lexicalize_plang(plang, lexicalized_titles=None, lexicalized_authors=None,
 
     realize "die Programmiersprachen A, B und C":
 
-    >>> realizer(lexicalize_plang("[Python][Lisp][C++]", realize="embedded"))
+    >>> openccg.realize(lexicalize_plang("[Python][Lisp][C++]", realize="embedded"))
     ['den Programmiersprachen Python , Lisp und C++', 'der Programmiersprachen Python , Lisp und C++', 'die Programmiersprachen Python , Lisp und C++']
 
     realize two authors who use several programming languages:
 
     >>> authors = lexicalize_authors((["Horst Lohnstein", "Ralf Klabunde"], ""), realize="lastnames")
-    >>> realizer(lexicalize_plang("[Python][Lisp][C++]", lexicalized_authors=authors, realize="complete"))
+    >>> openccg.realize(lexicalize_plang("[Python][Lisp][C++]", lexicalized_authors=authors, realize="complete"))
     ['Lohnstein und Klabunde die Programmiersprachen Python , Lisp und C++ verwenden', 'Lohnstein und Klabunde verwenden die Programmiersprachen Python , Lisp und C++', 'verwenden Lohnstein und Klabunde die Programmiersprachen Python , Lisp und C++']
 
     realize a book title with several programming languages:
 
     >>> title = lexicalize_title(("Natural Language Processing", ""), realize="complete")
-    >>> realizer(lexicalize_plang("[Python][Lisp][C++]", lexicalized_titles=title, realize="complete"))
+    >>> openccg.realize(lexicalize_plang("[Python][Lisp][C++]", lexicalized_titles=title, realize="complete"))
     ['verwendet \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c die Programmiersprachen Python , Lisp und C++', '\xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c die Programmiersprachen Python , Lisp und C++ verwendet', '\xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c verwendet die Programmiersprachen Python , Lisp und C++']
     """
     assert lexicalized_titles or lexicalized_authors or realize == "embedded", \
@@ -576,24 +581,24 @@ def lexicalize_target(target, lexicalized_title):
     realize "... richtet sich an Anfänger":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> realizer(lexicalize_target(0, title))
+    >>> openccg.realize(lexicalize_target(0, title))
     ['das Buch richtet sich an Anf\xc3\xa4nger', 'richtet sich das Buch an Anf\xc3\xa4nger', 'sich das Buch an Anf\xc3\xa4nger richtet']
 
     realize "... richtet sich an Einsteiger mit Grundkenntnissen":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> realizer(lexicalize_target(1, title))
+    >>> openccg.realize(lexicalize_target(1, title))
     ['das Buch richtet sich an Einsteiger mit Grundkenntnissen', 'richtet sich das Buch an Einsteiger mit Grundkenntnissen', 'sich das Buch an Einsteiger mit Grundkenntnissen richtet']
 
     realize "... richtet sich an Fortgeschrittene":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> realizer(lexicalize_target(2, title))
+    >>> openccg.realize(lexicalize_target(2, title))
     ['das Buch richtet sich an Fortgeschrittene', 'richtet sich das Buch an Fortgeschrittene', 'sich das Buch an Fortgeschrittene richtet']
 
     realize "... richtet sich an Experten":
     >>> target = lexicalize_target(3, title)
-    >>> realizer(target)
+    >>> openccg.realize(target)
     ['das Buch richtet sich an Experten', 'richtet sich das Buch an Experten', 'sich das Buch an Experten richtet']
     """
     target = int(target)
@@ -631,7 +636,7 @@ def lexicalize_recency(recency, lexicalized_title,
     >>> recency_lastbook_nomatch = FeatDict(direction='+', rating='neutral', type='RelativeVariation', magnitude=FeatDict(number=7, unit="years"))
     >>> title = lexicalize_title(("foo", ""), realize="pronoun")
     >>> lastbooktitle = lexicalize_title(("Angewandte Computerlinguistik", ""), realize="complete")
-    >>> realizer(lexicalize_recency(recency_lastbook_nomatch, title, lastbooktitle))
+    >>> openccg.realize(lexicalize_recency(recency_lastbook_nomatch, title, lastbooktitle))
     ['es 7 Jahre neuer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c ist', 'es ist 7 Jahre neuer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c', 'ist es 7 Jahre neuer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c']
 
     realize "das Buch ist 23 Jahre älter als $lastbook":
@@ -639,21 +644,21 @@ def lexicalize_recency(recency, lexicalized_title,
     >>> recency_lastbook_nomatch = FeatDict(direction='-', rating='neutral', type='RelativeVariation', magnitude=FeatDict(number=23, unit="years"))
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> lastbooktitle = lexicalize_title(("Natural Language Processing", ""), realize="complete")
-    >>> realizer(lexicalize_recency(recency_lastbook_nomatch, title, lastbooktitle))
+    >>> openccg.realize(lexicalize_recency(recency_lastbook_nomatch, title, lastbooktitle))
     ['das Buch 23 Jahre \xc3\xa4lter als \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c ist', 'das Buch ist 23 Jahre \xc3\xa4lter als \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c', 'ist das Buch 23 Jahre \xc3\xa4lter als \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c']
 
     realize "das Buch ist sehr alt":
 
     >>> recency_extra = ("old", "neutral")
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> realizer(lexicalize_recency(recency_extra, title))
+    >>> openccg.realize(lexicalize_recency(recency_extra, title))
     ['das Buch ist sehr alt', 'das Buch sehr alt ist', 'ist das Buch sehr alt']
 
     realize "das Buch ist besonders neu":
 
     >>> recency_extra = ("recent", "neutral")
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> realizer(lexicalize_recency(recency_extra, title))
+    >>> openccg.realize(lexicalize_recency(recency_extra, title))
     ['das Buch besonders neu ist', 'das Buch ist besonders neu', 'ist das Buch besonders neu']
     """
     assert isinstance(recency, (FeatDict, tuple))
@@ -747,26 +752,22 @@ def lexicalize_title(title_tuple, lexicalized_authors=None, realize="complete",
 
     realize one book title abstractly ("das Buch"):
 
-    >>> realizer(lexicalize_title( ("book", "neutral"), realize="abstract"))
+    >>> openccg.realize(lexicalize_title( ("book", "neutral"), realize="abstract"))
     ['das Buch', 'dem Buch', 'des Buches']
 
-    NOTE: output is undeterministic for this example!
-    realize one book title abstractly with a pronoun ("es"):
-
-    >>> realized_pronoun = realizer(lexicalize_title(("book title", ""), realize="pronoun"))
-    >>> realized_pronoun in (['es', 'es'], ['seiner','seiner'], ['ihm', 'ihm'])
-    True
+    >>> openccg.realize(lexicalize_title(("book title", ""), realize="pronoun"))
+    ['es', 'ihm', 'seiner']
 
     realize "das Buch von X und Y":
 
     >>> authors = lexicalize_authors((["Alan Kay", "John Hopcroft"], ""), realize="lastnames")
-    >>> realizer(lexicalize_title(("title", "neutral"), lexicalized_authors=authors, realize="abstract", authors_realize="preposition"))
+    >>> openccg.realize(lexicalize_title(("title", "neutral"), lexicalized_authors=authors, realize="abstract", authors_realize="preposition"))
     ['das Buch von Kay und Hopcroft', 'dem Buch von Kay und Hopcroft', 'des Buches von Kay und Hopcroft']
 
     realize "Xs Buch":
 
     >>> author = lexicalize_authors((["Alan Kay"], ""), realize="complete")
-    >>> realizer(lexicalize_title(("Natural Language Processing", "neutral"), lexicalized_authors=author, realize="complete", authors_realize="possessive"))
+    >>> openccg.realize(lexicalize_title(("Natural Language Processing", "neutral"), lexicalized_authors=author, realize="complete", authors_realize="possessive"))
     ['Alan Kays \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c']
 
     we can't realize a book title as a pronoun with an author, e.g. "Chomskys
@@ -781,7 +782,7 @@ def lexicalize_title(title_tuple, lexicalized_authors=None, realize="complete",
     the grammar:
 
     >>> authors = lexicalize_authors((["Kay", "Manning"], ""), realize="lastnames")
-    >>> realizer(lexicalize_title(("random", ""), lexicalized_authors=authors, realize="abstract", authors_realize="possessive"))
+    >>> openccg.realize(lexicalize_title(("random", ""), lexicalized_authors=authors, realize="abstract", authors_realize="possessive"))
     Traceback (most recent call last):
     AssertionError: can't realize possesive form with more than one author
     """
@@ -859,43 +860,43 @@ def lexicalize_title(title_tuple, lexicalized_authors=None, realize="complete",
 #~ 
     #~ realize one book title abstractly ("das Buch"):
 #~ 
-    #~ >>> realizer(lexicalize_title(("foo book", ""), realize="abstract"))
+    #~ >>> openccg.realize(lexicalize_title(("foo book", ""), realize="abstract"))
     #~ ['das Buch', 'dem Buch', 'des Buches']
 #~ 
     #~ NOTE: output is undeterministic for this example!
     #~ realize one book title abstractly with a pronoun ("es"):
 #~ 
-    #~ >>> realized_pronoun = realizer(lexicalize_title(("book title", ""), realize="pronoun"))
+    #~ >>> realized_pronoun = openccg.realize(lexicalize_title(("book title", ""), realize="pronoun"))
     #~ >>> realized_pronoun in (['es', 'es'], ['seiner','seiner'], ['ihm', 'ihm'])
     #~ True
 #~ 
     #~ realize two book titles abstractly ("die Bücher"):
 #~ 
-    #~ >>> realizer(lexicalize_title(("1st book", "2nd book", ""), realize="abstract"))
+    #~ >>> openccg.realize(lexicalize_title(("1st book", "2nd book", ""), realize="abstract"))
     #~ ['den B\xc3\xbcchern', 'der B\xc3\xbccher', 'die B\xc3\xbccher']
 #~ 
     #~ NOTE: output is undeterministic for this example!
     #~ realize two book titles abstractly with a pronoun ("sie"):
 #~ 
-    #~ >>> realized_pronoun = realizer(lexicalize_title(("book title", "another book", ""), realize="pronoun"))
+    #~ >>> realized_pronoun = openccg.realize(lexicalize_title(("book title", "another book", ""), realize="pronoun"))
     #~ >>> realized_pronoun in (["sie", "sie"], ["ihrer", "ihrer"], ["ihnen", "ihnen"])
     #~ True
 #~ 
     #~ realize two book titles concretely:
 #~ 
-    #~ >>> realizer(lexicalize_title(("Angewandte Computerlinguistik", "Natural Language Understanding", ""), realize="complete"))
+    #~ >>> openccg.realize(lexicalize_title(("Angewandte Computerlinguistik", "Natural Language Understanding", ""), realize="complete"))
     #~ ['\xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c und \xe2\x80\x9e Natural_Language_Understanding \xe2\x80\x9c']
 #~ 
     #~ realize "das Buch von X und Y":
 #~ 
     #~ >>> authors = lexicalize_authors(["Alan Kay", "John Hopcroft"], realize="lastnames")
-    #~ >>> realizer(lexicalize_title(("book title", ""), lexicalized_authors=authors, realize="abstract", authors_realize="preposition"))
+    #~ >>> openccg.realize(lexicalize_title(("book title", ""), lexicalized_authors=authors, realize="abstract", authors_realize="preposition"))
     #~ ['das Buch von Kay und Hopcroft', 'dem Buch von Kay und Hopcroft', 'des Buches von Kay und Hopcroft']
 #~ 
     #~ realize "Xs Buch":
 #~ 
     #~ >>> author = lexicalize_authors(["Alan Kay"], realize="complete")
-    #~ >>> realizer(lexicalize_title(("Natural Language Processing", ""), lexicalized_authors=author, realize="complete", authors_realize="possessive"))
+    #~ >>> openccg.realize(lexicalize_title(("Natural Language Processing", ""), lexicalized_authors=author, realize="complete", authors_realize="possessive"))
     #~ ['Alan Kays \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c']
 #~ 
     #~ we can't realize a book title es a pronoun with an author, e.g. "Chomskys
@@ -910,7 +911,7 @@ def lexicalize_title(title_tuple, lexicalized_authors=None, realize="complete",
     #~ the grammar:
 #~ 
     #~ >>> authors = lexicalize_authors(["Kay", "Manning"], realize="lastnames")
-    #~ >>> realizer(lexicalize_title(("random book", ""), lexicalized_authors=authors, realize="abstract", authors_realize="possessive"))
+    #~ >>> openccg.realize(lexicalize_title(("random book", ""), lexicalized_authors=authors, realize="abstract", authors_realize="possessive"))
     #~ Traceback (most recent call last):
     #~ AssertionError: can't realize possesive form with more than one author
     #~ """
@@ -977,7 +978,7 @@ def lexicalize_year(year, lexicalized_title):
     realize a book's year of publishing:
 
     >>> title = lexicalize_title(("a book", ""), realize="abstract")
-    >>> realizer(lexicalize_year(1986, lexicalized_title=title))
+    >>> openccg.realize(lexicalize_year(1986, lexicalized_title=title))
     ['das Buch 1986 erschienen ist', 'das Buch ist 1986 erschienen', 'ist das Buch 1986 erschienen']
 
     #~ a more complex example: two unnamed books by the same author were
@@ -985,7 +986,7 @@ def lexicalize_year(year, lexicalized_title):
 #~ 
     #~ >>> author = lexicalize_authors((["Alan Kay"], ""), realize="complete")
     #~ >>> title = lexicalize_title(("a book", "book 2", ""), lexicalized_authors=author, realize="abstract", authors_realize="preposition")
-    #~ >>> realizer(lexicalize_year(1986, lexicalized_title=title))
+    #~ >>> openccg.realize(lexicalize_year(1986, lexicalized_title=title))
     #~ ['die B\xc3\xbccher von Alan Kay 1986 erschienen sind', 'die B\xc3\xbccher von Alan Kay sind 1986 erschienen', 'sind die B\xc3\xbccher von Alan Kay 1986 erschienen']
     """
     tempus = gen_tempus("imperf")

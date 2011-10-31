@@ -169,8 +169,10 @@ class Sentence(FeatDict):
         
         self.update({Feature("text"): sent_str})
         self.update({Feature("expected_parses"): int(expected_parses)})
-        self.update({Feature("root_prop"): root_prop}) 
         self.update({Feature("root_nom"): root_nom})
+        if root_prop: # not always present, e.g. when realizing a pronoun
+            self.update({Feature("root_prop"): root_prop}) 
+
 
         if diamonds:
             for i, diamond in enumerate(diamonds):
@@ -466,9 +468,10 @@ def __sentence_fs2xml(sentence, mode="test"):
     
     root_nom = sentence[Feature("root_nom")]
     satop = etree.SubElement(lf, "satop", nom=root_nom)
-    
-    root_prop = sentence[Feature("root_prop")]
-    etree.SubElement(satop, "prop", name=root_prop)
+
+    if Feature("root_prop") in sentence:
+        root_prop = sentence[Feature("root_prop")]
+        etree.SubElement(satop, "prop", name=root_prop)
     
     diamonds = []
     for key in sorted(sentence.keys()):
