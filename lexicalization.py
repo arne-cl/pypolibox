@@ -29,7 +29,7 @@ def lexicalize_authors(authors_tuple, realize="abstract"):
 
     @type authors_tuple: C{tuple} of (C{frozenset} of C{str}, C{str})
     @param author_tuple: tuple containing a set of names, e.g. (["Ronald
-    Hausser", "Christopher D. Manning"]) and a rating, i.e. "neutral" 
+    Hausser", "Christopher D. Manning"]) and a rating, i.e. "neutral"
 
     @type realize: C{str}
     @param realize: "abstract", "lastnames", "complete".
@@ -84,7 +84,7 @@ def lexicalize_authors(authors_tuple, realize="abstract"):
 
 
 def lexicalize_codeexamples(examples, lexicalized_title,
-                            lexicalized_plang=None, lexeme="enthalten"):
+                            lexicalized_proglang=None, lexeme="enthalten"):
     r"""
     das Buch enthält (keine) Code-Beispiele (in der Programmiersprache X).
     das Buch beinhaltet (keine) Code-Beispiele.
@@ -94,7 +94,7 @@ def lexicalize_codeexamples(examples, lexicalized_title,
 
     @type examples: C{int} or C{str}
     @type lexicalized_title: C{Diamond}
-    @type lexicalized_plang: C{Diamond} or C{NoneType}
+    @type lexicalized_proglang: C{Diamond} or C{NoneType}
 
     @type lexeme: C{str}
     @param lexeme: "beinhalten", "enthalten" or "random".
@@ -114,22 +114,22 @@ def lexicalize_codeexamples(examples, lexicalized_title,
     realize "das Buch enthält Code-Beispiele in den Programmiersprachen A + B":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> plang = lexicalize_proglang("[Ada][Scheme]", realize="embedded")
-    >>> openccg.realize(lexicalize_codeexamples(1, lexicalized_title=title, lexicalized_plang=plang, lexeme="enthalten"))
+    >>> plang = lexicalize_proglang((["Ada","Scheme"], ""), realize="embedded")
+    >>> openccg.realize(lexicalize_codeexamples(1, lexicalized_title=title, lexicalized_proglang=plang, lexeme="enthalten"))
     ['das Buch Code-Beispiele in den Programmiersprachen Ada und Scheme enth\xc3\xa4lt', 'das Buch enth\xc3\xa4lt Code-Beispiele in den Programmiersprachen Ada und Scheme', 'enth\xc3\xa4lt das Buch Code-Beispiele in den Programmiersprachen Ada und Scheme']
 
     realize "d. Buch von X + Y beinhaltet Code-Bsp. in den Prog.sprachen A + B"
 
     >>> authors = lexicalize_authors((["Alan Kay", "John Hopcroft"], ""), realize="lastnames")
     >>> title = lexicalize_title(("foo", ""), lexicalized_authors=authors, realize="abstract", authors_realize="preposition")
-    >>> plang = lexicalize_proglang("[Ada][Scheme]", realize="embedded")
-    >>> openccg.realize(lexicalize_codeexamples(1, lexicalized_title=title, lexicalized_plang=plang, lexeme="beinhalten"))
+    >>> plang = lexicalize_proglang((["Ada","Scheme"], ""), realize="embedded")
+    >>> openccg.realize(lexicalize_codeexamples(1, lexicalized_title=title, lexicalized_proglang=plang, lexeme="beinhalten"))
     ['beinhaltet das Buch von Kay und Hopcroft Code-Beispiele in den Programmiersprachen Ada und Scheme', 'das Buch von Kay und Hopcroft Code-Beispiele in den Programmiersprachen Ada und Scheme beinhaltet', 'das Buch von Kay und Hopcroft beinhaltet Code-Beispiele in den Programmiersprachen Ada und Scheme']
     """
     assert lexeme in ("beinhalten", "enthalten", "random")
     if lexeme == "random":
         lexeme = random.choice(("beinhalten", "enthalten"))
-    
+
     examples = int(examples)
     modifier = None
 
@@ -140,8 +140,8 @@ def lexicalize_codeexamples(examples, lexicalized_title,
     if examples == 0: #contains no examples
         modifier = gen_art("quantkein")
     else:
-        if lexicalized_plang: #contains examples in programming language X
-            modifier = lexicalized_plang
+        if lexicalized_proglang: #contains examples in programming language X
+            modifier = lexicalized_proglang
             preposition = gen_prep("in", "zusammenhang")
             modifier.insert_subdiamond(1, preposition)
             modifier.change_mode("ATTRIB")
@@ -790,7 +790,7 @@ def lexicalize_title(title_tuple, lexicalized_authors=None, realize="complete",
     ['das Buch von Kay und Manning', 'dem Buch von Kay und Manning', 'des Buches von Kay und Manning']
     """
     title, rating = title_tuple
-    
+
     assert realize in ("abstract", "complete", "pronoun", "random")
     assert authors_realize in (None, "possessive", "preposition", "random")
 
@@ -841,7 +841,7 @@ def lexicalize_title(title_tuple, lexicalized_authors=None, realize="complete",
 
 
 def lexicalize_title_description(title_tuple, authors_tuple, year_tuple=None):
-    """
+    r"""
     realizes a title description as an independent sentence, e.g.:
         - „ Angewandte Computerlinguistik ist ein Buch von Ludwig Hitzenberger“
         - „ Angewandte Computerlinguistik “ von Ludwig Hitzenberger ist im Jahr
@@ -854,13 +854,13 @@ def lexicalize_title_description(title_tuple, authors_tuple, year_tuple=None):
 
     >>> year = ("1995", "")
     >>> openccg.realize(lexicalize_title_description(title, authors, year))
-    ['ist \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c von Ludwig Hitzenberger im Jahr 1995 erschienen', '\xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c von Ludwig Hitzenberger im Jahr 1995 erschienen ist', '\xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c von Ludwig Hitzenberger ist im Jahr 1995 erschienen']      
+    ['ist \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c von Ludwig Hitzenberger im Jahr 1995 erschienen', '\xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c von Ludwig Hitzenberger im Jahr 1995 erschienen ist', '\xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c von Ludwig Hitzenberger ist im Jahr 1995 erschienen']
     """
     lexicalized_title = lexicalize_title(title_tuple, realize="complete")
     attrib = lexicalize_authors(authors_tuple, realize="complete")
     attrib.prepend_subdiamond(gen_prep("von", u"zugehörigkeit"))
     attrib.change_mode("ATTRIB")
-    
+
     if year_tuple:
         year, rating = year_tuple
         tempus = gen_tempus("imperf")
@@ -872,7 +872,7 @@ def lexicalize_title_description(title_tuple, authors_tuple, year_tuple=None):
         prep = gen_prep("im", "zusammenhang")
         nomerg = create_diamond("NOMERG", "sorte", year, [num])
         suppl = create_diamond("SUPPL", "art", "Jahr", [num, prep, nomerg])
-        
+
         aux = create_diamond("AUX", "sein", "sein", [tempus, agens, suppl])
         return create_diamond("", "inchoativ", "erscheinen", [aux])
 
@@ -888,83 +888,83 @@ def lexicalize_title_description(title_tuple, authors_tuple, year_tuple=None):
                                  [num, art, attrib])
         return create_diamond("", u"prädikation", "sein-kop",
                               [tempus, subj, prkompl])
-    
+
 #~ def lexicalize_titles(book_titles, lexicalized_authors=None,
                       #~ realize="complete", authors_realize=None):
     #~ r"""
     #~ @type book_title: C{list} of C{str}
     #~ @param book_title: list of book title strings
-#~ 
+#~
     #~ @type lexicalized_authors: C{Diamond} OR C{NoneType}
     #~ @param authors: an I{optional} C{Diamond} containing a lexicalized
     #~ authors message
-#~ 
+#~
     #~ @type realize: C{str}
     #~ @param realize: "abstract", "complete", "pronoun" or "authors+title"
     #~ - "abstract" realizes 'das Buch' / 'die Bücher'
     #~ - "pronoun" realizes 'es' / 'sie'
     #~ - "complete" realizes book titles in the format specified in the
       #~ OpenCC grammar, e.g. „ Computational Linguistics. An Introduction “
-#~ 
+#~
     #~ @type authors_realize: C{str} or C{NoneType}
     #~ @param authors_realize: None, "possessive", "preposition", "random".
     #~ - "possessive" realizes 'Xs Buch'
     #~ - "preposition" realizes 'das Buch von X (und Y)'
     #~ - "random" chooses between "possessive" and "preposition"
     #~ - None just realizes the book title, e.g. "das Buch" or "NLP in Lisp"
-#~ 
+#~
     #~ realize one book title abstractly ("das Buch"):
-#~ 
+#~
     #~ >>> openccg.realize(lexicalize_title(("foo book", ""), realize="abstract"))
     #~ ['das Buch', 'dem Buch', 'des Buches']
-#~ 
+#~
     #~ NOTE: output is undeterministic for this example!
     #~ realize one book title abstractly with a pronoun ("es"):
-#~ 
+#~
     #~ >>> realized_pronoun = openccg.realize(lexicalize_title(("book title", ""), realize="pronoun"))
     #~ >>> realized_pronoun in (['es', 'es'], ['seiner','seiner'], ['ihm', 'ihm'])
     #~ True
-#~ 
+#~
     #~ realize two book titles abstractly ("die Bücher"):
-#~ 
+#~
     #~ >>> openccg.realize(lexicalize_title(("1st book", "2nd book", ""), realize="abstract"))
     #~ ['den B\xc3\xbcchern', 'der B\xc3\xbccher', 'die B\xc3\xbccher']
-#~ 
+#~
     #~ NOTE: output is undeterministic for this example!
     #~ realize two book titles abstractly with a pronoun ("sie"):
-#~ 
+#~
     #~ >>> realized_pronoun = openccg.realize(lexicalize_title(("book title", "another book", ""), realize="pronoun"))
     #~ >>> realized_pronoun in (["sie", "sie"], ["ihrer", "ihrer"], ["ihnen", "ihnen"])
     #~ True
-#~ 
+#~
     #~ realize two book titles concretely:
-#~ 
+#~
     #~ >>> openccg.realize(lexicalize_title(("Angewandte Computerlinguistik", "Natural Language Understanding", ""), realize="complete"))
     #~ ['\xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c und \xe2\x80\x9e Natural_Language_Understanding \xe2\x80\x9c']
-#~ 
+#~
     #~ realize "das Buch von X und Y":
-#~ 
+#~
     #~ >>> authors = lexicalize_authors(["Alan Kay", "John Hopcroft"], realize="lastnames")
     #~ >>> openccg.realize(lexicalize_title(("book title", ""), lexicalized_authors=authors, realize="abstract", authors_realize="preposition"))
     #~ ['das Buch von Kay und Hopcroft', 'dem Buch von Kay und Hopcroft', 'des Buches von Kay und Hopcroft']
-#~ 
+#~
     #~ realize "Xs Buch":
-#~ 
+#~
     #~ >>> author = lexicalize_authors(["Alan Kay"], realize="complete")
     #~ >>> openccg.realize(lexicalize_title(("Natural Language Processing", ""), lexicalized_authors=author, realize="complete", authors_realize="possessive"))
     #~ ['Alan Kays \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c']
-#~ 
+#~
     #~ we can't realize a book title es a pronoun with an author, e.g. "Chomskys
     #~ es" or "es von Noam Chomsky":
-#~ 
+#~
     #~ >>> authors = lexicalize_authors(["Kay", "Manning"], realize="lastnames")
     #~ >>> lexicalize_title(("a book", ""), lexicalized_authors=authors, realize="pronoun")
     #~ Traceback (most recent call last):
     #~ AssertionError: can't realize title as pronoun with an author, e.g. 'Chomskys es'
-#~ 
+#~
     #~ we can't realize "A und Bs Buch" properly, due to current restrictions in
     #~ the grammar:
-#~ 
+#~
     #~ >>> authors = lexicalize_authors(["Kay", "Manning"], realize="lastnames")
     #~ >>> openccg.realize(lexicalize_title(("random book", ""), lexicalized_authors=authors, realize="abstract", authors_realize="possessive"))
     #~ Traceback (most recent call last):
@@ -974,13 +974,13 @@ def lexicalize_title_description(title_tuple, authors_tuple, year_tuple=None):
     #~ assert realize in ("abstract", "complete", "pronoun", "random")
     #~ assert authors_realize in (None, "possessive", "preposition", "random")
     #~ num_of_titles = len(book_titles)
-#~ 
+#~
     #~ if realize == "random":
         #~ if authors_realize: #can't realize w/ title pronoun, e.g. "Chomskys es"
             #~ realize = random.choice(["abstract", "complete"])
         #~ else:
             #~ realize = random.choice(["abstract", "complete", "pronoun"])
-#~ 
+#~
     #~ if realize == "abstract":
         #~ title_diamond = gen_abstract_title(num_of_titles)
     #~ elif realize == "pronoun":
@@ -994,19 +994,19 @@ def lexicalize_title_description(title_tuple, authors_tuple, year_tuple=None):
         #~ titles_enum = gen_enumeration(realized_titles, mode="NP")
         #~ add_mode_suffix(titles_enum, mode="NP")
         #~ title_diamond = titles_enum
-#~ 
+#~
     #~ if lexicalized_authors:
         #~ if authors_realize == "random":
             #~ if __sing_or_plur(lexicalized_authors) == "sing":
                 #~ authors_realize = random.choice(["possessive", "preposition"])
             #~ else: # possessive form doesn't work w/ more than one author
                 #~ authors_realize = "preposition"
-#~ 
+#~
         #~ if authors_realize == "possessive": # Chomskys Buch
             #~ assert __sing_or_plur(lexicalized_authors) == "sing", \
                 #~ "can't realize possesive form with more than one author"
             #~ title_diamond.append_subdiamond(lexicalized_authors, mode="ASS")
-#~ 
+#~
             #~ article = re.compile("\d+__ART")
             #~ # remove ARTicle from title: Chomskys das Buch --> Chomskys Buch
             #~ for key in title_diamond.keys():
@@ -1017,7 +1017,7 @@ def lexicalize_title_description(title_tuple, authors_tuple, year_tuple=None):
             #~ preposition_diamond = gen_prep("von", "zugehörigkeit")
             #~ lexicalized_authors.prepend_subdiamond(preposition_diamond)
             #~ title_diamond.append_subdiamond(lexicalized_authors, mode="ATTRIB")
-#~ 
+#~
     #~ return title_diamond
 
 
@@ -1038,7 +1038,7 @@ def lexicalize_year(year, lexicalized_title):
 
     #~ a more complex example: two unnamed books by the same author were
     #~ published in $year:
-#~ 
+#~
     #~ >>> author = lexicalize_authors((["Alan Kay"], ""), realize="complete")
     #~ >>> title = lexicalize_title(("a book", "book 2", ""), lexicalized_authors=author, realize="abstract", authors_realize="preposition")
     #~ >>> openccg.realize(lexicalize_year(1986, lexicalized_title=title))
