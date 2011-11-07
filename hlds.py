@@ -236,7 +236,7 @@ class Diamond(FeatDict):
         mode will be left untouched.
         """
         if mode: #change mode only if not None
-            subdiamond.update({Feature("mode"): mode})
+            subdiamond_to_prepend.update({Feature("mode"): mode})
 
         # a featstruct is essentially a dictionary, so we'll need to sort it!
         existing_subdiamonds = sorted([(dkey,d) for (dkey,d) in self.items() 
@@ -271,7 +271,7 @@ class Diamond(FeatDict):
         if mode is None, the subdiamonds mode will be left untouched.
         """
         if mode: #change mode only if not None
-            subdiamond.update({Feature("mode"): mode})
+            subdiamond_to_insert.update({Feature("mode"): mode})
 
         # a featstruct is essentially a dictionary, so we'll need to sort it!
         existing_subdiamonds = sorted([(dkey,d) for (dkey,d) in self.items() 

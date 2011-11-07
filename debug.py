@@ -11,14 +11,12 @@ provides short cuts to generate frequently needed data.
 from lxml import etree
 from nltk.featstruct import Feature
 
-from database import Query, Results, Books, get_column
+from database import Query, Results, Books
 from facts import AllFacts
 from propositions import AllPropositions
-from textplan import TextPlan, TextPlans, generate_textplan
+from textplan import TextPlan, TextPlans
 from messages import Message, Messages, AllMessages
 from rules import Rules, ConstituentSet
-from lexicalization import gen_title, lexicalize_authors
-from realization import realize
 import util
 import hlds
 
@@ -172,6 +170,10 @@ def enumprint(obj):
         else:
             print "{0}:\n{1}\n".format(index, item)
 
+def printeach(obj):
+    """prints every item of an iterable on its own line"""
+    for item in obj:
+        print item
 
 def msgtypes(messages):
     """

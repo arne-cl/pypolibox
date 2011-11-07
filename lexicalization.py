@@ -10,6 +10,7 @@ be utilized by the OpenCCG surface realizer to produce natural language text.
 import re
 import random
 from nltk.featstruct import Feature, FeatDict
+from copy import deepcopy
 from textplan import ConstituentSet, Message, linearize_textplan
 from hlds import Diamond, create_diamond, add_mode_suffix
 from util import ensure_unicode, sql_array_to_list
@@ -96,7 +97,7 @@ def lexicalize_codeexamples(examples, lexicalized_title,
     @type lexicalized_plang: C{Diamond} or C{NoneType}
 
     @type lexeme: C{str}
-    @param lexeme: "beinhalten" or "enthalten".
+    @param lexeme: "beinhalten", "enthalten" or "random".
 
     realize "das Buch enthält Code-Beispiele":
 
@@ -113,7 +114,7 @@ def lexicalize_codeexamples(examples, lexicalized_title,
     realize "das Buch enthält Code-Beispiele in den Programmiersprachen A + B":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> plang = lexicalize_plang("[Ada][Scheme]", realize="embedded")
+    >>> plang = lexicalize_proglang("[Ada][Scheme]", realize="embedded")
     >>> openccg.realize(lexicalize_codeexamples(1, lexicalized_title=title, lexicalized_plang=plang, lexeme="enthalten"))
     ['das Buch Code-Beispiele in den Programmiersprachen Ada und Scheme enth\xc3\xa4lt', 'das Buch enth\xc3\xa4lt Code-Beispiele in den Programmiersprachen Ada und Scheme', 'enth\xc3\xa4lt das Buch Code-Beispiele in den Programmiersprachen Ada und Scheme']
 
@@ -121,11 +122,14 @@ def lexicalize_codeexamples(examples, lexicalized_title,
 
     >>> authors = lexicalize_authors((["Alan Kay", "John Hopcroft"], ""), realize="lastnames")
     >>> title = lexicalize_title(("foo", ""), lexicalized_authors=authors, realize="abstract", authors_realize="preposition")
-    >>> plang = lexicalize_plang("[Ada][Scheme]", realize="embedded")
+    >>> plang = lexicalize_proglang("[Ada][Scheme]", realize="embedded")
     >>> openccg.realize(lexicalize_codeexamples(1, lexicalized_title=title, lexicalized_plang=plang, lexeme="beinhalten"))
     ['beinhaltet das Buch von Kay und Hopcroft Code-Beispiele in den Programmiersprachen Ada und Scheme', 'das Buch von Kay und Hopcroft Code-Beispiele in den Programmiersprachen Ada und Scheme beinhaltet', 'das Buch von Kay und Hopcroft beinhaltet Code-Beispiele in den Programmiersprachen Ada und Scheme']
     """
-    assert lexeme in ("beinhalten", "enthalten")
+    assert lexeme in ("beinhalten", "enthalten", "random")
+    if lexeme == "random":
+        lexeme = random.choice(("beinhalten", "enthalten"))
+    
     examples = int(examples)
     modifier = None
 
@@ -510,12 +514,12 @@ def lexicalize_pages(pages, lexicalized_title, lexeme="länge"):
 
 
 
-def lexicalize_plang(plang, lexicalized_titles=None, lexicalized_authors=None,
-                     realize="embedded"):
+def lexicalize_proglang(proglang, lexicalized_titles=None,
+                        lexicalized_authors=None, realize="embedded"):
     r"""
-    @type plang: C{str}
-    @param plang: an 'sql string array' containing one or more programming
-    languages, e.g. '[Python]' or '[Lisp][Ruby][C++]'.
+    @type proglang: C{tuple} of (C{frozenset}, C{str})
+    @param proglang: a tuple consisting of a set of programming languages
+    (as strings) and a rating (string)
 
     @type realize: C{str}
     @param realize: "embedded" or "complete".
@@ -526,26 +530,26 @@ def lexicalize_plang(plang, lexicalized_titles=None, lexicalized_authors=None,
 
     realize "die Programmiersprachen A, B und C":
 
-    >>> openccg.realize(lexicalize_plang("[Python][Lisp][C++]", realize="embedded"))
+    >>> openccg.realize(lexicalize_proglang((frozenset(["Python" ,"Lisp", "C++"]), ""), realize="embedded"))
     ['den Programmiersprachen Python , Lisp und C++', 'der Programmiersprachen Python , Lisp und C++', 'die Programmiersprachen Python , Lisp und C++']
 
     realize two authors who use several programming languages:
 
     >>> authors = lexicalize_authors((["Horst Lohnstein", "Ralf Klabunde"], ""), realize="lastnames")
-    >>> openccg.realize(lexicalize_plang("[Python][Lisp][C++]", lexicalized_authors=authors, realize="complete"))
+    >>> openccg.realize(lexicalize_proglang((frozenset(["Python" ,"Lisp", "C++"]), ""), lexicalized_authors=authors, realize="complete"))
     ['Lohnstein und Klabunde die Programmiersprachen Python , Lisp und C++ verwenden', 'Lohnstein und Klabunde verwenden die Programmiersprachen Python , Lisp und C++', 'verwenden Lohnstein und Klabunde die Programmiersprachen Python , Lisp und C++']
 
     realize a book title with several programming languages:
 
     >>> title = lexicalize_title(("Natural Language Processing", ""), realize="complete")
-    >>> openccg.realize(lexicalize_plang("[Python][Lisp][C++]", lexicalized_titles=title, realize="complete"))
+    >>> openccg.realize(lexicalize_proglang((frozenset(["Python" ,"Lisp", "C++"]), ""), lexicalized_titles=title, realize="complete"))
     ['verwendet \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c die Programmiersprachen Python , Lisp und C++', '\xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c die Programmiersprachen Python , Lisp und C++ verwendet', '\xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c verwendet die Programmiersprachen Python , Lisp und C++']
     """
     assert lexicalized_titles or lexicalized_authors or realize == "embedded", \
         "requires either a lexicalized title, a lexicalized set of authors or"\
         " realize parameter == 'embedded'"
     if realize == "embedded":
-        return gen_plang(plang, mode="N")
+        return gen_proglang(proglang, mode="N")
         #just realize a noun prase, e.g. "die Prog.sprachen A und B"
 
     elif realize == "complete":
@@ -556,7 +560,7 @@ def lexicalize_plang(plang, lexicalized_titles=None, lexicalized_authors=None,
             agens = lexicalized_authors
 
         agens.change_mode("AGENS")
-        patiens = gen_plang(plang, mode="PATIENS")
+        patiens = gen_proglang(proglang, mode="PATIENS")
         return create_diamond("", "handlung", "verwenden",
                               [temp, agens, patiens])
 
@@ -739,7 +743,7 @@ def lexicalize_title(title_tuple, lexicalized_authors=None, realize="complete",
     @type realize: C{str}
     @param realize: "abstract", "complete", "pronoun" or "authors+title"
     - "abstract" realizes 'das Buch'
-    - "pronoun" realizes 'es' /
+    - "pronoun" realizes 'es'
     - "complete" realizes book titles in the format specified in the
       OpenCC grammar, e.g. „ Computational Linguistics. An Introduction “
 
@@ -779,12 +783,11 @@ def lexicalize_title(title_tuple, lexicalized_authors=None, realize="complete",
     AssertionError: can't realize title as pronoun with an author, e.g. 'Chomskys es'
 
     we can't realize "A und Bs Buch" properly, due to current restrictions in
-    the grammar:
+    the current grammar. instead, the 'prepositional' realization will be chosen:
 
     >>> authors = lexicalize_authors((["Kay", "Manning"], ""), realize="lastnames")
     >>> openccg.realize(lexicalize_title(("random", ""), lexicalized_authors=authors, realize="abstract", authors_realize="possessive"))
-    Traceback (most recent call last):
-    AssertionError: can't realize possesive form with more than one author
+    ['das Buch von Kay und Manning', 'dem Buch von Kay und Manning', 'des Buches von Kay und Manning']
     """
     title, rating = title_tuple
     
@@ -808,32 +811,84 @@ def lexicalize_title(title_tuple, lexicalized_authors=None, realize="complete",
         title_diamond = gen_title(title)
 
     if lexicalized_authors:
+        authors = deepcopy(lexicalized_authors)
+        # we might want to reuse the original lexicalized_authors
         if authors_realize == "random":
-            if __sing_or_plur(lexicalized_authors) == "sing":
+            if __sing_or_plur(authors) == "sing":
                 authors_realize = random.choice(["possessive", "preposition"])
             else: # possessive form doesn't work w/ more than one author
-                authors_realize = "preposition"
+                  # TODO: fix the grammar, then simplify this code
+               authors_realize = "preposition"
 
-        if authors_realize == "possessive": # Chomskys Buch
-            assert __sing_or_plur(lexicalized_authors) == "sing", \
-                "can't realize possesive form with more than one author"
-            title_diamond.append_subdiamond(lexicalized_authors, mode="ASS")
-
+        if authors_realize == "possessive" and \
+        __sing_or_plur(lexicalized_authors) == "sing": # Chomskys Buch
+            title_diamond.append_subdiamond(authors, mode="ASS")
             article = re.compile("\d+__ART")
-            # remove ARTicle from title: Chomskys das Buch --> Chomskys Buch
+            # remove ARTicle from title:
+            # Chomskys das Buch --> Chomskys Buch
             for key in title_diamond.keys():
                 if isinstance(key, str) and article.match(key):
                     article_key = article.match(key).group()
                     title_diamond.pop(article_key)
-        elif authors_realize == "preposition": # das Buch von Chomsky
+
+        else: # authors_realize == "preposition" or possessive and plural:
+              # das Buch von Chomsky
             preposition_diamond = gen_prep("von", "zugehörigkeit")
-            lexicalized_authors.prepend_subdiamond(preposition_diamond)
-            title_diamond.append_subdiamond(lexicalized_authors, mode="ATTRIB")
+            authors.prepend_subdiamond(preposition_diamond)
+            title_diamond.append_subdiamond(authors, mode="ATTRIB")
 
     return title_diamond
 
 
+def lexicalize_title_description(title_tuple, authors_tuple, year_tuple=None):
+    """
+    realizes a title description as an independent sentence, e.g.:
+        - „ Angewandte Computerlinguistik ist ein Buch von Ludwig Hitzenberger“
+        - „ Angewandte Computerlinguistik “ von Ludwig Hitzenberger ist im Jahr
+          1995 erschienen
 
+    >>> title = ("Angewandte Computerlinguistik", "")
+    >>> authors = (set(["Ludwig Hitzenberger"]),"")
+    >>> openccg.realize(lexicalize_title_description(title, authors))
+    ['ist \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c ein Buch von Ludwig Hitzenberger', '\xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c ein Buch von Ludwig Hitzenberger ist', '\xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c ist ein Buch von Ludwig Hitzenberger']
+
+    >>> year = ("1995", "")
+    >>> openccg.realize(lexicalize_title_description(title, authors, year))
+    ['ist \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c von Ludwig Hitzenberger im Jahr 1995 erschienen', '\xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c von Ludwig Hitzenberger im Jahr 1995 erschienen ist', '\xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c von Ludwig Hitzenberger ist im Jahr 1995 erschienen']      
+    """
+    lexicalized_title = lexicalize_title(title_tuple, realize="complete")
+    attrib = lexicalize_authors(authors_tuple, realize="complete")
+    attrib.prepend_subdiamond(gen_prep("von", u"zugehörigkeit"))
+    attrib.change_mode("ATTRIB")
+    
+    if year_tuple:
+        year, rating = year_tuple
+        tempus = gen_tempus("imperf")
+        agens = lexicalized_title
+        agens.append_subdiamond(attrib)
+        agens.change_mode("AGENS")
+
+        num = gen_num("sing")
+        prep = gen_prep("im", "zusammenhang")
+        nomerg = create_diamond("NOMERG", "sorte", year, [num])
+        suppl = create_diamond("SUPPL", "art", "Jahr", [num, prep, nomerg])
+        
+        aux = create_diamond("AUX", "sein", "sein", [tempus, agens, suppl])
+        return create_diamond("", "inchoativ", "erscheinen", [aux])
+
+    else:
+        tempus = gen_tempus("präs")
+        subj = lexicalized_title
+        subj.change_mode("SUBJ")
+
+        num = gen_num("sing")
+        art = gen_art("indef")
+
+        prkompl = create_diamond("PRKOMPL", "artefaktum", "Buch",
+                                 [num, art, attrib])
+        return create_diamond("", u"prädikation", "sein-kop",
+                              [tempus, subj, prkompl])
+    
 #~ def lexicalize_titles(book_titles, lexicalized_authors=None,
                       #~ realize="complete", authors_realize=None):
     #~ r"""
@@ -1332,29 +1387,28 @@ def gen_keywords(keywords, mode="N"):
     add_mode_suffix(keyword_description, mode)
     return keyword_description
 
-def gen_plang(plang, mode=""):
+def gen_proglang(proglang, mode=""):
     """
     generates a C{Diamond} representing programming languages, e.g. 'die Programmiersprache X' or 'die Programmiersprachen X und Y'.
 
-    @type plang: C{str}
-    @param plang: an 'sql string array' containing one or more programming
-    languages, e.g. '[Python]' or '[Lisp][Ruby][C++]'.
+    @type proglang: C{tuple} of (C{frozenset}, C{str})
+    @param proglang: a tuple consisting of a set of programming languages
+    (as strings) and a rating (string)
 
     @type mode: C{str}
     @param mode: sets the mode attribute of the resulting C{Diamond}
 
     @rtype: C{Diamond}
     """
-    assert plang, "at least one programming language should be defined"
-    proglangs = sql_array_to_list(plang)
+    proglangs, rating = proglang
     num_of_proglangs = len(proglangs)
 
     num = gen_num(num_of_proglangs)
     art = gen_art("def")
 
     proglang_diamonds = []
-    for proglang in proglangs:
-        proglang_diamonds.append(create_diamond("N", "sorte", proglang,
+    for lang in proglangs:
+        proglang_diamonds.append(create_diamond("N", "sorte", lang,
                                  [gen_num("sing")]))
 
     proglang_enum = gen_enumeration(proglang_diamonds, mode="N")
