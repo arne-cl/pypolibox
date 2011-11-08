@@ -37,7 +37,7 @@ from nltk.featstruct import Feature, FeatDict
 from hlds import Diamond, create_diamond, add_mode_suffix
 from lexicalization import *
 from realization import OpenCCG #TODO: dbg, mv to main
-from debug import gen_all_messages_of_type #TODO: dbg, rm
+from debug import gen_all_messages_of_type, printeach #TODO: dbg, rm
 from util import load_settings #TODO: dbg, mv to main
 
 SETTINGS = load_settings() #TODO: dbg, mv to main
@@ -45,16 +45,12 @@ SETTINGS = load_settings() #TODO: dbg, mv to main
 def enumrealize(diamond_list):
     """debugging function that realizes a list of diamonds, one at a time"""
     for diamond in diamond_list:
-        openccg.realize(diamond)
+        printeach(openccg.realize(diamond))
 
-#~ def load_all_textplans():
-    #~ f = open("data/alltextplans-20111028.pickle","r")
-    #~ return pickle.load(f)
-
-def test():
+def test(id_block_number=0):
     idx = gen_all_messages_of_type("id")
-    return idx, lexicalize_message_block(idx[0])
-
+    lexicalized_msgs = lexicalize_message_block(idx[id_block_number])
+    return [phrase2sentence(msg) for msg in lexicalized_msgs]
 
 def lexicalize_message_block(messageblock):
     msg_type = messageblock[Feature("msgType")]
@@ -179,8 +175,6 @@ def lexicalize_id(id_message_block):
     r"""
     pass all the messages directly to their respective lexicalization
     functions.
-
-    TODO: random dict key
     """
     msg_block = deepcopy(id_message_block)
     authors = msg_block["authors"]
@@ -205,7 +199,8 @@ def lexicalize_id(id_message_block):
     msg_names = msg_block.keys()
 
     if "codeexamples" in msg_names:
-        if "proglang" in msg_names:
+        if "proglang" in msg_names and msg_block["proglang"][0]:
+            # proglang should not be realized if the book doesn't use one
             lexicalized_proglang = lexicalize_proglang(msg_block["proglang"],
                                                        realize="embedded")
             lexicalized.append(lexicalize_codeexamples(
@@ -213,12 +208,13 @@ def lexicalize_id(id_message_block):
                                     lexicalized_proglang,
                                     random_variation(title_variations),
                                     lexeme="random"))
+            msg_block.pop("proglang")
         else:
             lexicalized.append(
                 lexicalize_codeexamples(msg_block["codeexamples"],
                                         random_variation(title_variations),
                                         lexeme="random"))
-
+        msg_block.pop("codeexamples")
     return lexicalized
 
 

@@ -36,7 +36,8 @@ def load_settings(path="."):
 
 def ensure_utf8(string_or_int):
     """
-    ensures that a string does not use unicode but UTF8
+    ensures that a string does not use unicode but UTF8.
+    converts integer input to a string.
     """
     if isinstance(string_or_int, int):
         string = str(string_or_int)
@@ -48,7 +49,8 @@ def ensure_utf8(string_or_int):
 
 def ensure_unicode(string_or_int):
     """
-    ensures that a string does use unicode instead of UTF8
+    ensures that a string does use unicode instead of UTF8.
+    converts integer input to a unicode string.
     """
     if isinstance(string_or_int, int):
         string_or_int = str(string_or_int)

@@ -21,6 +21,15 @@ from util import load_settings
 SETTINGS = load_settings()
 openccg = OpenCCG(SETTINGS)
 
+def phrase2sentence(diamond):
+    """
+    turns the lexicalization of a phrase (e.g. "das Buch ist neu") into a
+    sentence, e.g. "das Buch ist neu ." 
+    """
+    assert isinstance(diamond, Diamond)
+    diamond.change_mode("DEKL")
+    return create_diamond("", "deklarativ", "punkt", [diamond])
+
 
 def lexicalize_authors(authors_tuple, realize="abstract"):
     """
