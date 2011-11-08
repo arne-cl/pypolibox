@@ -93,7 +93,7 @@ def lexicalize_authors(authors_tuple, realize="abstract"):
 
 
 def lexicalize_codeexamples(examples, lexicalized_title,
-                            lexicalized_proglang=None, lexeme="enthalten"):
+                            lexicalized_proglang=None, lexeme="random"):
     r"""
     das Buch enthält (keine) Code-Beispiele (in der Programmiersprache X).
     das Buch beinhaltet (keine) Code-Beispiele.
@@ -169,7 +169,7 @@ def lexicalize_codeexamples(examples, lexicalized_title,
 
 
 
-def lexicalize_exercises(exercises, lexicalized_title, lexeme="beinhalten"):
+def lexicalize_exercises(exercises, lexicalized_title, lexeme="random"):
     r"""
     das Buch enthält/beinhaltet (keine) Übungen.
 
@@ -188,10 +188,12 @@ def lexicalize_exercises(exercises, lexicalized_title, lexeme="beinhalten"):
     realize "das Buch beinhaltet keine Übungen":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> openccg.realize(lexicalize_exercises((0, ""), title))
+    >>> openccg.realize(lexicalize_exercises((0, ""), title, lexeme="beinhalten"))
     ['beinhaltet das Buch keine \xc3\x9cbungen', 'das Buch beinhaltet keine \xc3\x9cbungen', 'das Buch keine \xc3\x9cbungen beinhaltet']
     """
-    assert lexeme in ("beinhalten", "enthalten")
+    assert lexeme in ("beinhalten", "enthalten", "random")
+    if lexeme == "random":
+        lexeme = random.choice(["beinhalten", "enthalten"])
     exercises_val, rating = exercises
 
     tempus = gen_tempus("präs")
@@ -209,7 +211,7 @@ def lexicalize_exercises(exercises, lexicalized_title, lexeme="beinhalten"):
 
 
 
-def lexicalize_language(language, lexicalized_title, realize="noun"):
+def lexicalize_language(language, lexicalized_title, realize="random"):
     r"""
     das Buch ist Deutsch.
     das Buch ist in deutscher Sprache.
@@ -232,7 +234,10 @@ def lexicalize_language(language, lexicalized_title, realize="noun"):
     >>> openccg.realize(lexicalize_language(("German", ""), title, realize="noun"))
     ['das Buch auf Deutsch ist', 'das Buch ist auf Deutsch', 'ist das Buch auf Deutsch']
     """
-    assert realize in ("noun", "adjective")
+    assert realize in ("noun", "adjective", "random")
+    if realize == "random":
+        realize = random.choice(["noun", "adjective"])
+    
     language_val, rating = language
     languages = {"German": "Deutsch", "English": "Englisch"}
 
@@ -372,8 +377,8 @@ def gen_length_extra(length, lexicalized_title):
 
 
 def lexicalize_keywords(keywords, lexicalized_title=None,
-                        lexicalized_authors = None, realize="abstract",
-                        lexeme="behandeln"):
+                        lexicalized_authors = None, realize="complete",
+                        lexeme="random"):
     r"""
     @type keywords: C{frozenset} of C{str}
 
@@ -420,8 +425,15 @@ def lexicalize_keywords(keywords, lexicalized_title=None,
     """
     assert realize in ("abstract", "complete"), \
         "choose 1 of these keyword realizations: abstract, complete"
+
     num_of_keywords = len(keywords)
 
+    assert lexeme in ("behandeln", "beschreiben", "eingehen", "aufgreifen",
+                      "random")
+    if lexeme == "random":
+        lexeme = random.choice("behandeln", "beschreiben", "eingehen",
+                               "aufgreifen")
+        
     if realize == "abstract":
         patiens = gen_abstract_keywords(num_of_keywords)
     elif realize == "complete":
@@ -455,7 +467,7 @@ def lexicalize_keywords(keywords, lexicalized_title=None,
         return create_diamond("", "infinitum", "auf-X-trans", [aux])
 
 
-def lexicalize_pages(pages, lexicalized_title, lexeme="länge"):
+def lexicalize_pages(pages, lexicalized_title, lexeme="random"):
     r"""
     ___ hat einen Umfang von 546 Seiten
     ___ umfasst 546 Seiten
