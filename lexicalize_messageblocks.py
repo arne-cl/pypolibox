@@ -215,6 +215,12 @@ def lexicalize_id(id_message_block):
                                         random_variation(title_variations),
                                         lexeme="random"))
         msg_block.pop("codeexamples")
+
+    for msg_name, msg in msg_block.items():
+        lexicalize_function_name = "lexicalize_" + msg_name
+        eval(lexicalize_function_name)(msg,
+                lexicalized_title=random_variation(title_variations))
+    
     return lexicalized
 
 

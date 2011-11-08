@@ -589,39 +589,40 @@ def lexicalize_target(target, lexicalized_title):
                           an Fortgeschrittene
                           an Experten
 
-    NOTE: we could add
+    NOTE: we could add these to the grammar:
     - das Buch setzt keine Kenntnisse voraus
     - das Buch richtet sich an ein fortgeschrittenes Publikum
 
-    @type target: C{int} or C{str}
+    @type target: C{tuple} of (C{int}, C{str})
+    @param target: a tuple, e.g. (0, "neutral"), states that the book is
+    targeted towards beginners.
+    
     @type lexicalized_title: C{Diamond}
-
-    TODO: add to dict: Anfänger, Einsteiger, Fortgeschrittene
 
     realize "... richtet sich an Anfänger":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> openccg.realize(lexicalize_target(0, title))
+    >>> openccg.realize(lexicalize_target((0, ""), title))
     ['das Buch richtet sich an Anf\xc3\xa4nger', 'richtet sich das Buch an Anf\xc3\xa4nger', 'sich das Buch an Anf\xc3\xa4nger richtet']
 
     realize "... richtet sich an Einsteiger mit Grundkenntnissen":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> openccg.realize(lexicalize_target(1, title))
+    >>> openccg.realize(lexicalize_target((1, ""), title))
     ['das Buch richtet sich an Einsteiger mit Grundkenntnissen', 'richtet sich das Buch an Einsteiger mit Grundkenntnissen', 'sich das Buch an Einsteiger mit Grundkenntnissen richtet']
 
     realize "... richtet sich an Fortgeschrittene":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> openccg.realize(lexicalize_target(2, title))
+    >>> openccg.realize(lexicalize_target((2, ""), title))
     ['das Buch richtet sich an Fortgeschrittene', 'richtet sich das Buch an Fortgeschrittene', 'sich das Buch an Fortgeschrittene richtet']
 
     realize "... richtet sich an Experten":
-    >>> target = lexicalize_target(3, title)
+    >>> target = lexicalize_target((3, ""), title)
     >>> openccg.realize(target)
     ['das Buch richtet sich an Experten', 'richtet sich das Buch an Experten', 'sich das Buch an Experten richtet']
     """
-    target = int(target)
+    target_val, rating = target
     targets = {0: "Anfänger", 1: "Einsteiger",
                2:"Fortgeschritten", 3: "Experte"}
 
@@ -634,10 +635,10 @@ def lexicalize_target(target, lexicalized_title):
     target_num = gen_num("plur")
     target_prep = gen_prep("an", "gerichtetebez")
 
-    patiens = create_diamond("PATIENS", "experte", targets[target],
+    patiens = create_diamond("PATIENS", "experte", targets[target_val],
                              [target_num, target_prep])
 
-    if target == 1: # add "mit Grundkenntnissen" to "Einsteiger"
+    if target_val == 1: # add "mit Grundkenntnissen" to "Einsteiger"
         attrib_num = gen_num("plur")
         attrib_prep = gen_prep("mit", u"zugehörigkeit")
         attrib = create_diamond("ATTRIB", "abstraktum", "Grundkenntnis",
