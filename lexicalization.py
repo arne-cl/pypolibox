@@ -173,29 +173,32 @@ def lexicalize_exercises(exercises, lexicalized_title, lexeme="beinhalten"):
     r"""
     das Buch enthält/beinhaltet (keine) Übungen.
 
-    @type exercises: C{int} or C{str}
+    @type exercises: C{tuple} of (C{int}, C{str})
+    @param exercises: a tuple stating if a book contains exercises (1,
+    "neutral") or not (0, "neutral").
+    
     @type lexicalized_title: C{Diamond} describing a book title
 
     realize "das Buch enthält Übungen":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> openccg.realize(lexicalize_exercises(0, title, lexeme="enthalten"))
-    ['das Buch enth\xc3\xa4lt keine \xc3\x9cbungen', 'das Buch keine \xc3\x9cbungen enth\xc3\xa4lt', 'enth\xc3\xa4lt das Buch keine \xc3\x9cbungen']
+    >>> openccg.realize(lexicalize_exercises((1, ""), title, lexeme="enthalten"))
+    ['das Buch enth\xc3\xa4lt \xc3\x9cbungen', 'das Buch \xc3\x9cbungen enth\xc3\xa4lt', 'enth\xc3\xa4lt das Buch \xc3\x9cbungen']
 
     realize "das Buch beinhaltet keine Übungen":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> openccg.realize(lexicalize_exercises(0, title))
+    >>> openccg.realize(lexicalize_exercises((0, ""), title))
     ['beinhaltet das Buch keine \xc3\x9cbungen', 'das Buch beinhaltet keine \xc3\x9cbungen', 'das Buch keine \xc3\x9cbungen beinhaltet']
     """
     assert lexeme in ("beinhalten", "enthalten")
-    exercises = int(exercises)
+    exercises_val, rating = exercises
 
     tempus = gen_tempus("präs")
     agens = lexicalized_title
     agens.change_mode("AGENS")
 
-    if exercises == 1:
+    if exercises_val == 1:
         patiens = create_diamond("PATIENS", "abstraktum", u"Übung",
                                  [gen_num("plur")])
     else:
@@ -211,8 +214,8 @@ def lexicalize_language(language, lexicalized_title, realize="noun"):
     das Buch ist Deutsch.
     das Buch ist in deutscher Sprache.
 
-    @type language: C{str}
-    @param language: "English" or "German".
+    @type language: C{tuple} of (C{str}, C{str})
+    @param language: ("English", "neutral") or ("German", "neutral").
     @type lexicalized_title: C{Diamond}
 
     NOTE: negation isn't possible w/ the current grammar ("nicht auf Deutsch")
@@ -220,17 +223,17 @@ def lexicalize_language(language, lexicalized_title, realize="noun"):
     realize "das Buch ist in englischer Sprache":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> openccg.realize(lexicalize_language("English", title, realize="adjective"))
+    >>> openccg.realize(lexicalize_language(("English", ""), title, realize="adjective"))
     ['das Buch in englischer Sprache ist', 'das Buch ist in englischer Sprache', 'ist das Buch in englischer Sprache']
 
     realize "das Buch ist auf Deutsch":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> openccg.realize(lexicalize_language("German", title, realize="noun"))
+    >>> openccg.realize(lexicalize_language(("German", ""), title, realize="noun"))
     ['das Buch auf Deutsch ist', 'das Buch ist auf Deutsch', 'ist das Buch auf Deutsch']
     """
     assert realize in ("noun", "adjective")
-
+    language_val, rating = language
     languages = {"German": "Deutsch", "English": "Englisch"}
 
     tempus = gen_tempus("präs")
@@ -241,12 +244,12 @@ def lexicalize_language(language, lexicalized_title, realize="noun"):
 
     if realize == "noun":
         noun_prep = gen_prep("auf", "zusammenhang")
-        language_str = languages[language] # "Deutsch", "Englisch"
+        language_str = languages[language_val] # "Deutsch", "Englisch"
         prkompl = create_diamond("PRKOMPL", "abstraktum", language_str,
                                  [lang_num, noun_prep])
     elif realize == "adjective":
         adjective_prep = gen_prep("in", "zusammenhang")
-        language_str = languages[language].lower() # "deutsch", "englisch"
+        language_str = languages[language_val].lower() # "deutsch", "englisch"
         language_mod = gen_mod(language_str, "eigenschaft")
         language_mod.append_subdiamond(gen_komp("pos"))
         prkompl = create_diamond("PRKOMPL", "sorte", "Sprache",
@@ -458,7 +461,9 @@ def lexicalize_pages(pages, lexicalized_title, lexeme="länge"):
     ___ umfasst 546 Seiten
     ___ ist 546 Seiten lang
 
-    @type pages: C{str} OR C{int}
+    @type pages: C{tuple} of (C{int}, C{str})
+    @param pages: a tuple stating how many pages a book contains,
+        e.g. (546, "neutral")
     @type title: C{str}
     @type authors: C{list} of C{str} OR C{NoneType}
     @rtype: C{Diamond}
@@ -466,31 +471,30 @@ def lexicalize_pages(pages, lexicalized_title, lexeme="länge"):
     realize "$title hat einen Umfang von $pages Seiten":
 
     >>> title = lexicalize_title(("Natural Language Processing", ""), realize="complete")
-    >>> openccg.realize(lexicalize_pages(600, lexicalized_title=title, lexeme="umfang"))
+    >>> openccg.realize(lexicalize_pages((600, ""), lexicalized_title=title, lexeme="umfang"))
     ['hat \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c einen Umfang von 600 Seiten', '\xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c einen Umfang von 600 Seiten hat', '\xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c hat einen Umfang von 600 Seiten']
 
     realize "$abstracttitle umfasst $pages Seiten":
 
     >>> title = lexicalize_title(("title1", ""), realize="abstract")
-    >>> openccg.realize(lexicalize_pages(600, lexicalized_title=title, lexeme="umfassen"))
+    >>> openccg.realize(lexicalize_pages((600, ""), lexicalized_title=title, lexeme="umfassen"))
     ['das Buch 600 Seiten umfasst', 'das Buch umfasst 600 Seiten', 'umfasst das Buch 600 Seiten']
 
     TODO: generates ungrammatical phrases, e.g. "ist das Buch lange 600 Seiten"
     realize "$abstracttitle ist $pages Seiten lang":
 
     >>> title = lexicalize_title(("title1", ""), realize="abstract")
-    >>> openccg.realize(lexicalize_pages(600, lexicalized_title=title, lexeme="länge"))
+    >>> openccg.realize(lexicalize_pages((600, ""), lexicalized_title=title, lexeme="länge"))
     ['das Buch 600 Seiten lang ist', 'das Buch ist 600 Seiten lang', 'das Buch ist lange 600 Seiten', 'das Buch lange 600 Seiten ist', 'ist das Buch 600 Seiten lang', 'ist das Buch lange 600 Seiten']
     """
-    if isinstance(pages, int):
-        pages = str(pages)
+    pages_val, rating = pages
 
     tempus = gen_tempus("präs")
     title = lexicalized_title
     title.change_mode("AGENS")
 
     pages_num = gen_num("plur")
-    pages_mod = gen_mod(pages, "kardinal")
+    pages_mod = gen_mod(pages_val, "kardinal")
     pages_nom = "artefaktum"
     pages_prop = "Seite"
 
@@ -526,7 +530,7 @@ def lexicalize_pages(pages, lexicalized_title, lexeme="länge"):
 
 
 
-def lexicalize_proglang(proglang, lexicalized_titles=None,
+def lexicalize_proglang(proglang, lexicalized_title=None,
                         lexicalized_authors=None, realize="embedded"):
     r"""
     @type proglang: C{tuple} of (C{frozenset}, C{str})
@@ -558,10 +562,10 @@ def lexicalize_proglang(proglang, lexicalized_titles=None,
     realize a book title with several programming languages:
 
     >>> title = lexicalize_title(("Natural Language Processing", ""), realize="complete")
-    >>> openccg.realize(lexicalize_proglang((frozenset(["Python" ,"Lisp", "C++"]), ""), lexicalized_titles=title, realize="complete"))
+    >>> openccg.realize(lexicalize_proglang((frozenset(["Python" ,"Lisp", "C++"]), ""), lexicalized_title=title, realize="complete"))
     ['verwendet \xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c die Programmiersprachen Python , Lisp und C++', '\xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c die Programmiersprachen Python , Lisp und C++ verwendet', '\xe2\x80\x9e Natural_Language_Processing \xe2\x80\x9c verwendet die Programmiersprachen Python , Lisp und C++']
     """
-    assert lexicalized_titles or lexicalized_authors or realize == "embedded", \
+    assert lexicalized_title or lexicalized_authors or realize == "embedded", \
         "requires either a lexicalized title, a lexicalized set of authors or"\
         " realize parameter == 'embedded'"
     if realize == "embedded":
@@ -570,8 +574,8 @@ def lexicalize_proglang(proglang, lexicalized_titles=None,
 
     elif realize == "complete":
         temp = gen_tempus("präs")
-        if lexicalized_titles:
-            agens = lexicalized_titles
+        if lexicalized_title:
+            agens = lexicalized_title
         elif lexicalized_authors:
             agens = lexicalized_authors
 

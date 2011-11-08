@@ -45,6 +45,9 @@ def ensure_utf8(string_or_int):
         string = string_or_int.encode("UTF8")
     elif isinstance(string_or_int, str):
         string = string_or_int
+    else:
+        print "string_or_int: ", string_or_int
+        raise Exception("can't process input of type {0}".format(type(string_or_int)))
     return string
 
 def ensure_unicode(string_or_int):

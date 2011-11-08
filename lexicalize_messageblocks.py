@@ -218,8 +218,9 @@ def lexicalize_id(id_message_block):
 
     for msg_name, msg in msg_block.items():
         lexicalize_function_name = "lexicalize_" + msg_name
-        eval(lexicalize_function_name)(msg,
-                lexicalized_title=random_variation(title_variations))
+        lexicalized.append(
+            eval(lexicalize_function_name)(msg,
+                        lexicalized_title=random_variation(title_variations)))
     
     return lexicalized
 
