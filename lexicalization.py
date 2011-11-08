@@ -528,6 +528,10 @@ def lexicalize_proglang(proglang, lexicalized_titles=None,
     e.g. "das Buch verwendet die Programmiersprache(n) X (und Y)" or "der
     Autor/ die Autoren verwenden die Programmiersprache(n) X (und Y)".
 
+    realize "keine Programmiersprache":
+    >>> openccg.realize(lexicalize_proglang((frozenset([]), ""), realize="embedded"))
+    ['keine Programmiersprache', 'keiner Programmiersprache']
+
     realize "die Programmiersprachen A, B und C":
 
     >>> openccg.realize(lexicalize_proglang((frozenset(["Python" ,"Lisp", "C++"]), ""), realize="embedded"))
@@ -1389,7 +1393,7 @@ def gen_keywords(keywords, mode="N"):
 
 def gen_proglang(proglang, mode=""):
     """
-    generates a C{Diamond} representing programming languages, e.g. 'die Programmiersprache X' or 'die Programmiersprachen X und Y'.
+    generates a C{Diamond} representing programming languages, e.g. 'die Programmiersprache X', 'die Programmiersprachen X und Y' or 'keine Programmiersprache'.
 
     @type proglang: C{tuple} of (C{frozenset}, C{str})
     @param proglang: a tuple consisting of a set of programming languages
@@ -1403,20 +1407,27 @@ def gen_proglang(proglang, mode=""):
     proglangs, rating = proglang
     num_of_proglangs = len(proglangs)
 
-    num = gen_num(num_of_proglangs)
-    art = gen_art("def")
-
-    proglang_diamonds = []
-    for lang in proglangs:
-        proglang_diamonds.append(create_diamond("N", "sorte", lang,
-                                 [gen_num("sing")]))
-
-    proglang_enum = gen_enumeration(proglang_diamonds, mode="N")
-    proglang_enum.change_mode("NOMERG")
-    add_mode_suffix(proglang_enum, mode="N")
-
-    return create_diamond(mode, "art", "Programmiersprache",
-                         [num, art, proglang_enum])
+    if num_of_proglangs >= 1:
+        num = gen_num(num_of_proglangs)
+        art = gen_art("def")
+    
+        proglang_diamonds = []
+        for lang in proglangs:
+            proglang_diamonds.append(create_diamond("N", "sorte", lang,
+                                     [gen_num("sing")]))
+    
+        proglang_enum = gen_enumeration(proglang_diamonds, mode="N")
+        proglang_enum.change_mode("NOMERG")
+        add_mode_suffix(proglang_enum, mode="N")
+    
+        return create_diamond(mode, "art", "Programmiersprache",
+                             [num, art, proglang_enum])
+    else: # book doesn't use any programming language
+        num = gen_num("sing")
+        art = gen_art("quantkein")
+        return create_diamond(mode, "art", "Programmiersprache",
+                             [num, art])
+        
 
 
 def __sing_or_plur(lexicalized_authors):

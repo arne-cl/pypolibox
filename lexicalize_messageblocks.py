@@ -42,6 +42,10 @@ def load_all_textplans():
     f = open("data/alltextplans-20111028.pickle","r")
     return pickle.load(f)
 
+def test():
+    idx = gen_all_messages_of_type("id")
+    return idx, lexicalize_message_block(idx[0])
+
 
 def lexicalize_message_block(messageblock):
     msg_type = messageblock[Feature("msgType")]
@@ -169,8 +173,10 @@ def lexicalize_id(id_message_block):
 
     TODO: random dict key
     """
-    author_variations = id_message_block["authors"]
-    title_variations = id_message_block["title"]
+    authors = id_message_block["authors"]
+    title = id_message_block["title"]
+    author_variations = lexicalize_authors_variations(authors)
+    title_variations = lexicalize_title_variations(title, authors)
     
     if "year" in id_message_block:
         lexicalize_title_description(id_message_block["title"],
@@ -192,7 +198,7 @@ def lexicalize_id(id_message_block):
             lexicalized_p = lexicalize_proglang(id_message_block["proglang"],
                                                 realize="embedded")
             print lexicalize_codeexamples(id_message_block["codeexamples"],
-                                          lexicalized_plang,
+                                          lexicalized_p,
                                           random_variation(title_variations),
                                           lexeme="random")
         else:
