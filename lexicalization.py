@@ -706,24 +706,25 @@ def lexicalize_recency(recency, lexicalized_title,
 
     realize "das Buch ist sehr alt":
 
-    >>> recency_extra = ("old", "neutral")
+    >>> recency_extra = FeatDict(description="old", rating="negative")
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> openccg.realize(lexicalize_recency(recency_extra, title))
     ['das Buch ist sehr alt', 'das Buch sehr alt ist', 'ist das Buch sehr alt']
 
     realize "das Buch ist besonders neu":
 
-    >>> recency_extra = ("recent", "neutral")
+    >>> recency_extra = FeatDict(description="recent", rating="positive")
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> openccg.realize(lexicalize_recency(recency_extra, title))
     ['das Buch besonders neu ist', 'das Buch ist besonders neu', 'ist das Buch besonders neu']
     """
-    assert isinstance(recency, (FeatDict, tuple))
-    if isinstance(recency, FeatDict):
+    assert isinstance(recency, FeatDict)
+    if "direction" in recency:
         return gen_recency_lastbook_nomatch(recency, lexicalized_title,
                                             lexicalized_lastbooktitle)
     else:
-        return gen_recency_extra(recency, lexicalized_title)
+        recency_value = recency["description"]
+        return gen_recency_extra(recency_value, lexicalized_title)
 
 
 def gen_recency_lastbook_nomatch(recency, lexicalized_title,
@@ -758,14 +759,14 @@ def gen_recency_lastbook_nomatch(recency, lexicalized_title,
                          [tempus, subj, prkompl])
 
 
-def gen_recency_extra(recency, lexicalized_title):
+def gen_recency_extra(recency_description, lexicalized_title):
     """
     das Buch ist besonders neu
     das Buch ist sehr alt
-    [ recency               = ('old','neutral') ]
-    """
-    recency_description, rating = recency
 
+    @type recency_description: C{str}
+    @param recency_description: "recent", "old"
+    """
     tempus = gen_tempus("präs")
     subj = lexicalized_title
     subj.change_mode("SUBJ")
