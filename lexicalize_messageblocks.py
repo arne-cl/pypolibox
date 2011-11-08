@@ -16,7 +16,7 @@ lexicalize_keywords(keywords, lexicalized_title=None,
                     lexeme="behandeln")
 lexicalize_language(language, lexicalized_title, realize="noun")
 lexicalize_pages(pages, lexicalized_title, lexeme="länge")
-lexicalize_plang(plang, lexicalized_titles=None, lexicalized_authors=None,
+lexicalize_proglang(plang, lexicalized_titles=None, lexicalized_authors=None,
                      realize="embedded")
 lexicalize_target(target, lexicalized_title)
 lexicalize_year(year, lexicalized_title)
@@ -189,8 +189,8 @@ def lexicalize_id(id_message_block):
 
     if "codeexamples" in msg_names:
         if "proglang" in msg_names:
-            lexicalized_plang = lexicalize_plang(id_message_block["proglang"],
-                                realize="embedded")
+            lexicalized_p = lexicalize_proglang(id_message_block["proglang"],
+                                                realize="embedded")
             print lexicalize_codeexamples(id_message_block["codeexamples"],
                                           lexicalized_plang,
                                           random_variation(title_variations),
