@@ -245,8 +245,8 @@ def fake_lastbook_nomatch(lexicalized_lastbook_message, lexicalized_message):
 
     >>> title = lexicalize_title(("foo", ""), realize="pronoun")
     >>> lasttitle = lexicalize_title(("Angewandte Computerlinguistik", ""), realize="complete")
-    >>> lang = lexicalize_language("German", title, realize="noun")
-    >>> lastlang = lexicalize_language("English", lasttitle, realize="adjective")
+    >>> lang = lexicalize_language(("German", ""), title, realize="noun")
+    >>> lastlang = lexicalize_language(("English", ""), lasttitle, realize="adjective")
     >>> openccg.realize(fake_lastbook_nomatch(lastlang, lang))
     ['es ist auf Deutsch , wohingegen \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c in englischer Sprache ist']
     """
