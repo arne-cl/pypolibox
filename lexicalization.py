@@ -92,7 +92,10 @@ def lexicalize_codeexamples(examples, lexicalized_title,
     das Buch enthält Code-Beispiele in den Programmiersprachen A und B.
     „On Syntax“ beinhaltet keine Code-Beispiele.
 
-    @type examples: C{int} or C{str}
+    @type examples: C{tuple} of (C{int}, C{str})
+    @param examples: a tuple, e.g. (0, 'neutral'), describing if a book
+    uses code examples (1) or not (0)
+    
     @type lexicalized_title: C{Diamond}
     @type lexicalized_proglang: C{Diamond} or C{NoneType}
 
@@ -102,20 +105,20 @@ def lexicalize_codeexamples(examples, lexicalized_title,
     realize "das Buch enthält Code-Beispiele":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> openccg.realize(lexicalize_codeexamples(1, lexicalized_title=title, lexeme="enthalten"))
+    >>> openccg.realize(lexicalize_codeexamples((1, ""), lexicalized_title=title, lexeme="enthalten"))
     ['das Buch Code-Beispiele enth\xc3\xa4lt', 'das Buch enth\xc3\xa4lt Code-Beispiele', 'enth\xc3\xa4lt das Buch Code-Beispiele']
 
     realize "das Buch enthält keine Code-Beispiele":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> openccg.realize(lexicalize_codeexamples(0, lexicalized_title=title, lexeme="enthalten"))
+    >>> openccg.realize(lexicalize_codeexamples((0, ""), lexicalized_title=title, lexeme="enthalten"))
     ['das Buch enth\xc3\xa4lt keine Code-Beispiele', 'das Buch keine Code-Beispiele enth\xc3\xa4lt', 'enth\xc3\xa4lt das Buch keine Code-Beispiele']
 
     realize "das Buch enthält Code-Beispiele in den Programmiersprachen A + B":
 
     >>> title = lexicalize_title(("foo", ""), realize="abstract")
     >>> plang = lexicalize_proglang((["Ada","Scheme"], ""), realize="embedded")
-    >>> openccg.realize(lexicalize_codeexamples(1, lexicalized_title=title, lexicalized_proglang=plang, lexeme="enthalten"))
+    >>> openccg.realize(lexicalize_codeexamples((1, ""), lexicalized_title=title, lexicalized_proglang=plang, lexeme="enthalten"))
     ['das Buch Code-Beispiele in den Programmiersprachen Ada und Scheme enth\xc3\xa4lt', 'das Buch enth\xc3\xa4lt Code-Beispiele in den Programmiersprachen Ada und Scheme', 'enth\xc3\xa4lt das Buch Code-Beispiele in den Programmiersprachen Ada und Scheme']
 
     realize "d. Buch von X + Y beinhaltet Code-Bsp. in den Prog.sprachen A + B"
@@ -123,21 +126,21 @@ def lexicalize_codeexamples(examples, lexicalized_title,
     >>> authors = lexicalize_authors((["Alan Kay", "John Hopcroft"], ""), realize="lastnames")
     >>> title = lexicalize_title(("foo", ""), lexicalized_authors=authors, realize="abstract", authors_realize="preposition")
     >>> plang = lexicalize_proglang((["Ada","Scheme"], ""), realize="embedded")
-    >>> openccg.realize(lexicalize_codeexamples(1, lexicalized_title=title, lexicalized_proglang=plang, lexeme="beinhalten"))
+    >>> openccg.realize(lexicalize_codeexamples((1, ""), lexicalized_title=title, lexicalized_proglang=plang, lexeme="beinhalten"))
     ['beinhaltet das Buch von Kay und Hopcroft Code-Beispiele in den Programmiersprachen Ada und Scheme', 'das Buch von Kay und Hopcroft Code-Beispiele in den Programmiersprachen Ada und Scheme beinhaltet', 'das Buch von Kay und Hopcroft beinhaltet Code-Beispiele in den Programmiersprachen Ada und Scheme']
     """
     assert lexeme in ("beinhalten", "enthalten", "random")
     if lexeme == "random":
         lexeme = random.choice(("beinhalten", "enthalten"))
 
-    examples = int(examples)
+    examples_val, rating = examples
     modifier = None
 
     temp = gen_tempus("präs")
     agens = lexicalized_title
     agens.change_mode("AGENS")
 
-    if examples == 0: #contains no examples
+    if examples_val == 0: #contains no examples
         modifier = gen_art("quantkein")
     else:
         if lexicalized_proglang: #contains examples in programming language X

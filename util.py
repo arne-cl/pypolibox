@@ -34,20 +34,30 @@ def load_settings(path="."):
         print "{0}: {1}".format(ioerror_string, config_yaml_error)
 
 
-def ensure_utf8(string):
+def ensure_utf8(string_or_int):
     """
     ensures that a string does not use unicode but UTF8
     """
-    if type(string) == unicode:
-        string = string.encode("UTF8")
+    if isinstance(string_or_int, int):
+        string = str(string_or_int)
+    elif isinstance(string_or_int, unicode):
+        string = string_or_int.encode("UTF8")
+    elif isinstance(string_or_int, str):
+        string = string_or_int
     return string
 
-def ensure_unicode(string):
+def ensure_unicode(string_or_int):
     """
     ensures that a string does use unicode instead of UTF8
     """
-    if type(string) != unicode:
-        string = string.decode("UTF8")
+    if isinstance(string_or_int, int):
+        string_or_int = str(string_or_int)
+
+    if isinstance(string_or_int, unicode):
+        string = string_or_int
+    else:
+        #print "string_or_int: ", string_or_int, " with type: ", type(string_or_int)
+        string = string_or_int.decode("UTF8")
     return string
 
 

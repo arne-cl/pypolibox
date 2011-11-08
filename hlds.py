@@ -674,7 +674,8 @@ def __determine_nom_prefix(diamond):
     numbers_only = re.compile("\d+$")
     
     if "prop" in diamond.keys():
-        if numbers_only.match(diamond["prop"]):
+        prop = ensure_utf8(diamond["prop"])
+        if numbers_only.match(prop):
             nom_prefix_char = "n"
         else: # <prop> doesn't represent a year, page count etc.
             nom_prefix_char = diamond["prop"].lower()[0]
@@ -682,7 +683,7 @@ def __determine_nom_prefix(diamond):
     else: #if there's no <prop> tag
         nom_prefix_char = "x"
     
-    return nom_prefix_char
+    return ensure_utf8(nom_prefix_char)
     
 
 def remove_nom_prefixes(diamond):

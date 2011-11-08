@@ -31,16 +31,25 @@ lexicalize_recency(recency, lexicalized_title,
 """
 import random
 import cPickle as pickle # TODO: dbg, rm
+from copy import deepcopy
 from nltk.featstruct import Feature, FeatDict
 
 from hlds import Diamond, create_diamond, add_mode_suffix
 from lexicalization import *
 from realization import OpenCCG #TODO: dbg, mv to main
 from debug import gen_all_messages_of_type #TODO: dbg, rm
+from util import load_settings #TODO: dbg, mv to main
 
-def load_all_textplans():
-    f = open("data/alltextplans-20111028.pickle","r")
-    return pickle.load(f)
+SETTINGS = load_settings() #TODO: dbg, mv to main
+
+def enumrealize(diamond_list):
+    """debugging function that realizes a list of diamonds, one at a time"""
+    for diamond in diamond_list:
+        openccg.realize(diamond)
+
+#~ def load_all_textplans():
+    #~ f = open("data/alltextplans-20111028.pickle","r")
+    #~ return pickle.load(f)
 
 def test():
     idx = gen_all_messages_of_type("id")
@@ -173,38 +182,44 @@ def lexicalize_id(id_message_block):
 
     TODO: random dict key
     """
-    authors = id_message_block["authors"]
-    title = id_message_block["title"]
+    msg_block = deepcopy(id_message_block)
+    authors = msg_block["authors"]
+    title = msg_block["title"]
     author_variations = lexicalize_authors_variations(authors)
     title_variations = lexicalize_title_variations(title, authors)
-    
-    if "year" in id_message_block:
-        lexicalize_title_description(id_message_block["title"],
-                                     id_message_block["authors"],
-                                     id_message_block["year"])
+
+    lexicalized = []
+    if "year" in msg_block:
+        lexicalized.append(lexicalize_title_description(msg_block["title"],
+                                                        msg_block["authors"],
+                                                        msg_block["year"]))
     else:
-        lexicalize_title_description(id_message_block["title"],
-                                     id_message_block["authors"])
+        lexicalized.append(lexicalize_title_description(msg_block["title"],
+                                                        msg_block["authors"]))
 
     identifiers = set(["title", "authors", "year"])
-    for msg_name, msg in id_message_block.items():
+    for msg_name, msg in msg_block.items():
         if isinstance(msg_name, Feature) or msg_name in identifiers:
-            id_message_block.pop(msg_name)
+            msg_block.pop(msg_name)
 
-    msg_names = id_message_block.keys()
+    msg_names = msg_block.keys()
 
     if "codeexamples" in msg_names:
         if "proglang" in msg_names:
-            lexicalized_p = lexicalize_proglang(id_message_block["proglang"],
-                                                realize="embedded")
-            print lexicalize_codeexamples(id_message_block["codeexamples"],
-                                          lexicalized_p,
-                                          random_variation(title_variations),
-                                          lexeme="random")
+            lexicalized_proglang = lexicalize_proglang(msg_block["proglang"],
+                                                       realize="embedded")
+            lexicalized.append(lexicalize_codeexamples(
+                                    msg_block["codeexamples"],
+                                    lexicalized_proglang,
+                                    random_variation(title_variations),
+                                    lexeme="random"))
         else:
-            print lexicalize_codeexamples(id_message_block["codeexamples"],
-                                          random_variation(title_variations),
-                                          lexeme="random")
+            lexicalized.append(
+                lexicalize_codeexamples(msg_block["codeexamples"],
+                                        random_variation(title_variations),
+                                        lexeme="random"))
+
+    return lexicalized
 
 
 def lexicalize_extra(extra_message_block):
