@@ -24,7 +24,7 @@ openccg = OpenCCG(SETTINGS)
 def phrase2sentence(diamond):
     """
     turns the lexicalization of a phrase (e.g. "das Buch ist neu") into a
-    sentence, e.g. "das Buch ist neu ." 
+    sentence, e.g. "das Buch ist neu ."
     """
     assert isinstance(diamond, Diamond)
     diamond.change_mode("DEKL")
@@ -104,7 +104,7 @@ def lexicalize_codeexamples(examples, lexicalized_title,
     @type examples: C{tuple} of (C{int}, C{str})
     @param examples: a tuple, e.g. (0, 'neutral'), describing if a book
     uses code examples (1) or not (0)
-    
+
     @type lexicalized_title: C{Diamond}
     @type lexicalized_proglang: C{Diamond} or C{NoneType}
 
@@ -176,7 +176,7 @@ def lexicalize_exercises(exercises, lexicalized_title, lexeme="random"):
     @type exercises: C{tuple} of (C{int}, C{str})
     @param exercises: a tuple stating if a book contains exercises (1,
     "neutral") or not (0, "neutral").
-    
+
     @type lexicalized_title: C{Diamond} describing a book title
 
     realize "das Buch enthält Übungen":
@@ -237,7 +237,7 @@ def lexicalize_language(language, lexicalized_title, realize="random"):
     assert realize in ("noun", "adjective", "random")
     if realize == "random":
         realize = random.choice(["noun", "adjective"])
-    
+
     language_val, rating = language
     languages = {"German": "Deutsch", "English": "Englisch"}
 
@@ -376,11 +376,12 @@ def gen_length_extra(length, lexicalized_title):
                           [tempus, subj, prkompl])
 
 
-def lexicalize_keywords(keywords, lexicalized_title=None,
+def lexicalize_keywords(keywords_tuple, lexicalized_title=None,
                         lexicalized_authors = None, realize="complete",
                         lexeme="random"):
     r"""
-    @type keywords: C{frozenset} of C{str}
+    @type keywords_tuple: C{tuple} of (C{frozenset} of C{str}, C{str})
+    @param keywords_tuple: e.g. (frozenset(['generation', 'discourse', 'semantics', 'parsing']), 'neutral')
 
     @type realize: C{str}
     @param realize: "abstract", "complete".
@@ -391,21 +392,21 @@ def lexicalize_keywords(keywords, lexicalized_title=None,
     I{behandeln}:
 
     >>> author = lexicalize_authors((["author1"], ""), realize="abstract")
-    >>> openccg.realize(lexicalize_keywords(["keyword1"], lexicalized_authors=author, realize="abstract", lexeme="behandeln"))
+    >>> openccg.realize(lexicalize_keywords((frozenset(["keyword1"]), ""), lexicalized_authors=author, realize="abstract", lexeme="behandeln"))
     ['behandelt der Autor das Thema', 'der Autor behandelt das Thema', 'der Autor das Thema behandelt']
 
     realize one keyword concretely, using two concrete authors and the lexeme
     I{beschreiben}:
 
     >>> authors = lexicalize_authors((["John E. Hopcroft","Jeffrey D. Ullman"], ""), realize="complete")
-    >>> openccg.realize(lexicalize_keywords(["parsing", "formal languages"], lexicalized_authors=authors, realize="complete", lexeme="beschreiben"))
-    ['John E. Hopcroft und Jeffrey D. Ullman beschreiben die Themen parsing und formal_languages', 'John E. Hopcroft und Jeffrey D. Ullman die Themen parsing und formal_languages beschreiben', 'beschreiben John E. Hopcroft und Jeffrey D. Ullman die Themen parsing und formal_languages']
+    >>> openccg.realize(lexicalize_keywords((frozenset(["parsing", "formal languages"]), ""), lexicalized_authors=authors, realize="complete", lexeme="beschreiben"))
+    ['John E. Hopcroft und Jeffrey D. Ullman beschreiben die Themen formal_languages und parsing', 'John E. Hopcroft und Jeffrey D. Ullman die Themen formal_languages und parsing beschreiben', 'beschreiben John E. Hopcroft und Jeffrey D. Ullman die Themen formal_languages und parsing']
 
     realize 4 keywords, using 1 author's last name and the lexeme I{eingehen}:
 
     >>> author = lexicalize_authors((["Ralph Grishman"], ""), realize="lastnames")
-    >>> openccg.realize(lexicalize_keywords(["parsing","semantics","discourse","generation"], lexicalized_authors=author, realize="complete", lexeme="eingehen"))
-    ['Grishman geht auf den Themen parsing , semantics , discourse und generation ein', 'Grishman geht auf die Themen parsing , semantics , discourse und generation ein', 'geht Grishman auf den Themen parsing , semantics , discourse und generation ein', 'geht Grishman auf die Themen parsing , semantics , discourse und generation ein']
+    >>> openccg.realize( lexicalize_keywords((frozenset(["parsing","semantics","discourse","generation"]), ""), lexicalized_authors=author, realize="complete", lexeme="eingehen"))
+    ['Grishman geht auf den Themen discourse , generation , parsing und semantics ein', 'Grishman geht auf die Themen discourse , generation , parsing und semantics ein', 'geht Grishman auf den Themen discourse , generation , parsing und semantics ein', 'geht Grishman auf die Themen discourse , generation , parsing und semantics ein']
 
     TODO: "___ geht auf den Themen ein" is not OK
 
@@ -413,16 +414,17 @@ def lexicalize_keywords(keywords, lexicalized_title=None,
     I{aufgreifen}:
 
     >>> title = lexicalize_title(("book1", ""), realize="abstract")
-    >>> openccg.realize(lexicalize_keywords(["regular expressions"], lexicalized_title=title, realize="complete", lexeme="aufgreifen"))
+    >>> openccg.realize(lexicalize_keywords((frozenset(["regular expressions"]), ""), lexicalized_title=title, realize="complete", lexeme="aufgreifen"))
     ['das Buch greift das Thema regular_expressions auf', 'greift das Buch das Thema regular_expressions auf']
 
     realize 2 keywords, using a concrete book title and the lexeme
     I{beschreiben}:
 
     >>> title = lexicalize_title(("Grundlagen der Computerlinguistik", ""), realize="complete")
-    >>> openccg.realize(lexicalize_keywords(["grammar", "corpora"], lexicalized_title=title, realize="complete", lexeme="beschreiben"))
-    ['beschreibt \xe2\x80\x9e Grundlagen_der_Computerlinguistik \xe2\x80\x9c die Themen grammar und corpora', '\xe2\x80\x9e Grundlagen_der_Computerlinguistik \xe2\x80\x9c beschreibt die Themen grammar und corpora', '\xe2\x80\x9e Grundlagen_der_Computerlinguistik \xe2\x80\x9c die Themen grammar und corpora beschreibt']
+    >>> openccg.realize(lexicalize_keywords((frozenset(["grammar", "corpora"]), ""), lexicalized_title=title, realize="complete", lexeme="beschreiben"))
+    ['beschreibt \xe2\x80\x9e Grundlagen_der_Computerlinguistik \xe2\x80\x9c die Themen corpora und grammar', '\xe2\x80\x9e Grundlagen_der_Computerlinguistik \xe2\x80\x9c beschreibt die Themen corpora und grammar', '\xe2\x80\x9e Grundlagen_der_Computerlinguistik \xe2\x80\x9c die Themen corpora und grammar beschreibt']
     """
+    keywords, rating = keywords_tuple
     assert realize in ("abstract", "complete"), \
         "choose 1 of these keyword realizations: abstract, complete"
 
@@ -431,9 +433,9 @@ def lexicalize_keywords(keywords, lexicalized_title=None,
     assert lexeme in ("behandeln", "beschreiben", "eingehen", "aufgreifen",
                       "random")
     if lexeme == "random":
-        lexeme = random.choice("behandeln", "beschreiben", "eingehen",
-                               "aufgreifen")
-        
+        lexeme = random.choice(["behandeln", "beschreiben", "eingehen",
+                               "aufgreifen"])
+
     if realize == "abstract":
         patiens = gen_abstract_keywords(num_of_keywords)
     elif realize == "complete":
@@ -612,7 +614,7 @@ def lexicalize_target(target, lexicalized_title):
     @type target: C{tuple} of (C{int}, C{str})
     @param target: a tuple, e.g. (0, "neutral"), states that the book is
     targeted towards beginners.
-    
+
     @type lexicalized_title: C{Diamond}
 
     realize "... richtet sich an Anfänger":
@@ -1266,7 +1268,10 @@ def gen_keywords(keywords, mode="N"):
     @type keywords: C{list} of C{str}
     @rtype: C{Diamond}
     """
-    assert isinstance(keywords, list), "input needs to be a list"
+    #~ print "type(keywords): ", type(keywords)
+    #~ print "keywords: ", keywords
+    assert isinstance(keywords, frozenset), "input needs to be a frozenset"
+    keywords = sorted(list(keywords))
 
     num_of_keywords = len(keywords)
     keyword_description = gen_abstract_keywords(num_of_keywords)
@@ -1277,10 +1282,10 @@ def gen_keywords(keywords, mode="N"):
         num = gen_num("sing")
         return create_diamond(mode, "sorte", fixed_keyword, [num])
 
-    if isinstance(keywords, list) and len(keywords) == 1:
+    if len(keywords) == 1:
         result_diamond = gen_keyword(keywords[0], mode)
 
-    elif isinstance(keywords, list) and len(keywords) > 1:
+    elif len(keywords) > 1:
         keyword_diamonds = [gen_keyword(kw, mode) for kw in keywords]
         result_diamond = gen_enumeration(keyword_diamonds, mode)
 
@@ -1307,16 +1312,16 @@ def gen_proglang(proglang, mode=""):
     if num_of_proglangs >= 1:
         num = gen_num(num_of_proglangs)
         art = gen_art("def")
-    
+
         proglang_diamonds = []
         for lang in proglangs:
             proglang_diamonds.append(create_diamond("N", "sorte", lang,
                                      [gen_num("sing")]))
-    
+
         proglang_enum = gen_enumeration(proglang_diamonds, mode="N")
         proglang_enum.change_mode("NOMERG")
         add_mode_suffix(proglang_enum, mode="N")
-    
+
         return create_diamond(mode, "art", "Programmiersprache",
                              [num, art, proglang_enum])
     else: # book doesn't use any programming language
@@ -1324,7 +1329,7 @@ def gen_proglang(proglang, mode=""):
         art = gen_art("quantkein")
         return create_diamond(mode, "art", "Programmiersprache",
                              [num, art])
-        
+
 
 
 def __sing_or_plur(lexicalized_authors):
