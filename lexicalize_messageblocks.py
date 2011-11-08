@@ -47,9 +47,9 @@ def enumrealize(diamond_list):
     for diamond in diamond_list:
         printeach(openccg.realize(diamond))
 
-def test(id_block_number=0):
-    idx = gen_all_messages_of_type("id")
-    lexicalized_msgs = lexicalize_message_block(idx[id_block_number])
+def test(msg_type="id", block_number=0):
+    msg_blocks = gen_all_messages_of_type(msg_type)
+    lexicalized_msgs = lexicalize_message_block(msg_blocks[block_number])
     return [phrase2sentence(msg) for msg in lexicalized_msgs]
 
 def lexicalize_message_block(messageblock):
@@ -229,8 +229,24 @@ def lexicalize_extra(extra_message_block):
     r"""
     außerdem / zusätzlich / hinzu kommt
     """
-    pass
+    msg_block = deepcopy(extra_message_block)
+    authors = msg_block[Feature("reference_authors")]
+    title = msg_block[Feature("reference_title")]
+    author_variations = lexicalize_authors_variations(authors)
+    title_variations = lexicalize_title_variations(title, authors)
 
+    lexicalized = []
+    for msg_name, msg in msg_block.items():
+        if isinstance(msg_name, str):
+            lexicalize_function_name = "lexicalize_" + msg_name
+            random_title = random_variation(title_variations)
+            lexicalized.append(
+                eval(lexicalize_function_name)(msg,
+                                               lexicalized_title=random_title))
+
+    return lexicalized
+
+    
 def lexicalize_lastbook_match(lastbook_match_message_block):
     r"""sowohl als auch / beide Bücher / gemeinsam ist beiden Büchern"""
     pass

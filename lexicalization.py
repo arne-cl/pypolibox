@@ -66,6 +66,8 @@ def lexicalize_authors(authors_tuple, realize="abstract"):
     >>> openccg.realize(lexicalize_authors((['Christopher D. Manning', 'Detlef Peter Zaun'], ""), realize='complete'))
     ['Christopher D. Manning und Detlef Peter Zaun', 'Christopher D. Mannings und Detlef Peter Zauns']
     """
+    #~ print "authors_tuple: ", authors_tuple
+    #~ print "type(authors_tuple): ", type(authors_tuple)
     authors, rating = authors_tuple
     assert realize in ("abstract", "lastnames", "complete"), \
         "choose 1 of these author realizations: abstract, lastnames, complete"
@@ -289,29 +291,17 @@ def lexicalize_length(length, lexicalized_title,
     >>> openccg.realize(lexicalize_length(length_lastbook_nomatch, title, lasttitle))
     ['es 14 Seiten k\xc3\xbcrzer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c ist', 'es ist 14 Seiten k\xc3\xbcrzer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c', 'ist es 14 Seiten k\xc3\xbcrzer als \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c']
 
-    realize within an extra message - "das Buch ist sehr umfangreich":
-
-    >>> length = ("very long", "neutral")
-    >>> title = lexicalize_title(("foo", ""), realize="abstract")
-    >>> openccg.realize(lexicalize_length(length, title))
-    ['das Buch ist sehr umfangreich', 'das Buch sehr umfangreich ist', 'ist das Buch sehr umfangreich']
-
-    realize within an extra message - "es ist etwas kurz":
-
-    >>> length = ("very short", "neutral")
-    >>> title = lexicalize_title(("foo", ""), realize="pronoun")
-    >>> openccg.realize(lexicalize_length(length, title))
-    ['es etwas kurz ist', 'es ist etwas kurz', 'ist es etwas kurz']
     """
-    assert isinstance(length, (FeatDict, tuple))
+    assert isinstance(length, FeatDict)
 
     if isinstance(length, FeatDict) and "magnitude" in length.keys():
     # length is part of a 'lastbook_nomatch'
         return gen_length_lastbook_nomatch(length, lexicalized_title,
                                              lexicalized_lastbooktitle)
-    elif isinstance(length, tuple): # length is part of 'extra'
-        return gen_length_extra(length, lexicalized_title)
-
+    else:
+        print "length: ", length
+        print "type: ", type(length)
+        raise Exception("can't parse length FeatDict")
 
 def gen_length_lastbook_nomatch(length, lexicalized_title,
                                 lexicalized_lastbooktitle):
@@ -353,27 +343,6 @@ def gen_length_lastbook_nomatch(length, lexicalized_title,
     return create_diamond("", u"prädikation", "sein-kop",
                           [tempus, subj, prkompl])
 
-
-def gen_length_extra(length, lexicalized_title):
-    """
-    das Buch ist etwas kurz
-    das Buch ist sehr umfangreich
-    """
-    length_description, rating = length
-
-    tempus = gen_tempus("präs")
-    subj = lexicalized_title
-    subj.change_mode("SUBJ")
-
-    if length_description == "very long":
-        prkompl = create_diamond("PRKOMPL", "eigenschaft", "umfangreich",
-                         [gen_komp("pos"), gen_spez("sehr", "intensivierung")])
-    elif length_description == "very short":
-        prkompl = create_diamond("PRKOMPL", "eigenschaft", "kurz",
-                         [gen_komp("pos"), gen_spez("etwas", u"abschwächung")])
-
-    return create_diamond("", u"prädikation", "sein-kop",
-                          [tempus, subj, prkompl])
 
 
 def lexicalize_keywords(keywords_tuple, lexicalized_title=None,
@@ -500,15 +469,41 @@ def lexicalize_pages(pages, lexicalized_title, lexeme="random"):
     >>> title = lexicalize_title(("title1", ""), realize="abstract")
     >>> openccg.realize(lexicalize_pages((600, ""), lexicalized_title=title, lexeme="länge"))
     ['das Buch 600 Seiten lang ist', 'das Buch ist 600 Seiten lang', 'das Buch ist lange 600 Seiten', 'das Buch lange 600 Seiten ist', 'ist das Buch 600 Seiten lang', 'ist das Buch lange 600 Seiten']
-    """
-    pages_val, rating = pages
 
+    realize within an extra message - "das Buch ist sehr umfangreich":
+
+    >>> length = ("very long", "neutral")
+    >>> title = lexicalize_title(("foo", ""), realize="abstract")
+    >>> openccg.realize(lexicalize_pages(length, title))
+    ['das Buch ist sehr umfangreich', 'das Buch sehr umfangreich ist', 'ist das Buch sehr umfangreich']
+
+    realize within an extra message - "es ist etwas kurz":
+
+    >>> length = ("very short", "neutral")
+    >>> title = lexicalize_title(("foo", ""), realize="pronoun")
+    >>> openccg.realize(lexicalize_pages(length, title))
+    ['es etwas kurz ist', 'es ist etwas kurz', 'ist es etwas kurz']
+    """
+    #~ print "pages: ", pages
+    #~ print "type(pages): ", type(pages)
+    pages_val, rating = pages
+    if isinstance(pages_val, int):
+        return gen_pages_id(pages_val, lexicalized_title, lexeme)
+    elif isinstance(pages_val, str):
+        return gen_pages_extra(pages_val, lexicalized_title)
+
+
+def gen_pages_id(pages_int, lexicalized_title, lexeme="random"):
+    """
+    @type pages_int: C{int}
+    @param pages_int: number of pages of a book
+    """
     tempus = gen_tempus("präs")
     title = lexicalized_title
     title.change_mode("AGENS")
 
     pages_num = gen_num("plur")
-    pages_mod = gen_mod(pages_val, "kardinal")
+    pages_mod = gen_mod(pages_int, "kardinal")
     pages_nom = "artefaktum"
     pages_prop = "Seite"
 
@@ -541,6 +536,29 @@ def lexicalize_pages(pages, lexicalized_title, lexeme="random"):
                                  [pages_num, pages_mod, komp_mod])
         return create_diamond("", u"prädikation", "sein-kop",
                               [tempus, title, prkompl])
+    
+
+def gen_pages_extra(length_description, lexicalized_title):
+    """
+    das Buch ist etwas kurz
+    das Buch ist sehr umfangreich
+
+    @type length_description: C{str}
+    @param length_description: "very long", "very short"
+    """
+    tempus = gen_tempus("präs")
+    subj = lexicalized_title
+    subj.change_mode("SUBJ")
+
+    if length_description == "very long":
+        prkompl = create_diamond("PRKOMPL", "eigenschaft", "umfangreich",
+                         [gen_komp("pos"), gen_spez("sehr", "intensivierung")])
+    elif length_description == "very short":
+        prkompl = create_diamond("PRKOMPL", "eigenschaft", "kurz",
+                         [gen_komp("pos"), gen_spez("etwas", u"abschwächung")])
+
+    return create_diamond("", u"prädikation", "sein-kop",
+                          [tempus, subj, prkompl])
 
 
 
@@ -824,6 +842,8 @@ def lexicalize_title(title_tuple, lexicalized_authors=None, realize="complete",
     >>> openccg.realize(lexicalize_title(("random", ""), lexicalized_authors=authors, realize="abstract", authors_realize="possessive"))
     ['das Buch von Kay und Manning', 'dem Buch von Kay und Manning', 'des Buches von Kay und Manning']
     """
+    #~ print "title_tuple: ", title_tuple
+    #~ print "type(title_tuple): ", type(title_tuple)
     title, rating = title_tuple
 
     assert realize in ("abstract", "complete", "pronoun", "random")

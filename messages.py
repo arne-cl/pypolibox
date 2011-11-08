@@ -195,7 +195,9 @@ class Messages:
         for attrib in ('title', 'authors'):
             value, rating = self.propositions['id'][attrib]
             if type(value) == set: 
-                value = frozenset(value)
+                value = (frozenset(value), rating)
+            else:
+                value = (value, rating)
             reference = Feature("reference_"+attrib)
             message.update({reference: value})
         return message
