@@ -13,6 +13,7 @@ import os
 import re
 import cPickle as pickle
 import yaml
+from nltk.featstruct import Feature
 
 
 def load_settings(path="."):
@@ -43,7 +44,7 @@ def ensure_utf8(string_or_int):
         string = str(string_or_int)
     elif isinstance(string_or_int, unicode):
         string = string_or_int.encode("UTF8")
-    elif isinstance(string_or_int, str):
+    elif isinstance(string_or_int, (str, Feature)):
         string = string_or_int
     else:
         print "string_or_int: ", string_or_int

@@ -227,7 +227,10 @@ def lexicalize_id(id_message_block):
 
 def lexicalize_extra(extra_message_block):
     r"""
-    außerdem / zusätzlich / hinzu kommt
+    NOTE: "außerdem" works only in a limited number of contexts, e.g. 'das
+    Buch ist neu, außerdem ist es auf Deutsch' but not 'das Buch ist neu,
+    außerdem ist das Buch auf Deutsch'. therefore, no connective is used here
+    so far.
     """
     msg_block = deepcopy(extra_message_block)
     authors = msg_block[Feature("reference_authors")]
@@ -243,17 +246,67 @@ def lexicalize_extra(extra_message_block):
             lexicalized.append(
                 eval(lexicalize_function_name)(msg,
                                                lexicalized_title=random_title))
-
     return lexicalized
 
     
 def lexicalize_lastbook_match(lastbook_match_message_block):
-    r"""sowohl als auch / beide Bücher / gemeinsam ist beiden Büchern"""
-    pass
+    r"""
+    possible: sowohl X als auch Y / beide Bücher
+    implemented: beide Bücher
+
+    TODO: implement lexicalize_pagerange
+    """
+    msg_block = deepcopy(lastbook_match_message_block)
+
+    num = gen_num("plur")
+    art = gen_art("quantbeide")
+    agens = create_diamond("AGENS", "artefaktum", "Buch", [num, art])
+
+    lexicalized = []
+    for msg_name, msg in msg_block.items():
+        if isinstance(msg_name, str) and msg_name not in ("lastbook_authors",
+                                                          "lastbook_title",
+                                                          "pagerange"):
+            lexicalize_function_name = "lexicalize_" + msg_name
+            lexicalized.append(
+                eval(lexicalize_function_name)(msg,
+                                               lexicalized_title=agens))
+    return lexicalized
+
 
 def lexicalize_lastbook_nomatch(lastbook_nomatch_message_block):
-    r"""im Gegensatz zu / wohingegen"""
-    pass
+    r"""
+    dieses Buch _____, wohingegen das erste Buch ____
+    """
+    msg_block = deepcopy(lastbook_nomatch_message_block)
+    authors = msg_block[Feature("reference_authors")]
+    lastbook_authors = msg_block["lastbook_authors"]
+    title = msg_block[Feature("reference_title")]
+    lastbook_title = msg_block["lastbook_title"]
+
+    author_variations = lexicalize_authors_variations(authors)
+    lastbook_author_variations = lexicalize_authors_variations(lastbook_authors)
+    title_variations = lexicalize_title_variations(title, authors)
+    lastbook_title_variations = lexicalize_title_variations(title,
+                                                            lastbook_authors)
+
+    lexicalized = []
+    if "keywords" in msg_block:
+        title_variation = random_variation(title_variations)
+        hs = lexicalize_keywords(msg_block["keywords_current_book_only"],
+                                 lexicalized_title=title_variation)
+        hs.change_mode("HS")
+
+        lastbook_title_variation = random_variation(lastbook_title_variations)
+        vl = lexicalize_keywords(msg_block["keywords_preceding_book_only"],
+                                 lexicalized_title=lastbook_title_variation)
+        vl.change_mode("VL")
+    
+        ns = create_diamond("NS", "adversativ", "wohingegen", [vl])
+        lexicalized.append(create_diamond("", "subjunktion", "komma",
+                                          [hs, ns]))
+    return lexicalized
+
 
 def fake_lastbook_nomatch(lexicalized_lastbook_message, lexicalized_message):
     r"""
