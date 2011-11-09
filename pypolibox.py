@@ -7,8 +7,6 @@ The pypolibox module is the 'main' module of the pypolibox package. It's the
 module you'd usually call from the command line or load into your Python 
 interpreter. It just imports all the important modules and runs some demo 
 code in case it is run from the command line without any arguments.
-
-#TODO: compare both books as a whole with the usermodel!
 """
 
 import sys
