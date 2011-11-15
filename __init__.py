@@ -2,6 +2,12 @@
 # Author: Arne Neumann <arne-neumann@web.de>
 
 """
+Welcome to the I{pypolibox} documentation!
+
+There's a plain text version of this document (I{README} or I{__init__.py} in
+pypolibox's main directory), but you could also read the PDF
+(I{doc/latex/api.pdf}) or HTML version (I{doc/html/index.html}) instead.
+
 I{pypolibox} is part of a database-to-text generation (NLG) software built on
 Python 2.6, the Natural Language Toolkit I{NLTK} and Nicholas Fitzgerald's
 I{pydocplanner}. pypolibox is a reimplementation of I{JPolibox} (not Polibox)
@@ -68,6 +74,25 @@ L{debug.testqueries<pypolibox.debug.testqueries>} and
 L{debug.error_testqueries<pypolibox.debug.error_testqueries>}, which
 basically are lists of predefined valid and invalid query arguments and which
 can be used to query the database (and see how errors are handled).
+
+
+Updating the documentation
+==========================
+
+This documentation was created by using I{epydoc}, a program that converts
+docstring comments (added manually to Python functions, methods and classes)
+into a human-friendly format (PDF, HTML). If you add to or change those
+docstrings, please don't forget to update the epydoc documentation for fellow
+humanoids. This can be done by running these commands in pypolibox's main
+directory::
+
+    epydoc --pdf --name pypolibox --output doc/latex .
+
+to produce a PDF version and ::
+
+    epydoc --html --name pypolibox --graph all --output doc/html .
+
+to produce an HTML version.
 
 
 Package Overview

@@ -73,13 +73,7 @@ class OpenCCG(object):
 
         self._server.sendline(text)
         # How much time should we give the parser to parse it?
-        # the idea here is that you increase the timeout as a 
-        # function of the text's length.
-        
-        # anything longer than 5 seconds requires that you also
-        # increase timeout=5 in jsonrpc.py
         max_expected_time = 20.0
-        #max_expected_time = min(10, 3 + len(text) / 20.0)
         if verbose:
             print "Timeout", max_expected_time
         end_time = time.time() + max_expected_time 
@@ -105,7 +99,7 @@ class OpenCCG(object):
             except pexpect.EOF:
                 break
 
-        if raw_output == True: # plain text results returned by CoreNLP
+        if raw_output == True: # plain text results returned by I{tccg}
             return incoming
 
         else: # return parsed results
