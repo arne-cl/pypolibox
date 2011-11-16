@@ -5,39 +5,64 @@
 """
 HLDS (Hybrid Logic Dependency Semantics) is the format internally used by the 
 OpenCCG realizer. This module shall allow the conversion between HLDS-XML 
-files and NLTK feature structures.
+files and NLTK feature structures. In addition, it can also be used as a
+commandline to convert HLDS-XML files in printable versions of
+C{nltk.FeatStruct}s. The following command produces a LaTeX file that can be
+compiled into a PDF::
 
-Phrase specifications are represented as <satop> structures in HLDS::
-        
+    python hlds.py --format latex --outfile output.tex input1.xml input2.xml
+
+Alternatively, you can also produce 'ASCII art' with this command::
+
+    python hlds.py --format nltk --outfile output.tex input1.xml input2.xml
+
+This way, the phrase 'das Buch' can be transformed from this HLDS-XML
+representation::
+
+    <?xml version="1.0" encoding="UTF-8"?>
     <xml>
-        <lf>
-            <satop nom="b1:handlung">
-                <prop name="beschreiben"/>
-                <diamond mode="TEMP">
-                    <prop name="präs"/>
-                </diamond>
-                <diamond mode="AGENS">
-                    <nom name="x1:sem-obj"/>
-                    <diamond mode="PRO">
-                        <prop name="perspro"/>
-                    </diamond>
-                    <diamond mode="GEN">
-                        <prop name="mask"/>
-                    </diamond>
-                    ...
-                </diamond>
-                <diamond mode="PATIENS">
-                    <nom name="x2:sem-obj"/>
-                    <diamond mode="PRO">
-                        <prop name="perspro"/>
-                    </diamond>
-                    ...
-                </diamond>
-            </satop>
-        </lf>
+      <lf>
+        <satop nom="b1:artefaktum">
+          <prop name="Buch"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d1:sem-obj"/>
+            <prop name="def"/>
+          </diamond>
+        </satop>
+      </lf>
+      <target>das Buch</target>
     </xml>
+
+To this attribute-value matrix (LaTeX)::
+
+    \begin{avm}
+        \[ $*$nom$*$  & `b1:artefaktum' \\
+           $*$prop$*$ & `Buch' \\
+           $*$text$*$ & `das Buch' \\
+           NUM        & \[ prop & `sing' \] \\
+           ART        & \[ nom  & `d1:sem-obj' \\
+                           prop & `def' \] \\
+        \]
+    \end{avm}
+
+or this one (plain text)::
+
+    [ *root_nom*        = 'b1:artefaktum'           ]
+    [ *root_prop*       = 'Buch'                    ]
+    [ *text*            = 'das Buch'                ]
+    [                                               ]
+    [ 00__NUM           = [ *mode* = 'NUM'  ]       ]
+    [                     [ prop   = 'sing' ]       ]
+    [                                               ]
+    [                     [ *mode* = 'ART'        ] ]
+    [ 01__ART           = [ nom    = 'd1:sem-obj' ] ]
+    [                     [ prop   = 'def'        ] ] 
 """
 
+import argparse
 import sys
 import re
 import random
@@ -49,7 +74,6 @@ import nltk
 from nltk.featstruct import Feature, FeatDict
 from util import ensure_utf8, ensure_unicode, write_to_file
 
-testbed_file = "openccg-jpolibox/testbedHLDS.xml"
 
 class HLDSReader():
     """ 
@@ -777,17 +801,46 @@ def etreeprint(element, debug=True, raw=False):
     if debug is True:
         print xml_string
     return xml_string
-    
-    
+
+
+parser = argparse.ArgumentParser(description='convert HLDS XML to nltk.FeatStructs or LaTeX AVMs')
+parser.add_argument('files', metavar='FILE', type=str, nargs='+',
+                    help='one or more HLDS XML files to be processed')
+parser.add_argument('-f', '--format', dest='output_format', action='store',
+                    default='nltk',
+                    help='choose between nltk or latex')
+parser.add_argument('-o', '--outfile', nargs='?',
+                    type=argparse.FileType('w'), default=sys.stdout,
+                    help='file to write the output to (default: stdout)')
+
+LATEX_AVM_HEADER = r"""
+\documentclass[10pt]{article}
+\usepackage{graphicx}
+\usepackage{avm}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+\begin{document}
+
+"""
+
+
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-    # given an HLDS XML file as a command line argument, print a feature 
-    # structure representation of the sentence(s) it contains
-        for arg in sys.argv[1:]:
-            hlds_reader = HLDSReader(arg, input_format="file")
+    args = parser.parse_args(sys.argv[1:])
+    if args.output_format == 'latex':
+        args.outfile.write(LATEX_AVM_HEADER)
+        for filename in args.files:
+            hlds_reader = HLDSReader(filename, input_format="file")
             for sentence in hlds_reader.sentences:
-                print sentence, "\n\n"
-                print featstruct2avm(sentence)
-    else:
-    # test functionality on a random testbed sentence
-        fs_sents, xml_sents = test_conversion()
+                avm = featstruct2avm(sentence)
+                args.outfile.write(avm)
+                args.outfile.write("\n\n")
+        args.outfile.write("\end{document}")
+
+    elif args.output_format == 'nltk':
+        for filename in args.files:
+            hlds_reader = HLDSReader(filename, input_format="file")
+            for sentence in hlds_reader.sentences:
+                print >>args.outfile, sentence, "\n\n"
+
+    args.outfile.close()
