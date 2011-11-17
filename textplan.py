@@ -47,14 +47,14 @@ class TextPlan(nltk.featstruct.FeatDict):
                                                   'book score': book_score})
         self['children'] = children
 
-class TextPlans:
+class TextPlans(object):
     """
     generates all C{TextPlan}s for an C{AllMessages} instance, i.e. one 
     DocumentPlan for each book that is returned as a result of the user's 
     database query
     """
     
-    def __init__ (self, allmessages):
+    def __init__ (self, allmessages, debug=False):
         #generate all C{Rule}s that the C{Message}s will be checked against
         rules = Rules().rules 
         self.document_plans = []
@@ -67,19 +67,21 @@ class TextPlans:
             after = time()
             time_diff = after - before
             self.document_plans.append(plan)
-            print "Plan {0}: generated in {1} seconds.\n".format(index,
-                                                                 time_diff,
-                                                                 plan)
-            book_title = book.messages['id']['title']
-            
-            if index > 0:
-                lastbook = allmessages.books[index-1]
-                lastbook_title = lastbook.messages['id']['title']
-                print "Comparing '{0}' " \
-                      "with '{1}':\n\n{2}".format(book_title, lastbook_title,
-                                                  plan)
-            else:
-                print "Describing '{0}':\n\n{1}".format(book_title, plan)
+
+            if debug == True:
+                print "Plan {0}: generated in {1} seconds.\n".format(index,
+                                                                     time_diff,
+                                                                     plan)
+                book_title = book.messages['id']['title']
+                
+                if index > 0:
+                    lastbook = allmessages.books[index-1]
+                    lastbook_title = lastbook.messages['id']['title']
+                    print "Comparing '{0}' " \
+                          "with '{1}':\n\n{2}".format(book_title,
+                                                      lastbook_title, plan)
+                else:
+                    print "Describing '{0}':\n\n{1}".format(book_title, plan)
 
 
 
