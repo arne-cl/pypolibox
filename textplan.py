@@ -190,69 +190,13 @@ def __bottom_up_search(messages, rules):
         return None
 
 
-def linearize_textplan(textplan): #TODO: add better explanation to docstring
+def linearize_textplan(textplan):
     """
     takes a text plan (an RST tree represented as a NLTK.featstruct data
-    structure) and returns an ordered list of constituent sets (RST
-    relations that combine two messages).
+    structure) and returns an ordered list of C{Message}s for surface
+    generation.
 
     @type textplan: C{TextPlan}
-    @param textplan: a complete text plan (RST tree) encoded as a feature
-    structure
-
-    @rtype: C{list} of C{ConstituentSet}s
-    @return: a list of constituent sets in the order they should be realized by
-    surface generation
+    @rtype: C{list} of C{Message}s
     """
-    rstree = textplan["children"] # we don't need to process the title/metadata
-    if type(rstree) is Message:
-        # if the text plan just consists of one message, return it
-        return rstree
-
-    start = 0
-    rst_list = __rstree2list(rstree)
-    #~ if not rst_list:
-        #~ return []
-
-    for i in range(len(rst_list)-1):
-    # we're looking for the first element of the list that is the nucleus of
-    # its successor.
-        if rst_list[i] is not rst_list[i+1][Feature("nucleus")]:
-            pass
-        else:
-            start = i
-            break
-
-    linearized_structures = []
-    linearized_structures.append(rst_list[start])
-
-    rest = rst_list[start+1:]
-    # if rst_list contains only one element, this loop won't be executed at all
-    for i, fstruct in enumerate(rest):
-        if type(fstruct[Feature("satellite")]) is Message:
-            structure = ConstituentSet(relType=fstruct[Feature("relType")],
-                                       satellite=fstruct[Feature("satellite")])
-            linearized_structures.append(structure)
-
-        elif type(fstruct[Feature("satellite")]) is ConstituentSet:
-        # if the satellite is nested further
-            structure = ConstituentSet(relType=fstruct[Feature("relType")])
-            linearized_structures.append(structure)
-
-            nested_structure = fstruct[Feature("satellite")]
-            linearized_structures.append(nested_structure)
-    return linearized_structures
-
-
-def __rstree2list(featstruct):
-    """
-    walks through a feature structure (RST tree) and returns a list of
-    constituent sets in the order of a depth-first search. a constituent
-    set consists of one RST relation that combines two message blocks (here
-    called nucleus and satellite).
-    """
-    rst_list = [fs for fs in featstruct.walk() if type(fs) is ConstituentSet]
-    rst_list.reverse()
-    return rst_list
-
-
+    return [elem for elem in textplan.walk() if type(elem) is Message]
