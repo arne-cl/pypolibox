@@ -46,7 +46,7 @@ class ConstituentSet(nltk.featstruct.FeatDict):
 
 
 class Rule(object):
-    '''
+    """
     C{Rules} are the elements which specify relationships which hold between 
     elements of the document. These elements can be I{Message}s or 
     I{ConstituentSet}s.
@@ -64,10 +64,10 @@ class Rule(object):
 
     Each I{Rule} specifies which of the inputs will be the I{nucleus} and which
     will be the I{aux} of the output C{ConstituentSet}.
-    '''
+    """
 
     def __init__(self, name, ruleType, nucleus, satellite, conditions, heuristic):
-        '''
+        """
         @param name: The name of the rule.
         @type name: string
         
@@ -95,7 +95,7 @@ class Rule(object):
         
         @param heuristic: an integer used to rank potential ConstituentSets. 
         @type heuristic: C{int}
-        '''
+        """
         self.name = name
         self.ruleType = ruleType
         self.conditions = conditions
@@ -178,7 +178,8 @@ class Rule(object):
         return options_list            
 
     def find_message_candidates(self, messages, message_prototype):
-        """takes a list of messages and returns only those with the right 
+        """
+        takes a list of messages and returns only those with the right 
         message type (as specified in Rule.inputs)
         
         @type messages: C{list} of C{Message}s
@@ -205,7 +206,7 @@ class Rule(object):
         return messages_list
         
     def get_satisfactory_groups(self, groups):    
-        '''
+        """
         @type groups: C{list} of C{list}'s of C{tuple}'s of (C{str}, 
         C{Message} or C{ConstituentSet})
         @param groups: a list of group elements. each group contains a list 
@@ -216,7 +217,7 @@ class Rule(object):
         or C{ConstituentSet})
         @return: a list of group elements. contains only those groups which 
         meet all the conditions specified in self.conditions        
-        '''
+        """
         satisfactory_groups = []
         for group in groups:
             if all(self.get_conditions(group)) is True:
@@ -224,7 +225,8 @@ class Rule(object):
         return satisfactory_groups
         
     def get_conditions(self, group):
-        '''applies __name_eval to all conditions a Rule has, i.e. checks if a 
+        """
+        applies __name_eval to all conditions a Rule has, i.e. checks if a 
         group meets all conditions
         
         @type group: C{list} of C{tuple}'s of (C{str}, C{Message} or 
@@ -235,7 +237,7 @@ class Rule(object):
         @rtype: C{list} of C{bool}
         @return: a list of truth values, each of which tells if a group met 
         all conditions specified in self.conditions
-        '''
+        """
         results = []
         for condition in self.conditions:
             try:
@@ -249,7 +251,8 @@ class Rule(object):
         return results
                 
     def __name_eval(self, condition, group):
-        '''Evaluate if I{condition} is met by the C{message}s in I{group}
+        """
+        check if a I{condition} is met by the C{Message}s in a I{group}
         
         @type condition: C{str}
         @param condition: a python statement that can be evaluated to True or 
@@ -265,7 +268,7 @@ class Rule(object):
         
         @rtype: C{bool}
         @return: True if the condition is met by the C{Message}s in I{group}
-        '''
+        """
         for message in self.messages:
             if Feature("msgType") in message: 
             #if it's a C{Message} and not a C{ConstituentSet}
@@ -279,7 +282,8 @@ class Rule(object):
         return ret
 
     def __get_return(self, combination):
-        '''constructs a ConstituentSet returned by I{get_options}
+        """
+        constructs a C{ConstituentSet} returned by I{get_options}
 
         @type combination: C{tuple} of two C{tuple}s of (C{str}, C{Message} 
         or C{ConstituentSet})
@@ -290,7 +294,7 @@ class Rule(object):
         @rtype: C{ConstituentSet}
         @return: a C{ConstituentSet}, which combines a nucleus and satellite. 
         both can either be a C{Message} or C{ConstituentSet}
-        '''
+        """
         (nucleus_name, nucleus_msg), (sat_name, sat_msg) = combination
         return ConstituentSet(relType = self.ruleType, nucleus=nucleus_msg, 
                               satellite=sat_msg)
@@ -303,7 +307,6 @@ class Rules():
     have to adhere to a naming convention, i.e. begin with 'genrule_'; 
     otherwise, self.__init__ will fail! 
     """
-        
     def __init__ (self):
         """calls methods to generate rules and saves these in self.rules"""
         self.rules = []
@@ -327,9 +330,9 @@ class Rules():
 
 
     def genrule_id_extra_sequence(self):
-        '''Sequence(id_complete, extra), if 'extra' exists:
+        """Sequence(id_complete, extra), if 'extra' exists:
         
-        adds an additional "sentence" about extra facts after the id messages'''
+        adds an additional "sentence" about extra facts after the id messages"""
         nucleus = [('id', Message('id'))]
         satellite = [('extra', Message('extra'))]
         conditions = ['exists("extra", locals())']
@@ -337,11 +340,11 @@ class Rules():
                     conditions, 10)
     
     def genrule_id_usermodelmatch(self):
-        '''Elaboration({id, id_extra_sequence}, usermodel_match), if there's no
+        """Elaboration({id, id_extra_sequence}, usermodel_match), if there's no
         usermodel_nomatch
         
         Meaning: This book fulfills ALL your requirments. It was written in ...,
-        contains these features ... and ... etc'''
+        contains these features ... and ... etc"""
         nucleus = [('id', Message('id')), 
                   ('id_extra_sequence', ConstituentSet(nucleus=Message('id')))] 
         satellite = [('usermodel_match', Message('usermodel_match'))]
@@ -350,10 +353,10 @@ class Rules():
                     conditions, 5)
 
     def genrule_pos_eval(self):
-        '''Concession(usermodel_match, usermodel_nomatch)
+        """Concession(usermodel_match, usermodel_nomatch)
         
         Meaning: Book matches many (>= 50%) of the requirements, but not all of
-        them'''
+        them"""
         nucleus = [('usermodel_match', Message('usermodel_match'))]
         satellite = [('usermodel_nomatch', Message('usermodel_nomatch'))]
         conditions = ['len(usermodel_match) >= len(usermodel_nomatch)'] 
@@ -361,11 +364,11 @@ class Rules():
                     conditions, 8)
 
     def genrule_neg_eval(self):
-        '''Concession(usermodel_nomatch, usermodel_match)
+        """Concession(usermodel_nomatch, usermodel_match)
         
         Meaning: Although this book fulfills some of your requirements, it 
         doesn't match most of them. Therefore, this book might not be the best 
-        choice.'''
+        choice."""
         nucleus = [('usermodel_nomatch', Message('usermodel_nomatch'))]
         satellite = [('usermodel_match', Message('usermodel_match'))]
         conditions = ['len(usermodel_match) < len(usermodel_nomatch)']
@@ -373,12 +376,12 @@ class Rules():
                     conditions, 8)
 
     def genrule_single_book_complete(self):
-        '''Sequence({id, id_extra_sequence}, {pos_eval, neg_eval})
+        """Sequence({id, id_extra_sequence}, {pos_eval, neg_eval})
         
         Meaning: The nucleus mentions all the (remaining) facts (that aren't 
         mentioned in the evaluation), while the satellite evaluates the book 
         (in terms of usermodel matches)
-        '''
+        """
         nucleus = [('id', Message('id')), 
              ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
         satellite = [('pos_eval', 
@@ -390,13 +393,13 @@ class Rules():
                     conditions, 3)
 
     def genrule_single_book_complete_usermodelmatch(self):
-        '''Sequence({id, id_extra_sequence}, usermodel_match)
+        """Sequence({id, id_extra_sequence}, usermodel_match)
         
         Meaning: The satellite states that the book matches ALL the user's 
         requirements. The nucleus mentions the remaining facts about the book.
         Condition: there's no preceding book and there are only usermodel 
         matches.
-        '''
+        """
         nucleus = [('id', Message('id')), 
              ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
         satellite = [('usermodel_match', Message('usermodel_match'))]
@@ -407,13 +410,13 @@ class Rules():
                     satellite, conditions, 4)
 
     def genrule_single_book_complete_usermodelnomatch(self):
-        '''Sequence({id, id_extra_sequence}, usermodel_nomatch)
+        """Sequence({id, id_extra_sequence}, usermodel_nomatch)
         
         Meaning: The satellite states that the book matches NONE of the user's 
         requirements. The nucleus mentions the remaining facts about the book.
         Condition: there's no preceding book and there are no usermodel 
         matches.
-        '''
+        """
         nucleus = [('id', Message('id')), 
              ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
         satellite = [('usermodel_nomatch', Message('usermodel_nomatch'))]
@@ -424,12 +427,12 @@ class Rules():
                     nucleus, satellite, conditions, 2)
 
     def genrule_book_differences(self):
-        '''Contrast({id, id_extra_sequence}, lastbook_nomatch)
+        """Contrast({id, id_extra_sequence}, lastbook_nomatch)
         
         Meaning: id/id_extra_sequence. In contrast to book X, this book is in 
         German, targets advanced users and ...
         Condition: There are differences between the two books
-        '''
+        """
         nucleus = [('id', Message('id')), 
             ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
         satellite = [('lastbook_nomatch', Message('lastbook_nomatch'))]
@@ -438,11 +441,11 @@ class Rules():
                     conditions, 5)
 
     def genrule_concession_books(self):
-        '''Concession(book_differences, lastbook_match)
+        """Concession(book_differences, lastbook_match)
         
         Meaning: After 'book_differences' explains the differences between both
         books, their common features are explained.
-        '''
+        """
         nucleus = [('book_differences', 
                    ConstituentSet(satellite=Message('lastbook_nomatch')))]
         satellite = [('lastbook_match', Message('lastbook_match'))]
@@ -451,12 +454,12 @@ class Rules():
                     conditions, 5)
 
     def genrule_concession_book_differences_usermodelmatch(self):
-        '''Concession(book_differences, usermodel_match)
+        """Concession(book_differences, usermodel_match)
         
         Meaning: 'book_differences' explains the differences between both books.
         Nevertheless, this book meets ALL your requirements ...
         Condition: All user requirements are met.
-        '''
+        """
         nucleus = [('book_differences', 
                     ConstituentSet(satellite=Message('lastbook_nomatch')))]
         satellite = [('usermodel_match', Message('usermodel_match'))]
@@ -465,14 +468,14 @@ class Rules():
                     nucleus, satellite, conditions, 5)
 
     def genrule_book_similarities(self):
-        '''Elaboration(id_usermodelmatch, lastbook_match)
+        """Elaboration(id_usermodelmatch, lastbook_match)
         
         Meaning: 'id_usermodelmatch' mentions that the books matches ALL 
         requirements. In addition, the book shares many features with its 
         predecessor.
         Condition: There are both differences and commonalities (>=50%) between
         the two books.
-        '''
+        """
         nucleus = [('id_usermodelmatch', 
                     ConstituentSet(satellite=Message('usermodel_match')))]
         satellite = [('lastbook_match', Message('lastbook_match'))] 
@@ -484,13 +487,13 @@ class Rules():
 
     def genrule_no_similarities_concession(self):
         #TODO: What's the connection between this rule and 'usermodel_(no)match'?
-        '''Concession({id, id_extra_sequence}, lastbook_nomatch)
+        """Concession({id, id_extra_sequence}, lastbook_nomatch)
         
         Meaning: Book X has these features BUT share none of them with its 
         predecessor.
         Condition: There is a predecessor to this book, but they don't share 
         ANY features.
-        '''
+        """
         nucleus = [('id', Message('id')), 
                    ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
         satellite = [('lastbook_nomatch', Message('lastbook_nomatch'))]
@@ -503,12 +506,12 @@ class Rules():
     def genrule_contrast_books_posneg_eval(self):
         #TODO: new-rules.rst rule 14 mentions that this one is only about 
         #books which share no features. WHY? 
-        '''Sequence(book_differences, {pos_eval, neg_eval})
+        """Sequence(book_differences, {pos_eval, neg_eval})
         
         Meaning: book_differences mentions the differences between the books, 
         pos_eval/neg_eval explains how many user requirements they meet 
         Conditions: matches some of the requirements
-        '''
+        """
         nucleus = [('book_differences', 
                    ConstituentSet(satellite=Message('lastbook_nomatch')))]
         satellite = [('pos_eval', ConstituentSet(satellite=Message('usermodel_nomatch'))), 
@@ -521,13 +524,13 @@ class Rules():
 
 
     def genrule_compare_eval(self):
-        '''Sequence(concession_books, {pos_eval, neg_eval, usermodel_match, 
+        """Sequence(concession_books, {pos_eval, neg_eval, usermodel_match, 
         usermodel_nomatch})
         
         Meaning: 'concession_books' describes common and diverging features of 
         the books. 'pos_eval/neg_eval/usermodel_match/usermodel_nomatch' 
         explains how many user requirements they meet
-        '''
+        """
         #TODO: split this rule? satellite=usermodel_match would actually 
         #require that there's no usermodel_nomatch, 
         #analogical: satellite=usermodel_nomatch 
