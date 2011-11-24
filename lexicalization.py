@@ -14,12 +14,8 @@ from copy import deepcopy
 from textplan import ConstituentSet, Message, linearize_textplan
 from hlds import Diamond, create_diamond, add_mode_suffix
 from util import ensure_unicode, sql_array_to_list
-#from realization import realize as realizer #TODO: dbg, mv to main
-from realization import OpenCCG
 from util import load_settings
 
-SETTINGS = load_settings()
-openccg = OpenCCG(SETTINGS)
 
 def phrase2sentence(diamond):
     """
@@ -1370,3 +1366,9 @@ def __sing_or_plur(lexicalized_authors):
     else:
         return "sing"
 
+if __name__ == "__main__":
+    import doctest
+    from realization import OpenCCG
+    SETTINGS = load_settings()
+    openccg = OpenCCG(SETTINGS)
+    doctest.testmod()

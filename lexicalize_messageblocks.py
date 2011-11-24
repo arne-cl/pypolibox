@@ -36,11 +36,11 @@ from nltk.featstruct import Feature, FeatDict
 
 from hlds import Diamond, create_diamond, add_mode_suffix
 from lexicalization import *
-from realization import OpenCCG #TODO: dbg, mv to main
+#from realization import OpenCCG #TODO: dbg, mv to main
 from debug import gen_all_messages_of_type, printeach #TODO: dbg, rm
 from util import load_settings #TODO: dbg, mv to main
 
-SETTINGS = load_settings() #TODO: dbg, mv to main
+#SETTINGS = load_settings() #TODO: dbg, mv to main
 
 def enumrealize(diamond_list):
     """debugging function that realizes a list of diamonds, one at a time"""
@@ -173,22 +173,31 @@ def lexicalize_title_variations(title, authors):
 
 def lexicalize_id(id_message_block):
     r"""
-    pass all the messages directly to their respective lexicalization
-    functions.
+    lexicalize all the messages contained in an id message block
+    (aka C{Message})
+
+    @type: C{Message}
+    @param: a message (of type "id")
+    
+    @rtype: C{List} of C{Diamond}s
+    @return: a list of lexicalized phrases, which can be realized with
+    I{tccg} directly or turned into sentences beforehand with C{lexicalization.phrase2sentence} to remove ambiguity
     """
+    assert id_message_block[Feature("msgType")] == "id"
+    
     msg_block = deepcopy(id_message_block)
     authors = msg_block["authors"]
     title = msg_block["title"]
     author_variations = lexicalize_authors_variations(authors)
     title_variations = lexicalize_title_variations(title, authors)
 
-    lexicalized = []
+    lxed_phrses = []
     if "year" in msg_block:
-        lexicalized.append(lexicalize_title_description(msg_block["title"],
+        lxed_phrses.append(lexicalize_title_description(msg_block["title"],
                                                         msg_block["authors"],
                                                         msg_block["year"]))
     else:
-        lexicalized.append(lexicalize_title_description(msg_block["title"],
+        lxed_phrses.append(lexicalize_title_description(msg_block["title"],
                                                         msg_block["authors"]))
 
     identifiers = set(["title", "authors", "year"])
@@ -201,16 +210,16 @@ def lexicalize_id(id_message_block):
     if "codeexamples" in msg_names:
         if "proglang" in msg_names and msg_block["proglang"][0]:
             # proglang should not be realized if the book doesn't use one
-            lexicalized_proglang = lexicalize_proglang(msg_block["proglang"],
+            lxed_phrses_proglang = lexicalize_proglang(msg_block["proglang"],
                                                        realize="embedded")
-            lexicalized.append(lexicalize_codeexamples(
+            lxed_phrses.append(lexicalize_codeexamples(
                                     msg_block["codeexamples"],
                                     lexicalized_proglang,
                                     random_variation(title_variations),
                                     lexeme="random"))
             msg_block.pop("proglang")
         else:
-            lexicalized.append(
+            lxed_phrses.append(
                 lexicalize_codeexamples(msg_block["codeexamples"],
                                         random_variation(title_variations),
                                         lexeme="random"))
@@ -218,127 +227,99 @@ def lexicalize_id(id_message_block):
 
     for msg_name, msg in msg_block.items():
         lexicalize_function_name = "lexicalize_" + msg_name
-        lexicalized.append(
+        lxed_phrses.append(
             eval(lexicalize_function_name)(msg,
                         lexicalized_title=random_variation(title_variations)))
-    
-    return lexicalized
+    return lxed_phrses
 
 
 def lexicalize_extra(extra_message_block):
     r"""
+    lexicalize all the messages contained in an extra message block
+    (aka C{Message})
+
+    @type: C{Message}
+    @param: a message (of type "extra")
+    
+    @rtype: C{List} of C{Diamond}s
+    @return: a list of lexicalized phrases, which can be realized with
+    I{tccg} directly or turned into sentences beforehand with C{lexicalization.phrase2sentence} to remove ambiguity
+    
     NOTE: "außerdem" works only in a limited number of contexts, e.g. 'das
     Buch ist neu, außerdem ist es auf Deutsch' but not 'das Buch ist neu,
     außerdem ist das Buch auf Deutsch'. therefore, no connective is used here
     so far.
     """
+    assert id_message_block[Feature("msgType")] == "extra"
+    
     msg_block = deepcopy(extra_message_block)
     authors = msg_block[Feature("reference_authors")]
     title = msg_block[Feature("reference_title")]
     author_variations = lexicalize_authors_variations(authors)
     title_variations = lexicalize_title_variations(title, authors)
 
-    lexicalized = []
+    lxed_phrses = []
     for msg_name, msg in msg_block.items():
         if isinstance(msg_name, str):
             lexicalize_function_name = "lexicalize_" + msg_name
             random_title = random_variation(title_variations)
-            lexicalized.append(
+            lxed_phrses.append(
                 eval(lexicalize_function_name)(msg,
                                                lexicalized_title=random_title))
-    return lexicalized
+    return lxed_phrses
 
     
 def lexicalize_lastbook_match(lastbook_match_message_block):
     r"""
+    lexicalize all the messages contained in a lastbook_match message block
+    (aka C{Message})
+
+    @type: C{Message}
+    @param: a message (of type "lastbook_match")
+    
+    @rtype: C{List} of C{Diamond}s
+    @return: a list of lexicalized phrases, which can be realized with
+    I{tccg} directly or turned into sentences beforehand with C{lexicalization.phrase2sentence} to remove ambiguity
+    
     possible: sowohl X als auch Y / beide Bücher
     implemented: beide Bücher
 
     TODO: implement lexicalize_pagerange
     """
+    assert id_message_block[Feature("msgType")] == "lastbook_match"
+    
     msg_block = deepcopy(lastbook_match_message_block)
 
     num = gen_num("plur")
     art = gen_art("quantbeide")
     agens = create_diamond("AGENS", "artefaktum", "Buch", [num, art])
 
-    lexicalized = []
+    lxed_phrses = []
     for msg_name, msg in msg_block.items():
         if isinstance(msg_name, str) and msg_name not in ("lastbook_authors",
                                                           "lastbook_title",
                                                           "pagerange"):
             lexicalize_function_name = "lexicalize_" + msg_name
-            lexicalized.append(
+            lxed_phrses.append(
                 eval(lexicalize_function_name)(msg,
                                                lexicalized_title=agens))
-    return lexicalized
+    return lxed_phrses
 
 
 def lexicalize_lastbook_nomatch(lastbook_nomatch_message_block):
     r"""
-    dieses Buch _____, wohingegen das erste Buch ____
+    Im Gegensatz zum ersten / vorhergehenden / anderen Buch ____
     """
-    msg_block = deepcopy(lastbook_nomatch_message_block)
-    authors = msg_block[Feature("reference_authors")]
-    lastbook_authors = msg_block["lastbook_authors"]
-    title = msg_block[Feature("reference_title")]
-    lastbook_title = msg_block["lastbook_title"]
-
-    author_variations = lexicalize_authors_variations(authors)
-    lastbook_author_variations = lexicalize_authors_variations(lastbook_authors)
-    title_variations = lexicalize_title_variations(title, authors)
-    lastbook_title_variations = lexicalize_title_variations(title,
-                                                            lastbook_authors)
-
-    lexicalized = []
-    if "keywords" in msg_block:
-        title_variation = random_variation(title_variations)
-        hs = lexicalize_keywords(msg_block["keywords_current_book_only"],
-                                 lexicalized_title=title_variation)
-        hs.change_mode("HS")
-
-        lastbook_title_variation = random_variation(lastbook_title_variations)
-        vl = lexicalize_keywords(msg_block["keywords_preceding_book_only"],
-                                 lexicalized_title=lastbook_title_variation)
-        vl.change_mode("VL")
-    
-        ns = create_diamond("NS", "adversativ", "wohingegen", [vl])
-        lexicalized.append(create_diamond("", "subjunktion", "komma",
-                                          [hs, ns]))
-    return lexicalized
-
-
-#~ def fake_lastbook_nomatch(lexicalized_lastbook_message, lexicalized_message):
-    #~ r"""
-    #~ dieses Buch _____, wohingegen das erste Buch ____
-#~ 
-    #~ >>> title = lexicalize_title(("foo", ""), realize="pronoun")
-    #~ >>> lasttitle = lexicalize_title(("Angewandte Computerlinguistik", ""), realize="complete")
-    #~ >>> lang = lexicalize_language(("German", ""), title, realize="noun")
-    #~ >>> lastlang = lexicalize_language(("English", ""), lasttitle, realize="adjective")
-    #~ >>> openccg.realize(fake_lastbook_nomatch(lastlang, lang))
-    #~ ['es ist auf Deutsch , wohingegen \xe2\x80\x9e Angewandte_Computerlinguistik \xe2\x80\x9c in englischer Sprache ist']
-    #~ """
-    #~ hs = lexicalized_message
-    #~ hs.change_mode("HS")
-#~ 
-    #~ vl = lexicalized_lastbook_message
-    #~ vl.change_mode("VL")
-#~ 
-    #~ ns = create_diamond("NS", "adversativ", "wohingegen", [vl])
-#~ 
-    #~ return create_diamond("", "subjunktion", "komma", [hs, ns])
-
-
+    raise Exception("the grammar can't handle lastbook non-matches, yet.")
 
 def lexicalize_usermodel_match(usermodel_match_message_block):
     r"""erfüllt Anforderungen / entspricht ihren Wünschen"""
-    pass
+    raise Exception("the grammar can't handle usermodel matches, yet.")
 
 def lexicalize_usermodel_nomatch(usermodel_nomatch_message_block):
     r"""erfüllt (leider) Anforderungen nicht / entspricht nicht ihren
     Wünschen"""
-    pass
+    raise Exception("the grammar can't handle usermodel non-matches, yet.")
 
 def random_variation(lexicalization_dictionary):
     """

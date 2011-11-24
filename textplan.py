@@ -26,9 +26,11 @@ matrix.
 Structuring Algorithm for NLTK. 
 """
 
-from time import time
+
 import nltk
 from nltk.featstruct import Feature
+from lxml import etree
+from time import time
 
 from util import flatten, freeze_all_messages, msgs_instance_to_list_of_msgs
 from rules import Rules, ConstituentSet
@@ -42,8 +44,8 @@ class TextPlan(nltk.featstruct.FeatDict):
     """
     def __init__(self, book_score=None, dtype='TextPlan', text=None,
                  children=None):
-        self[nltk.featstruct.Feature('type', display='prefix')] = 'TextPlan'
-        self['title'] = nltk.featstruct.FeatDict({'type': dtype, 'text':text, 
+        self[nltk.featstruct.Feature('type', display='prefix')] = dtype
+        self['title'] = nltk.featstruct.FeatDict({'text':text, 
                                                   'book score': book_score})
         self['children'] = children
 
@@ -87,7 +89,7 @@ class TextPlans(object):
 
 
 def generate_textplan(messages, rules=Rules().rules, book_score = None, 
-                      dtype = None, text = None):
+                      dtype = 'TextPlan', text = ''):
     """
     The main method implementing the Bottom-Up document structuring algorithm 
     from "Building Natural Language Generation Systems" figure 4.17, p. 108.
@@ -197,3 +199,46 @@ def linearize_textplan(textplan):
     @rtype: C{list} of C{Message}s
     """
     return [elem for elem in textplan.walk() if type(elem) is Message]
+
+    
+
+def textplan2xml(textplan):
+    root = etree.Element("xml")
+
+    book_score = str(textplan["title"]["book score"])
+    document_type = textplan[Feature("type")]
+    target_string = textplan["title"]["text"]
+
+    textplan = etree.SubElement(root, "textplan")
+    header = etree.SubElement(textplan, "header", score=book_score,
+                              type=document_type)
+    target = etree.SubElement(header, "target")
+    target.text = target_string
+
+    textplan_rootnode = textplan["children"]
+    
+    doc = etree.ElementTree(root)
+    return doc
+
+def __textplantree2xml(tree):
+    if isinstance(tree, ConstituentSet):
+        relation = tree[Feature("relType")]
+        nucleus = __textplantree2xml(tree[Feature("nucleus")])
+        satellite = __textplantree2xml(tree[Feature("satellite")])
+    elif isinstance(tree, Message):
+        msg = etree.Element("message")
+        for key, val in tree.items():
+            if isinstance(key, Feature):
+                featkey = etree.SubElement(msg, key.name, feature="true")
+                featval = etree.SubElement(featkey, "value")
+                featval.text = str(val)
+            else:
+                msgkey = etree.SubElement(msg, key)
+                msgval = etree.SubElement(msgkey, "value")
+                msgval.text = str(val)
+        return msg
+
+"""
+import cPickle; atp = cPickle.load(open("data/alltextplans2.pickle", "r")); a3d2 = atp[3].document_plans[2]
+c = a3d2["children"]; idmsg = c[Feature("nucleus")][Feature("nucleus")][Feature("nucleus")][Feature("nucleus")]
+"""
