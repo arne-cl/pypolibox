@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Author: Arne Neumann <arne-neumann@web.de>
 
-"""
+r"""
 HLDS (Hybrid Logic Dependency Semantics) is the format internally used by the 
 OpenCCG realizer. This module shall allow the conversion between HLDS-XML 
 files and NLTK feature structures. In addition, it can also be used as a

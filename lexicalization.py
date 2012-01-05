@@ -19,8 +19,10 @@ from util import load_settings
 
 def phrase2sentence(diamond):
     """
-    turns the lexicalization of a phrase (e.g. "das Buch ist neu") into a
-    sentence, e.g. "das Buch ist neu ."
+    turns the lexicalization of a phrase (e.g. "das Buch ist neu") into the
+    lexicalization of a sentence, e.g. "das Buch ist neu ." (the initial
+    letter of a sentence will not be written in uppercase, as the grammar
+    cannot cope with implicit upper/lowercase distinctions).
     """
     assert isinstance(diamond, Diamond)
     diamond.change_mode("DEKL")

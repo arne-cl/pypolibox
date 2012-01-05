@@ -5,30 +5,8 @@
 """
 The C{lexicalize_messageblocks} module realizes message blocks which
 consist of one or more messages.
-
-lexicalize_ functions API:
-
-lexicalize_codeexamples(examples, lexicalized_title,
-                        lexicalized_plang=None, lexeme="enthalten")
-lexicalize_exercises(exercises, lexicalized_title, lexeme="beinhalten")
-lexicalize_keywords(keywords, lexicalized_title=None,
-                    lexicalized_authors = None, realize="abstract",
-                    lexeme="behandeln")
-lexicalize_language(language, lexicalized_title, realize="noun")
-lexicalize_pages(pages, lexicalized_title, lexeme="länge")
-lexicalize_proglang(plang, lexicalized_titles=None, lexicalized_authors=None,
-                     realize="embedded")
-lexicalize_target(target, lexicalized_title)
-lexicalize_year(year, lexicalized_title)
-
-only in lastbook_nomatch:
-lexicalize_length(length, lexicalized_title,
-                      lexicalized_lastbooktitle=None):
-
-only in lastbook_nomatch / extra:
-lexicalize_recency(recency, lexicalized_title,
-                       lexicalized_lastbooktitle=None):
 """
+
 import random
 import cPickle as pickle # TODO: dbg, rm
 from copy import deepcopy
@@ -36,11 +14,9 @@ from nltk.featstruct import Feature, FeatDict
 
 from hlds import Diamond, create_diamond, add_mode_suffix
 from lexicalization import *
-#from realization import OpenCCG #TODO: dbg, mv to main
 from debug import gen_all_messages_of_type, printeach #TODO: dbg, rm
 from util import load_settings #TODO: dbg, mv to main
 
-#SETTINGS = load_settings() #TODO: dbg, mv to main
 
 def enumrealize(diamond_list):
     """debugging function that realizes a list of diamonds, one at a time"""

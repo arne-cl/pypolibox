@@ -107,11 +107,9 @@ class OpenCCG(object):
 
     def realize(self, featstruct, raw_output=True):
         """
-        convert featstruct to hlds-xml,
-        write xml to tempfile,
-        realize tempfile from within tccg w/ 'r: /path/to/tempfile',
-        get tccg output via pexpect.read_nonblocking,
-        parse output
+        converts a C{Diamond} or C{Sentence} feature structure into HLDS-XML,
+        write it to a temporary file, realizes this file with I{tccg} and
+        parses the output it returns.
 
         @type featstruct: C{Diamond} or C{Sentence}
         """

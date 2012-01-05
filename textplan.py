@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 # Author: Arne Neumann <arne-neumann@web.de>
 
-# TODO: change Sequence to Joint. Sequence is a multinuclear relation which 
-# combines predecessors and successors. Joint is a random relation without 
-# any restrictions.
+# TODO: change Sequence to Joint (just change the name). Sequence is a
+# multinuclear relation which combines predecessors and successors. Joint
+# is a random relation without any restrictions.
 
 """
 The I{textplan} module is based on Nicholas FitzGerald's I{py_docplanner}[1], 
@@ -28,13 +28,15 @@ Structuring Algorithm for NLTK.
 
 
 import nltk
-from nltk.featstruct import Feature
+from nltk.featstruct import Feature, FeatDict
 from lxml import etree
 from time import time
 
-from util import flatten, freeze_all_messages, msgs_instance_to_list_of_msgs
+from util import (flatten, freeze_all_messages, msgs_instance_to_list_of_msgs,
+                  ensure_unicode)
 from rules import Rules, ConstituentSet
 from messages import Message, Messages
+from hlds import etreeprint # TODO: dbg, rm
 
 
 class TextPlan(nltk.featstruct.FeatDict):
@@ -200,45 +202,145 @@ def linearize_textplan(textplan):
     """
     return [elem for elem in textplan.walk() if type(elem) is Message]
 
+
+def textplans2xml(textplans):
+    """
+    converts several C{TextPlan}s into an XML structure representing
+    these text plans.
+    
+    @type textplans: a C{TextPlans} instance
+    @rtype: C{etree._ElementTree}
+    """
+    root = etree.Element("xml")
+    for textplan in textplans.document_plans:
+        xml_textplan = __textplan_header2xml(root, textplan)
+        # text plans are inserted into the ElementTree
+    
+    doc = etree.ElementTree(root)
+    return doc
     
 
 def textplan2xml(textplan):
+    """
+    converts one C{TextPlan} into an XML structure representing it.
+    
+    @type textplans: C{TextPlan}
+    @rtype: C{etree._ElementTree}
+    """
     root = etree.Element("xml")
+    xml_textplan = __textplan_header2xml(root, textplan) # text plan inserted
+                                                         # into the ElementTree
+    doc = etree.ElementTree(root)
+    return doc
+
+def __textplan_header2xml(tree_root, textplan):
+    
+    xml_textplan = etree.SubElement(tree_root, "textplan")
 
     book_score = str(textplan["title"]["book score"])
     document_type = textplan[Feature("type")]
     target_string = textplan["title"]["text"]
 
-    textplan = etree.SubElement(root, "textplan")
-    header = etree.SubElement(textplan, "header", score=book_score,
+    header = etree.SubElement(xml_textplan, "header", score=book_score,
                               type=document_type)
     target = etree.SubElement(header, "target")
     target.text = target_string
 
-    textplan_rootnode = textplan["children"]
-    
-    doc = etree.ElementTree(root)
-    return doc
+    rst_tree = __textplantree2xml(textplan["children"])
+    xml_textplan.insert(1, rst_tree)
+    return xml_textplan
+
 
 def __textplantree2xml(tree):
     if isinstance(tree, ConstituentSet):
-        relation = tree[Feature("relType")]
-        nucleus = __textplantree2xml(tree[Feature("nucleus")])
-        satellite = __textplantree2xml(tree[Feature("satellite")])
+        relation_type = tree[Feature("relType")]
+        nucleus_tree = __textplantree2xml(tree[Feature("nucleus")])
+        satellite_tree = __textplantree2xml(tree[Feature("satellite")])
+
+        relation = etree.Element("relation", type=relation_type)
+        nucleus = etree.SubElement(relation, "nucleus")
+        nucleus.insert(0, nucleus_tree)
+        satellite = etree.SubElement(relation, "satellite")
+        satellite.insert(0, satellite_tree)
+        return relation
+        
     elif isinstance(tree, Message):
-        msg = etree.Element("message")
-        for key, val in tree.items():
-            if isinstance(key, Feature):
-                featkey = etree.SubElement(msg, key.name, feature="true")
-                featval = etree.SubElement(featkey, "value")
-                featval.text = str(val)
+        return __message2xml(tree)
+
+
+def __message2xml(message):        
+    msg_type = message[Feature("msgType")]
+    msg = etree.Element("message", type=msg_type)
+
+    msg_elements = [(key, val) for (key, val) in message.items()
+                               if key != Feature("msgType")]
+    for key, val in msg_elements:
+        if isinstance(key, str):
+            if isinstance(val, FeatDict): #relative length or recency
+                rating = val["rating"]
+                if "type" in val:
+                    val_type = val["type"]
+                    direction = val["direction"]
+                    number = str(val["magnitude"]["number"])
+                    unit = val["magnitude"]["unit"]
+                    msgkey = etree.SubElement(msg, key, rating=rating,
+                                              type=val_type)
+                    msgval = etree.SubElement(msgkey, "magnitude",
+                                              number=number, unit=unit,
+                                              direction=direction)
+                else: # "extra" recency or length
+                    description = val["description"]
+                    msgkey = etree.SubElement(msg, key, description=description,
+                                              rating=rating, type="extra")
+                    
+                    
+
+            elif isinstance(val, tuple): # (value, rating) tuple
+                value, rating = val
+                if isinstance(value, frozenset):
+                    msgkey = etree.SubElement(msg, key, rating=rating)
+                    for element in value:
+                        msgval = etree.SubElement(msgkey, "value")
+                        msgval.text = ensure_unicode(element)
+                else:
+                    msgkey = etree.SubElement(msg, key,
+                                              value=ensure_unicode(value),
+                                              rating=rating)
+                                              
+        else: #if isinstance(key, Feature):
+            value, rating = val
+            if isinstance(value, frozenset):
+                featkey = etree.SubElement(msg, key.name, feature="true",
+                                           rating=rating)
+                for element in value:
+                    featval = etree.SubElement(featkey, "value")
+                    featval.text = str(element)
             else:
-                msgkey = etree.SubElement(msg, key)
-                msgval = etree.SubElement(msgkey, "value")
-                msgval.text = str(val)
-        return msg
+                featkey = etree.SubElement(msg, key.name, feature="true",
+                                           value=ensure_unicode(value),
+                                           rating=rating)
+    return msg
+
+
+def test():
+    import cPickle
+    atp = cPickle.load(open("data/alltextplans.pickle", "r"))
+    #return atp
+    print """### One file per query ###\n\n"""
+    for atp_count, textplans in enumerate(atp):
+            xml_plan = textplans2xml(textplans)
+            print atp_count, "+++++\n"
+            print etreeprint(xml_plan, debug=False), "\n\n\n"
+
+    print """### One file per text plan ###\n\n"""
+    for atp_count, tp in enumerate(atp):
+        for tp_count, docplan in enumerate(tp.document_plans):
+            xml_plan = textplan2xml(docplan)
+            print atp_count, tp_count, "+++++\n"
+            print etreeprint(xml_plan, debug=False), "\n\n\n"
 
 """
-import cPickle; atp = cPickle.load(open("data/alltextplans2.pickle", "r")); a3d2 = atp[3].document_plans[2]
+import cPickle; atp = cPickle.load(open("data/alltextplans.pickle", "r")); a3d2 = atp[3].document_plans[2]
 c = a3d2["children"]; idmsg = c[Feature("nucleus")][Feature("nucleus")][Feature("nucleus")][Feature("nucleus")]
+from hlds import etreeprint; d = __textplantree2xml(c); etreeprint(d)
 """
