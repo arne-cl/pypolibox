@@ -151,14 +151,13 @@ def __bottom_up_search(messages, rules):
     if len(messages) == 1:
         return messages
     elif len(messages) < 1:
-        raise Exception('ERROR')
+        raise Exception('Error: Input contains no messages.')
     else:
         try:
             options = [rule.get_options(messages) for rule in rules]
         except:
             raise Exception('ERROR: Rule {0} had trouble with these ' \
                             'messages: {1}'.format(rule, messages))
-            print "ERROR" #TODO: remove after debugging
             
         options = flatten(options)
         options_list = []
@@ -234,7 +233,19 @@ def textplan2xml(textplan):
     return doc
 
 def __textplan_header2xml(tree_root, textplan):
-    
+    """
+    helper function for textplan2xml() and textplans2xml().
+    extracts meta data from the text plan (book score etc.), calls
+    __textplantree2xml to convert the actual text plan to XML and inserts
+    both into the tree_root XML structure.
+
+    @type tree_root: C{etree._Element}
+    @param tree_root: the root element of the resulting text plan XML structure
+    @type textplan: C{TextPlan}
+
+    @rtype: C{etree._Element}
+    @return: one <textplan></textplan> XML structure
+    """
     xml_textplan = etree.SubElement(tree_root, "textplan")
 
     book_score = str(textplan["title"]["book score"])
@@ -252,6 +263,13 @@ def __textplan_header2xml(tree_root, textplan):
 
 
 def __textplantree2xml(tree):
+    """
+    helper function for __textplan_header2xml() which converts the actual text
+    plan into XML.
+
+    @type tree: C{ConstituentSet} or C{Message}
+    @rtype: C{etree._Element}
+    """
     if isinstance(tree, ConstituentSet):
         relation_type = tree[Feature("relType")]
         nucleus_tree = __textplantree2xml(tree[Feature("nucleus")])
@@ -268,7 +286,13 @@ def __textplantree2xml(tree):
         return __message2xml(tree)
 
 
-def __message2xml(message):        
+def __message2xml(message):
+    """
+    converts a single C{Message} into an XML structure.
+
+    @type message: C{Message}
+    @rtype: C{etree._Element}
+    """        
     msg_type = message[Feature("msgType")]
     msg = etree.Element("message", type=msg_type)
 
@@ -320,6 +344,12 @@ def __message2xml(message):
                                            value=ensure_unicode(value),
                                            rating=rating)
     return msg
+
+def __message_str2xml():
+    pass
+
+def __message_feature2xml():
+    pass
 
 
 def test():
