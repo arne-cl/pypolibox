@@ -301,76 +301,109 @@ def __message2xml(message):
     for key, val in msg_elements:
         if isinstance(key, str):
             if isinstance(val, FeatDict): #relative length or recency
-                rating = val["rating"]
-                if "type" in val:
-                    val_type = val["type"]
-                    direction = val["direction"]
-                    number = str(val["magnitude"]["number"])
-                    unit = val["magnitude"]["unit"]
-                    msgkey = etree.SubElement(msg, key, rating=rating,
-                                              type=val_type)
-                    msgval = etree.SubElement(msgkey, "magnitude",
-                                              number=number, unit=unit,
-                                              direction=direction)
-                else: # "extra" recency or length
-                    description = val["description"]
-                    msgkey = etree.SubElement(msg, key, description=description,
-                                              rating=rating, type="extra")
-                    
-                    
-
+                __message_strkey_featdictval2xml(msg, key, val)
+        
             elif isinstance(val, tuple): # (value, rating) tuple
-                value, rating = val
-                if isinstance(value, frozenset):
-                    msgkey = etree.SubElement(msg, key, rating=rating)
-                    for element in value:
-                        msgval = etree.SubElement(msgkey, "value")
-                        msgval.text = ensure_unicode(element)
-                else:
-                    msgkey = etree.SubElement(msg, key,
-                                              value=ensure_unicode(value),
-                                              rating=rating)
+                __message_strkey_tupleval2xml(msg, key, val)
                                               
         else: #if isinstance(key, Feature):
-            value, rating = val
-            if isinstance(value, frozenset):
-                featkey = etree.SubElement(msg, key.name, feature="true",
-                                           rating=rating)
-                for element in value:
-                    featval = etree.SubElement(featkey, "value")
-                    featval.text = str(element)
-            else:
-                featkey = etree.SubElement(msg, key.name, feature="true",
-                                           value=ensure_unicode(value),
-                                           rating=rating)
+            __message_featurekey2xml(msg, key, val)
     return msg
 
-def __message_str2xml():
-    pass
 
-def __message_feature2xml():
-    pass
+def __message_strkey_featdictval2xml(msg, key, val):
+    """
+    helper function for __message2xml(). converts book length and recency
+    information to XML.
+
+    @type xml_msg: C{etree._Element}
+    @type msg_key: C{Feature}
+    @type msg_val: C{frozenset} or C{str}
+    """
+    rating = val["rating"]
+    if "type" in val: # length or recency (RelativeVariation)
+        val_type = val["type"]
+        direction = val["direction"]
+        number = str(val["magnitude"]["number"])
+        unit = val["magnitude"]["unit"]
+        msgkey = etree.SubElement(msg, key, rating=rating,
+                                  type=val_type)
+        msgval = etree.SubElement(msgkey, "magnitude",
+                                  number=number, unit=unit,
+                                  direction=direction)
+    else: # length or recency (extra)
+        description = val["description"]
+        msgkey = etree.SubElement(msg, key, description=description,
+                                  rating=rating, type="extra")
 
 
-def test():
+def __message_strkey_tupleval2xml(msg, key, val):
+    """
+    helper function for __message2xml(). converts those parts of a message
+    to XML whose key is a string (i.e. most of them).
+
+    @type xml_msg: C{etree._Element}
+    @type msg_key: C{Feature}
+    @type msg_val: C{frozenset} or C{str}
+    """
+    value, rating = val
+    if isinstance(value, frozenset): # authors, keywords, proglangs etc.
+        msgkey = etree.SubElement(msg, key, rating=rating)
+        for element in value:
+            msgval = etree.SubElement(msgkey, "value")
+            msgval.text = ensure_unicode(element)
+    else: # isinstance(value, (str, int)) # title, language, year, pages etc.
+        msgkey = etree.SubElement(msg, key,
+                                  value=ensure_unicode(value),
+                                  rating=rating)
+
+
+
+def __message_featurekey2xml(xml_msg, msg_key, msg_val):
+    """
+    helper function for __message2xml(). converts those parts of a message
+    to XML whose key is of type C{Feature}, i.e. *reference_authors* and *reference_title*.
+
+    @type xml_msg: C{etree._Element}
+    @type msg_key: C{Feature}
+    @type msg_val: C{frozenset} or C{str}
+    """
+    value, rating = msg_val
+    if isinstance(value, frozenset): # *reference_authors*
+        featkey = etree.SubElement(xml_msg, msg_key.name, feature="true",
+                                   rating=rating)
+        for element in value:
+            featval = etree.SubElement(featkey, "value")
+            featval.text = str(element)
+    else: # isinstance(value, str) # *reference_title*
+        featkey = etree.SubElement(xml_msg, msg_key.name, feature="true",
+                                   value=ensure_unicode(value),
+                                   rating=rating)
+
+
+def test_textplan2xml_conversion():
+    """
+    test text plan to XML conversion with all the text plans that were
+    generated for all test queries with debug.gen_all_textplans().
+    """
     import cPickle
     atp = cPickle.load(open("data/alltextplans.pickle", "r"))
-    #return atp
-    print """### One file per query ###\n\n"""
+
+    print """### Output: One XML file per query ###\n\n"""
     for atp_count, textplans in enumerate(atp):
             xml_plan = textplans2xml(textplans)
-            print atp_count, "+++++\n"
+            print "All text plans generated" \
+                  " for test query #{0}:\n".format(atp_count)
             print etreeprint(xml_plan, debug=False), "\n\n\n"
 
-    print """### One file per text plan ###\n\n"""
+    print """### Output: One XML file per text plan ###\n\n"""
     for atp_count, tp in enumerate(atp):
         for tp_count, docplan in enumerate(tp.document_plans):
             xml_plan = textplan2xml(docplan)
-            print atp_count, tp_count, "+++++\n"
+            print "Text plan {0} for " \
+                  "test query {1}:\n".format(atp_count, tp_count)
             print etreeprint(xml_plan, debug=False), "\n\n\n"
 
-"""
-import cPickle; atp = cPickle.load(open("data/alltextplans.pickle", "r")); a3d2 = atp[3].document_plans[2]
-c = a3d2["children"]; idmsg = c[Feature("nucleus")][Feature("nucleus")][Feature("nucleus")][Feature("nucleus")]
-from hlds import etreeprint; d = __textplantree2xml(c); etreeprint(d)
-"""
+
+if __name__ == "__main__":
+    test_textplan2xml_conversion()
