@@ -15,42 +15,56 @@ from nltk.featstruct import Feature
 from database import Query, Results, Book, Books
 from facts import Facts, AllFacts
 from propositions import Propositions, AllPropositions
-from textplan import TextPlan, TextPlans, generate_textplan, linearize_textplan
+from textplan import (TextPlan, TextPlans, generate_textplan,
+                      linearize_textplan, textplans2xml)
+from hlds import etreeprint                      
 from messages import Message, Messages, AllMessages
 from rules import ConstituentSet, Rule, Rules
 from lexicalization import phrase2sentence
 from lexicalize_messageblocks import lexicalize_message_block
-from realization import OpenCCG
 from util import load_settings
     
 SETTINGS = load_settings()
-openccg = OpenCCG(SETTINGS)
+
+
+def generate_textplans(query):
+    books = Books(Results(query))
+    return TextPlans(AllMessages(AllPropositions(AllFacts(books))))
+
+def check_and_realize_textplan(textplan):
+    from realization import OpenCCG
+    openccg = OpenCCG(SETTINGS)
+
+    msg_blocks = linearize_textplan(textplan)
+    for msg_block in msg_blocks:
+        try:
+            lexicalized_msg_block = lexicalize_message_block(msg_block)            
+        except:
+            print "this message block can't be realized, but contains " \
+                  "these basic facts ... \n\n"
+            continue
+
+        print "The {0} message block can be realized " \
+              "as follows:\n".format(msg_block[Feature("msgType")])
+        for lexicalized_phrase in lexicalized_msg_block:
+            lexicalized_sentence = phrase2sentence(lexicalized_phrase)
+            for realized_sent in openccg.realize(lexicalized_sentence):
+                print realized_sent
+
+        print "\n"
+    
 
 if __name__ == "__main__":
     query = Query(sys.argv[1:])
-    books = Books(Results(query))
-    textplans = TextPlans(AllMessages(AllPropositions(AllFacts(books))))
-    
-    for textplan in textplans.document_plans:
-        msg_blocks = linearize_textplan(textplan)
-        for msg_block in msg_blocks:
-            try:
-                lexicalized_msg_block = lexicalize_message_block(msg_block)            
-            except:
-                print "this message block can't be realized, but contains " \
-                      "these basic facts ... \n\n"
-                continue
+    textplans = generate_textplans(query)
 
-            print "The {0} message block can be realized " \
-                  "as follows:\n".format(msg_block[Feature("msgType")])
-            for lexicalized_phrase in lexicalized_msg_block:
-                lexicalized_sentence = phrase2sentence(lexicalized_phrase)
-                for realized_sent in openccg.realize(lexicalized_sentence):
-                    print realized_sent
+    if query.query_args.xml is True:
+        etreeprint(textplans2xml(textplans))
+    else:
+        for textplan in textplans.document_plans:
+            check_and_realize_textplan(textplan)
 
-            print "\n"
 
-# TODO: add textplanner XML output format
 # TODO: add max_textplans paramter --> generate only the X highest ranking books
 # TODO: add .info() method to TextPlan, which should describe verbally if a TP
 #       describing one book or comparing two books
