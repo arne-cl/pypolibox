@@ -27,7 +27,7 @@ interpreter. To see all the available options, enter::
 
     python pypolibox.py -h
 
-To find books (and generate text plans) that are written in German and use the
+To find books that are written in German and use the
 programming language Prolog, type::
 
     python pypolibox.py --language German --proglang Prolog
@@ -35,6 +35,11 @@ programming language Prolog, type::
 or, if you prefer short but cryptic commands::
 
     python pypolibox.py -l German -p Prolog
+
+If you're just interested in text plans (as opposed to generated sentences),
+add the -x or --xml command line option::
+
+    python pypolibox.py --language German --proglang Prolog --xml
 
 Further usage examples can be found in the L{Query<pypolibox.database.Query>}
 class documentation. If you'd like to access I{pypolibox} from within a Python
