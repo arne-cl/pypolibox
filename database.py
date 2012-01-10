@@ -53,6 +53,9 @@ class Query:
         resulting query strings in self.and_query (using boolean AND to
         combine the query arguments) and self.or_query (boolean OR).
 
+        TODO: add max_textplans paramter --> generate only the X highest
+              ranking books
+
         @param argv: a list of strings (either parsed from the command line
         or set programmatically)
         @type argv: C{list} of C{str}

@@ -43,6 +43,9 @@ class TextPlan(nltk.featstruct.FeatDict):
     """
     C{TextPlan} is the output of Document Planning. A TextPlan consists of an 
     optional title and text, and a child I{ConstituentSet}.
+
+    TODO: append __str__ method: should describe verbally if a TP is
+          describing one book or comparing two books
     """
     def __init__(self, book_score=None, dtype='TextPlan', text=None,
                  children=None):

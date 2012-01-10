@@ -27,50 +27,62 @@ from util import load_settings
 SETTINGS = load_settings()
 
 
+def test():
+    """test and realize all text plans for all test queries"""
+    import cPickle
+    atp = cPickle.load(open("data/alltextplans.pickle", "r"))
+    for textplans in atp:
+        for textplan in textplans.document_plans:
+            check_and_realize_textplan(textplan)
+
+
 def generate_textplans(query):
+    """generates all text plans for a database query"""
     books = Books(Results(query))
     return TextPlans(AllMessages(AllPropositions(AllFacts(books))))
 
-def check_and_realize_textplan(textplan):
-    from realization import OpenCCG
-    openccg = OpenCCG(SETTINGS)
 
+def initialize_openccg():
+    """
+    starts OpenCCG's tccg realizer as a server in the background (ca. 20s).
+    """
+    from realization import OpenCCG
+    return OpenCCG(SETTINGS)
+    
+
+def check_and_realize_textplan(textplan):
+    """
+    realizes a text plan and warns about message blocks that cannot be realized
+    due to current restrictions in the OpenCC grammar.
+    """
     msg_blocks = linearize_textplan(textplan)
     for msg_block in msg_blocks:
         try:
-            lexicalized_msg_block = lexicalize_message_block(msg_block)            
-        except:
-            print "this message block can't be realized, but contains " \
-                  "these basic facts ... \n\n"
-            continue
+            lexicalized_msg_block = lexicalize_message_block(msg_block)
+            print "The {0} message block can be realized " \
+                  "as follows:\n".format(msg_block[Feature("msgType")])
+            for lexicalized_phrase in lexicalized_msg_block:
+                lexicalized_sentence = phrase2sentence(lexicalized_phrase)
+                for realized_sent in openccg.realize(lexicalized_sentence):
+                    print realized_sent
 
-        print "The {0} message block can be realized " \
-              "as follows:\n".format(msg_block[Feature("msgType")])
-        for lexicalized_phrase in lexicalized_msg_block:
-            lexicalized_sentence = phrase2sentence(lexicalized_phrase)
-            for realized_sent in openccg.realize(lexicalized_sentence):
-                print realized_sent
-
-        print "\n"
+        except NotImplementedError, err:
+            print err
+            print "The message block contains these messages:\n", msg_block, \
+                  "\n\n**********\n\n"
+        print
     
 
 if __name__ == "__main__":
     query = Query(sys.argv[1:])
     textplans = generate_textplans(query)
 
-    if query.query_args.xml is True:
+    if query.query_args.xml is True: # just print text plans in XML format
+                                     # don't generate sentences with OpenCCG
         etreeprint(textplans2xml(textplans))
     else:
-        for textplan in textplans.document_plans:
+        openccg = initialize_openccg()
+        for i, textplan in enumerate(textplans.document_plans):
+            print "Generating text plan #%i:\n" % i
             check_and_realize_textplan(textplan)
 
-
-# TODO: add max_textplans paramter --> generate only the X highest ranking books
-# TODO: add .info() method to TextPlan, which should describe verbally if a TP
-#       describing one book or comparing two books
-
-"""
-lexicalization.py doctest starts automatically, now.
-removed lexicalize_lastbook_nomatch() (can't be realized)
-added realization to pypolibox.py
-"""

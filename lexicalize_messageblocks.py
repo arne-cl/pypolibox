@@ -8,25 +8,28 @@ consist of one or more messages.
 """
 
 import random
-import cPickle as pickle # TODO: dbg, rm
 from copy import deepcopy
-from nltk.featstruct import Feature, FeatDict
+from nltk.featstruct import Feature
 
-from hlds import Diamond, create_diamond, add_mode_suffix
-from lexicalization import *
-from debug import gen_all_messages_of_type, printeach #TODO: dbg, rm
-from util import load_settings #TODO: dbg, mv to main
+from hlds import Diamond, create_diamond
+from lexicalization import (gen_art, gen_num,
+    lexicalize_authors, lexicalize_codeexamples, lexicalize_exercises,
+    lexicalize_keywords, lexicalize_language, lexicalize_length,
+    lexicalize_pages, lexicalize_proglang, lexicalize_recency,
+    lexicalize_target, lexicalize_title, lexicalize_title_description,
+    lexicalize_year)
 
+#from debug import gen_all_messages_of_type, printeach #TODO: dbg, rm
 
-def enumrealize(diamond_list):
-    """debugging function that realizes a list of diamonds, one at a time"""
-    for diamond in diamond_list:
-        printeach(openccg.realize(diamond))
+#~ def enumrealize(diamond_list):
+    #~ """debugging function that realizes a list of diamonds, one at a time"""
+    #~ for diamond in diamond_list:
+        #~ printeach(openccg.realize(diamond))
 
-def test(msg_type="id", block_number=0):
-    msg_blocks = gen_all_messages_of_type(msg_type)
-    lexicalized_msgs = lexicalize_message_block(msg_blocks[block_number])
-    return [phrase2sentence(msg) for msg in lexicalized_msgs]
+#~ def test(msg_type="id", block_number=0):
+    #~ msg_blocks = gen_all_messages_of_type(msg_type)
+    #~ lexicalized_msgs = lexicalize_message_block(msg_blocks[block_number])
+    #~ return [phrase2sentence(msg) for msg in lexicalized_msgs]
 
 def lexicalize_message_block(messageblock):
     msg_type = messageblock[Feature("msgType")]
@@ -164,7 +167,7 @@ def lexicalize_id(id_message_block):
     msg_block = deepcopy(id_message_block)
     authors = msg_block["authors"]
     title = msg_block["title"]
-    author_variations = lexicalize_authors_variations(authors)
+    #author_variations = lexicalize_authors_variations(authors)
     title_variations = lexicalize_title_variations(title, authors)
 
     lxed_phrses = []
@@ -186,7 +189,7 @@ def lexicalize_id(id_message_block):
     if "codeexamples" in msg_names:
         if "proglang" in msg_names and msg_block["proglang"][0]:
             # proglang should not be realized if the book doesn't use one
-            lxed_phrses_proglang = lexicalize_proglang(msg_block["proglang"],
+            lexicalized_proglang = lexicalize_proglang(msg_block["proglang"],
                                                        realize="embedded")
             lxed_phrses.append(lexicalize_codeexamples(
                                     msg_block["codeexamples"],
@@ -226,12 +229,12 @@ def lexicalize_extra(extra_message_block):
     außerdem ist das Buch auf Deutsch'. therefore, no connective is used here
     so far.
     """
-    assert id_message_block[Feature("msgType")] == "extra"
+    assert extra_message_block[Feature("msgType")] == "extra"
     
     msg_block = deepcopy(extra_message_block)
     authors = msg_block[Feature("reference_authors")]
     title = msg_block[Feature("reference_title")]
-    author_variations = lexicalize_authors_variations(authors)
+    #author_variations = lexicalize_authors_variations(authors)
     title_variations = lexicalize_title_variations(title, authors)
 
     lxed_phrses = []
@@ -262,7 +265,7 @@ def lexicalize_lastbook_match(lastbook_match_message_block):
 
     TODO: implement lexicalize_pagerange
     """
-    assert id_message_block[Feature("msgType")] == "lastbook_match"
+    assert lastbook_match_message_block[Feature("msgType")] == "lastbook_match"
     
     msg_block = deepcopy(lastbook_match_message_block)
 
@@ -286,16 +289,17 @@ def lexicalize_lastbook_nomatch(lastbook_nomatch_message_block):
     r"""
     Im Gegensatz zum ersten / vorhergehenden / anderen Buch ____
     """
-    raise Exception("the grammar can't handle lastbook non-matches, yet.")
+    raise NotImplementedError, "Can't handle lastbook non-matches, yet."
 
 def lexicalize_usermodel_match(usermodel_match_message_block):
     r"""erfüllt Anforderungen / entspricht ihren Wünschen"""
-    raise Exception("the grammar can't handle usermodel matches, yet.")
+    raise NotImplementedError, "Can't handle usermodel matches, yet."
 
 def lexicalize_usermodel_nomatch(usermodel_nomatch_message_block):
     r"""erfüllt (leider) Anforderungen nicht / entspricht nicht ihren
     Wünschen"""
-    raise Exception("the grammar can't handle usermodel non-matches, yet.")
+    raise NotImplementedError, "Can't handle usermodel non-matches, yet."
+
 
 def random_variation(lexicalization_dictionary):
     """
