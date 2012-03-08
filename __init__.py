@@ -166,5 +166,6 @@ to-do list
     - UNICODE: If NLTK becomes available for Python 3, switch to that branch.
       Otherwise, evaluate if porting nltk.featstruct to Python 3 is feasible
       (e.g. with the help of python2to3).
+    - DOCUMENTATION: epydoc is dead. switch to sphinx with autodoc.
 
 """
