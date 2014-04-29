@@ -47,7 +47,7 @@ interpreter, you can simply use the same arguments. Instead of a string like
 I{-l German -p Prolog}, you will have to provide your arguments as a list of
 strings::
 
-    Query(["-l, "German", "-p", "Prolog"])
+    Query(["-l", "German", "-p", "Prolog"])
 
 This query would be equivalent to the command line queries above.
 I{pypolibox} is built as a pipeline, where each important step is represented
@@ -55,10 +55,10 @@ by a class. Each of these classes function as the input of the next class in
 the pipeline, e.g.::
 
     query = Query(["-l", "German", "-p", "Prolog"])
-    Results(Query(query))
-    Books(Results(Query(query)))
+    Results(query)
+    Books(Results(query))
     ...
-    TextPlans(AllMessages(AllPropositions(AllFacts(Books(Results(Query(query)))))))
+    TextPlans(AllMessages(AllPropositions(AllFacts(Books(Results(query))))))
 
 If you instanciate a Query with your query arguments, you can use this
 C{Query} instance as the input of a C{Results} instance (which contains the
@@ -71,7 +71,7 @@ L{debug<pypolibox.debug>} module, either by running the I{debug.py} file in
 the interpreter or by importing it::
 
     import debug
-    debug.gentextplans(["-l, "German", "-p", "Prolog"])
+    debug.gen_textplans(["-l", "German", "-p", "Prolog"])
 
 This function call would return the same results as the aforementioned
 command line calls. For further testing, try
