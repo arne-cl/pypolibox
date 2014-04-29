@@ -54,7 +54,7 @@ I{pypolibox} is built as a pipeline, where each important step is represented
 by a class. Each of these classes function as the input of the next class in
 the pipeline, e.g.::
 
-    query = Query(["-l, "German", "-p", "Prolog"])
+    query = Query(["-l", "German", "-p", "Prolog"])
     Results(Query(query))
     Books(Results(Query(query)))
     ...
