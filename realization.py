@@ -140,11 +140,12 @@ class OpenCCG(object):
 
 def parse_tccg_generator_output(tccg_output):
     """
-    parses the output string returned from tccg's interactive generator shell
+    parses the output string returned from tccg's interactive generator
+    shell.
     """
     results = []
     output_lines = tccg_output.splitlines()[1:-1] #remove 1st + last line
-    result_regex = re.compile("{\d\.\d+} \[\d\.\d+\] (.*?) :-")
+    result_regex = re.compile("\[\d\.\d+\] (.*?) :-")
     for line in output_lines:
         match = result_regex.match(line)
         if match:

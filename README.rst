@@ -16,11 +16,11 @@ Please install Python 2.6 (or 2.7), python-nltk and python-argparse
 before running pypolibox.
 
 In order to generate sentences (instead of abstract sentence
-descriptions), you will need to install
-`OpenCCG <http://openccg.sourceforge.net/>`_. You will also need a copy
-of the correspoding German OpenCCG grammar fragment (written by Martin
-Oltmann, not released yet).
+descriptions), you will need to install `OpenCCG`_ (tested with version
+0.9.5). You will also need a copy of the correspoding German OpenCCG
+grammar fragment (written by Martin Oltmann, not released yet).
 
+.. _`OpenCCG`: http://openccg.sourceforge.net/
 
 Usage
 -----

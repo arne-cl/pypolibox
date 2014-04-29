@@ -289,16 +289,16 @@ def lexicalize_lastbook_nomatch(lastbook_nomatch_message_block):
     r"""
     Im Gegensatz zum ersten / vorhergehenden / anderen Buch ____
     """
-    raise NotImplementedError, "Can't handle lastbook non-matches, yet."
+    raise NotImplementedError, "The grammar fragment can't handle lastbook non-matches, yet."
 
 def lexicalize_usermodel_match(usermodel_match_message_block):
     r"""erfüllt Anforderungen / entspricht ihren Wünschen"""
-    raise NotImplementedError, "Can't handle usermodel matches, yet."
+    raise NotImplementedError, "The grammar fragment can't handle usermodel matches, yet."
 
 def lexicalize_usermodel_nomatch(usermodel_nomatch_message_block):
     r"""erfüllt (leider) Anforderungen nicht / entspricht nicht ihren
     Wünschen"""
-    raise NotImplementedError, "Can't handle usermodel non-matches, yet."
+    raise NotImplementedError, "The grammar fragment can't handle usermodel non-matches, yet."
 
 
 def random_variation(lexicalization_dictionary):
