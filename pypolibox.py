@@ -23,7 +23,8 @@ from rules import ConstituentSet, Rule, Rules
 from lexicalization import phrase2sentence
 from lexicalize_messageblocks import lexicalize_message_block
 from util import load_settings
-    
+
+
 SETTINGS = load_settings()
 
 
