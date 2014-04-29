@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    ***  JPolibox Grammatik  *** 
+    
+    Diese Grammatik enthält lexikalische Kategorien und Regeln, sowie ein Lexikon und semantische und
+    syntaktische Typen zur Generierung von Text mit JPolibox und openCCG.
+    
+    Autor: Martin Oltmann
+    Datum: 14.Mai, 2011
+-->
+
+<grammar name="deutsch-jpolibox" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../grammar.xsd">
+    
+    <lexicon file="lexicon.xml"/>
+    <morphology file="morph.xml"/>
+    <rules file="rules.xml"/>
+    <types file="types.xml"/>
+    
+</grammar>

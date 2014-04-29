@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+                                    ***  JPolibox Ontologie/Typhierarchie  *** 
+  
+  Diese Datei enthält zwei Typhierarchien:
+    1)  Eine Hierarchie von semantischen Typen (Onotologie), die unter dem Wurzelknoten
+         'sem-obj' definiert ist,     
+  und 
+    2)  eine Hierarchie grammatischer Typen, deren Wurzelknoten 'gram-obj' ist.
+  
+  Autor: Martin Oltmann
+  Datum: 14.Mai, 2011
+-->
+<types name="deutsch-jpolibox" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="../types.xsd">
+
+<!-- Die Wurzel der gesamten Polibox Typenhierarchie -->
+  <type name="polibox"/>
+  
+            <!-- Grammatische Typen -->
+            <type name="gram-obj"/>
+                    <!-- Gültige GENUS-Merkmalswerte -->
+                    <type name="genus" parents="gram-obj"/>        
+                              <type name="mask" parents="genus"/>
+                              <type name="fem" parents="genus"/>
+                              <type name="neut" parents="genus"/>          
+ 
+                    <!-- Gültige NUMERUS-Merkmalswerte -->
+                    <type name="numerus" parents="gram-obj"/>        
+                              <type name="sing" parents="numerus"/>
+                              <type name="plur" parents="numerus"/>
+                       
+                    <!-- Gültige CASUS-Merkmalswerte -->
+                    <type name="casus" parents="gram-obj"/>        
+                              <type name="nom" parents="casus"/>
+                              <type name="gen" parents="casus"/>
+                              <type name="dat" parents="casus"/> 
+                              <type name="akk" parents="casus"/>
+          
+                    <!-- Gültige TEMPUS-Merkmalswerte -->
+                    <type name="tempus" parents="gram-obj"/>        
+                              <type name="präs" parents="tempus"/>
+                              <type name="prät" parents="tempus"/>
+                              <type name="imperf" parents="tempus"/> 
+                              <type name="plusqmperf" parents="tempus"/>
+                              <type name="fut1" parents="tempus"/> 
+                              <type name="fut2" parents="tempus"/>
+                    
+                    <!-- Gültige PERSON-Merkmalswerte -->
+                    <type name="person" parents="gram-obj"/>
+                              <type name="1te" parents="person"/>
+                              <type name="2te" parents="person"/>
+                              <type name="3te" parents="person"/>
+                              <!-- 4te: Feminin Singular -->
+                              <type name="4te" parents="person"/>
+                              <type name="5te" parents="person"/>
+                              <type name="6te" parents="person"/>
+                              <type name="7te" parents="person"/>
+          
+                    <!-- Gültige FLEXION-Merkmalswerte -->
+                    <type name="flex" parents="gram-obj"/>        
+                              <type name="strk" parents="flex"/>
+                              <type name="schw" parents="flex"/>
+
+                    <!-- Gültige VERBALKOMPLEX-Merkmalswerte -->
+                    <type name="aux" parents="gram-obj"/>        
+                              <type name="hilfsverb" parents="aux"/>
+                                        <type name="sein" parents="hilfsverb"/>
+                                        <type name="haben" parents="hilfsverb"/>
+          
+                              <type name="modalverb" parents="aux"/>
+                                        <type name="müssen" parents="modalverb"/>
+                                        <type name="können" parents="modalverb"/>
+                                        <type name="dürfen" parents="modalverb"/>
+                                        <type name="sollen" parents="modalverb"/>
+                                        <type name="wollen" parents="modalverb"/>
+                                        <type name="mögen" parents="modalverb"/>
+          
+                              <type name="partverbstamm" parents="aux"/> 
+                                        <type name="aus-führen" parents="partverbstamm"/>
+                                        <type name="aus-setzen" parents="partverbstamm"/>
+                                        <type name="voraus-setzen" parents="partverbstamm"/>
+                                        <type name="vor-stellen" parents="partverbstamm"/>
+                                        <type name="an-führen" parents="partverbstamm"/>
+                                        <type name="überein-stimmen" parents="partverbstamm"/>
+                                        <type name="auf-fassen" parents="partverbstamm"/>
+                                        <type name="ein-gehen" parents="partverbstamm"/>
+          
+                              <type name="infinitum" parents="aux, ereignis"/>
+
+                              <type name="trans" parents="aux"/>
+                                        <type name="intransitiv" parents="trans"/>
+                                        <type name="transitiv" parents="trans"/>
+
+
+
+
+          <!-- Ontologische Sorten -->
+          <type name="sem-obj"/>
+                    <!-- Aktionsart: -->
+                    <type name="ereignis" parents="sem-obj"/>
+                              <type name="handlung" parents="ereignis"/>
+                                        <type name="durativ" parents="handlung"/>
+                                        <type name="inchoativ" parents="handlung"/>
+          
+                              <type name="zustandswechsel" parents="ereignis"/>
+          
+                              <type name="assoziation" parents="ereignis"/>
+          
+                              <type name="prädikation" parents="ereignis"/>
+          
+                    <!-- Eigennamen: -->
+                    <type name="eigenname" parents="sem-obj"/>
+                              <type name="personenname" parents="eigenname"/>
+                                        <type name="vorname" parents="personenname"/>
+                                        <type name="nachname" parents="personenname"/>
+                                        <type name="et-alii" parents="personenname"/>
+                              <type name="buchtitel" parents="eigenname"/>
+          
+                    <!-- "Lose" Ontologie von Dingen in Polibox -->
+                    <type name="phys-körper" parents="sem-obj"/>
+                              <type name="bel-phys-körper" parents="phys-körper"/>
+                              <type name="experte" parents="bel-phys-körper"/>
+          
+                    <type name="unbel-phys-körper" parents="phys-körper"/>
+
+                    <type name="artefaktum" parents="sem-obj"/>
+
+                    <type name="abstraktum" parents="sem-obj"/>
+
+                    <type name="eigenschaft" parents="sem-obj"/>            
+                              <type name="modus" parents="eigenschaft"/>  
+          
+                              <type name="restriktion" parents="eigenschaft"/>
+                                        <type name="kardinal" parents="restriktion"/>
+          
+                              <type name="indizierung" parents="eigenschaft"/>
+                                        <type name="ordinal" parents="restriktion"/>
+          
+                              <type name="intensivierung" parents="eigenschaft"/>
+          
+                              <type name="abschwächung" parents="eigenschaft"/>
+          
+                              <type name="spezifizierung" parents="eigenschaft"/>
+          
+                              <type name="hervorhebung" parents="eigenschaft"/>
+          
+                              <type name="affirmation" parents="eigenschaft"/>
+          
+                              <type name="vermutung" parents="eigenschaft"/>
+          
+                    <type name="lokalität" parents="sem-obj"/> 
+          
+                    <type name="beziehung" parents="sem-obj"/>  
+                              <type name="zugehörigkeit" parents="beziehung"/>  
+                                        <type name="gerichtetebez" parents="zugehörigkeit"/> 
+                                                  <type name="erhalt" parents="gerichtetebez"/>
+                                                  <type name="ort" parents="gerichtetebez"/>
+                                                  <type name="possessor" parents="gerichtetebez"/>
+                              <type name="thematisierung" parents="beziehung"/> 
+                              <type name="zusammenhang" parents="beziehung"/> 
+          
+                    <type name="zustand" parents="sem-obj"/>
+          
+                    <type name="negation" parents="sem-obj"/>
+          
+                    <type name="quantifizierung" parents="sem-obj"/>
+          
+                    <!-- Art-Sorten Beziehungen für postnominale Erweiterungsnomen -->
+                    <type name="art" parents="sem-obj"/>
+          
+                    <type name="sorte" parents="sem-obj"/>
+          
+                    <!-- KONNEXION: Semantische Relationen - teilweise auch grammatisch motiviert: -->
+                    <type name="konnexion" parents="sem-obj"/>
+                              <type name="adjunktion" parents="konnexion"/>
+                              <type name="konjunktion" parents="konnexion"/>          
+                              <type name="subjunktion" parents="konnexion"/>
+                                        <type name="konzessiv" parents="subjunktion"/>
+                                        <type name="adversativ" parents="subjunktion"/>
+                              <type name="addition" parents="konnexion"/>
+                              <type name="koordination" parents="konnexion"/>
+          
+                    <!--  SATZTYPEN -->
+                    <type name="satztyp" parents="sem-obj"/>
+                              <type name="deklarativ" parents="satztyp"/>
+          
+                    <!--  SATZZEICHEN -->
+                    <type name="satzzeichen" parents="sem-obj"/>
+                              <type name="anführungöffnen" parents="satzzeichen"/>
+                              <type name="anführungschließen" parents="satzzeichen"/>
+</types>

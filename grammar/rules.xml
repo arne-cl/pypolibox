@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+                              UNIVERSAL RULE-SET
+                          ( The language of Adam :) )
+
+Copyright (C) 2003 Jason Baldridge and Michael White 
+Copyright (C) 2004 Michael White, Geert-Jan M. Kruijff (typechanging rules)
+Copyright (C) 2005 Geert-Jan M. Kruijff
+-->
+<rules name="deutsch-jpolibox" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../openccg/grammars/rules.xsd">
+
+  <!--   APPLICATION Rules   -->
+  <application dir="forward"/>
+  <application dir="backward"/>
+  
+  <!--   COMPOSITION Rules   -->
+<!--
+  <composition dir="forward" harmonic="true"/>
+  <composition dir="forward" harmonic="false"/>
+  <composition dir="backward" harmonic="true"/>
+  <composition dir="backward" harmonic="false"/>
+-->
+
+  <!--   TYPE-RAISING Rules   -->
+<!--
+  <typeraising dir="forward" useDollar="true"/>
+  <typeraising dir="forward" useDollar="false"/>
+  <typeraising dir="backward" useDollar="true"/>
+  <typeraising dir="backward" useDollar="false"/>
+-->
+  <!--
+  <typeraising dir="backward" useDollar="false">
+    <arg>
+      <atomcat type="pp"/>
+    </arg>
+  </typeraising>
+-->
+
+  <!--   SUBSTITUTION Rules   -->
+<!--
+  <substitution dir="forward" harmonic="true"/>
+  <substitution dir="forward" harmonic="false"/>
+  <substitution dir="backward" harmonic="true"/>
+  <substitution dir="backward" harmonic="false"/>
+-->
+  
+  <!--   TYPE-CHANGING Rules   -->
+  <!-- 
+        Diese Regeln sind sprachspezifisch, und führen zu einer
+        babylonischen Sprachverwirrung, da ein Regelwerk, das 
+        diese Regeln enthält, nicht mehr als universal und damit
+        als Grammatik der adamitischen Sprache angesehen werden
+        kann :) 
+        
+        Syntax:
+                        <typechanging name="RegelBezeichner">
+                              <arg> Ursprüngliche Kategorie  </arg>
+                              <result> Resultierende Kategorie </result>
+                        </typechanging>
+  -->
+
+</rules>
