@@ -1,3 +1,5 @@
+*.yml
 *.pyc
 *.swp
 doc/
+
