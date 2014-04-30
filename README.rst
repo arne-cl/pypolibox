@@ -18,11 +18,15 @@ before running pypolibox.
 In order to generate sentences (instead of abstract sentence
 descriptions), you will need to install `OpenCCG`_ (tested with version
 0.9.5). Make sure that at least ``tccg`` is in your ``$PATH``.
-Then, copy and edit the configuration file:
+Under Linux, you'd have to add something like this to your ``.bashrc``:
 
 ::
 
-    cp pypolibox.yml.example pypolibox.yml
+    export PATH=/home/username/bin/openccg/bin:$PATH
+
+    export OPENCCG_HOME=/home/username/bin/openccg
+    export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-amd64
+
 
 .. _`OpenCCG`: http://openccg.sourceforge.net/
 
@@ -75,7 +79,7 @@ which in turn can be used as the input of a ``Books`` instance etc.
 
 Of course, you wouldn't want to chain all those classes just to retrieve
 textplans. To do so, simply use one of the functions provided in the
-``pypolibox.debug`` module, either by running the ``debug.py`` file in
+``debug`` module, either by running the ``debug.py`` file in
 the interpreter or by importing it::
 
     import debug
@@ -83,8 +87,7 @@ the interpreter or by importing it::
 
 This function call would return the same results as the aforementioned
 command line calls. For further testing, try
-L{debug.testqueries<pypolibox.debug.testqueries>} and
-L{debug.error_testqueries<pypolibox.debug.error_testqueries>}, which
+``debug.testqueries`` and ``debug.error_testqueries``, which
 basically are lists of predefined valid and invalid query arguments and which
 can be used to query the database (and see how errors are handled).
 
