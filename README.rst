@@ -2,7 +2,7 @@ pypolibox
 =========
 
 *pypolibox* is a database-to-text generation (NLG) software built
-on Python 2.6, *NLTK* and Nicholas FitzGerald's *pydocplanner*.
+on Python 2.7, *NLTK* and Nicholas FitzGerald's *pydocplanner*.
 
 Using a database of technical books and some user input, pypolibox
 generates sentences descriptions. These descriptions are then used by
@@ -12,8 +12,23 @@ the *OpenCCG* surface realiser to generate written sentences in German.
 Installation
 ------------
 
-Please install Python 2.6 (or 2.7), python-nltk and python-argparse
-before running pypolibox.
+Install from PyPI
+~~~~~~~~~~~~~~~~~
+
+::
+
+    pip install pypolibox # prepend 'sudo' if needed
+
+
+Install from source
+~~~~~~~~~~~~~~~~~~~
+
+::
+
+    git clone https://github.com/arne-cl/pypolibox.git
+    cd pypolibox
+    python setup.py install # prepend 'sudo' if needed
+
 
 In order to generate sentences (instead of abstract sentence
 descriptions), you will need to install `OpenCCG`_ (tested with version
