@@ -113,13 +113,14 @@ Documentation
 I used epydoc to document pypolibox. You can generate an HTML or PDF
 version by running these commands in pypolibox's main directory::
 
-    epydoc --pdf --name pypolibox --output doc/latex .
+    mkdir -p doc/latex
+    epydoc --pdf --name pypolibox --output doc/latex src/pypolibox
 
-to produce a PDF version and ::
+to produce a PDF (``doc/latex/api.pdf``) and ::
 
     epydoc --html --name pypolibox --graph all --output doc/html .
 
-to produce an HTML version.
+to produce a set of HTML files.
 
 
 Package Overview
