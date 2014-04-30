@@ -118,7 +118,7 @@ version by running these commands in pypolibox's main directory::
 
 to produce a PDF (``doc/latex/api.pdf``) and ::
 
-    epydoc --html --name pypolibox --graph all --output doc/html .
+    epydoc --html --name pypolibox --graph all --output doc/html src/pypolibox
 
 to produce a set of HTML files.
 
