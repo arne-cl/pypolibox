@@ -15,12 +15,14 @@ from tempfile import NamedTemporaryFile
 from commands import getstatusoutput
 from copy import deepcopy
 
-from util import load_settings
 from hlds import (Diamond, Sentence, diamond2sentence, add_nom_prefixes,
                   create_hlds_file)
 
 
-SETTINGS = load_settings()
+if __name__ == '__main__':
+    GRAMMAR_DIR = 'grammar'
+else:
+    GRAMMAR_DIR = os.path.join(os.path.dirname(__file__), 'grammar')
 
 
 class OpenCCG(object):
@@ -29,16 +31,17 @@ class OpenCCG(object):
     can either be run as a JSON-RPC server or simply imported as a Python
     module.
     """
-    def __init__(self, SETTINGS):
+    def __init__(self, grammar_dir=GRAMMAR_DIR):
         """
         spawns the OpenCCG/tccg server as a process
 
-        @param SETTINGS: the content of the settings file pypolibox.yml
+        Parameters
+        ----------
+        grammar_dir : path to the directory that contains the grammar
         """
         current_dir = os.getcwd()
-        openccg_bin_path = SETTINGS["OPENCCG_BIN_PATH"]
-        grammar_path = SETTINGS["GRAMMAR_PATH"]
-        tccg_binary = os.path.join(openccg_bin_path, "tccg")
+        grammar_path = GRAMMAR_DIR
+        tccg_binary = "tccg"
 
         os.chdir(grammar_path)
         self._server = pexpect.spawn(tccg_binary)
