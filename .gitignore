@@ -1,5 +1,31 @@
-*.yml
-*.pyc
-*.swp
-doc/
+# Based on:
+# https://github.com/github/gitignore/blob/master/Python.gitignore
+
+*.py[co]
+*.sw[op]
+*.tmp
+pypolibox.yml
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+develop-eggs
+.installed.cfg
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+
+# Not in github's gitignore:
+tmp
+
+doc
 
