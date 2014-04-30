@@ -9,11 +9,16 @@ interpreter), transforming these requirements into an SQL query, querying the
 sqlite database and returning the results.
 """
 
+import os
 import argparse
 import sqlite3
 import util
 
-DB_FILE = 'data/books.sqlite'
+if __name__ == '__main__':
+    DB_FILE = 'data/books.sqlite'
+else:
+    DB_FILE = os.path.join(os.path.dirname(__file__),'data/books.sqlite')
+
 BOOK_TABLE_NAME = 'books' # name of the table in the database file that
                           # contains info about books
 DEFAULT_ENCODING = 'UTF8'
