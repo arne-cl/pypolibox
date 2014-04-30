@@ -51,10 +51,17 @@ def initialize_openccg():
     return OpenCCG(SETTINGS)
     
 
-def check_and_realize_textplan(textplan):
+def check_and_realize_textplan(openccg, textplan):
     """
-    realizes a text plan and warns about message blocks that cannot be realized
-    due to current restrictions in the OpenCC grammar.
+    realizes a text plan and warns about message blocks that cannot be
+    realized due to current restrictions in the OpenCC grammar.
+    
+    Parameters
+    ----------
+    openccg : OpenCCG
+        a running OpenCCG instance
+    textplan : TextPlan
+        text plan to be realized
     """
     msg_blocks = linearize_textplan(textplan)
     for msg_block in msg_blocks:
@@ -90,7 +97,7 @@ def main():
         openccg = initialize_openccg()
         for i, textplan in enumerate(textplans.document_plans):
             print "Generating text plan #%i:\n" % i
-            check_and_realize_textplan(textplan)
+            check_and_realize_textplan(openccg, textplan)
 
 
 if __name__ == "__main__":
