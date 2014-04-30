@@ -16,7 +16,7 @@ import yaml
 from nltk.featstruct import Feature
 
 
-def load_settings(path="."):
+def load_settings(settings_filepath=None):
     """
     loads settings from a central configurations file (pypolibox.yml in YAML
     format)
@@ -24,15 +24,32 @@ def load_settings(path="."):
     return: settings in YAML format
     rtype: C{dict}
     """
-    try:
-        config_file_path = os.path.join(path, "pypolibox.yml")
-        config_file = open(config_file_path, "r")
-        settings = yaml.load(config_file)
+    def parse_yaml_file(settings_filepath):
+        """parses a YAML settings file and returns a settings object"""
+        settings_file = open(settings_filepath, "r")
+        settings = yaml.load(settings_file)
         return settings
+
+    try:
+        if settings_filepath: # filepath was set by the function caller
+            if os.path.isfile(settings_filepath):
+                pass
+            else:
+                raise IOError("Settings file '{}' doesn't exist.".format(settings_filepath))
+        elif __name__ == '__main__': # running util.py directly
+            settings_filepath = "pypolibox.yml"
+        else: # util.py is imported as a module
+            settings_filepath = os.path.join(os.path.dirname(__file__), "pypolibox.yml")
+
+        return parse_yaml_file(settings_filepath)      
+
     except IOError, ioerror_string:
-        config_yaml_error = "If you haven't created a config file yet, see " \
-            "pypolibox.yml.example, edit it and save it as pypolibox.yml"
-        print "{0}: {1}".format(ioerror_string, config_yaml_error)
+        config_yaml_error = ("Can't find or parse the config file!\n"
+            "Copy the example file pypolibox.yml.example\n"
+            "(presumably from the '{0}' directory), then edit and save\n"
+            "it as pypolibox.yml into the same directory.") \
+            .format(os.path.abspath(os.path.dirname(settings_filepath)))
+        print "{0}:\n\n{1}".format(config_yaml_error, ioerror_string)
 
 
 def ensure_utf8(string_or_int):
