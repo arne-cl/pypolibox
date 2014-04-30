@@ -21,16 +21,13 @@ setup(name='pypolibox',
     description="text generation for product recommendations using OpenCCG",
     long_description=README + '\n\n' + NEWS,
     # Get classifiers from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-    # classifiers=[c.strip() for c in """
-    #     Development Status :: 4 - Beta
-    #     License :: OSI Approved :: MIT License
-    #     Operating System :: OS Independent
-    #     Programming Language :: Python :: 2.6
-    #     Programming Language :: Python :: 2.7
-    #     Programming Language :: Python :: 3
-    #     Topic :: Software Development :: Libraries :: Python Modules
-    #     """.split('\n') if c.strip()],
-    # ],
+    classifiers=[c.strip() for c in """
+        Development Status :: 4 - Beta
+        License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+        Operating System :: OS Independent
+        Programming Language :: Python :: 2.7
+        Topic :: Text Processing :: Linguistic
+    """.split('\n') if c.strip()],
     keywords='linguistics nlp nlg',
     author='Arne Neumann',
     author_email='pypolibox.programming@arne.cl',
