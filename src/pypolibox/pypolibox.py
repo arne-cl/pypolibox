@@ -72,9 +72,14 @@ def check_and_realize_textplan(textplan):
             print "The message block contains these messages:\n", msg_block, \
                   "\n\n**********\n\n"
         print
-    
 
-if __name__ == "__main__":
+def main():
+    """
+    This is the pypolibox commandline interface. It allows you to query
+    the database and generate book recommendatins, which will either be
+    handed to OpenCCG for generating sentences or printed to stdout in
+    an XML format representing the text plans.
+    """
     query = Query(sys.argv[1:])
     textplans = generate_textplans(query)
 
@@ -87,3 +92,6 @@ if __name__ == "__main__":
             print "Generating text plan #%i:\n" % i
             check_and_realize_textplan(textplan)
 
+
+if __name__ == "__main__":
+    main()
