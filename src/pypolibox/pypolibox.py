@@ -22,10 +22,6 @@ from messages import Message, Messages, AllMessages
 from rules import ConstituentSet, Rule, Rules
 from lexicalization import phrase2sentence
 from lexicalize_messageblocks import lexicalize_message_block
-from util import load_settings
-
-
-SETTINGS = load_settings()
 
 
 def test():
@@ -48,7 +44,7 @@ def initialize_openccg():
     starts OpenCCG's tccg realizer as a server in the background (ca. 20s).
     """
     from realization import OpenCCG
-    return OpenCCG(SETTINGS)
+    return OpenCCG()
     
 
 def check_and_realize_textplan(openccg, textplan):
