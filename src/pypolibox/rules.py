@@ -3,8 +3,8 @@
 # Author: Arne Neumann <arne-neumann@web.de>
 
 """
-The I{rules} module contains rules, which are used by the text planner to
-combine messages into constituent sets and ultimately form one C{TextPlan}.
+The ``rules`` module contains rules, which are used by the text planner to
+combine messages into constituent sets and ultimately form one ``TextPlan``.
 """
 
 import itertools
@@ -15,27 +15,27 @@ from util import exists
 
 class ConstituentSet(nltk.featstruct.FeatDict):
     """
-    C{ConstituentSet} is the contstuction built up by applying C{Rules} to a 
-    set of C{ConstituentSet}s and C{Message}s. Each C{ConstituentSet} is of a 
-    specific I{relType}, and has two constituents, one which is designated the 
-    I{nucleus} and one which is designated I{aux}. These C{ConstituentSet}s can
-    then be combined with other C{ConstituentSet}s or C{Message}s.
+    ``ConstituentSet`` is the contstuction built up by applying ``Rules`` to a 
+    set of ``ConstituentSet``s and ``Message``s. Each ``ConstituentSet`` is of a 
+    specific ``relType``, and has two constituents, one which is designated the 
+    ``nucleus`` and one which is designated ``aux``. These ``ConstituentSet``s can
+    then be combined with other ``ConstituentSet``s or ``Message``s.
 
-    C{ConstituentSet} is based on C{nltk.featstruct.FeatDict}.
+    ``ConstituentSet`` is based on ``nltk.featstruct.FeatDict``.
     """
     def __init__(self, relType = None, nucleus = None, satellite = None):
         """
-        I{relType}, I{nucleus} and I{aux} are only specified for the 
-        C{nltk.featstruct.FeatDict} if they are specified by the user.
+        ``relType``, ``nucleus`` and ``aux`` are only specified for the 
+        ``nltk.featstruct.FeatDict`` if they are specified by the user.
 
-        @param relType: The relation type which related the I{nucleus} to 
-        I{aux}. 
-        @type relType: string
-        @param nucleus: Nucleus constituent. C{Message} or C{ConstituentSet}.
-        @type nucleus: Message or ConstituentSet
-        @param satellite: Auxiliary constituent. C{Message} or 
-        C{ConstituentSet}. 
-        @type satellite: Message or ConstituentSet
+        :param relType: The relation type which related the ``nucleus`` to 
+        ``aux``. 
+        :type relType: string
+        :param nucleus: Nucleus constituent. ``Message`` or ``ConstituentSet``.
+        :type nucleus: Message or ConstituentSet
+        :param satellite: Auxiliary constituent. ``Message`` or 
+        ``ConstituentSet``. 
+        :type satellite: Message or ConstituentSet
         """
         if relType: 
             self[nltk.featstruct.Feature('relType',display='prefix')] = relType
@@ -47,54 +47,54 @@ class ConstituentSet(nltk.featstruct.FeatDict):
 
 class Rule(object):
     """
-    C{Rules} are the elements which specify relationships which hold between 
-    elements of the document. These elements can be I{Message}s or 
-    I{ConstituentSet}s.
+    ``Rules`` are the elements which specify relationships which hold between 
+    elements of the document. These elements can be ``Message``s or 
+    ``ConstituentSet``s.
 
-    Each I{Rule} specifies a list of I{inputs}, which are is a minimal 
-    specification of a C{Message} or C{ConstituentSet}. To be a valid input to 
-    this Rule, a given C{Message} or C{ConstituentSet} must subsume one of the 
-    specified I{input}s.
+    Each ``Rule`` specifies a list of ``inputs``, which are is a minimal 
+    specification of a ``Message`` or ``ConstituentSet``. To be a valid input to 
+    this Rule, a given ``Message`` or ``ConstituentSet`` must subsume one of the 
+    specified ``input``s.
 
-    Each I{Rule} can also specify a set of conditions which must be met in 
+    Each ``Rule`` can also specify a set of conditions which must be met in 
     order for the Rule to hold between the inputs.
 
-    Each I{Rule} specifies a heuristic, which will be evaluated to provide a 
+    Each ``Rule`` specifies a heuristic, which will be evaluated to provide a 
     score by which to rank the order in which rules should be applied.
 
-    Each I{Rule} specifies which of the inputs will be the I{nucleus} and which
-    will be the I{aux} of the output C{ConstituentSet}.
+    Each ``Rule`` specifies which of the inputs will be the ``nucleus`` and which
+    will be the ``aux`` of the output ``ConstituentSet``.
     """
 
     def __init__(self, name, ruleType, nucleus, satellite, conditions, heuristic):
         """
-        @param name: The name of the rule.
-        @type name: string
+        :param name: The name of the rule.
+        :type name: string
         
-        @param ruleType: The name of the relationship type this Rule specifies.
-        @type ruleType: string
+        :param ruleType: The name of the relationship type this Rule specifies.
+        :type ruleType: string
             
-        @param conditions: a list of strings which will be evaluated as 
+        :param conditions: a list of strings which will be evaluated as 
         conditions for applying the rule. These should return True or False 
         when evaluated
-        @type conditions: list of strings
+        :type conditions: list of strings
       
-        @param nucleus: A list of tuples containing (name, input). I{name} is 
+        :param nucleus: A list of tuples containing (name, input). ``name`` is 
         a string specifying the name used for the nucleus message of the RST 
         relation. The name is used to refer to this message in the 
-        I{conditions} and I{heuristic}. I{input} is a C{Message} or 
-        C{ConstituentSet}. There can be only one nucleus in a RST relation, so 
+        ``conditions`` and ``heuristic``. ``input`` is a ``Message`` or 
+        ``ConstituentSet``. There can be only one nucleus in a RST relation, so 
         the planner has to choose from the list. 
-        @type nucleus: list of tuples: (string, C{Message} or 
-        C{ConstituentSet}) 
+        :type nucleus: list of tuples: (string, ``Message`` or 
+        ``ConstituentSet``) 
       
-        @param satellite: same as I{nucleus}, but represents a list of possible
+        :param satellite: same as ``nucleus``, but represents a list of possible
         satellite messages of a RST relation. Again, there can be only one 
         satellite in a RST relation, so the planner has to choose from the 
         list. 
         
-        @param heuristic: an integer used to rank potential ConstituentSets. 
-        @type heuristic: C{int}
+        :param heuristic: an integer used to rank potential ConstituentSets. 
+        :type heuristic: ``int``
         """
         self.name = name
         self.ruleType = ruleType
@@ -116,33 +116,33 @@ class Rule(object):
         """
         this is the main method used for document planning 
             
-        From the list of C{Messages}, I{get_options} selects all possible ways 
+        From the list of ``Messages``, ``get_options`` selects all possible ways 
         the Rule could be applied.
 
-        The planner can then select with the L{textplan.__bottom_up_search} 
+        The planner can then select with the :class:`textplan.__bottom_up_search` 
         function one of these possible applications of the Rule to use.
         
-        I{non_empty_message_combinations} is a list of combinations, where each
+        ``non_empty_message_combinations`` is a list of combinations, where each
         combination is a (nucleus, satellite)-tuple. both the nucleus and the 
         satellite each consist of a (name, message) tuple.
 
-        The method returns an empty list if I{get_options} can't find a way 
-        to apply the I{Rule}.
+        The method returns an empty list if ``get_options`` can't find a way 
+        to apply the ``Rule``.
 
-        @type messages: list of C{Message} objects
-        @param messages: a list of C{Message} objects, each containing one 
+        :type messages: list of ``Message`` objects
+        :param messages: a list of ``Message`` objects, each containing one 
         message about a book
         
-        @rtype: empty list or a list containing one C{tuple} of (C{int}, 
-        C{ConstituentSet}, C{list}), where C{list} consists of C{Message} 
-        or C{ConstituentSet} objects 
-        @return: a list containing one 3-tuple (score, C{ConstituentSet}, 
+        :rtype: empty list or a list containing one ``tuple`` of (``int``, 
+        ``ConstituentSet``, ``list``), where ``list`` consists of ``Message`` 
+        or ``ConstituentSet`` objects 
+        :return: a list containing one 3-tuple (score, ``ConstituentSet``, 
         inputs) where: 
             - score is the evaluated heuristic score for this application of 
             the Rule 
-            - ConstituentSet is the new C{ConstituentSet} instance returned by 
+            - ConstituentSet is the new ``ConstituentSet`` instance returned by 
             the application of the Rule
-            - inputs is the list of inputs (C{Message}s or C{ConstituentSets} 
+            - inputs is the list of inputs (``Message``s or ``ConstituentSets`` 
             used in this application of the rule 
         """
         self.messages = messages # will be used by self.__name_eval()
@@ -182,17 +182,17 @@ class Rule(object):
         takes a list of messages and returns only those with the right 
         message type (as specified in Rule.inputs)
         
-        @type messages: C{list} of C{Message}s
-        @param messages: a list of C{Message} objects, each containing one 
+        :type messages: ``list`` of ``Message``s
+        :param messages: a list of ``Message`` objects, each containing one 
         message about a book
 
-        @param message_prototype: a tuple consisting of a message name and a 
-        C{Message} or C{ConstituentSet}
-        @type message_prototype: C{tuple} of (string, C{Message} or 
-        C{ConstituentSet})
+        :param message_prototype: a tuple consisting of a message name and a 
+        ``Message`` or ``ConstituentSet``
+        :type message_prototype: ``tuple`` of (string, ``Message`` or 
+        ``ConstituentSet``)
 
-        @rtype: C{list} of C{tuple}s of (string, C{Message})
-        @return: a list containing all (name, message) tuples which are 
+        :rtype: ``list`` of ``tuple``s of (string, ``Message``)
+        :return: a list containing all (name, message) tuples which are 
         subsumed by the input message type (self.nucleus or self.satellite). 
         If a rule should only be applied to UserModelMatch and UserModelNoMatch
         messages, the return value contains a list of messages with these 
@@ -207,15 +207,15 @@ class Rule(object):
         
     def get_satisfactory_groups(self, groups):    
         """
-        @type groups: C{list} of C{list}'s of C{tuple}'s of (C{str}, 
-        C{Message} or C{ConstituentSet})
-        @param groups: a list of group elements. each group contains a list 
+        :type groups: ``list`` of ``list``'s of ``tuple``'s of (``str``, 
+        ``Message`` or ``ConstituentSet``)
+        :param groups: a list of group elements. each group contains a list 
         which contains one or more message tuples of the form 
         (message name, message)
         
-        @rtype: C{list} of C{list}'s of C{tuple}'s of (C{str}, C{Message} 
-        or C{ConstituentSet})
-        @return: a list of group elements. contains only those groups which 
+        :rtype: ``list`` of ``list``'s of ``tuple``'s of (``str``, ``Message`` 
+        or ``ConstituentSet``)
+        :return: a list of group elements. contains only those groups which 
         meet all the conditions specified in self.conditions        
         """
         satisfactory_groups = []
@@ -229,13 +229,13 @@ class Rule(object):
         applies __name_eval to all conditions a Rule has, i.e. checks if a 
         group meets all conditions
         
-        @type group: C{list} of C{tuple}'s of (C{str}, C{Message} or 
-        C{ConstituentSet})
-        @param group: a list of message tuples of the form 
+        :type group: ``list`` of ``tuple``'s of (``str``, ``Message`` or 
+        ``ConstituentSet``)
+        :param group: a list of message tuples of the form 
         (message name, message)
 
-        @rtype: C{list} of C{bool}
-        @return: a list of truth values, each of which tells if a group met 
+        :rtype: ``list`` of ``bool``
+        :return: a list of truth values, each of which tells if a group met 
         all conditions specified in self.conditions
         """
         results = []
@@ -252,26 +252,26 @@ class Rule(object):
                 
     def __name_eval(self, condition, group):
         """
-        check if a I{condition} is met by the C{Message}s in a I{group}
+        check if a ``condition`` is met by the ``Message``s in a ``group``
         
-        @type condition: C{str}
-        @param condition: a python statement that can be evaluated to True or 
+        :type condition: ``str``
+        :param condition: a python statement that can be evaluated to True or 
         False, encoded as a string
         
-        @type group: C{list} of C{tuple}'s of (C{str}, C{Message} or 
-        C{ConstituentSet})
-        @param group: a list of message tuples of the form 
+        :type group: ``list`` of ``tuple``'s of (``str``, ``Message`` or 
+        ``ConstituentSet``)
+        :param group: a list of message tuples of the form 
         (message name, message)
         
-        C{Message}s and C{ConstituentSet}s are C{FeatDict}s, which can be 
-        queried just like normal C{dict}s.
+        ``Message``s and ``ConstituentSet``s are ``FeatDict``s, which can be 
+        queried just like normal ``dict``s.
         
-        @rtype: C{bool}
-        @return: True if the condition is met by the C{Message}s in I{group}
+        :rtype: ``bool``
+        :return: True if the condition is met by the ``Message``s in ``group``
         """
         for message in self.messages:
             if Feature("msgType") in message: 
-            #if it's a C{Message} and not a C{ConstituentSet}
+            #if it's a ``Message`` and not a ``ConstituentSet``
                 message_name = message[Feature("msgType")]
                 locals()[message_name] = message
 
@@ -283,17 +283,17 @@ class Rule(object):
 
     def __get_return(self, combination):
         """
-        constructs a C{ConstituentSet} returned by I{get_options}
+        constructs a ``ConstituentSet`` returned by ``get_options``
 
-        @type combination: C{tuple} of two C{tuple}s of (C{str}, C{Message} 
-        or C{ConstituentSet})
-        @param combination: a tuple of two message tuples -- the first one 
+        :type combination: ``tuple`` of two ``tuple``s of (``str``, ``Message`` 
+        or ``ConstituentSet``)
+        :param combination: a tuple of two message tuples -- the first one 
         represents the nucleus, the second one the satellite -- of the form 
         (message name, message) that will be combined into a constituent set.
 
-        @rtype: C{ConstituentSet}
-        @return: a C{ConstituentSet}, which combines a nucleus and satellite. 
-        both can either be a C{Message} or C{ConstituentSet}
+        :rtype: ``ConstituentSet``
+        :return: a ``ConstituentSet``, which combines a nucleus and satellite. 
+        both can either be a ``Message`` or ``ConstituentSet``
         """
         (nucleus_name, nucleus_msg), (sat_name, sat_msg) = combination
         return ConstituentSet(relType = self.ruleType, nucleus=nucleus_msg, 

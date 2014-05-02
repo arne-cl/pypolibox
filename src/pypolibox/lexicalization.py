@@ -3,7 +3,7 @@
 # Author: Arne Neumann <arne-neumann@web.de>
 
 """
-This module shall convert C{TextPlan}s into HLDS XML structures which can
+This module shall convert ``TextPlan``s into HLDS XML structures which can
 be utilized by the OpenCCG surface realizer to produce natural language text.
 """
 
@@ -33,18 +33,18 @@ def lexicalize_authors(authors_tuple, realize="abstract"):
     converts a list of authors into several possible HLDS diamond
     structures, which can be used for text generation.
 
-    @type authors_tuple: C{tuple} of (C{frozenset} of C{str}, C{str})
-    @param author_tuple: tuple containing a set of names, e.g. (["Ronald
+    :type authors_tuple: ``tuple`` of (``frozenset`` of ``str``, ``str``)
+    :param author_tuple: tuple containing a set of names, e.g. (["Ronald
     Hausser", "Christopher D. Manning"]) and a rating, i.e. "neutral"
 
-    @type realize: C{str}
-    @param realize: "abstract", "lastnames", "complete".
+    :type realize: ``str``
+    :param realize: "abstract", "lastnames", "complete".
     "abstract" realizes 'das Buch' / 'die Bücher'. "lastnames" realizes
     only the last names of authors, while "complete" realizes their given
     and last names.
 
-    @rtype: C{Diamond}
-    @return: a Diamond instance, which generates "der Autor"/"die Autoren",
+    :rtype: ``Diamond``
+    :return: a Diamond instance, which generates "der Autor"/"die Autoren",
     the authors last names or the complete names of the authors.
 
     realize one author abstractly:
@@ -100,15 +100,15 @@ def lexicalize_codeexamples(examples, lexicalized_title,
     das Buch enthält Code-Beispiele in den Programmiersprachen A und B.
     „On Syntax“ beinhaltet keine Code-Beispiele.
 
-    @type examples: C{tuple} of (C{int}, C{str})
-    @param examples: a tuple, e.g. (0, 'neutral'), describing if a book
+    :type examples: ``tuple`` of (``int``, ``str``)
+    :param examples: a tuple, e.g. (0, 'neutral'), describing if a book
     uses code examples (1) or not (0)
 
-    @type lexicalized_title: C{Diamond}
-    @type lexicalized_proglang: C{Diamond} or C{NoneType}
+    :type lexicalized_title: ``Diamond``
+    :type lexicalized_proglang: ``Diamond`` or ``NoneType``
 
-    @type lexeme: C{str}
-    @param lexeme: "beinhalten", "enthalten" or "random".
+    :type lexeme: ``str``
+    :param lexeme: "beinhalten", "enthalten" or "random".
 
     realize "das Buch enthält Code-Beispiele":
 
@@ -172,11 +172,11 @@ def lexicalize_exercises(exercises, lexicalized_title, lexeme="random"):
     r"""
     das Buch enthält/beinhaltet (keine) Übungen.
 
-    @type exercises: C{tuple} of (C{int}, C{str})
-    @param exercises: a tuple stating if a book contains exercises (1,
+    :type exercises: ``tuple`` of (``int``, ``str``)
+    :param exercises: a tuple stating if a book contains exercises (1,
     "neutral") or not (0, "neutral").
 
-    @type lexicalized_title: C{Diamond} describing a book title
+    :type lexicalized_title: ``Diamond`` describing a book title
 
     realize "das Buch enthält Übungen":
 
@@ -215,9 +215,9 @@ def lexicalize_language(language, lexicalized_title, realize="random"):
     das Buch ist Deutsch.
     das Buch ist in deutscher Sprache.
 
-    @type language: C{tuple} of (C{str}, C{str})
-    @param language: ("English", "neutral") or ("German", "neutral").
-    @type lexicalized_title: C{Diamond}
+    :type language: ``tuple`` of (``str``, ``str``)
+    :param language: ("English", "neutral") or ("German", "neutral").
+    :type lexicalized_title: ``Diamond``
 
     NOTE: negation isn't possible w/ the current grammar ("nicht auf Deutsch")
 
@@ -266,11 +266,11 @@ def lexicalize_language(language, lexicalized_title, realize="random"):
 def lexicalize_length(length, lexicalized_title,
                       lexicalized_lastbooktitle=None):
     r"""
-    @type length: C{FeatDict}
-    @type lexicalized_title: C{Diamond}
-    @type lexicalized_lastbooktitle: C{Diamond} or C{NoneType}
-    @type message_block: C{str}
-    @param message_block: "lastbook_nomatch" or "extra"
+    :type length: ``FeatDict``
+    :type lexicalized_title: ``Diamond``
+    :type lexicalized_lastbooktitle: ``Diamond`` or ``NoneType``
+    :type message_block: ``str``
+    :param message_block: "lastbook_nomatch" or "extra"
 
     realize "$thisbook ist 122 Seiten länger als $lastbook":
 
@@ -303,8 +303,8 @@ def lexicalize_length(length, lexicalized_title,
 def gen_length_lastbook_nomatch(length, lexicalized_title,
                                 lexicalized_lastbooktitle):
     """
-    @type length: C{Diamond}
-    @param length: a feature structure that compares the length of two books::
+    :type length: ``Diamond``
+    :param length: a feature structure that compares the length of two books::
 
         [ direction = '+'                  ]
         [                                  ]
@@ -346,29 +346,29 @@ def lexicalize_keywords(keywords_tuple, lexicalized_title=None,
                         lexicalized_authors = None, realize="complete",
                         lexeme="random"):
     r"""
-    @type keywords_tuple: C{tuple} of (C{frozenset} of C{str}, C{str})
-    @param keywords_tuple: e.g. (frozenset(['generation', 'discourse', 'semantics', 'parsing']), 'neutral')
+    :type keywords_tuple: ``tuple`` of (``frozenset`` of ``str``, ``str``)
+    :param keywords_tuple: e.g. (frozenset(['generation', 'discourse', 'semantics', 'parsing']), 'neutral')
 
-    @type realize: C{str}
-    @param realize: "abstract", "complete".
+    :type realize: ``str``
+    :param realize: "abstract", "complete".
     "abstract" realizes 'das Thema' / 'die Themen'.
     "complete" realizes an enumeration of those keywords.
 
     realize one keyword abstractly, using an abstract author and the lexeme
-    I{behandeln}:
+    ``behandeln``:
 
     >>> author = lexicalize_authors((["author1"], ""), realize="abstract")
     >>> openccg.realize(lexicalize_keywords((frozenset(["keyword1"]), ""), lexicalized_authors=author, realize="abstract", lexeme="behandeln"))
     ['behandelt der Autor das Thema', 'der Autor behandelt das Thema', 'der Autor das Thema behandelt']
 
     realize one keyword concretely, using two concrete authors and the lexeme
-    I{beschreiben}:
+    ``beschreiben``:
 
     >>> authors = lexicalize_authors((["John E. Hopcroft","Jeffrey D. Ullman"], ""), realize="complete")
     >>> openccg.realize(lexicalize_keywords((frozenset(["parsing", "formal languages"]), ""), lexicalized_authors=authors, realize="complete", lexeme="beschreiben"))
     ['John E. Hopcroft und Jeffrey D. Ullman beschreiben die Themen formal_languages und parsing', 'John E. Hopcroft und Jeffrey D. Ullman die Themen formal_languages und parsing beschreiben', 'beschreiben John E. Hopcroft und Jeffrey D. Ullman die Themen formal_languages und parsing']
 
-    realize 4 keywords, using 1 author's last name and the lexeme I{eingehen}:
+    realize 4 keywords, using 1 author's last name and the lexeme ``eingehen``:
 
     >>> author = lexicalize_authors((["Ralph Grishman"], ""), realize="lastnames")
     >>> openccg.realize( lexicalize_keywords((frozenset(["parsing","semantics","discourse","generation"]), ""), lexicalized_authors=author, realize="complete", lexeme="eingehen"))
@@ -377,14 +377,14 @@ def lexicalize_keywords(keywords_tuple, lexicalized_title=None,
     TODO: "___ geht auf den Themen ein" is not OK
 
     realize 1 keyword, using an abstract book title and the lexeme
-    I{aufgreifen}:
+    ``aufgreifen``:
 
     >>> title = lexicalize_title(("book1", ""), realize="abstract")
     >>> openccg.realize(lexicalize_keywords((frozenset(["regular expressions"]), ""), lexicalized_title=title, realize="complete", lexeme="aufgreifen"))
     ['das Buch greift das Thema regular_expressions auf', 'greift das Buch das Thema regular_expressions auf']
 
     realize 2 keywords, using a concrete book title and the lexeme
-    I{beschreiben}:
+    ``beschreiben``:
 
     >>> title = lexicalize_title(("Grundlagen der Computerlinguistik", ""), realize="complete")
     >>> openccg.realize(lexicalize_keywords((frozenset(["grammar", "corpora"]), ""), lexicalized_title=title, realize="complete", lexeme="beschreiben"))
@@ -441,12 +441,12 @@ def lexicalize_pages(pages, lexicalized_title, lexeme="random"):
     ___ umfasst 546 Seiten
     ___ ist 546 Seiten lang
 
-    @type pages: C{tuple} of (C{int}, C{str})
-    @param pages: a tuple stating how many pages a book contains,
+    :type pages: ``tuple`` of (``int``, ``str``)
+    :param pages: a tuple stating how many pages a book contains,
         e.g. (546, "neutral")
-    @type title: C{str}
-    @type authors: C{list} of C{str} OR C{NoneType}
-    @rtype: C{Diamond}
+    :type title: ``str``
+    :type authors: ``list`` of ``str`` OR ``NoneType``
+    :rtype: ``Diamond``
 
     realize "$title hat einen Umfang von $pages Seiten":
 
@@ -492,8 +492,8 @@ def lexicalize_pages(pages, lexicalized_title, lexeme="random"):
 
 def gen_pages_id(pages_int, lexicalized_title, lexeme="random"):
     """
-    @type pages_int: C{int}
-    @param pages_int: number of pages of a book
+    :type pages_int: ``int``
+    :param pages_int: number of pages of a book
     """
     tempus = gen_tempus("präs")
     title = lexicalized_title
@@ -540,8 +540,8 @@ def gen_pages_extra(length_description, lexicalized_title):
     das Buch ist etwas kurz
     das Buch ist sehr umfangreich
 
-    @type length_description: C{str}
-    @param length_description: "very long", "very short"
+    :type length_description: ``str``
+    :param length_description: "very long", "very short"
     """
     tempus = gen_tempus("präs")
     subj = lexicalized_title
@@ -562,12 +562,12 @@ def gen_pages_extra(length_description, lexicalized_title):
 def lexicalize_proglang(proglang, lexicalized_title=None,
                         lexicalized_authors=None, realize="embedded"):
     r"""
-    @type proglang: C{tuple} of (C{frozenset}, C{str})
-    @param proglang: a tuple consisting of a set of programming languages
+    :type proglang: ``tuple`` of (``frozenset``, ``str``)
+    :param proglang: a tuple consisting of a set of programming languages
     (as strings) and a rating (string)
 
-    @type realize: C{str}
-    @param realize: "embedded" or "complete".
+    :type realize: ``str``
+    :param realize: "embedded" or "complete".
     if "embedded", the function will just generate a noun phrase, e.g. "die
     Programmiersprache Perl". if "complete", it will generate a sentence,
     e.g. "das Buch verwendet die Programmiersprache(n) X (und Y)" or "der
@@ -626,11 +626,11 @@ def lexicalize_target(target, lexicalized_title):
     - das Buch setzt keine Kenntnisse voraus
     - das Buch richtet sich an ein fortgeschrittenes Publikum
 
-    @type target: C{tuple} of (C{int}, C{str})
-    @param target: a tuple, e.g. (0, "neutral"), states that the book is
+    :type target: ``tuple`` of (``int``, ``str``)
+    :param target: a tuple, e.g. (0, "neutral"), states that the book is
     targeted towards beginners.
 
-    @type lexicalized_title: C{Diamond}
+    :type lexicalized_title: ``Diamond``
 
     realize "... richtet sich an Anfänger":
 
@@ -761,8 +761,8 @@ def gen_recency_extra(recency_description, lexicalized_title):
     das Buch ist besonders neu
     das Buch ist sehr alt
 
-    @type recency_description: C{str}
-    @param recency_description: "recent", "old"
+    :type recency_description: ``str``
+    :param recency_description: "recent", "old"
     """
     tempus = gen_tempus("präs")
     subj = lexicalized_title
@@ -784,22 +784,22 @@ def gen_recency_extra(recency_description, lexicalized_title):
 def lexicalize_title(title_tuple, lexicalized_authors=None, realize="complete",
                      authors_realize=None):
     r"""
-    @type title: C{tuple} of (C{str}, C{str})
-    @param title: tuple containing a book title and a rating (neutral)
+    :type title: ``tuple`` of (``str``, ``str``)
+    :param title: tuple containing a book title and a rating (neutral)
 
-    @type lexicalized_authors: C{Diamond} OR C{NoneType}
-    @param authors: an I{optional} C{Diamond} containing a lexicalized
+    :type lexicalized_authors: ``Diamond`` OR ``NoneType``
+    :param authors: an ``optional`` ``Diamond`` containing a lexicalized
     authors message
 
-    @type realize: C{str}
-    @param realize: "abstract", "complete", "pronoun" or "authors+title"
+    :type realize: ``str``
+    :param realize: "abstract", "complete", "pronoun" or "authors+title"
     - "abstract" realizes 'das Buch'
     - "pronoun" realizes 'es'
     - "complete" realizes book titles in the format specified in the
       OpenCC grammar, e.g. „ Computational Linguistics. An Introduction “
 
-    @type authors_realize: C{str} or C{NoneType}
-    @param authors_realize: None, "possessive", "preposition", "random".
+    :type authors_realize: ``str`` or ``NoneType``
+    :param authors_realize: None, "possessive", "preposition", "random".
     - "possessive" realizes 'Xs Buch'
     - "preposition" realizes 'das Buch von X (und Y)'
     - "random" chooses between "possessive" and "preposition"
@@ -946,10 +946,10 @@ def lexicalize_title_description(title_tuple, authors_tuple, year_tuple=None):
 def lexicalize_year(year, lexicalized_title):
     r"""___ ist/sind 1986 erschienen.
 
-    @type year: C{int} or C{str}
-    @type lexicalized_title: C{Diamond}
-    @param lexicalized_title: C{Diamond} containing a title description
-    @rtype: C{Diamond}
+    :type year: ``int`` or ``str``
+    :type lexicalized_title: ``Diamond``
+    :param lexicalized_title: ``Diamond`` containing a title description
+    :rtype: ``Diamond``
 
     realize a book's year of publishing:
 
@@ -986,10 +986,10 @@ def gen_enumeration(diamonds_list, mode=""):
         A, B, C und D
         ...
 
-    @type diamonds_list: C{list} of C{Diamond}s
+    :type diamonds_list: ``list`` of ``Diamond``s
 
-    @rtype: C{Diamond}
-    @return: a Diamond instance (containing zero or more nested Diamond
+    :rtype: ``Diamond``
+    :return: a Diamond instance (containing zero or more nested Diamond
     instances)
     """
     if len(diamonds_list) is 0:
@@ -1014,10 +1014,10 @@ def gen_komma_enumeration(diamonds_list, mode=""):
         Manning, Chomsky, Allen
         ...
 
-    @type diamonds_list: C{list} of C{Diamond}s
+    :type diamonds_list: ``list`` of ``Diamond``s
 
-    @rtype: C{Diamond}
-    @return: a Diamond instance (containing zero or more nested Diamond
+    :rtype: ``Diamond``
+    :return: a Diamond instance (containing zero or more nested Diamond
     instances)
     """
     if len(diamonds_list) == 0:
@@ -1037,11 +1037,11 @@ def __split_name(name):
     naively splits a name string into a last name and a given name
     (or given names).
 
-    @type name: C{Str}
-    @param name: a name, e.g. "George W. Bush"
+    :type name: ``Str``
+    :param name: a name, e.g. "George W. Bush"
 
-    @rtype: C{tuple} of (C{list}, C{str}), where C{list} consists of C{str}s
-    @return: a list of given names and a string containing the last name
+    :rtype: ``tuple`` of (``list``, ``str``), where ``list`` consists of ``str``s
+    :return: a list of given names and a string containing the last name
     """
     name_components = name.split()
     given_names, last_name = name_components[:-1], name_components[-1]
@@ -1055,10 +1055,10 @@ def gen_nested_given_names(given_names):
     name etc.), where the last given name is the outermost structural
     element and the first given name is the innermost one.
 
-    @type given_names: C{list} of C{str}
-    @rtype: empty C{list} or C{Diamond}
-    @return: returns an empty list if given_names is empty. otherwise returns a
-    C{Diamond} (which might contain other diamonds)
+    :type given_names: ``list`` of ``str``
+    :rtype: empty ``list`` or ``Diamond``
+    :return: returns an empty list if given_names is empty. otherwise returns a
+    ``Diamond`` (which might contain other diamonds)
     """
     if given_names:
         preceding_names, last_given_name = given_names[:-1], given_names[-1]
@@ -1078,21 +1078,21 @@ def gen_nested_given_names(given_names):
 
 
 def gen_art(article_type="def"):
-    """generates a C{Diamond} describing an article"""
+    """generates a ``Diamond`` describing an article"""
     return create_diamond("ART", "sem-obj", article_type, [])
 
 def gen_gender(genus="mask"):
-    """generates a C{Diamond} representing masculine, feminine or neuter"""
+    """generates a ``Diamond`` representing masculine, feminine or neuter"""
     return create_diamond("GEN", "", genus, [])
 
 def gen_num(numerus=1):
     """
-    generates a C{Diamond} representing singular or plural
+    generates a ``Diamond`` representing singular or plural
 
-    @type numerus: C{str} or C{int}
-    @param numerus: either a string representing singular or plural
+    :type numerus: ``str`` or ``int``
+    :param numerus: either a string representing singular or plural
     ("sing", "plur"), or an integer.
-    @rtype: C{Diamond}
+    :rtype: ``Diamond``
     """
     if isinstance(numerus, int):
         assert numerus > 0, "count has to be >= 1"
@@ -1105,19 +1105,19 @@ def gen_num(numerus=1):
     return create_diamond("NUM", "", numerus, [])
 
 def gen_mod(modifier, modifier_type="kardinal"):
-    """generates a C{Diamond} representing a modifier"""
+    """generates a ``Diamond`` representing a modifier"""
     return create_diamond("MOD", modifier_type, modifier, [])
 
 def gen_personal_pronoun(count, gender, person, mode=""):
     """
-    @type count: C{int}
-    @param count: 1 for 'singular'; > 1 for 'plural'
+    :type count: ``int``
+    :param count: 1 for 'singular'; > 1 for 'plural'
 
-    @type gender: C{str}
-    @param gender: 'masc', 'fem' or 'neut'
+    :type gender: ``str``
+    :param gender: 'masc', 'fem' or 'neut'
 
-    @type person: C{int}
-    @param person: 1 for 1st person, 2 for 2nd person ...
+    :type person: ``int``
+    :param person: 1 for 1st person, 2 for 2nd person ...
     """
     if count > 1 or gender == "":
         gender = "fem" # there should be no gender marker in plural,
@@ -1133,22 +1133,22 @@ def gen_pronoun(person, pronoun_type, gender, numerus, mode=""):
     """
     generates any kind of pronoun.
 
-    @type person: C{int}
-    @param person: 1 for 1st person, 2 for 2nd person ...
+    :type person: ``int``
+    :param person: 1 for 1st person, 2 for 2nd person ...
 
-    @type pronoun_type: C{str}
-    @param pronoun_type: type of the pronoun, e.g. "reflpro" or "perspro"
+    :type pronoun_type: ``str``
+    :param pronoun_type: type of the pronoun, e.g. "reflpro" or "perspro"
 
-    @type gender: C{str}
-    @param gender: 'masc', 'fem' or 'neut'
+    :type gender: ``str``
+    :param gender: 'masc', 'fem' or 'neut'
 
-    @type numerus: C{str}
-    @param count: "sing" or "plur"
+    :type numerus: ``str``
+    :param count: "sing" or "plur"
 
-    @type mode: C{str}
-    @param mode: the mode string the resulting diamond should have
+    :type mode: ``str``
+    :param mode: the mode string the resulting diamond should have
 
-    @rtype: C{Diamond}
+    :rtype: ``Diamond``
     """
     assert person in (1,2,3)
     assert gender in ("masc", "fem", "neut")
@@ -1164,27 +1164,27 @@ def gen_pronoun(person, pronoun_type, gender, numerus, mode=""):
 
 
 def gen_prep(preposition, preposition_type="zugehörigkeit"):
-    """generates a C{Diamond} representing a preposition"""
+    """generates a ``Diamond`` representing a preposition"""
     return create_diamond("PRÄP", preposition_type, preposition, [])
 
 def gen_pers(person):
-    """generates a C{Diamond} representing 1st, 2nd or 3rd person"""
+    """generates a ``Diamond`` representing 1st, 2nd or 3rd person"""
     return create_diamond("PERS", "", "{0}te".format(str(person)), [])
 
 def gen_tempus(tense="präs"):
-    """generates a C{Diamond} representing a tense form"""
+    """generates a ``Diamond`` representing a tense form"""
     return create_diamond("TEMP:tempus", "", tense, [])
 
 def gen_komp(modality="komp"):
     """
-    generates a C{Diamond} expressing adjective modality, i.e. 'positiv',
+    generates a ``Diamond`` expressing adjective modality, i.e. 'positiv',
     'komperativ' or 'superlativ'.
     """
     assert modality in ("pos", "komp", "super")
     return create_diamond("KOMP", "", modality, [])
 
 def gen_spez(specifier, specifier_type):
-    """generates a C{Diamond} which expresses a specifier, e.g. 'sehr'"""
+    """generates a ``Diamond`` which expresses a specifier, e.g. 'sehr'"""
     return create_diamond("SPEZ", specifier_type, specifier, [])
 
 def gen_title(book_title):
@@ -1195,8 +1195,8 @@ def gen_title(book_title):
 
         'Computational Linguistics' --> '„ Computational Linguistics “'
 
-    @type book_title: C{unicode}
-    @rtype: C{Diamond}
+    :type book_title: ``unicode``
+    :rtype: ``Diamond``
     """
     book_title = ensure_unicode(book_title)
     book_title = book_title.replace(u" ", u"_")
@@ -1215,8 +1215,8 @@ def gen_abstract_title(number_of_books):
     given an integer representing a number of books returns a Diamond, which
     can be realized as either "das Buch" or "die Bücher"
 
-    @type number_of_books: C{int}
-    @rtype: C{Diamond}
+    :type number_of_books: ``int``
+    :rtype: ``Diamond``
     """
     num = gen_num(number_of_books)
     art = gen_art("def")
@@ -1227,10 +1227,10 @@ def gen_abstract_autor(num_of_authors):
     given an integer (number of authors), returns a Diamond instance which
     generates "der Autor" or "die Autoren".
 
-    @type num_of_authors: C{int}
-    @param num_of_authors: the number of authors of a book
+    :type num_of_authors: ``int``
+    :param num_of_authors: the number of authors of a book
 
-    @rtype: C{Diamond}
+    :rtype: ``Diamond``
     """
     art = gen_art("def")
     gen = gen_gender("mask")
@@ -1247,8 +1247,8 @@ def gen_lastname_only(name):
     NOTE: This does not work with last names that include whitespace, e.g.
     "du Bois" or "von Neumann".
 
-    @type name: C{str}
-    @rtype: C{Diamond}
+    :type name: ``str``
+    :rtype: ``Diamond``
     """
     _, lastname_str = __split_name(name)
     return create_diamond("NP", "nachname", lastname_str, [])
@@ -1259,8 +1259,8 @@ def gen_complete_name(name):
     takes a name as a string and returns a corresponding nested HLDS diamond
     structure.
 
-    @type name: C{str}
-    @rtype: C{Diamond}
+    :type name: ``str``
+    :rtype: ``Diamond``
     """
     given_names, lastname_str = __split_name(name)
     if given_names:
@@ -1281,10 +1281,10 @@ def gen_abstract_keywords(num_of_keywords):
 def gen_keywords(keywords, mode="N"):
     """
     takes a list of keyword (strings) and converts them into a nested
-    C{Diamond} structure and prepends "das Thema" or "die Themen"
+    ``Diamond`` structure and prepends "das Thema" or "die Themen"
 
-    @type keywords: C{list} of C{str}
-    @rtype: C{Diamond}
+    :type keywords: ``list`` of ``str``
+    :rtype: ``Diamond``
     """
     #~ print "type(keywords): ", type(keywords)
     #~ print "keywords: ", keywords
@@ -1295,7 +1295,7 @@ def gen_keywords(keywords, mode="N"):
     keyword_description = gen_abstract_keywords(num_of_keywords)
 
     def gen_keyword(keyword, mode):
-        """takes a keyword (string) and converts it into a C{Diamond}"""
+        """takes a keyword (string) and converts it into a ``Diamond``"""
         fixed_keyword = keyword.replace(" ", "_")
         num = gen_num("sing")
         return create_diamond(mode, "sorte", fixed_keyword, [num])
@@ -1313,16 +1313,16 @@ def gen_keywords(keywords, mode="N"):
 
 def gen_proglang(proglang, mode=""):
     """
-    generates a C{Diamond} representing programming languages, e.g. 'die Programmiersprache X', 'die Programmiersprachen X und Y' or 'keine Programmiersprache'.
+    generates a ``Diamond`` representing programming languages, e.g. 'die Programmiersprache X', 'die Programmiersprachen X und Y' or 'keine Programmiersprache'.
 
-    @type proglang: C{tuple} of (C{frozenset}, C{str})
-    @param proglang: a tuple consisting of a set of programming languages
+    :type proglang: ``tuple`` of (``frozenset``, ``str``)
+    :param proglang: a tuple consisting of a set of programming languages
     (as strings) and a rating (string)
 
-    @type mode: C{str}
-    @param mode: sets the mode attribute of the resulting C{Diamond}
+    :type mode: ``str``
+    :param mode: sets the mode attribute of the resulting ``Diamond``
 
-    @rtype: C{Diamond}
+    :rtype: ``Diamond``
     """
     proglangs, rating = proglang
     num_of_proglangs = len(proglangs)
@@ -1354,10 +1354,10 @@ def __sing_or_plur(lexicalized_authors):
     """
     does is lexicalized authors diamond describe one or more authors?
 
-    @type lexicalized_authors: C{Diamond}
+    :type lexicalized_authors: ``Diamond``
 
-    @rtype: C{str}
-    @return: "sing" or "plur"
+    :rtype: ``str``
+    :return: "sing" or "plur"
     """
     if lexicalized_authors["prop"] == "und": # if realized as "lastnames"
                                              # or "complete"

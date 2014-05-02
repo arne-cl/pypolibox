@@ -1,7 +1,7 @@
 # Author: Arne Neumann <arne-neumann@web.de>
 
 """
-The C{util} module contains a number of 'bread and butter' functions that are 
+The ``util`` module contains a number of 'bread and butter' functions that are 
 needed to run pypolibox, but are not particularly interesting (e.g. format 
 converters, existence checks etc.).
 
@@ -51,9 +51,9 @@ def ensure_unicode(string_or_int):
 def flatten(nested_list):
     """flattens a list, where each list element is itself a list
     
-    @param nested_list: the nested list
-    @type nested_list: list
-    @return: flattened list
+    :param nested_list: the nested list
+    :type nested_list: list
+    :return: flattened list
     """
     flattened_list = []
     for element in nested_list:
@@ -69,14 +69,14 @@ def sql_array_to_set(sql_array):
     this function turns those multi-value strings into a set with separate 
     values
 
-    @type sql_array: C{str}    
-    @param sql_array: a string from the database that represents one or 
+    :type sql_array: ``str``    
+    :param sql_array: a string from the database that represents one or 
     more items delimited by '[' and ']', e.g. "[Noam Chomsky]" or "[Noam 
     Chomsky][Alan Touring]"
     
-    @rtype: C{set} of C{str}
+    :rtype: ``set`` of ``str``
     
-    @return: a set of strings, where each string represents one item from 
+    :return: a set of strings, where each string represents one item from 
     the database, e.g. ["Noam Chomsky", "Alan Touring"]    
     """
     item = re.compile("\[(.*?)\]")
@@ -93,13 +93,13 @@ def sql_array_to_list(sql_array):
     value: e.g. authors = '[Noam Chomsky][Alan Touring]'. This function 
     turns those multi-value strings into a set with separate values.
 
-    @type sql_array: C{str}    
-    @param sql_array: a string from the database that represents one or 
+    :type sql_array: ``str``    
+    :param sql_array: a string from the database that represents one or 
     more items delimited by '[' and ']', e.g. "[Noam Chomsky]" or "[Noam 
     Chomsky][Alan Touring]"
     
-    @rtype: C{list} of C{str}
-    @return: a list of strings, where each string represents one item from 
+    :rtype: ``list`` of ``str``
+    :return: a list of strings, where each string represents one item from 
     the database, e.g. ["Noam Chomsky", "Alan Touring"]    
     """
     item = re.compile("\[(.*?)\]")
@@ -108,12 +108,12 @@ def sql_array_to_list(sql_array):
 
 
 def msgs_instance_to_list_of_msgs(messages_instance):
-    """converts a C{Messages} instance into a list of C{Message} instances"""
+    """converts a ``Messages`` instance into a list of ``Message`` instances"""
     return [message for message in messages_instance.messages.values()]
     
 def freeze_all_messages(message_list):
     """
-    makes all messages (C{FeatDict}s) immutable, which is necessary for turning
+    makes all messages (``FeatDict``s) immutable, which is necessary for turning
     them into sets
     """
     for message in message_list:
@@ -136,9 +136,9 @@ def write_to_file(str_or_obj, file_path):
 def exists(thing, namespace):
     """checks if a variable/object/instance exists in the given namespace
     
-    @type thing: C{str}
-    @type namespace: C{dict}
-    @rtype: C{bool}
+    :type thing: ``str``
+    :type namespace: ``dict``
+    :rtype: ``bool``
     """
     if namespace.has_key(thing):
         return True

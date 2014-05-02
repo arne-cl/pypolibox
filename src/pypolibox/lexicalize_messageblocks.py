@@ -3,7 +3,7 @@
 # Author: Arne Neumann <arne-neumann@web.de>
 
 """
-The C{lexicalize_messageblocks} module realizes message blocks which
+The ``lexicalize_messageblocks`` module realizes message blocks which
 consist of one or more messages.
 """
 
@@ -42,12 +42,12 @@ def lexicalize_authors_variations(authors):
     lexicalize all the possible variations of author descriptions and put
     them in a dictionary, so other functions can easily choose one of them.
 
-    @type authors_tuple: C{tuple} of (C{frozenset} of C{str}, C{str})
-    @param author_tuple: tuple containing a set of names, e.g. (["Ronald
+    :type authors_tuple: ``tuple`` of (``frozenset`` of ``str``, ``str``)
+    :param author_tuple: tuple containing a set of names, e.g. (["Ronald
     Hausser", "Christopher D. Manning"]) and a rating, i.e. "neutral"
 
-    @rtype: C{dict} of C{str}, C{Diamond} key-value pairs
-    @return: "abstract" lexicalizes "der Autor" or "die Autoren", "complete"
+    :rtype: ``dict`` of ``str``, ``Diamond`` key-value pairs
+    :return: "abstract" lexicalizes "der Autor" or "die Autoren", "complete"
     realizes a list of author names (incl. surname), and "lastnames" realizes
     a list of author last names.
 
@@ -69,11 +69,11 @@ def lexicalize_authors_variations(authors):
 
 def lexicalize_title_variations(title, authors):
     r"""
-    generates several book title lexicalizations and stores them in a C{dict}.
+    generates several book title lexicalizations and stores them in a ``dict``.
     
-    @type title: C{tuple} of (C{str}, C{str})
-    @param title: tuple containing a book title and a rating (neutral)
-    @rtype: C{dict} of C{str}, C{Diamond} key-value pairs
+    :type title: ``tuple`` of (``str``, ``str``)
+    :param title: tuple containing a book title and a rating (neutral)
+    :rtype: ``dict`` of ``str``, ``Diamond`` key-value pairs
 
     generate several different lexicalizations of book title / author
     combinations:
@@ -153,14 +153,14 @@ def lexicalize_title_variations(title, authors):
 def lexicalize_id(id_message_block):
     r"""
     lexicalize all the messages contained in an id message block
-    (aka C{Message})
+    (aka ``Message``)
 
-    @type: C{Message}
-    @param: a message (of type "id")
+    :type: ``Message``
+    :param: a message (of type "id")
     
-    @rtype: C{List} of C{Diamond}s
-    @return: a list of lexicalized phrases, which can be realized with
-    I{tccg} directly or turned into sentences beforehand with C{lexicalization.phrase2sentence} to remove ambiguity
+    :rtype: ``List`` of ``Diamond``s
+    :return: a list of lexicalized phrases, which can be realized with
+    ``tccg`` directly or turned into sentences beforehand with ``lexicalization.phrase2sentence`` to remove ambiguity
     """
     assert id_message_block[Feature("msgType")] == "id"
     
@@ -215,14 +215,14 @@ def lexicalize_id(id_message_block):
 def lexicalize_extra(extra_message_block):
     r"""
     lexicalize all the messages contained in an extra message block
-    (aka C{Message})
+    (aka ``Message``)
 
-    @type: C{Message}
-    @param: a message (of type "extra")
+    :type: ``Message``
+    :param: a message (of type "extra")
     
-    @rtype: C{List} of C{Diamond}s
-    @return: a list of lexicalized phrases, which can be realized with
-    I{tccg} directly or turned into sentences beforehand with C{lexicalization.phrase2sentence} to remove ambiguity
+    :rtype: ``List`` of ``Diamond``s
+    :return: a list of lexicalized phrases, which can be realized with
+    ``tccg`` directly or turned into sentences beforehand with ``lexicalization.phrase2sentence`` to remove ambiguity
     
     NOTE: "außerdem" works only in a limited number of contexts, e.g. 'das
     Buch ist neu, außerdem ist es auf Deutsch' but not 'das Buch ist neu,
@@ -251,14 +251,14 @@ def lexicalize_extra(extra_message_block):
 def lexicalize_lastbook_match(lastbook_match_message_block):
     r"""
     lexicalize all the messages contained in a lastbook_match message block
-    (aka C{Message})
+    (aka ``Message``)
 
-    @type: C{Message}
-    @param: a message (of type "lastbook_match")
+    :type: ``Message``
+    :param: a message (of type "lastbook_match")
     
-    @rtype: C{List} of C{Diamond}s
-    @return: a list of lexicalized phrases, which can be realized with
-    I{tccg} directly or turned into sentences beforehand with C{lexicalization.phrase2sentence} to remove ambiguity
+    :rtype: ``List`` of ``Diamond``s
+    :return: a list of lexicalized phrases, which can be realized with
+    ``tccg`` directly or turned into sentences beforehand with ``lexicalization.phrase2sentence`` to remove ambiguity
     
     possible: sowohl X als auch Y / beide Bücher
     implemented: beide Bücher
@@ -303,9 +303,9 @@ def lexicalize_usermodel_nomatch(usermodel_nomatch_message_block):
 
 def random_variation(lexicalization_dictionary):
     """
-    @type lexicalization_dictionary: C{Dict}
-    @param lexicalization_dictionary: a dictonary, where each key holds the
-    name of a message and the value holds the corresponding C{Message}
-    @rtype: a randomly chosen value from the given dictionary
+    :type lexicalization_dictionary: ``Dict``
+    :param lexicalization_dictionary: a dictonary, where each key holds the
+    name of a message and the value holds the corresponding ``Message``
+    :rtype: a randomly chosen value from the given dictionary
     """
     return random.choice(lexicalization_dictionary.values())

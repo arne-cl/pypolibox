@@ -3,7 +3,7 @@
 # Author: Arne Neumann <arne-neumann@web.de>
 
 """
-The I{database} module is responsible for parsing the user's requirements
+The ``database`` module is responsible for parsing the user's requirements
 (both from command line options, as well as interactively from the Python
 interpreter), transforming these requirements into an SQL query, querying the
 sqlite database and returning the results.
@@ -25,7 +25,7 @@ DEFAULT_ENCODING = 'UTF8'
 
 class Query:
     """
-    a C{Query} instance represents one user query to the database
+    a ``Query`` instance represents one user query to the database
 
     Queries can be made from the command line, as well as from the Python
     interpreter. From the command line, queries can be made using either
@@ -36,12 +36,12 @@ class Query:
         python pypolibox.py -k semantics, parsing -c 1
         python pypolibox.py --keywords semantics, parsing --codeexamples 1
 
-    When calling I{pypolibox.py} from within the Python interpreter, the same
+    When calling ``pypolibox.py`` from within the Python interpreter, the same
     query can be made using the following command::
 
         Query(["-k", "semantics", "parsing", "-c", "1"])
 
-    If you print the C{Query} instance (by using the I{print} command), it
+    If you print the ``Query`` instance (by using the ``print`` command), it
     will return the SQL query that was constructed from the user input::
 
         SELECT * FROM books WHERE keywords like '%semantics%' AND keywords
@@ -61,9 +61,9 @@ class Query:
         TODO: add max_textplans paramter --> generate only the X highest
               ranking books
 
-        @param argv: a list of strings (either parsed from the command line
+        :param argv: a list of strings (either parsed from the command line
         or set programmatically)
-        @type argv: C{list} of C{str}
+        :type argv: ``list`` of ``str``
         """
         self.queries = []
         self.minresults = 3
@@ -144,15 +144,15 @@ class Query:
         combines them into one complex SQL query (using either boolean AND or
         boolean OR).
 
-        @param queries: a list of queries in SQL notation
-        @type queries: C{list} of C{str}
+        :param queries: a list of queries in SQL notation
+        :type queries: ``list`` of ``str``
 
-        @param query_combinator: a string that can be used to combine SQL
+        :param query_combinator: a string that can be used to combine SQL
         queries, e.g. " AND " or " OR "
-        @type query_combinator: C{str}
+        :type query_combinator: ``str``
 
-        @return: a complex SQL query
-        @rtype: C{str}
+        :return: a complex SQL query
+        :rtype: ``str``
         """
         query_template = "SELECT * FROM books "
         where = "WHERE "
@@ -176,12 +176,12 @@ class Query:
         (e.g. the book should have less than 300 pages or between 300 and 600
         pages).
 
-        @param length_category: an integer specifying the page range of the
+        :param length_category: an integer specifying the page range of the
         book (0: short, 1: medium length, 2: long)
-        @type length_category: C{int}
+        :type length_category: ``int``
 
-        @return: a part of a simple SQL query, e.g. 'pages < 300'
-        @rtype: C{str}
+        :return: a part of a simple SQL query, e.g. 'pages < 300'
+        :rtype: ``str``
         """
         length_error = """length value should be either 0: short, 1: medium
             length or 2: long"""
@@ -201,15 +201,15 @@ class Query:
         '[semantics][parsing][phonology]'. Therefore, we'll need to query for
         substrings, e.g. to find a book about 'semantics'.
 
-        @param sql_column: the name of the column in the database we're
+        :param sql_column: the name of the column in the database we're
         querying, e.g. 'keywords'
-        @type sql_column: C{str}
+        :type sql_column: ``str``
 
-        @param substring: a string we're looking for, e.g. 'semantics'
-        @type substring: C{str}
+        :param substring: a string we're looking for, e.g. 'semantics'
+        :type substring: ``str``
 
-        @return: a part of a simple SQL query, e.g. 'keyword like %semantics%'
-        @rtype: C{str}
+        :return: a part of a simple SQL query, e.g. 'keyword like %semantics%'
+        :rtype: ``str``
         """
         # keyword --> '%keyword%' for SQL LIKE queries
         sql_substring = "'%{0}%'".format(substring)
@@ -221,15 +221,15 @@ class Query:
         helper function for __init__: find all database items that completely
         match a string in a given column, e.g. WHERE lang = 'German'
 
-        @param sql_column: the name of the column in the database we're
+        :param sql_column: the name of the column in the database we're
         querying, e.g. 'lang'
-        @type sql_column: C{str}
+        :type sql_column: ``str``
 
-        @param string: a string we're looking for, e.g. 'German'
-        @type string: C{str}
+        :param string: a string we're looking for, e.g. 'German'
+        :type string: ``str``
 
-        @return: a part of a simple SQL query, e.g. 'keyword like %semantics%'
-        @rtype: C{str}
+        :return: a part of a simple SQL query, e.g. 'keyword like %semantics%'
+        :rtype: ``str``
         """
         return "{0} = '{1}'".format(sql_column, string)
 
@@ -238,14 +238,14 @@ class Query:
         helper function for __init__: find all database items that completely
         match an integer value in a given column, e.g. WHERE exercises = 1
 
-        @return: a part of a simple SQL query, e.g. 'exercises = 1'
-        @rtype: C{str}
+        :return: a part of a simple SQL query, e.g. 'exercises = 1'
+        :rtype: ``str``
         """
         return "{0} = {1}".format(sql_column, integer)
 
     def __str__(self):
         """
-        If you print a C{Query} instance, it will return the query strings
+        If you print a ``Query`` instance, it will return the query strings
         that will be send to the database.
         """
         ret_str = "The arguments (parsed from the command line): " + \
@@ -257,7 +257,7 @@ class Query:
 
 class Results:
     """
-    A C{Results} instance sends queries to the database, retrieves and stores
+    A ``Results`` instance sends queries to the database, retrieves and stores
     the results.
     """
 
@@ -271,10 +271,10 @@ class Results:
         (combining query parameters with boolean OR). In the latter case, a
         maximum score (possible_matches) will be calculated (how many query
         parameters does a result match). possible_matches will be used by
-        a C{Books} instance to find the n-best matching books.
+        a ``Books`` instance to find the n-best matching books.
 
-        @type query: instance of class C{Query}
-        @param query: an instance of the class Query()
+        :type query: instance of class ``Query``
+        :param query: an instance of the class Query()
         """
         self.and_query_results = []
         self.or_query_results = []
@@ -315,9 +315,9 @@ class Results:
 
     def get_number_of_possible_matches(self):
         """
-        Counts the number of query paramters that I{could} be matched by books
+        Counts the number of query paramters that ``could`` be matched by books
         from the results set. The actual scoring of books takes place in
-        I{Books.get_book_ranks()}.
+        ``Books.get_book_ranks()``.
 
         For example, if a query contains the parameters::
 
@@ -326,8 +326,8 @@ class Results:
         it means that a book could possible match 3 parameters
         (possible_matches = 3).
 
-        @return: the number of possible matches
-        @rtype: C{int}
+        :return: the number of possible matches
+        :rtype: ``int``
         """
         possible_matches = 0
         self.params = [param for param in self.query_args.__dict__
@@ -347,12 +347,12 @@ class Results:
         get the column names (e.g. title, year, authors) and their index from
         the books table of the db and return them as a dictionary.
 
-        @param table_name: name of a database table, e.g. 'books'
-        @type table_name: C{str}
+        :param table_name: name of a database table, e.g. 'books'
+        :type table_name: ``str``
 
-        @return: a dictionary, which contains the names of the table columns
+        :return: a dictionary, which contains the names of the table columns
         as keys and their index as values
-        @rtype: C{dict}, with C{str} keys and C{int} values
+        :rtype: ``dict``, with ``str`` keys and ``int`` values
         """
         table_info = self.curs.execute('PRAGMA table_info({0})'.format(table_name))
         db_columns = {}
@@ -365,7 +365,7 @@ class Results:
         prints the number of results and if boolean AND or boolean OR has
         been used to gather at least self.minresults number of books
 
-        @rtype: C{str}
+        :rtype: ``str``
         """
         ret_str = "The query:\n{0}\n\nreturned ".format(self.and_query) + \
             "{0} result(s):\n\n".format(len(self.and_query_results))
@@ -380,21 +380,21 @@ class Results:
 
 class Books:
     """
-    a C{Books} instance stores I{all} books that were found by a database query
-    as a list of C{Book} instances in I{self.books}
+    a ``Books`` instance stores ``all`` books that were found by a database query
+    as a list of ``Book`` instances in ``self.books``
     """
 
     def __init__ (self, results):
         """
-        This constructor generates a list of C{Book} instances (saved in
-        I{self.books}), each representing one book retrieved from a database
+        This constructor generates a list of ``Book`` instances (saved in
+        ``self.books``), each representing one book retrieved from a database
         query. Additionally, this method will attach a score to each book
         (depending on the number of query parameters it matches) using the
-        I{get_book_ranks()} method.
+        ``get_book_ranks()`` method.
 
-        @param results: a C{Results} instance containing the results from a
+        :param results: a ``Results`` instance containing the results from a
         database query
-        @type results: C{Results}
+        :type results: ``Results``
         """
         # original query arguments for debugging
         self.query_args = results.query_args
@@ -422,13 +422,13 @@ class Books:
         ranks 'OR query' results according to the number of query parameters
         they match.
 
-        @param possible_matches: the number of (meaningful) parameters of the
+        :param possible_matches: the number of (meaningful) parameters of the
         query.
-        @type possible_matches: C{int}
+        :type possible_matches: ``int``
 
-        @return: a list of tuples, where each tuple consists of the score of
-        a book and its index in C{self.books}
-        @rtype: C{list} of (C{float}, C{int}) tuples
+        :return: a list of tuples, where each tuple consists of the score of
+        a book and its index in ``self.books``
+        :rtype: ``list`` of (``float``, ``int``) tuples
         """
         scores = []
         for index, book in enumerate(self.books):
@@ -460,11 +460,11 @@ class Books:
 
 class Book:
     """
-    a C{Book} instance represents I{one} book from a database query
+    a ``Book`` instance represents ``one`` book from a database query
     """
     def __init__ (self, db_item, db_columns, query_args):
         """
-        Fills a C{Book} instance with metadata from the database. Typical
+        Fills a ``Book`` instance with metadata from the database. Typical
         book metadata will look like this::
 
             language:		English
@@ -485,18 +485,18 @@ class Book:
 
         All key value pairs from the database are encoded from unicode
         to UTF8 and the number of query parameters that a book matches is
-        calculated via I{get_number_of_book_matches()}.
+        calculated via ``get_number_of_book_matches()``.
 
-        @param db_item: an item from the C{sqlite3.Cursor} object that contains
+        :param db_item: an item from the ``sqlite3.Cursor`` object that contains
         the results from the db query.
-        @type db_item: C{tuple}
+        :type db_item: ``tuple``
 
-        @param db_columns: a dictionary of table columns (e.g. title, authors)
+        :param db_columns: a dictionary of table columns (e.g. title, authors)
         from the database
-        @type db_columns: C{dict}
+        :type db_columns: ``dict``
 
-        @param query_args: a key/value store containing the original user query
-        @type query_args: C{argparse.Namespace}
+        :param query_args: a key/value store containing the original user query
+        :type query_args: ``argparse.Namespace``
         """
         #needed for generating query facts later on
         self.query_args = query_args
@@ -532,7 +532,7 @@ class Book:
         """
         calculates the number of query parameters that a book matches
 
-        @rtype: C{int}
+        :rtype: ``int``
         """
         book_matches = 0
         simple_attributes = ['codeexamples', 'exercises', 'language',
@@ -567,8 +567,8 @@ def get_column(column_name):
     column, e.g. get_column("title") will return all book titles stored in
     the database
 
-    @type column_name: C{str}
-    @rtype: C{list} of C{str}
+    :type column_name: ``str``
+    :rtype: ``list`` of ``str``
     """
     conn = sqlite3.connect(DB_FILE)
     curs = conn.cursor()

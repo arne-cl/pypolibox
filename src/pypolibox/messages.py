@@ -3,11 +3,11 @@
 # Author: Arne Neumann <arne-neumann@web.de>
 
 """
-The I{messages} module contains the C{Message} class and related classes.
+The ``messages`` module contains the ``Message`` class and related classes.
 
-C{Message}s contain propositions about books. The text planner applies
-C{Rule}s to these C{Message}s to form C{ConstituentSet}s. C{Rule}s will
-also be applied to C{ConstituentSet}s, ultimately forming one C{TextPlan}
+``Message``s contain propositions about books. The text planner applies
+``Rule``s to these ``Message``s to form ``ConstituentSet``s. ``Rule``s will
+also be applied to ``ConstituentSet``s, ultimately forming one ``TextPlan``
 that contains all the information to be realized.
 """
 
@@ -17,12 +17,12 @@ from nltk import FeatDict, Feature
 
 class Message(nltk.featstruct.FeatDict):
     """
-    A {Message} combines and stores knowledge about an object (here: books) 
+    A ``Message`` combines and stores knowledge about an object (here: books) 
     in a logical structure. Messages are constructed 
     during content selection (taking the user's requirements, querying a 
     database and processing its results), which precedes text planning.
 
-    Each C{Message} has a I{msgType} which describes the kind of information 
+    Each ``Message`` has a ``msgType`` which describes the kind of information 
     it includes. For example, the msgType 'id' specifies information that is 
     needed to distinguish a book from other books::
     
@@ -38,7 +38,7 @@ class Message(nltk.featstruct.FeatDict):
     """
     def __init__(self, msgType = None):
         """
-        I{msgType} is only specified for the C{nltk.featstruct.FeatDict} if it 
+        ``msgType`` is only specified for the ``nltk.featstruct.FeatDict`` if it 
         is specified by the user.
         """
         if msgType: 
@@ -47,14 +47,14 @@ class Message(nltk.featstruct.FeatDict):
 
 class Messages:
     """
-    represents all C{Message} instances generated from C{Propositions} about a 
-    C{Book}.
+    represents all ``Message`` instances generated from ``Propositions`` about a 
+    ``Book``.
     """
     def __init__ (self, propositions):
         """reads propositions and calls message generation functions 
         
-        @type propositions: C{Propositions}
-        @param propositions: a C{Propositions} class instance
+        :type propositions: ``Propositions``
+        :param propositions: a ``Propositions`` class instance
         """
         self.book_score = propositions.book_score
         self.propositions = propositions.propositions
@@ -69,7 +69,7 @@ class Messages:
 
     def generate_message(self, proposition_type):
         """
-        generates a C{Message} from a 'simple' C{Proposition}. Simple 
+        generates a ``Message`` from a 'simple' ``Proposition``. Simple 
         propositions are those kinds of propostions that only give information 
         about one item (i.e. describe one book) but don't compare two items 
         (e.g. book A is 12 years older than book B).
@@ -105,7 +105,7 @@ class Messages:
                              
     def generate_extra_message(self, proposition_dict):
         """
-        generates a C{Message} from an 'extra' C{Proposition}. Extra 
+        generates a ``Message`` from an 'extra' ``Proposition``. Extra 
         propositions only exist if a book is remarkably new / old or very 
         short / long. 
         """
@@ -125,7 +125,7 @@ class Messages:
         
     def generate_lastbook_nomatch_message(self, proposition_dict):
         """
-        generates a C{Message} from a 'lastbook_nomatch' C{Proposition}. A 
+        generates a ``Message`` from a 'lastbook_nomatch' ``Proposition``. A 
         lastbook_nomatch propositions states which differences exist between 
         two books.
         """
@@ -169,9 +169,9 @@ class Messages:
     def add_identification_to_message(self, message):
         """
         Adds special 'reference_title' and 'reference_authors' attributes to 
-        messages other than the I{id_message}. 
+        messages other than the ``id_message``. 
         
-        In contrast to the I{id_message}, other messages will not be used to 
+        In contrast to the ``id_message``, other messages will not be used to 
         produce sentences that contain their content (i.e. no statement of the 
         'author X wrote book Y in 1979' generated from an 'extra_message' or a 
         'lastbook_nomatch' message). Nevertheless, they will need to make 
@@ -187,7 +187,7 @@ class Messages:
             
         The message contains two bits of information (the language and 
         programming language used), which both have regular strings as keys. 
-        The 'referential' keys on the other hand are C{nltk.Feature} 
+        The 'referential' keys on the other hand are ``nltk.Feature`` 
         instances and not strings. This distinction should be regarded as 
         a syntactic trick used to emphasize a semantic differce (READ: if you 
         have a better solution, please change it).
@@ -217,13 +217,13 @@ class AllMessages:
     """
     def __init__ (self, allpropositions):
         """
-        @type allpropositions: C{AllPropositions}
-        @param allpropositions: a C{AllPropositions} class instance containing 
-        a list of C{Propositions} instances
+        :type allpropositions: ``AllPropositions``
+        :param allpropositions: a ``AllPropositions`` class instance containing 
+        a list of ``Propositions`` instances
         
-        This will genenerate a C{Messages} instance (containing all C{Message}s
-        about a book) for each C{Propositions} instance. It also adds a 
-        'lastbook_title' and 'lastbook_author' to C{Message}s that compare the 
+        This will genenerate a ``Messages`` instance (containing all ``Message``s
+        about a book) for each ``Propositions`` instance. It also adds a 
+        'lastbook_title' and 'lastbook_author' to ``Message``s that compare the 
         current and the preceding book
         """
         propositions_list = allpropositions.books

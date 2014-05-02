@@ -3,7 +3,7 @@
 # Author: Arne Neumann <arne-neumann@web.de>
 
 """
-The C{realization} module shall take HLDS XML structures, realize them with
+The ``realization`` module shall take HLDS XML structures, realize them with
 the OpenCCG surface realizer and parse its output string.
 """
 
@@ -27,7 +27,7 @@ else:
 
 class OpenCCG(object):
     """
-    command-line interaction with OpenCCG's I{tccg} parser/generator, which
+    command-line interaction with OpenCCG's ``tccg`` parser/generator, which
     can either be run as a JSON-RPC server or simply imported as a Python
     module.
     """
@@ -59,10 +59,10 @@ class OpenCCG(object):
         It returns a Python data-structure, while the parse()
         function returns a JSON object
         
-        @return: if raw_output=True, the raw response string from the server 
+        :return: if raw_output=True, the raw response string from the server 
         will be returned. otherwise, a list of dictionaries will be returned 
         (one for each input sentence).
-        @rtype: C{str} OR C{list} of C{dict}s
+        :rtype: ``str`` OR ``list`` of ``dict``s
         """
         # clean up anything leftover
         while True:
@@ -102,7 +102,7 @@ class OpenCCG(object):
             except pexpect.EOF:
                 break
 
-        if raw_output == True: # plain text results returned by I{tccg}
+        if raw_output == True: # plain text results returned by ``tccg``
             return incoming
 
         else: # return parsed results
@@ -110,11 +110,11 @@ class OpenCCG(object):
 
     def realize(self, featstruct, raw_output=True):
         """
-        converts a C{Diamond} or C{Sentence} feature structure into HLDS-XML,
-        write it to a temporary file, realizes this file with I{tccg} and
+        converts a ``Diamond`` or ``Sentence`` feature structure into HLDS-XML,
+        write it to a temporary file, realizes this file with ``tccg`` and
         parses the output it returns.
 
-        @type featstruct: C{Diamond} or C{Sentence}
+        :type featstruct: ``Diamond`` or ``Sentence``
         """
         temp_sentence = deepcopy(featstruct)
         

@@ -3,11 +3,11 @@
 # Author: Arne Neumann <arne-neumann@web.de>
 
 """
-The I{facts} module takes the information stored in C{Book} instances and 
-converts them into attribute value matrices (C{Facts}). Furthermore, the 
+The ``facts`` module takes the information stored in ``Book`` instances and 
+converts them into attribute value matrices (``Facts``). Furthermore, the 
 module compares each book with its predecessor (e.g. book A is newer than book 
 B and has code examples, while B is shorter and targets beginners ...). The 
-insights gathered from these comparisons are also stored in C{Facts} 
+insights gathered from these comparisons are also stored in ``Facts`` 
 instances.
 """
 
@@ -15,13 +15,13 @@ import datetime
 
 class AllFacts():
     """
-    Simply speaking, an C{AllFacts} instance contains all facts about all 
+    Simply speaking, an ``AllFacts`` instance contains all facts about all 
     books that were returned by a database query. More formally, it contains a 
-    C{Facts} instance for each C{Book} in a C{Books} instance.
+    ``Facts`` instance for each ``Book`` in a ``Books`` instance.
     
-    In a C{Books} instance, all books returned by a database query are sorted 
+    In a ``Books`` instance, all books returned by a database query are sorted 
     by the number of query parameters they match ('user model match') in 
-    descending order. This means, that C{AllFacts} will contain facts about 
+    descending order. This means, that ``AllFacts`` will contain facts about 
     the best-matching book, followed by facts about the second-best matching 
     book (including a comparison to the best matching one), followed by facts 
     about the third-best matching book (including a comparison to the second 
@@ -30,12 +30,14 @@ class AllFacts():
     def __init__ (self, b):
         """
         generates all facts for all books returned by a database query, i.e. a 
-        C{Facts} instance for each C{Book} in a C{Books} instance. For a 
-        hands-on description, see the C{Facts} documentation.
-        
-        @param b: a C{Books} instance, which contains all C{Book} instances 
-        that were constructed from the database query results.
-        @type b: C{Books}
+        ``Facts`` instance for each ``Book`` in a ``Books`` instance. For a 
+        hands-on description, see the ``Facts`` documentation.
+
+        Parameters
+        ----------
+        b : Books
+            a ``Books`` instance, which contains all ``Book`` instances 
+            that were constructed from the database query results.
         """
         self.query_args = b.query_args # original query args for generating query_facts
         self.books = []
@@ -64,39 +66,39 @@ class AllFacts():
 
 class Facts():
     """
-    A C{Facts} instance represents facts about a single book, but also 
+    A ``Facts`` instance represents facts about a single book, but also 
     contains a comparison of that particular book with its predecessor. 
     """
     def __init__ (self, book, book_score, index=0, preceding_book=False):
         """
         Uses the facts/metadata retrieved from the sqlite3 database, and 
         generates facts in form of an attribute value matrix. The facts are 
-        grouped logically. A C{Facts} instance basically consists of a 
-        dictionary (stored in I{self.facts}) containing these four keys::
+        grouped logically. A ``Facts`` instance basically consists of a 
+        dictionary (stored in ``self.facts``) containing these four keys::
         
             (1) 'id_facts'
             (2) 'extra_facts'
             (3) 'query_facts'
             (4) 'lastbook_facts'
 
-        Since this method is basically dealing with a list of C{Book} 
-        instances, the first book's C{Facts} instance will not contain 
+        Since this method is basically dealing with a list of ``Book`` 
+        instances, the first book's ``Facts`` instance will not contain 
         'lastbook_facts', as there is no previous book in the list that it 
         could be compared to.
 
-        @param book: a C{Book} instance
-        @type book: C{Book}
+        :param book: a ``Book`` instance
+        :type book: ``Book``
         
-        @param book_score: the score of the book that was calculated in 
-        L{Books.get_book_ranks()}
-        @type book_score: C{float}
+        :param book_score: the score of the book that was calculated in 
+        :class:`Books.get_book_ranks()`
+        :type book_score: ``float``
         
-        @param index: the index of the book in the C{Books} list of books
-        @type index: C{int}
+        :param index: the index of the book in the ``Books`` list of books
+        :type index: ``int``
         
-        @param preceding_book: if True, there is a book preceding this one 
+        :param preceding_book: if True, there is a book preceding this one 
         and both books will be compared
-        @type preceding_book: C{bool}
+        :type preceding_book: ``bool``
         """
         facts = {}
                 
@@ -113,8 +115,8 @@ class Facts():
     def generate_id_facts(self, index, book):
         """
         generates a dictionary of id facts about the current book which will be 
-        stored in I{self.facts["id_facts"]}. In contrast to other facts, 
-        I{id_facts} are those kind of facts that can be directly retrieved 
+        stored in ``self.facts["id_facts"]``. In contrast to other facts, 
+        ``id_facts`` are those kind of facts that can be directly retrieved 
         from the database (i.e. there is no comparison between books or 
         reasoning involved). The id_facts dictionary contains the following 
         keys::
@@ -136,14 +138,14 @@ class Facts():
         not exactly match their counterparts in the database, the 
         corresponding database table column name is given in the table above.
 
-        @param index: the index of the book in the C{Books} list of books
-        @type index: C{int}
+        :param index: the index of the book in the ``Books`` list of books
+        :type index: ``int``
 
-        @param book: a C{Book} instance
-        @type book: C{Book}
+        :param book: a ``Book`` instance
+        :type book: ``Book``
 
-        @return: a dictionary with the keys described above
-        @rtype: C{dict}
+        :return: a dictionary with the keys described above
+        :rtype: ``dict``
         """
         id_facts = {}
         attributes = ['authors', 'codeexamples', 'exercises', 'keywords', 
@@ -154,8 +156,8 @@ class Facts():
             # Instead of writing lots of repetitive code like in JPolibox:
             #    id_facts["authors"] = book.authors
             #    id_facts["codeexamples"] = book.codeexamples ...
-            # we will get all those book attributes at once (with I{getattr}) 
-            # and turn them into dictionary items (via I{__setitem__}).
+            # we will get all those book attributes at once (with ``getattr``) 
+            # and turn them into dictionary items (via ``__setitem__``).
             book_attribute = getattr(book, attribute)
             id_facts.__setitem__(attribute, book_attribute)
                 
@@ -179,22 +181,22 @@ class Facts():
         parsing and is written in German) but does not contain code examples 
         (as was asked for by the user).
         
-        @param index: the index of the book in the C{Books} list of books
-        @type index: C{int}
+        :param index: the index of the book in the ``Books`` list of books
+        :type index: ``int``
 
-        @param book: a C{Book} instance
-        @type book: C{Book}
+        :param book: a ``Book`` instance
+        :type book: ``Book``
 
-        @param book_score: the score of the book that was calculated in 
-        L{Books.get_book_ranks()}
-        @type book_score: C{float}
+        :param book_score: the score of the book that was calculated in 
+        :class:`Books.get_book_ranks()`
+        :type book_score: ``float``
         
-        @return: a dictionary that contains three keys, the I{book_score}, 
-        the I{usermodel_match} as well as the I{usermodle_nomatch}. 
+        :return: a dictionary that contains three keys, the ``book_score``, 
+        the ``usermodel_match`` as well as the ``usermodle_nomatch``. 
         'usermodel_match' contains all the features that were requested by 
         the user and are present in the book. 'usermodle_nomatch' contains 
         all features that were requested but are missing from the book.
-        @rtype: C{dict}
+        :rtype: ``dict``
         """
         query_facts = {}
         query_facts["book_score"] = book_score
@@ -262,22 +264,22 @@ class Facts():
 
         This method will calculate if is newer/older/shorter/longer than its 
         predecessor (if so, it will store the difference as an integer). For 
-        keys that have sets as their values (I{keywords} and I{proglang}), 
+        keys that have sets as their values (``keywords`` and ``proglang``), 
         the resulting dictionary will list which values differed and which 
         were only present in either the preceding or the current book.
         
-        @param index: the index of the book in the C{Books} list of books
-        @type index: C{int}
+        :param index: the index of the book in the ``Books`` list of books
+        :type index: ``int``
 
-        @param book: a C{Book} instance
-        @type book: C{Book}
+        :param book: a ``Book`` instance
+        :type book: ``Book``
                 
-        @param preceding_book: if True, there is a book preceding this one 
+        :param preceding_book: if True, there is a book preceding this one 
         and both books will be compared
-        @type preceding_book: C{bool}
+        :type preceding_book: ``bool``
         
-        @return: a dictionary with two keys: I{lastbook_match} and 
-        I{lastbook_nomatch}, which in turn are dictionaries themselves and 
+        :return: a dictionary with two keys: ``lastbook_match`` and 
+        ``lastbook_nomatch``, which in turn are dictionaries themselves and 
         contain facts that are shared between the two books (lastbook_match) 
         or that differ between the two (lastbook_nomatch). 
         """
@@ -340,18 +342,18 @@ class Facts():
     
     def generate_extra_facts(self, index, book):
         """
-        generates I{extra_facts}, if the current book is very new/old or very 
+        generates ``extra_facts``, if the current book is very new/old or very 
         short/long.
 
-        @param index: the index of the book in the C{Books} list of books
-        @type index: C{int}
+        :param index: the index of the book in the ``Books`` list of books
+        :type index: ``int``
 
-        @param book: a C{Book} instance
-        @type book: C{Book}
+        :param book: a ``Book`` instance
+        :type book: ``Book``
         
-        @return: a dictionary that contains information about the recency and 
+        :return: a dictionary that contains information about the recency and 
         length of a book
-        @rtype: C{dict}
+        :rtype: ``dict``
         """
         current_year = datetime.datetime.today().year
         extra_facts = {}
@@ -367,7 +369,7 @@ class Facts():
         return extra_facts
 
     def __str__(self):
-        """prints the C{Facts} instance, but omits empty values"""
+        """prints the ``Facts`` instance, but omits empty values"""
         signifiers_of_emptyness = [ [], {}, set() ] # lists, dicts, sets can be empty (we can't simply say "if val:", since this this would not only exclude emtpy lists/dicts/sets but also "0")
         return_string = ""
         for key, value in self.facts.iteritems():

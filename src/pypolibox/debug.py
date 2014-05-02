@@ -3,7 +3,7 @@
 # Author: Arne Neumann <arne-neumann@web.de>
 
 """
-The I{debug} module contains a number of functions, which can be used to test 
+The ``debug`` module contains a number of functions, which can be used to test 
 the behaviour of pypolibox' classes, test its error handling or simply 
 provides short cuts to generate frequently needed data.
 """
@@ -55,11 +55,11 @@ def genprops(querynumber=10):
     generates all propositions for all books in the database concerning a 
     specific query.
     
-    @type querynumber: C{int}
-    @param querynumber: the index of a query from the predefined list of 
+    :type querynumber: ``int``
+    :param querynumber: the index of a query from the predefined list of 
     test queries (named 'testqueries')
     
-    @rtype: C{AllPropositions}
+    :rtype: ``AllPropositions``
     """    
     books = Books(Results(Query(testqueries[querynumber])))
     return AllPropositions(AllFacts(books))
@@ -68,15 +68,15 @@ def genmessages(booknumber=0, querynumber=10):
     """
     generates all messages for a book regarding a specific database query.
     
-    @type booknumber: C{int}
-    @param booknumber: the index of the book from the results list ("0" 
+    :type booknumber: ``int``
+    :param booknumber: the index of the book from the results list ("0" 
     would be the first book with the highest score)
     
-    @type querynumber: C{int}
-    @param querynumber: the index of a query from the predefined list of 
+    :type querynumber: ``int``
+    :param querynumber: the index of a query from the predefined list of 
     test queries (named 'testqueries')
     
-    @rtype: C{list} of C{Message}s
+    :rtype: ``list`` of ``Message``s
     """
     books = Books(Results(Query(testqueries[querynumber])))
     am = AllMessages(AllPropositions(AllFacts(books)))  
@@ -90,12 +90,12 @@ def genallmessages(query):
     """
     debug function: generates all messages plans for a query.
     
-    @type query: C{int} or C{list} of C{str}
-    @param query: can be the index of a test query (e.g. 4) OR a list of 
+    :type query: ``int`` or ``list`` of ``str``
+    :param query: can be the index of a test query (e.g. 4) OR a list of 
     query parameters (e.g. ["-k", "phonology", "-l", "German"])
     
-    @rtype: C{AllMessages}
-    @return: all messages that could be generated for the query
+    :rtype: ``AllMessages``
+    :return: all messages that could be generated for the query
     """
     if isinstance(query, int):
         books = Books(Results(Query(testqueries[query])))
@@ -112,7 +112,7 @@ def gen_all_messages_of_type(msg_type):
     generate all messages for all books from all testqueries, but return
     only those which match the given message type, e.g. 'id' or 'extra'.
 
-    @type msg_type: C{str}
+    :type msg_type: ``str``
     """
     all_msg_of_type = []
     for i in range(len(testqueries)):
@@ -126,12 +126,12 @@ def gen_textplans(query):
     """
     debug function: generates all text plans for a query.
     
-    @type query: C{int} or C{list} of C{str}
-    @param query: can be the index of a test query (e.g. 4) OR a list of 
+    :type query: ``int`` or ``list`` of ``str``
+    :param query: can be the index of a test query (e.g. 4) OR a list of 
     query parameters (e.g. ["-k", "phonology", "-l", "German"])
     
-    @rtype: C{TextPlans}
-    @return: a C{TextPlans} instance, containing a number of text plans
+    :rtype: ``TextPlans``
+    :return: a ``TextPlans`` instance, containing a number of text plans
     """
     textplans = []
     if type(query) is int:
@@ -146,8 +146,8 @@ def gen_all_textplans():
     generates all text plans for each query in the predefined list of test 
     queries.
     
-    @rtype: C{list} of C{TextPlan}s or C{str}s
-    @return:  
+    :rtype: ``list`` of ``TextPlan``s or ``str``s
+    :return:  
     """
     all_TextPlans = []
     for argnumber, arg in enumerate(testqueries):
@@ -180,17 +180,17 @@ def msgtypes(messages):
     print message types / rst relation types, no matter which data 
     structure is used to represent them
     
-    @type messages: C{Messages} or 
-                    C{list} of C{Message} or 
-                    C{Message} or 
-                    C{TextPlan} or
-                    C{ConstituentSet}
+    :type messages: ``Messages`` or 
+                    ``list`` of ``Message`` or 
+                    ``Message`` or 
+                    ``TextPlan`` or
+                    ``ConstituentSet``
     """
     if isinstance(messages, Messages):
         for i, message in enumerate(messages.messages.values()):
             print i, __msgtype_print(message)    
     elif isinstance(messages, (list, set)):
-    # if messages is a list/set of C{Message}/C{ConstituentSet} instances
+    # if messages is a list/set of ``Message``/``ConstituentSet`` instances
         for i, message in enumerate(messages):
             print i, __msgtype_print(message)
     elif isinstance(messages, Message):
@@ -206,8 +206,8 @@ def __msgtype_print(message):
     recursive helper function for msgtypes(), which prints message types 
     and RST relation types
     
-    @type message: C{Message} or C{ConstituentSet}
-    @rtype: C{str}
+    :type message: ``Message`` or ``ConstituentSet``
+    :rtype: ``str``
     """
     if isinstance(message, Message):
         return message[Feature("msgType")]
@@ -229,7 +229,7 @@ def __msgtype_print(message):
 
 #def __avm(message):
     #'''
-    #@type: C{Message} or C{ConstituentSet}
+    #:type: ``Message`` or ``ConstituentSet``
     #'''
     #if isinstance(message, Message):
         #msg_content = ""
@@ -272,11 +272,11 @@ def abbreviate_textplan(textplan):
     recursive helper function that prints only the skeletton of a textplan 
     (message types and RST relations but not the actual message content)
     
-    @param textplan: a text plan, a constituent set or a message
-    @type textplan: C{TextPlan} or C{ConstituentSet} or C{Message}
+    :param textplan: a text plan, a constituent set or a message
+    :type textplan: ``TextPlan`` or ``ConstituentSet`` or ``Message``
     
-    @return: a message (without the attribute value pairs stored in it)
-    @rtype: C{Message}
+    :return: a message (without the attribute value pairs stored in it)
+    :rtype: ``Message``
     """ 
     if isinstance(textplan, TextPlan):
         score = textplan["title"]["book score"]
@@ -296,8 +296,8 @@ def find_applicable_rules(messages):
     """    
     debugging: find out which rules are directly (i.e. without forming ConstituentSets first) applicable to your messages
     
-    @type messages: C{list} of C{Message}s or
-                    C{Messages}
+    :type messages: ``list`` of ``Message``s or
+                    ``Messages``
     """
     if type(messages) is list: # is 'messages' a list of Message() instances?
         pass
@@ -348,7 +348,7 @@ def apply_rule(messages, rule_name):
     """
     debugging: take a rule and apply it to your list of messages. 
     
-    the resulting C{ConstituentSet} will be added to the list, while the 
+    the resulting ``ConstituentSet`` will be added to the list, while the 
     messages involved in its construction will be removed. repeat this step 
     until you've found an erroneous/missing rule.
     """

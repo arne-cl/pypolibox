@@ -7,7 +7,7 @@ HLDS (Hybrid Logic Dependency Semantics) is the format internally used by the
 OpenCCG realizer. This module shall allow the conversion between HLDS-XML 
 files and NLTK feature structures. In addition, it can also be used as a
 commandline to convert HLDS-XML files in printable versions of
-C{nltk.FeatStruct}s. The following command produces a LaTeX file that can be
+``nltk.FeatStruct``s. The following command produces a LaTeX file that can be
 compiled into a PDF::
 
     python hlds.py --format latex --outfile output.tex input1.xml input2.xml
@@ -82,12 +82,12 @@ class HLDSReader():
     """
     def __init__(self, hlds, input_format="file"):
         """
-        @type hlds: C{str} or C{file}
-        @param hlds: an HLDS XML testbed file (either a file object or a 
+        :type hlds: ``str`` or ``file``
+        :param hlds: an HLDS XML testbed file (either a file object or a 
         string, depending on the input_format parameter)
         
-        @type input_format: C{str}
-        @param input_format: "string" or "file"
+        :type input_format: ``str``
+        :param input_format: "string" or "file"
         """        
         if input_format == "string":
             tree = etree.fromstring(hlds)
@@ -101,15 +101,15 @@ class HLDSReader():
         """
         Parses all sentences (represented as HLDS XML structures) 
         into feature structures. These structures are saved as a list of 
-        C{Sentence}s in self.sentences.
+        ``Sentence``s in self.sentences.
         
         If there's only one sentence in a file, it's root element is <xml>. 
         If there's more than one, they are each <xml> sentence "roots" is 
         wrapped in an <item>...</item> (and <regression> becomes the root 
         tag of the document).
         
-        @type tree: C{etree._ElementTree}
-        @param tree: an etree tree element
+        :type tree: ``etree._ElementTree``
+        :param tree: an etree tree element
         """
         self.sentences = []
         
@@ -169,25 +169,25 @@ class Sentence(FeatDict):
     def create_sentence(self, sent_str, expected_parses, root_nom, root_prop, 
                         diamonds):
         """         
-        wraps all C{Diamond}s that were already constructed by 
+        wraps all ``Diamond``s that were already constructed by 
         HLDSReader.parse_sentences() plus some meta data (root verb etc.) 
         into a NLTK feature structure that represents a complete sentence.
         
-        @type sent_str: C{str}
-        @param sent_str: the text that should be generated
+        :type sent_str: ``str``
+        :param sent_str: the text that should be generated
         
-        @type expected_parses: C{int}
-        @param expected_parses: the expected number of parses
+        :type expected_parses: ``int``
+        :param expected_parses: the expected number of parses
         
-        @type root_prop: C{str}
-        @param root_prop: the root element of that text (in case we're 
+        :type root_prop: ``str``
+        :param root_prop: the root element of that text (in case we're 
         actually generating a sentence: the main verb)
         
-        @type root_nom: C{str}
-        @param root_nom: the root (element/verb) category, e.g. "b1:handlung"
+        :type root_nom: ``str``
+        :param root_nom: the root (element/verb) category, e.g. "b1:handlung"
         
-        @type diamonds: C{list} of C{Diamond}s        
-        @param diamonds: a list of the diamonds that are contained in the 
+        :type diamonds: ``list`` of ``Diamond``s        
+        :param diamonds: a list of the diamonds that are contained in the 
         sentence 
         """
         
@@ -225,8 +225,8 @@ class Diamond(FeatDict):
         appends a subdiamond structure to an existing diamond structure, while 
         allowing to change the mode of the subdiamond
         
-        @type mode: C{str} or C{NoneType}
-        @param mode: the mode that the subdiamond shall have. this will 
+        :type mode: ``str`` or ``NoneType``
+        :param mode: the mode that the subdiamond shall have. this will 
         also be used to determine the subdiamonds identifier. if the 
         diamond already has two subdiamonds (e.g. "00__AGENS" and 
         "01__PATIENS") and add a third subdiamond with mode "TEMP", its 
@@ -247,10 +247,10 @@ class Diamond(FeatDict):
         prepends a subdiamond structure to an existing diamond structure, while 
         allowing to change the mode of the subdiamond
         
-        @type subdiamond_to_prepend: C{Diamond}
+        :type subdiamond_to_prepend: ``Diamond``
         
-        @type mode: C{str} or C{NoneType}
-        @param mode: the mode that the subdiamond shall have. this will 
+        :type mode: ``str`` or ``NoneType``
+        :param mode: the mode that the subdiamond shall have. this will 
         also be used to determine the subdiamonds identifier. if the 
         diamond already has two subdiamonds (e.g. "00__AGENS" and 
         "01__PATIENS") and we'll prepend a third subdiamond with mode 
@@ -278,14 +278,14 @@ class Diamond(FeatDict):
 
     def insert_subdiamond(self, index, subdiamond_to_insert, mode=None):
         """
-        insert a C{Diamond} into this one before the index, while 
+        insert a ``Diamond`` into this one before the index, while 
         allowing to change the mode of the subdiamond.
         
-        @type index: C{int}
-        @type subdiamond_to_insert: C{Diamond}
+        :type index: ``int``
+        :type subdiamond_to_insert: ``Diamond``
 
-        @type mode: C{str} or C{NoneType}
-        @param mode: the mode that the subdiamond shall have. this will 
+        :type mode: ``str`` or ``NoneType``
+        :param mode: the mode that the subdiamond shall have. this will 
         also be used to determine the subdiamonds identifier. if the 
         diamond already has two subdiamonds (e.g. "00__AGENS" and 
         "01__PATIENS") and we'll insert a third subdiamond at index '1' 
@@ -313,10 +313,10 @@ class Diamond(FeatDict):
 
     def change_mode(self, mode):
         """
-        changes the mode of a C{Diamond}, which is sometimes needed when 
-        embedding it into another C{Diamond} or C{Sentence}.
+        changes the mode of a ``Diamond``, which is sometimes needed when 
+        embedding it into another ``Diamond`` or ``Sentence``.
         
-        @type mode: C{str}
+        :type mode: ``str``
         """
         self[Feature('mode')] = mode
 
@@ -332,10 +332,10 @@ def create_diamond(mode, nom, prop, nested_diamonds_list):
     Diamond.__init__(self, mode, nom, prop, nested_diamonds_list) having 
     too many arguments.
     
-    @type mode: C{Str}
-    @type nom: C{Str}
-    @type prop: C{Str}
-    @type nested_diamonds_list: C{list}
+    :type mode: ``Str``
+    :type nom: ``Str``
+    :type prop: ``Str``
+    :type nested_diamonds_list: ``list``
     """
     diamond = Diamond()
     diamond[Feature('mode')] = mode
@@ -357,10 +357,10 @@ def convert_diamond_xml2fs(etree):
     transforms a HLDS XML <diamond>...</diamond> structure 
     (that was parsed into an etree element) into an NLTK feature structure.
 
-    @type etree_or_tuple: C{etree._Element}
-    @param etree_or_tuple: a diamond etree element
+    :type etree_or_tuple: ``etree._Element``
+    :param etree_or_tuple: a diamond etree element
     
-    @rtype: C{Diamond}
+    :rtype: ``Diamond``
     """
     mode = ensure_utf8(etree.attrib["mode"])
 
@@ -385,8 +385,8 @@ def hlds2xml(featstruct):
     debug function that returns the string representation of a feature 
     structure (Diamond or Sentence) and its HLDS XML equivalent.
     
-    @type featstruct: C{Diamond} or C{Sentence}
-    @rtype: C{str}
+    :type featstruct: ``Diamond`` or ``Sentence``
+    :rtype: ``str``
     """
     assert isinstance(featstruct, (Diamond, Sentence))
     input_str = featstruct.__str__()
@@ -405,21 +405,21 @@ def hlds2xml(featstruct):
 
 def create_hlds_file(sent_or_sent_list, mode="test", output="etree"):
     """
-    this function transforms C{Sentence}s into a a valid HLDS XML testbed file
+    this function transforms ``Sentence``s into a a valid HLDS XML testbed file
     
-    @type sent_or_sent_list: C{Sentence} or C{list} of C{Sentence}s
-    @param sent_or_sent_list: a C{Sentence} or a list of C{Sentence}s
+    :type sent_or_sent_list: ``Sentence`` or ``list`` of ``Sentence``s
+    :param sent_or_sent_list: a ``Sentence`` or a list of ``Sentence``s
 
-    @type mode: C{str}    
-    @param mode: "test", if the sentence will be part of a (regression) 
+    :type mode: ``str``    
+    :param mode: "test", if the sentence will be part of a (regression) 
     testbed file (ccg-test). "realize", if the sentence will be put in a 
     file on its own (ccg-realize).
     
-    @type output: C{str}
-    @param output: "etree" (etree element) or "xml" (formatted, valid xml 
+    :type output: ``str``
+    :param output: "etree" (etree element) or "xml" (formatted, valid xml 
     document as a string)
     
-    @rtype: C{str}
+    :rtype: ``str``
     """
     if mode is "test":
         root = etree.Element("regression")
@@ -468,16 +468,16 @@ def __sentence_fs2xml(sentence, mode="test"):
     transforms a sentence (in NLTK feature structure notation) into its 
     corresponding HLDS XML <item></item> structure.
     
-    @type sentence: C{Sentence}
-    @param sentence: a sentence in NLTK feature structure notation
+    :type sentence: ``Sentence``
+    :param sentence: a sentence in NLTK feature structure notation
     
-    @type mode: C{str}    
-    @param mode: "test", if the sentence will be part of a (regression) 
+    :type mode: ``str``    
+    :param mode: "test", if the sentence will be part of a (regression) 
     testbed file (ccg-test). "realize", if the sentence will be put in a 
     file on its own (ccg-realize).
     
-    @rtype: C{etree._Element}
-    @return: the input sentence in HLDS XML format (represented as an etree 
+    :rtype: ``etree._Element``
+    :return: the input sentence in HLDS XML format (represented as an etree 
     element)
     """
     if mode is "test":
@@ -524,12 +524,12 @@ def __diamond_fs2xml(diamond):
     converts a {Diamond} feature structure into its corresponding HLDS 
     XML structure (stored in an etree element).
     
-    @type diamond: C{Diamond}
-    @param diamond: a Diamond feature structure containing nom? prop? diamond* 
+    :type diamond: ``Diamond``
+    :param diamond: a Diamond feature structure containing nom? prop? diamond* 
     elements
     
-    @rtype: C{etree._Element}
-    @return: a Diamond in HLDS XML tree notation, represented as an etree 
+    :rtype: ``etree._Element``
+    :return: a Diamond in HLDS XML tree notation, represented as an etree 
     element
     """
     E = ElementMaker()
@@ -575,8 +575,8 @@ def diamond2sentence(diamond):
     structure it realizes, whereas each substructure of this "sentence" (no 
     matter how complex) is labelled as a <diamond>.
     
-    @type diamond: C{Diamond}
-    @rtype: C{Sentence}
+    :type diamond: ``Diamond``
+    :rtype: ``Sentence``
     """
     nom = ""
     prop = ""
@@ -605,12 +605,12 @@ def test_conversion():
     HLDS XML testbed file into a list of sentences in NLTK feature 
     structure. picks one of these sentences randomly and converts it back 
     to HLDS XML. prints boths versions of this sentence. returns an 
-    HLDSReader instance (containing a list of C{Sentence}s in NLTK feature 
+    HLDSReader instance (containing a list of ``Sentence``s in NLTK feature 
     structure notation) and a HLDS XML testbed file (as a string) created 
     from those feature structures.
     
-    @rtype: C{tuple} of (C{HLDSReader}, C{str}) 
-    @return: a tuple containing an HLDSReader instance and a string 
+    :rtype: ``tuple`` of (``HLDSReader``, ``str``) 
+    :return: a tuple containing an HLDSReader instance and a string 
     representation of an HLDS XML testbed file
     """
     hlds_reader = HLDSReader(testbed_file, input_format="file")
@@ -644,7 +644,7 @@ def add_mode_suffix(diamond, mode="N"):
 def add_nom_prefixes(diamond):
     """
     Adds a prefix/index to the name attribute of every <nom> tag of a 
-    C{Diamond} or C{Sentence} structure. Without this, I{ccg-realize} will 
+    ``Diamond`` or ``Sentence`` structure. Without this, ``ccg-realize`` will 
     only produce gibberish.
     
     Every <nom> tag has a 'name' attribute, which contains a category/type-like
@@ -660,7 +660,7 @@ def add_nom_prefixes(diamond):
     prop name attribute with an added index. index iteration is done by a 
     depth-first walk through all diamonds contained in the given feature 
     structure. In this example 'v1:zugehörigkeit' means, that "von" is the 
-    first C{diamond} in the structure that starts with 'v' and belongs to 
+    first ``diamond`` in the structure that starts with 'v' and belongs to 
     the category 'zugehörigkeit'.
     """
     prop_dict = defaultdict(int)
@@ -690,10 +690,10 @@ def __determine_nom_prefix(diamond):
     "u1:konjunktion", iff its the 1st "konjunktion" beginning with "u" in 
     that sentence).
     
-    @type diamond: C{Diamond}
+    :type diamond: ``Diamond``
     
-    @rtype: C{str}
-    @return: a single character
+    :rtype: ``str``
+    :return: a single character
     """
     numbers_only = re.compile("\d+$")
     
@@ -724,14 +724,14 @@ def remove_nom_prefixes(diamond):
 
 def last_diamond_index(featstruct):
     """
-    Returns the highest index currently used withing a given C{Diamond} or 
-    C{Sentence}. E.g., if this structure contains three diamonds 
+    Returns the highest index currently used withing a given ``Diamond`` or 
+    ``Sentence``. E.g., if this structure contains three diamonds 
     ("00__ART", "01__NUM" and "02__TEMP"), the return value will be 2. The 
     return value is -1, if the feature structure doesn't contain any 
-    C{Diamond}s.
+    ``Diamond``s.
     
-    @type featstruct: C{Diamond} or C{Sentence}
-    @rtype: C{int}
+    :type featstruct: ``Diamond`` or ``Sentence``
+    :rtype: ``int``
     """
     diamond_keys = [k for (k,v) in featstruct.items() if isinstance(v, Diamond)]
     return len(diamond_keys) - 1
@@ -742,8 +742,8 @@ def featstruct2avm(featstruct, mode="non-recursive"):
     converts an NLTK feature structure into an attribute-value matrix
     that can be printed with LaTeX's avm environment.
 
-    @type featstruct: C{nltk.featstruct} or C{Diamond} or C{Sentence}
-    @rtype: C{str}
+    :type featstruct: ``nltk.featstruct`` or ``Diamond`` or ``Sentence``
+    :rtype: ``str``
     """
     ret_str = "\[ "
     for key, val in sorted(featstruct.items()):
@@ -783,11 +783,11 @@ def featstruct2avm(featstruct, mode="non-recursive"):
 def etreeprint(element, debug=True, raw=False):
     """pretty print function for etree trees or elements
     
-    @type element: C{etree._ElementTree} or C{etree._Element}
-    @param debug: if True: not only return the XML string, but also print it to
+    :type element: ``etree._ElementTree`` or ``etree._Element``
+    :param debug: if True: not only return the XML string, but also print it to
     stdout. if False: only return the XML string
     
-    @param raw: if True: just transform the etree (element) into a string, 
+    :param raw: if True: just transform the etree (element) into a string, 
     don't add or prettify anything. if False: add an XML declaration and use
     pretty print to make the output more readable for humans.
     """

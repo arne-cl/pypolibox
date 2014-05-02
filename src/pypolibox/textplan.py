@@ -7,19 +7,19 @@
 # is a random relation without any restrictions.
 
 """
-The I{textplan} module is based on Nicholas FitzGerald's I{py_docplanner}[1], 
+The ``textplan`` module is based on Nicholas FitzGerald's ``py_docplanner``[1], 
 in particular on his idea to represent RST trees as attribute value matrices 
-by using the I{nltk.featstruct} data structure.
+by using the ``nltk.featstruct`` data structure.
 
-I{textplan} converts C{Proposition} instances into C{Message}s (using 
-attribute value notation). Via a set of C{Rule}s, these messages are combined 
-into C{ConstituentSet}s. Rules are applied bottom-up, via a recursive 
-best-first search (cf. I{__bottom_up_search}).
+``textplan`` converts ``Proposition`` instances into ``Message``s (using 
+attribute value notation). Via a set of ``Rule``s, these messages are combined 
+into ``ConstituentSet``s. Rules are applied bottom-up, via a recursive 
+best-first search (cf. ``__bottom_up_search``).
 
 Not only messages, but also constituent sets can be combined 
 via rules. If all messages present can be combined into one large 
-C{ConstituentSet}, this constituent set is called a C{TextPlan}. A 
-C{TextPlan} represents a complete text plan in form of an attribute value 
+``ConstituentSet``, this constituent set is called a ``TextPlan``. A 
+``TextPlan`` represents a complete text plan in form of an attribute value 
 matrix.
 
 [1] Fitzgerald, Nicholas (2009). Open-Source Implementation of Document 
@@ -41,8 +41,8 @@ from hlds import etreeprint # TODO: dbg, rm
 
 class TextPlan(nltk.featstruct.FeatDict):
     """
-    C{TextPlan} is the output of Document Planning. A TextPlan consists of an 
-    optional title and text, and a child I{ConstituentSet}.
+    ``TextPlan`` is the output of Document Planning. A TextPlan consists of an 
+    optional title and text, and a child ``ConstituentSet``.
 
     TODO: append __str__ method: should describe verbally if a TP is
           describing one book or comparing two books
@@ -56,13 +56,13 @@ class TextPlan(nltk.featstruct.FeatDict):
 
 class TextPlans(object):
     """
-    generates all C{TextPlan}s for an C{AllMessages} instance, i.e. one 
+    generates all ``TextPlan``s for an ``AllMessages`` instance, i.e. one 
     DocumentPlan for each book that is returned as a result of the user's 
     database query
     """
     
     def __init__ (self, allmessages, debug=False):
-        #generate all C{Rule}s that the C{Message}s will be checked against
+        #generate all ``Rule``s that the ``Message``s will be checked against
         rules = Rules().rules 
         self.document_plans = []
         for index, book in enumerate(allmessages.books):
@@ -99,25 +99,25 @@ def generate_textplan(messages, rules=Rules().rules, book_score = None,
     The main method implementing the Bottom-Up document structuring algorithm 
     from "Building Natural Language Generation Systems" figure 4.17, p. 108.
 
-    The method takes a list of C{Message}s and a set of C{Rule}s and creates a 
+    The method takes a list of ``Message``s and a set of ``Rule``s and creates a 
     document plan by repeatedly applying the highest-scoring Rule-application 
     (according to the Rule's heuristic score) until a full tree is created. 
-    This is returned as a C{TextPlan} with the tree set as I{children}.
+    This is returned as a ``TextPlan`` with the tree set as ``children``.
 
-    If no plan is reached using bottom-up, I{None} is returned.
+    If no plan is reached using bottom-up, ``None`` is returned.
 
-    @param messages: a list of C{Message}s which have been selected during 
+    :param messages: a list of ``Message``s which have been selected during 
     content selection for inclusion in the TextPlan
-    @type messages: list of C{Message}s
-    @param rules: a list of C{Rule}s specifying relationships which can hold 
+    :type messages: list of ``Message``s
+    :param rules: a list of ``Rule``s specifying relationships which can hold 
     between the messages
-    @type rules: list of C{Rule}s
-    @param dtype: an optional type for the document
-    @type dtype: string
-    @param text: an optional text string describing the document
-    @type text: string
-    @return: a document plan. if no plan could be created: return None
-    @rtype: C{TextPlan} or C{NoneType}
+    :type rules: list of ``Rule``s
+    :param dtype: an optional type for the document
+    :type dtype: string
+    :param text: an optional text string describing the document
+    :type text: string
+    :return: a document plan. if no plan could be created: return None
+    :rtype: ``TextPlan`` or ``NoneType``
     """
     if isinstance(messages, list):
         frozen_messages = freeze_all_messages(messages)
@@ -140,16 +140,16 @@ def generate_textplan(messages, rules=Rules().rules, book_score = None,
 def __bottom_up_search(messages, rules):
     """generate_text() helper method which performs recursive best-first-search
 
-    @param messages: a set containing C{Message}s and/or C{ConstituentSet}s
-    @type messages: C{set} of C{Message}s or C{ConstituentSet}s
+    :param messages: a set containing ``Message``s and/or ``ConstituentSet``s
+    :type messages: ``set`` of ``Message``s or ``ConstituentSet``s
     
-    @param rules: a list of C{Rule}s specifying relationships which can hold 
+    :param rules: a list of ``Rule``s specifying relationships which can hold 
     between the messages
-    @type rules: C{list} of C{Rule}s
+    :type rules: ``list`` of ``Rule``s
         
-    @return: a set containing one C{Message}, i.e. the first valid plan reached
+    :return: a set containing one ``Message``, i.e. the first valid plan reached
     by best-first-search. returns None if no valid plan is found.
-    @rtype: C{NoneType} or a C{set} of (C{Message}s or C{ConstituentSet}s)
+    :rtype: ``NoneType`` or a ``set`` of (``Message``s or ``ConstituentSet``s)
     """
     if len(messages) == 1:
         return messages
@@ -196,22 +196,22 @@ def __bottom_up_search(messages, rules):
 def linearize_textplan(textplan):
     """
     takes a text plan (an RST tree represented as a NLTK.featstruct data
-    structure) and returns an ordered list of C{Message}s for surface
+    structure) and returns an ordered list of ``Message``s for surface
     generation.
 
-    @type textplan: C{TextPlan}
-    @rtype: C{list} of C{Message}s
+    :type textplan: ``TextPlan``
+    :rtype: ``list`` of ``Message``s
     """
     return [elem for elem in textplan.walk() if type(elem) is Message]
 
 
 def textplans2xml(textplans):
     """
-    converts several C{TextPlan}s into an XML structure representing
+    converts several ``TextPlan``s into an XML structure representing
     these text plans.
     
-    @type textplans: a C{TextPlans} instance
-    @rtype: C{etree._ElementTree}
+    :type textplans: a ``TextPlans`` instance
+    :rtype: ``etree._ElementTree``
     """
     root = etree.Element("xml")
     for textplan in textplans.document_plans:
@@ -224,10 +224,10 @@ def textplans2xml(textplans):
 
 def textplan2xml(textplan):
     """
-    converts one C{TextPlan} into an XML structure representing it.
+    converts one ``TextPlan`` into an XML structure representing it.
     
-    @type textplans: C{TextPlan}
-    @rtype: C{etree._ElementTree}
+    :type textplans: ``TextPlan``
+    :rtype: ``etree._ElementTree``
     """
     root = etree.Element("xml")
     xml_textplan = __textplan_header2xml(root, textplan) # text plan inserted
@@ -242,12 +242,12 @@ def __textplan_header2xml(tree_root, textplan):
     __textplantree2xml to convert the actual text plan to XML and inserts
     both into the tree_root XML structure.
 
-    @type tree_root: C{etree._Element}
-    @param tree_root: the root element of the resulting text plan XML structure
-    @type textplan: C{TextPlan}
+    :type tree_root: ``etree._Element``
+    :param tree_root: the root element of the resulting text plan XML structure
+    :type textplan: ``TextPlan``
 
-    @rtype: C{etree._Element}
-    @return: one <textplan></textplan> XML structure
+    :rtype: ``etree._Element``
+    :return: one <textplan></textplan> XML structure
     """
     xml_textplan = etree.SubElement(tree_root, "textplan")
 
@@ -270,8 +270,8 @@ def __textplantree2xml(tree):
     helper function for __textplan_header2xml() which converts the actual text
     plan into XML.
 
-    @type tree: C{ConstituentSet} or C{Message}
-    @rtype: C{etree._Element}
+    :type tree: ``ConstituentSet`` or ``Message``
+    :rtype: ``etree._Element``
     """
     if isinstance(tree, ConstituentSet):
         relation_type = tree[Feature("relType")]
@@ -291,10 +291,10 @@ def __textplantree2xml(tree):
 
 def __message2xml(message):
     """
-    converts a single C{Message} into an XML structure.
+    converts a single ``Message`` into an XML structure.
 
-    @type message: C{Message}
-    @rtype: C{etree._Element}
+    :type message: ``Message``
+    :rtype: ``etree._Element``
     """        
     msg_type = message[Feature("msgType")]
     msg = etree.Element("message", type=msg_type)
@@ -319,9 +319,9 @@ def __message_strkey_featdictval2xml(msg, key, val):
     helper function for __message2xml(). converts book length and recency
     information to XML.
 
-    @type xml_msg: C{etree._Element}
-    @type msg_key: C{Feature}
-    @type msg_val: C{frozenset} or C{str}
+    :type xml_msg: ``etree._Element``
+    :type msg_key: ``Feature``
+    :type msg_val: ``frozenset`` or ``str``
     """
     rating = val["rating"]
     if "type" in val: # length or recency (RelativeVariation)
@@ -345,9 +345,9 @@ def __message_strkey_tupleval2xml(msg, key, val):
     helper function for __message2xml(). converts those parts of a message
     to XML whose key is a string (i.e. most of them).
 
-    @type xml_msg: C{etree._Element}
-    @type msg_key: C{Feature}
-    @type msg_val: C{frozenset} or C{str}
+    :type xml_msg: ``etree._Element``
+    :type msg_key: ``Feature``
+    :type msg_val: ``frozenset`` or ``str``
     """
     value, rating = val
     if isinstance(value, frozenset): # authors, keywords, proglangs etc.
@@ -365,11 +365,11 @@ def __message_strkey_tupleval2xml(msg, key, val):
 def __message_featurekey2xml(xml_msg, msg_key, msg_val):
     """
     helper function for __message2xml(). converts those parts of a message
-    to XML whose key is of type C{Feature}, i.e. *reference_authors* and *reference_title*.
+    to XML whose key is of type ``Feature``, i.e. *reference_authors* and *reference_title*.
 
-    @type xml_msg: C{etree._Element}
-    @type msg_key: C{Feature}
-    @type msg_val: C{frozenset} or C{str}
+    :type xml_msg: ``etree._Element``
+    :type msg_key: ``Feature``
+    :type msg_val: ``frozenset`` or ``str``
     """
     value, rating = msg_val
     if isinstance(value, frozenset): # *reference_authors*
