@@ -52,33 +52,36 @@ Usage
 ``pypolibox`` can be used from the command line or from within a Python
 interpreter. To see all the available options, enter::
 
-    python pypolibox.py -h
+    pypolibox -h
 
 To find books that are written in German and use the
 programming language Prolog, type::
 
-    python pypolibox.py --language German --proglang Prolog
+    pypolibox --language German --proglang Prolog
 
 or, if you prefer short but cryptic commands::
 
-    python pypolibox.py -l German -p Prolog
+    pypolibox -l German -p Prolog
 
-If you're just interested in text plans (as opposed to generated
-sentences), add the -x or --xml command line option::
+You can choose between several output formats using the ``-o`` or
+``--output-format`` argument. The default option is `openccg``, which
+will generate sentences using OpenCCG. ``textplan`` will generate an XML
+representation of the textplans and ``hlds`` will generate HLDS XML
+representations of all the sentences.
 
-    python pypolibox.py --language German --proglang Prolog --xml
+    pypolibox --language German --proglang Prolog --output-format hlds
 
 Further usage examples can be found in the ``pypolibox.database.Query``
-class documentation. If you'd like to access ``pypolibox`` from 
-within a Python interpreter, you can simply use the same arguments. 
-Instead of a string like *-l German -p Prolog*, you will have to 
+class documentation. If you'd like to access ``pypolibox`` from
+within a Python interpreter, you can simply use the same arguments.
+Instead of a string like *-l German -p Prolog*, you will have to
 provide your arguments as a list of strings::
 
     Query(["-l", "German", "-p", "Prolog"])
 
-This query would be equivalent to the command line queries above. 
-``pypolibox`` is built as a pipeline, where each important step is 
-represented by a class. Each of these classes function as the input 
+This query would be equivalent to the command line queries above.
+``pypolibox`` is built as a pipeline, where each important step is
+represented by a class. Each of these classes function as the input
 of the next class in the pipeline, e.g.::
 
     query = Query(["-l", "German", "-p", "Prolog"])
@@ -87,9 +90,9 @@ of the next class in the pipeline, e.g.::
     ...
     TextPlans(AllMessages(AllPropositions(AllFacts(Books(Results(query))))))
 
-If you instanciate a Query with your query arguments, you can use 
-this ``Query`` instance as the input of a ``Results`` instance 
-(which contains the data that the database provided for your query), 
+If you instanciate a Query with your query arguments, you can use
+this ``Query`` instance as the input of a ``Results`` instance
+(which contains the data that the database provided for your query),
 which in turn can be used as the input of a ``Books`` instance etc.
 
 Of course, you wouldn't want to chain all those classes just to retrieve
