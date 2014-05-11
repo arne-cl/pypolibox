@@ -91,11 +91,11 @@ class Query:
             help="Should the book contain code examples? 0 = no, 1 = yes")
         parser.add_argument("-r", "--minresults", type=int,
             help="show no less than MINRESULTS books")
-        parser.add_argument("-x", "--xml", action="store_true",
-            help="Don't generate text, just return text plans in XML format.")
+        parser.add_argument("-o", "--output-format",
+            default='openccg',
+            help=("output format: openccg, hlds, textplan. "
+                "default: openccg"))
 
-        #TODO: put the if.args stuff into its own method (maybe useful, if
-        # there's a WebQuery(Query) class
         args = parser.parse_args(argv)
 
         if args.keywords is not None:
@@ -134,7 +134,7 @@ class Query:
             be 1"""
             self.minresults = args.minresults
 
-        self.query_args = args # we may need these for debugging
+        self.query_args = args # we still need them in pypolibox.main()
         self.and_query = self.__construct_query(self.queries, query_and)
         self.or_query = self.__construct_query(self.queries, query_or)
 

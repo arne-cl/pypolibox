@@ -84,16 +84,25 @@ def main():
     an XML format representing the text plans.
     """
     query = Query(sys.argv[1:])
-    textplans = generate_textplans(query)
 
-    if query.query_args.xml is True: # just print text plans in XML format
-                                     # don't generate sentences with OpenCCG
-        etreeprint(textplans2xml(textplans))
-    else:
+    output_format = query.query_args.output_format
+    valid_output_formats = ['openccg', 'hlds', 'textplan']
+    if output_format not in valid_output_formats:
+        sys.stderr.write("Output format must be one of: {}\n".format(valid_output_formats))
+        sys.exit(1)
+
+    textplans = generate_textplans(query)
+    
+    if output_format == 'openccg':
         openccg = initialize_openccg()
+        print "{} text plans will be generated.".format(len(textplans.document_plans))
         for i, textplan in enumerate(textplans.document_plans):
             print "Generating text plan #%i:\n" % i
             check_and_realize_textplan(openccg, textplan)
+    elif output_format == 'hlds':
+        raise NotImplementedError("Can't generate HLDS")
+    else: # output_format == 'textplan'
+        etreeprint(textplans2xml(textplans))
 
 
 if __name__ == "__main__":
