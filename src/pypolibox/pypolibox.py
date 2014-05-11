@@ -100,7 +100,40 @@ def main():
             print "Generating text plan #%i:\n" % i
             check_and_realize_textplan(openccg, textplan)
     elif output_format == 'hlds':
-        raise NotImplementedError("Can't generate HLDS")
+        from copy import deepcopy
+        from hlds import (Diamond, Sentence, diamond2sentence,
+            add_nom_prefixes, create_hlds_file)
+
+        for i, textplan in enumerate(textplans.document_plans):
+            print "Text plan #%i:\n" % i
+
+            # TODO: refactor to avoid code duplication w/
+            # check_and_realize_textplan()
+            msg_blocks = linearize_textplan(textplan)
+            for msg_block in msg_blocks:
+                try:
+                    lexicalized_msg_block = lexicalize_message_block(msg_block)
+                    print "The {0} message block can be realized " \
+                          "as follows:\n".format(msg_block[Feature("msgType")])
+                    for lexicalized_phrase in lexicalized_msg_block:
+                        lexicalized_sentence = phrase2sentence(lexicalized_phrase)
+
+                        # TODO: refactor to avoid duplication w/ OpenCCG.realize
+                        temp_sentence = deepcopy(lexicalized_sentence)
+
+                        if isinstance(lexicalized_sentence, Diamond):
+                            temp_sentence = diamond2sentence(temp_sentence)
+
+                        add_nom_prefixes(temp_sentence)
+                        print create_hlds_file(temp_sentence,
+                            mode="realize", output="xml")
+
+                except NotImplementedError, err:
+                    print err
+                    print "The message block contains these messages:\n", msg_block, \
+                          "\n\n**********\n\n"
+
+
     else: # output_format == 'textplan'
         etreeprint(textplans2xml(textplans))
 
