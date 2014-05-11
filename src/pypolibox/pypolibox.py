@@ -3,9 +3,9 @@
 # Author: Arne Neumann <arne-neumann@web.de>
 
 """
-The pypolibox module is the 'main' module of the pypolibox package. It's the 
-module you'd usually call from the command line or load into your Python 
-interpreter. It just imports all the important modules and runs some demo 
+The pypolibox module is the 'main' module of the pypolibox package. It's the
+module you'd usually call from the command line or load into your Python
+interpreter. It just imports all the important modules and runs some demo
 code in case it is run from the command line without any arguments.
 """
 
@@ -17,7 +17,7 @@ from facts import Facts, AllFacts
 from propositions import Propositions, AllPropositions
 from textplan import (TextPlan, TextPlans, generate_textplan,
                       linearize_textplan, textplans2xml)
-from hlds import etreeprint                      
+from hlds import etreeprint
 from messages import Message, Messages, AllMessages
 from rules import ConstituentSet, Rule, Rules
 from lexicalization import phrase2sentence
@@ -45,13 +45,13 @@ def initialize_openccg():
     """
     from realization import OpenCCG
     return OpenCCG()
-    
+
 
 def check_and_realize_textplan(openccg, textplan):
     """
     realizes a text plan and warns about message blocks that cannot be
     realized due to current restrictions in the OpenCC grammar.
-    
+
     Parameters
     ----------
     openccg : OpenCCG
@@ -92,7 +92,7 @@ def main():
         sys.exit(1)
 
     textplans = generate_textplans(query)
-    
+
     if output_format == 'openccg':
         openccg = initialize_openccg()
         print "{} text plans will be generated.".format(len(textplans.document_plans))
