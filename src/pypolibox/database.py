@@ -422,13 +422,16 @@ class Books:
         ranks 'OR query' results according to the number of query parameters
         they match.
 
-        :param possible_matches: the number of (meaningful) parameters of the
-        query.
-        :type possible_matches: ``int``
+        Parameters
+        ----------
+        possible_matches : int
+            the number of (meaningful) parameters of the query.
 
-        :return: a list of tuples, where each tuple consists of the score of
-        a book and its index in ``self.books``
-        :rtype: ``list`` of (``float``, ``int``) tuples
+        Returns
+        -------
+        book_ranks : list of (float, int) tuples
+            a list of tuples, where each tuple consists of the score of
+            a book and its index in self.books
         """
         scores = []
         for index, book in enumerate(self.books):
