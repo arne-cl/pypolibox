@@ -86,7 +86,7 @@ def main():
     query = Query(sys.argv[1:])
 
     output_format = query.query_args.output_format
-    valid_output_formats = ['openccg', 'hlds', 'textplan']
+    valid_output_formats = ['openccg', 'hlds', 'textplan-xml', 'textplan-featstruct']
     if output_format not in valid_output_formats:
         sys.stderr.write("Output format must be one of: {}\n".format(valid_output_formats))
         sys.exit(1)
@@ -133,8 +133,12 @@ def main():
                     print "The message block contains these messages:\n", msg_block, \
                           "\n\n**********\n\n"
 
+    elif output_format == 'textplan-featstruct':
+        for i, textplan in enumerate(textplans.document_plans):
+            print "Text plan #%i:\n" % i
+            print textplan, "\n\n"
 
-    else: # output_format == 'textplan'
+    else: # output_format == 'textplan-xml'
         etreeprint(textplans2xml(textplans))
 
 

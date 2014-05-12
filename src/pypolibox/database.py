@@ -93,7 +93,7 @@ class Query:
             help="show no less than MINRESULTS books")
         parser.add_argument("-o", "--output-format",
             default='openccg',
-            help=("output format: openccg, hlds, textplan. "
+            help=("output format: openccg, hlds, textplan-xml, textplan-featstruct. "
                 "default: openccg"))
 
         args = parser.parse_args(argv)
