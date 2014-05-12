@@ -13,7 +13,7 @@ Contents:
 
    readme
    history
-
+   modules
 
 Indices and tables
 ==================
