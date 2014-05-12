@@ -803,15 +803,6 @@ def etreeprint(element, debug=True, raw=False):
     return xml_string
 
 
-parser = argparse.ArgumentParser(description='convert HLDS XML to nltk.FeatStructs or LaTeX AVMs')
-parser.add_argument('files', metavar='FILE', type=str, nargs='+',
-                    help='one or more HLDS XML files to be processed')
-parser.add_argument('-f', '--format', dest='output_format', action='store',
-                    default='nltk',
-                    help='choose between nltk or latex')
-parser.add_argument('-o', '--outfile', nargs='?',
-                    type=argparse.FileType('w'), default=sys.stdout,
-                    help='file to write the output to (default: stdout)')
 
 LATEX_AVM_HEADER = r"""
 \documentclass[10pt]{article}
@@ -824,8 +815,18 @@ LATEX_AVM_HEADER = r"""
 
 """
 
+def main():
+    """parse command line args and do the conversions"""
+    parser = argparse.ArgumentParser(description='convert HLDS XML to nltk.FeatStructs or LaTeX AVMs')
+    parser.add_argument('files', metavar='FILE', type=str, nargs='+',
+                        help='one or more HLDS XML files to be processed')
+    parser.add_argument('-f', '--format', dest='output_format', action='store',
+                        default='nltk',
+                        help='choose between nltk or latex')
+    parser.add_argument('-o', '--outfile', nargs='?',
+                        type=argparse.FileType('w'), default=sys.stdout,
+                        help='file to write the output to (default: stdout)')
 
-if __name__ == "__main__":
     args = parser.parse_args(sys.argv[1:])
     if args.output_format == 'latex':
         args.outfile.write(LATEX_AVM_HEADER)
@@ -844,3 +845,7 @@ if __name__ == "__main__":
                 print >>args.outfile, sentence, "\n\n"
 
     args.outfile.close()
+
+
+if __name__ == "__main__":
+    main()
