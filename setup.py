@@ -40,6 +40,7 @@ setup(name='pypolibox',
     install_requires=install_requires,
     entry_points={
         'console_scripts':
-            ['pypolibox=pypolibox.pypolibox:main']
+            ['pypolibox=pypolibox.pypolibox:main',
+             'hlds-converter=pypolibox.hlds:main']
     }
 )
