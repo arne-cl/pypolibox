@@ -5,8 +5,18 @@
 
 News
 ====
-1.0.0
------
+
+1.0.1 (Unreleased)
+------------------
+
+* added new output formats (--output-format parameter):
+  textplan featstructs, HLDS XML
+* converted documentation from epydoc to sphinx
+* added make file, license file
+
+
+1.0.0 (2014-30-04)
+------------------
 
 *Release date: 30-Apr-2014*
 
