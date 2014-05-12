@@ -12,8 +12,9 @@ Contents:
    :maxdepth: 2
 
    readme
-   history
    modules
+   history
+   todo
 
 Indices and tables
 ==================
