@@ -11,7 +11,7 @@ install_requires = [
     # List your project dependencies here.
     # For more details, see:
     # http://packages.python.org/distribute/setuptools.html#declaring-dependencies
-    "lxml", "nltk", "pexpect"
+    "lxml", "nltk", "pexpect", "sphinxcontrib-napoleon"
 ]
 
 
