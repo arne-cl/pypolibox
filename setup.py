@@ -5,9 +5,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()
 NEWS = open(os.path.join(here, 'NEWS.rst')).read()
 
-import pypolibox
-
-version = pypolibox.__version__
+version = '1.0.0'
 
 install_requires = [
     # List your project dependencies here.
