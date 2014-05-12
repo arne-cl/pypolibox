@@ -2,7 +2,7 @@ pypolibox Package
 =================
 
 :mod:`pypolibox` Package
---------------------
+------------------------
 
 .. automodule:: pypolibox.__init__
     :members:
@@ -10,7 +10,7 @@ pypolibox Package
     :show-inheritance:
 
 :mod:`database` Module
--------------------
+----------------------
 
 .. automodule:: pypolibox.database
     :members:
@@ -34,7 +34,7 @@ pypolibox Package
     :show-inheritance:
 
 :mod:`hlds` Module
--------------------
+------------------
 
 .. automodule:: pypolibox.hlds
     :members:
@@ -42,7 +42,7 @@ pypolibox Package
     :show-inheritance:
 
 :mod:`lexicalization` Module
--------------------
+----------------------------
 
 .. automodule:: pypolibox.lexicalization
     :members:
@@ -50,7 +50,7 @@ pypolibox Package
     :show-inheritance:
 
 :mod:`lexicalize_messageblocks` Module
--------------------
+--------------------------------------
 
 .. automodule:: pypolibox.lexicalize_messageblocks
     :members:
@@ -58,7 +58,7 @@ pypolibox Package
     :show-inheritance:
 
 :mod:`messages` Module
--------------------
+----------------------
 
 .. automodule:: pypolibox.messages
     :members:
@@ -66,7 +66,7 @@ pypolibox Package
     :show-inheritance:
 
 :mod:`propositions` Module
--------------------
+--------------------------
 
 .. automodule:: pypolibox.propositions
     :members:
@@ -74,7 +74,7 @@ pypolibox Package
     :show-inheritance:
 
 :mod:`pypolibox` Module
--------------------
+-----------------------
 
 .. automodule:: pypolibox.pypolibox
     :members:
@@ -82,7 +82,7 @@ pypolibox Package
     :show-inheritance:
 
 :mod:`realization` Module
--------------------
+-------------------------
 
 .. automodule:: pypolibox.realization
     :members:
@@ -98,7 +98,7 @@ pypolibox Package
     :show-inheritance:
 
 :mod:`textplan` Module
--------------------
+----------------------
 
 .. automodule:: pypolibox.textplan
     :members:
@@ -106,7 +106,7 @@ pypolibox Package
     :show-inheritance:
 
 :mod:`util` Module
--------------------
+------------------
 
 .. automodule:: pypolibox.util
     :members:
