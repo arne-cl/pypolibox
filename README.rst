@@ -113,17 +113,16 @@ can be used to query the database (and see how errors are handled).
 Documentation
 -------------
 
-I used epydoc to document pypolibox. You can generate an HTML or PDF
-version by running these commands in pypolibox's main directory::
+I used sphinx to document pypolibox. You can generate an HTML or PDF
+version by running these commands in pypolibox's ``docs`` directory::
 
-    mkdir -p doc/latex
-    epydoc --pdf --name pypolibox --output doc/latex src/pypolibox
+    make latexpdf
 
-to produce a PDF (``doc/latex/api.pdf``) and ::
+to produce a PDF (``docs/_build/latex/pypolibox.pdf``) and ::
 
-    epydoc --html --name pypolibox --graph all --output doc/html src/pypolibox
+    make html
 
-to produce a set of HTML files.
+to produce a set of HTML files (``docs/_build/html/index.html``).
 
 
 Package Overview
