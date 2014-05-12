@@ -20,10 +20,6 @@ import os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 
-cwd = os.getcwd()
-parent = os.path.dirname(cwd)
-sys.path.append(parent)
-
 import pypolibox
 
 # -- General configuration ------------------------------------------------
