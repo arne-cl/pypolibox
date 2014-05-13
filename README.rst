@@ -49,6 +49,9 @@ Under Linux, you'd have to add something like this to your ``.bashrc``:
 Usage
 -----
 
+Command line usage
+~~~~~~~~~~~~~~~~~~
+
 ``pypolibox`` can be used from the command line or from within a Python
 interpreter. To see all the available options, enter::
 
@@ -64,15 +67,25 @@ or, if you prefer short but cryptic commands::
     pypolibox -l German -p Prolog
 
 You can choose between several output formats using the ``-o`` or
-``--output-format`` argument. The default option is ``openccg``, which
-will generate sentences using OpenCCG. ``textplan`` will generate an XML
-representation of the textplans and ``hlds`` will generate HLDS XML
-representations of all the sentences.
+``--output-format`` argument.
+
+* ``openccg`` generates sentences using OpenCCG (default option)
+* ``textplan-xml`` generates an XML representation of the textplans
+* ``textplan-featstruct`` generates a feature structure representation (``nltk.featstruct``)
+* ``hlds`` generates an HLDS XML representations of all the sentences.
+
+The following example query will generate HLDS XML snippets describing books
+about Prolog written in German::
 
     pypolibox --language German --proglang Prolog --output-format hlds
 
 Further usage examples can be found in the ``pypolibox.database.Query``
-class documentation. If you'd like to access ``pypolibox`` from
+class documentation. 
+
+Library usage
+~~~~~~~~~~~~~
+
+If you'd like to access ``pypolibox`` from
 within a Python interpreter, you can simply use the same arguments.
 Instead of a string like *-l German -p Prolog*, you will have to
 provide your arguments as a list of strings::
