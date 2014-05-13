@@ -1,2 +1,5 @@
 # pypolibox
-# Author: Arne Neumann <arne-neumann@web.de>
+
+__author__ = 'Arne Neumann'
+__email__ = 'pypolibox.programming@arne.cl'
+__version__ = '1.0.1'
