@@ -6,11 +6,16 @@
 News
 ====
 
-1.0.1 (Unreleased)
+1.0.1 (2014-05-13)
 ------------------
 
+*Release date: 13-May-2014*
+
+* installation via ``pip`` or ``python setup.py install`` now adds two programs
+  to your path: ``pypolibox`` and ``hlds-converter``
 * added new output formats (``--output-format`` parameter):
   textplan featstructs, HLDS XML
+* documentation is now hosted at `readthedocs.org <http://pypolibox.readthedocs.org>`_
 * converted documentation from epydoc to sphinx
 * added make file, license file
 
