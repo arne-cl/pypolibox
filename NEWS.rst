@@ -9,7 +9,7 @@ News
 1.0.1 (Unreleased)
 ------------------
 
-* added new output formats (--output-format parameter):
+* added new output formats (``--output-format`` parameter):
   textplan featstructs, HLDS XML
 * converted documentation from epydoc to sphinx
 * added make file, license file

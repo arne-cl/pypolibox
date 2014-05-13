@@ -64,7 +64,7 @@ or, if you prefer short but cryptic commands::
     pypolibox -l German -p Prolog
 
 You can choose between several output formats using the ``-o`` or
-``--output-format`` argument. The default option is `openccg``, which
+``--output-format`` argument. The default option is ``openccg``, which
 will generate sentences using OpenCCG. ``textplan`` will generate an XML
 representation of the textplans and ``hlds`` will generate HLDS XML
 representations of all the sentences.
@@ -113,8 +113,11 @@ can be used to query the database (and see how errors are handled).
 Documentation
 -------------
 
-I used sphinx to document pypolibox. You can generate an HTML or PDF
-version by running these commands in pypolibox's ``docs`` directory::
+The documentation is available `online <http://pypolibox.readthedocs.org>`_,
+but you can always get an up-to-date local copy using `Sphinx`_.
+
+You can generate an HTML or PDF version by running these commands in
+pypolibox's ``docs`` directory::
 
     make latexpdf
 
@@ -123,6 +126,8 @@ to produce a PDF (``docs/_build/latex/pypolibox.pdf``) and ::
     make html
 
 to produce a set of HTML files (``docs/_build/html/index.html``).
+
+.. _`Sphinx`: http://sphinx-doc.org/
 
 
 Package Overview
