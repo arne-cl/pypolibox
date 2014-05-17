@@ -16,4 +16,4 @@ uninstall:
 clean:
 	find . -name *.pyc -delete
 	rm -rf git_stats /tmp/polibox
-	rm -rf build dist pypolibox.egg-info src/pypolibox.egg-info
+	rm -rf _build build dist pypolibox.egg-info src/pypolibox.egg-info
