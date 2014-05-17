@@ -10,7 +10,7 @@ NEWS = open(os.path.join(here, 'NEWS.rst')).read()
 version = '1.0.1'
 
 if platform.system() == 'Windows':
-    install_requires = ["lxml", "nltk", "winpexpect", "sphinxcontrib-napoleon"]
+    install_requires = ["lxml", "nltk", "winpexpect"]
 else:
     install_requires = ["lxml", "nltk", "pexpect", "sphinxcontrib-napoleon"]
 
