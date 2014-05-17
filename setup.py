@@ -7,7 +7,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()
 NEWS = open(os.path.join(here, 'NEWS.rst')).read()
 
-version = '1.0.1'
+version = '1.0.2'
 
 if platform.system() == 'Windows':
     install_requires = ["lxml", "nltk", "winpexpect"]

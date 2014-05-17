@@ -6,6 +6,14 @@
 News
 ====
 
+1.0.2 (2014-05-17)
+
+*Release data: 17-May-2014*
+
+* added Windows-specific requirements to setup.py (``winpexpect`` vs. ``pexpect``)
+* README now covers installation prerequisites
+
+
 1.0.1 (2014-05-13)
 ------------------
 
