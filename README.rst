@@ -12,27 +12,14 @@ the *OpenCCG* surface realiser to generate written sentences in German.
 Installation
 ------------
 
-Install from PyPI
-~~~~~~~~~~~~~~~~~
-
-::
-
-    pip install pypolibox # prepend 'sudo' if needed
-
-
-Install from source
-~~~~~~~~~~~~~~~~~~~
-
-::
-
-    git clone https://github.com/arne-cl/pypolibox.git
-    cd pypolibox
-    python setup.py install # prepend 'sudo' if needed
-
+Prerequisites
+~~~~~~~~~~~~~
 
 In order to generate sentences (instead of abstract sentence
 descriptions), you will need to install `OpenCCG`_ (tested with version
-0.9.5). Make sure that at least ``tccg`` is in your ``$PATH``.
+0.9.5). Make sure that you can call ``tccg`` from the command line,
+e.g. by adding the ``openccg/bin`` directory to your ``$PATH``.
+
 Under Linux, you'd have to add something like this to your ``.bashrc``:
 
 ::
@@ -44,6 +31,40 @@ Under Linux, you'd have to add something like this to your ``.bashrc``:
 
 
 .. _`OpenCCG`: http://openccg.sourceforge.net/
+
+Under Windows, you'll have to `set the environment variables`_
+``OPENCCG_HOME``, ``JAVA_HOME`` and add the full path of your
+``openccg/bin`` directory to the ``PATH`` variable.
+
+.. _`set the environment variables`: http://www.voidspace.org.uk/python/articles/command_line.shtml#environment-variables
+
+`pywin32`_ also needs to be installed under Windows.
+
+.. _`pywin32`: http://sourceforge.net/projects/pywin32/
+
+
+Install from PyPI
+~~~~~~~~~~~~~~~~~
+
+::
+
+    pip install pypolibox
+
+Under Linux, you might have to prepend that command with ``sudo`` or
+execute it as root. Under Windows, you'll need to run this command in a
+`console with administrator rights <http://superuser.com/a/88504>`_.
+
+
+Install from source
+~~~~~~~~~~~~~~~~~~~
+
+You might also need superuser/admin rights for this (see above).
+
+::
+
+    git clone https://github.com/arne-cl/pypolibox.git
+    cd pypolibox
+    python setup.py install
 
 
 Usage
