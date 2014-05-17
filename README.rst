@@ -1,6 +1,17 @@
 pypolibox
 =========
 
+.. image:: http://img.shields.io/pypi/dm/pypolibox.svg
+   :align: right
+   :target: https://pypi.python.org/pypi/pypolibox#downloads
+.. image:: http://img.shields.io/pypi/v/pypolibox.svg
+   :align: right
+   :target: https://pypi.python.org/pypi/pypolibox
+.. image:: http://img.shields.io/badge/license-GPL-yellow.svg
+   :align: right
+   :target: http://opensource.org/licenses/GPL-3.0
+
+
 *pypolibox* is a database-to-text generation (NLG) software built
 on Python 2.7, *NLTK* and Nicholas FitzGerald's *pydocplanner*.
 
