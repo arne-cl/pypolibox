@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    ***  "setarg" & Sprachmodell  *** 
+    
+    HLDS-Strukuren, die zu lex. Kategorien gehören, welche "setarg"-Elemente enthalten.
+    Das bedeutet Variabilität in der linearen Abfolge der Kind-Elemente dieser "setarg"- 
+    Elemente.
+    Beispielsätze, die von dieser lex. Kategorie erzeugt werden, sind Sätz mit trans. Verben,
+    die ein PP-Supplement enthalten:
+                        „das Buch entspricht ihren Suchkriterien in hohem Maß .“
+    
+    Diese Testsatzsammlung dient dem Experimentieren mit Sprachmodellen. Es soll untersucht
+    werden, auf welche Weise durch Sprachmodelle die unspezifizierte lineare Abfolge der
+    "setarg"-Kindelemente bei der Realisierung  manipuliert werden kann.
+    
+    
+    Autor: Martin Oltmann
+    Datum: 30.Juli, 2011
+    
+    Anmerkung:
+        
+-->
+<regression>
+    <!-- 
+        Satz 1: „Das Buch entspricht ihren Suchkriterien in hohem Maß.“
+        Satz 2: „Das Buch entspricht in hohem Maß ihren Suchkriterien.“
+    -->
+    <item numOfParses="2" string="das Buch entspricht ihren Suchkriterien in hohem Maß .">
+        <xml>
+            <lf>
+                <satop nom="p1:deklarativ">
+                    <prop name="punkt"/>
+                    <diamond mode="DEKL">
+                        <nom name="e1:durativ"/>
+                        <prop name="entsprechen"/>
+                        <diamond mode="TEMP:tempus">
+                            <prop name="präs"/>
+                        </diamond>
+                        <diamond mode="AGENS">
+                            <nom name="b1:artefaktum"/>
+                            <prop name="Buch"/>
+                            <diamond mode="NUM">
+                                <prop name="sing"/>
+                            </diamond>
+                            <diamond mode="ART">
+                                <nom name="d1:sem-obj"/>
+                                <prop name="def"/>
+                            </diamond>
+                        </diamond>
+                        <diamond mode="SUPPL">
+                            <nom name="m1:abstraktum"/>
+                            <prop name="Maß"/>
+                            <diamond mode="NUM">
+                                <prop name="sing"/>
+                            </diamond>
+                            <diamond mode="PRÄP">
+                                <nom name="i1:zusammenhang"/>
+                                <prop name="in"/>
+                            </diamond>
+                            <diamond mode="MOD">
+                                <nom name="h1:eigenschaft"/>
+                                <prop name="hoch"/>
+                                <diamond mode="KOMP">
+                                    <prop name="pos"/>
+                                </diamond>
+                            </diamond>
+                        </diamond>
+                        <diamond mode="PATIENS">
+                            <nom name="s1:abstraktum"/>
+                            <prop name="Suchkriterium"/>
+                            <diamond mode="NUM">
+                                <prop name="plur"/>
+                            </diamond>
+                            <diamond mode="ART">
+                                <nom name="p2:sem-obj"/>
+                                <prop name="poss"/>
+                                <diamond mode="PERS">
+                                    <prop name="7te"/>
+                                </diamond>
+                            </diamond>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>das Buch entspricht ihren Suchkriterien in hohem Maß .</target>-->
+        </xml>
+    </item>
+    <!-- 
+        Satz 1: „Obwohl das Buch in hohem Maß ihren Suchkriterien entspricht , findet sich keine Syntax in ihm.“
+        [Satz 2: „Obwohl das Buch in hohem Maß ihren Suchkriterien entspricht , findet sich in ihm keine Syntax.“]
+        Satz 3: „Obwohl das Buch ihren Suchkriterien in hohem Maß entspricht , findet sich keine Syntax in ihm.“
+        [Satz 4: „Obwohl das Buch ihren Suchkriterien in hohem Maß entspricht , findet sich in ihm keine Syntax.“]
+    -->
+    <item numOfParses="8" string="obwohl das Buch ihren Suchkriterien in hohem Maß entspricht , findet sich keine Syntax in ihm .">
+        <xml>
+            <lf>
+                <satop nom="p1:deklarativ">
+                    <prop name="punkt"/>
+                    <diamond mode="DEKL">
+                        <nom name="k1:subjunktion"/>
+                        <prop name="komma"/>
+                        <diamond mode="HS">
+                            <nom name="s1:handlung"/>
+                            <prop name="s.finden_in"/>
+                            <diamond mode="TEMP:tempus">
+                                <prop name="präs"/>
+                            </diamond>
+                            <diamond mode="AGENS">
+                                <nom name="s2:sorte"/>
+                                <prop name="Syntax"/>
+                                <diamond mode="NUM">
+                                    <prop name="sing"/>
+                                </diamond>
+                                <diamond mode="ART">
+                                    <nom name="q1:sem-obj"/>
+                                    <prop name="quantkein"/>
+                                </diamond>
+                            </diamond>
+                            <diamond mode="PRO">
+                                <nom name="x1:sem-obj"/>
+                                <diamond mode="PERS">
+                                    <prop name="3te"/>
+                                </diamond>
+                                <diamond mode="PRO">
+                                    <prop name="reflpro"/>
+                                </diamond>
+                                <diamond mode="GEN">
+                                    <prop name="fem"/>
+                                </diamond>
+                                <diamond mode="NUM">
+                                    <prop name="sing"/>
+                                </diamond>
+                            </diamond>
+                            <diamond mode="PATIENS">
+                                <nom name="x2:sem-obj"/>
+                                <diamond mode="PERS">
+                                    <prop name="3te"/>
+                                </diamond>
+                                <diamond mode="PRO">
+                                    <prop name="perspro"/>
+                                </diamond>
+                                <diamond mode="GEN">
+                                    <prop name="neut"/>
+                                </diamond>
+                                <diamond mode="NUM">
+                                    <prop name="sing"/>
+                                </diamond>
+                                <diamond mode="PRÄP">
+                                    <nom name="i1:zusammenhang"/>
+                                    <prop name="in"/>
+                                </diamond>
+                            </diamond>
+                        </diamond>
+                        <diamond mode="NSAnt">
+                            <nom name="o1:konzessiv"/>
+                            <prop name="obwohl"/>
+                            <diamond mode="VL">
+                                <nom name="e1:durativ"/>
+                                <prop name="entsprechen"/>
+                                <diamond mode="TEMP:tempus">
+                                    <prop name="präs"/>
+                                </diamond>
+                                <diamond mode="AGENS">
+                                    <nom name="b1:artefaktum"/>
+                                    <prop name="Buch"/>
+                                    <diamond mode="NUM">
+                                        <prop name="sing"/>
+                                    </diamond>
+                                    <diamond mode="ART">
+                                        <nom name="d1:sem-obj"/>
+                                        <prop name="def"/>
+                                    </diamond>
+                                </diamond>
+                                <diamond mode="SUPPL">
+                                    <nom name="m1:abstraktum"/>
+                                    <prop name="Maß"/>
+                                    <diamond mode="NUM">
+                                        <prop name="sing"/>
+                                    </diamond>
+                                    <diamond mode="PRÄP">
+                                        <nom name="i2:zusammenhang"/>
+                                        <prop name="in"/>
+                                    </diamond>
+                                    <diamond mode="MOD">
+                                        <nom name="h1:eigenschaft"/>
+                                        <prop name="hoch"/>
+                                        <diamond mode="KOMP">
+                                            <prop name="pos"/>
+                                        </diamond>
+                                    </diamond>
+                                </diamond>
+                                <diamond mode="PATIENS">
+                                    <nom name="s3:abstraktum"/>
+                                    <prop name="Suchkriterium"/>
+                                    <diamond mode="NUM">
+                                        <prop name="plur"/>
+                                    </diamond>
+                                    <diamond mode="ART">
+                                        <nom name="p2:sem-obj"/>
+                                        <prop name="poss"/>
+                                        <diamond mode="PERS">
+                                            <prop name="7te"/>
+                                        </diamond>
+                                    </diamond>
+                                </diamond>
+                            </diamond>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>obwohl das Buch ihren Suchkriterien in hohem Maß entspricht , findet sich keine Syntax in ihm .</target>-->
+        </xml>
+    </item>
+    <!-- 
+        Satz 1: „Obwohl das Buch ihren Suchkriterien in hohem Maß entspricht , richtet das Buch sich an ein fortgeschrittenes Publikum.“
+        Satz 2: „Obwohl das Buch ihren Suchkriterien in hohem Maß entspricht , richtet sich das Buch an ein fortgeschrittenes Publikum.“
+        Satz 3: „Obwohl das Buch in hohem Maß ihren Suchkriterien entspricht , richtet das Buch sich an ein fortgeschrittenes Publikum.“
+        Satz 4: „Obwohl das Buch in hohem Maß ihren Suchkriterien entspricht , richtet sich das Buch an ein fortgeschrittenes Publikum.“
+    -->
+    <item numOfParses="8" string="obwohl das Buch ihren Suchkriterien in hohem Maß entspricht , richtet sich das Buch an ein fortgeschrittenes Publikum .">
+        <xml>
+            <lf>
+                <satop nom="p1:deklarativ">
+                    <prop name="punkt"/>
+                    <diamond mode="DEKL">
+                        <nom name="k1:subjunktion"/>
+                        <prop name="komma"/>
+                        <diamond mode="HS">
+                            <nom name="s1:handlung"/>
+                            <prop name="s.richten_an"/>
+                            <diamond mode="TEMP:tempus">
+                                <prop name="präs"/>
+                            </diamond>
+                            <diamond mode="PRO">
+                                <nom name="x1:sem-obj"/>
+                                <diamond mode="PERS">
+                                    <prop name="3te"/>
+                                </diamond>
+                                <diamond mode="PRO">
+                                    <prop name="reflpro"/>
+                                </diamond>
+                                <diamond mode="GEN">
+                                    <prop name="neut"/>
+                                </diamond>
+                                <diamond mode="NUM">
+                                    <prop name="sing"/>
+                                </diamond>
+                            </diamond>
+                            <diamond mode="PATIENS">
+                                <nom name="p2:abstraktum"/>
+                                <prop name="Publikum"/>
+                                <diamond mode="NUM">
+                                    <prop name="sing"/>
+                                </diamond>
+                                <diamond mode="PRÄP">
+                                    <nom name="a1:gerichtetebez"/>
+                                    <prop name="an"/>
+                                </diamond>
+                                <diamond mode="ART">
+                                    <nom name="i1:sem-obj"/>
+                                    <prop name="indef"/>
+                                </diamond>
+                                <diamond mode="MOD">
+                                    <nom name="f1:eigenschaft"/>
+                                    <prop name="fortgeschritten"/>
+                                    <diamond mode="KOMP">
+                                        <prop name="pos"/>
+                                    </diamond>
+                                </diamond>
+                            </diamond>
+                            <diamond mode="AGENSAnt">
+                                <nom name="b1:artefaktum"/>
+                                <prop name="Buch"/>
+                                <diamond mode="NUM">
+                                    <prop name="sing"/>
+                                </diamond>
+                                <diamond mode="ART">
+                                    <nom name="d1:sem-obj"/>
+                                    <prop name="def"/>
+                                </diamond>
+                            </diamond>
+                        </diamond>
+                        <diamond mode="NSAnt">
+                            <nom name="o1:konzessiv"/>
+                            <prop name="obwohl"/>
+                            <diamond mode="VL">
+                                <nom name="e1:durativ"/>
+                                <prop name="entsprechen"/>
+                                <diamond mode="TEMP:tempus">
+                                    <prop name="präs"/>
+                                </diamond>
+                                <diamond mode="AGENS">
+                                    <nom name="b2:artefaktum"/>
+                                    <prop name="Buch"/>
+                                    <diamond mode="NUM">
+                                        <prop name="sing"/>
+                                    </diamond>
+                                    <diamond mode="ART">
+                                        <nom name="d2:sem-obj"/>
+                                        <prop name="def"/>
+                                    </diamond>
+                                </diamond>
+                                <diamond mode="SUPPL">
+                                    <nom name="m1:abstraktum"/>
+                                    <prop name="Maß"/>
+                                    <diamond mode="NUM">
+                                        <prop name="sing"/>
+                                    </diamond>
+                                    <diamond mode="PRÄP">
+                                        <nom name="i2:zusammenhang"/>
+                                        <prop name="in"/>
+                                    </diamond>
+                                    <diamond mode="MOD">
+                                        <nom name="h1:eigenschaft"/>
+                                        <prop name="hoch"/>
+                                        <diamond mode="KOMP">
+                                            <prop name="pos"/>
+                                        </diamond>
+                                    </diamond>
+                                </diamond>
+                                <diamond mode="PATIENS">
+                                    <nom name="s2:abstraktum"/>
+                                    <prop name="Suchkriterium"/>
+                                    <diamond mode="NUM">
+                                        <prop name="plur"/>
+                                    </diamond>
+                                    <diamond mode="ART">
+                                        <nom name="p3:sem-obj"/>
+                                        <prop name="poss"/>
+                                        <diamond mode="PERS">
+                                            <prop name="7te"/>
+                                        </diamond>
+                                    </diamond>
+                                </diamond>
+                            </diamond>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>obwohl das Buch ihren Suchkriterien in hohem Maß entspricht , richtet das Buch sich an ein fortgeschrittenes Publikum .</target>-->
+        </xml>
+    </item>
+    <!-- 
+        Satz 1: „Das Buch behandelt das Thema Syntax und stellt das Thema Semantik nicht vor.“
+        Satz 2: „Das Buch behandelt das Thema Syntax und stellt nicht das Thema Semantik vor.“
+    -->
+    <item numOfParses="1" string="das Buch behandelt das Thema Syntax und stellt das Thema Semantik nicht vor .">
+        <xml>
+            <lf>
+                <satop nom="p1:deklarativ">
+                    <prop name="punkt"/>
+                    <diamond mode="DEKL">
+                        <nom name="u1:konjunktion"/>
+                        <prop name="und"/>
+                        <diamond mode="S1">
+                            <nom name="b1:handlung"/>
+                            <prop name="behandeln"/>
+                            <diamond mode="TEMP:tempus">
+                                <prop name="präs"/>
+                            </diamond>
+                            <diamond mode="AGENS">
+                                <nom name="b2:artefaktum"/>
+                                <prop name="Buch"/>
+                                <diamond mode="NUM">
+                                    <prop name="sing"/>
+                                </diamond>
+                                <diamond mode="ART">
+                                    <nom name="d1:sem-obj"/>
+                                    <prop name="def"/>
+                                </diamond>
+                            </diamond>
+                            <diamond mode="PATIENS">
+                                <nom name="t1:art"/>
+                                <prop name="Thema"/>
+                                <diamond mode="NUM">
+                                    <prop name="sing"/>
+                                </diamond>
+                                <diamond mode="ART">
+                                    <nom name="d2:sem-obj"/>
+                                    <prop name="def"/>
+                                </diamond>
+                                <diamond mode="NOMERG">
+                                    <nom name="s1:sorte"/>
+                                    <prop name="Syntax"/>
+                                    <diamond mode="NUM">
+                                        <prop name="sing"/>
+                                    </diamond>
+                                </diamond>
+                            </diamond>
+                        </diamond>
+                        <diamond mode="VG">
+                            <nom name="v1:infinitum"/>
+                            <prop name="vor-X-trans"/>
+                            <diamond mode="AUX">
+                                <nom name="v2:partverbstamm"/>
+                                <prop name="vor-stellen"/>
+                                <diamond mode="TEMP:tempus">
+                                    <prop name="präs"/>
+                                </diamond>
+                                <diamond mode="SPEZ">
+                                    <nom name="n1:negation"/>
+                                    <prop name="nicht"/>
+                                </diamond>
+                                <diamond mode="PATIENS">
+                                    <nom name="t2:art"/>
+                                    <prop name="Thema"/>
+                                    <diamond mode="NUM">
+                                        <prop name="sing"/>
+                                    </diamond>
+                                    <diamond mode="ART">
+                                        <nom name="d3:sem-obj"/>
+                                        <prop name="def"/>
+                                    </diamond>
+                                    <diamond mode="NOMERG">
+                                        <nom name="s2:sorte"/>
+                                        <prop name="Semantik"/>
+                                        <diamond mode="NUM">
+                                            <prop name="sing"/>
+                                        </diamond>
+                                    </diamond>
+                                </diamond>
+                            </diamond>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>das Buch behandelt das Thema Syntax und stellt nicht das Thema Semantik vor .</target>-->
+        </xml>
+    </item>
+</regression>

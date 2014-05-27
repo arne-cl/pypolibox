@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="k1:subjunktion">
+      <prop name="komma"/>
+      <diamond mode="HS">
+        <nom name="a1:infinitum"/>
+        <prop name="aus-X-intrans"/>
+        <diamond mode="AUX">
+          <nom name="a2:partverbstamm"/>
+          <prop name="aus-setzen"/>
+          <diamond mode="TEMP:tempus">
+            <prop name="präs"/>
+          </diamond>
+          <diamond mode="AGENS">
+            <nom name="p1:sorte"/>
+            <prop name="Pragmatik"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d1:sem-obj"/>
+              <prop name="def"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+      <diamond mode="NS">
+        <nom name="w1:adversativ"/>
+        <prop name="während"/>
+        <diamond mode="VL">
+          <nom name="a3:inchoativ"/>
+          <prop name="aussetzen"/>
+          <diamond mode="TEMP:tempus">
+            <prop name="präs"/>
+          </diamond>
+          <diamond mode="AGENS">
+            <nom name="a4:bel-phys-körper"/>
+            <prop name="Autor"/>
+            <diamond mode="GEN">
+              <prop name="mask"/>
+            </diamond>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d2:sem-obj"/>
+              <prop name="def"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>die Pragmatik setzt aus , während der Autor aussetzt</target>-->
+</xml>

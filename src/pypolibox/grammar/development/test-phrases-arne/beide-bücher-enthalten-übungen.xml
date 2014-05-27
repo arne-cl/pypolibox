@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="e1:durativ">
+      <prop name="enthalten"/>
+      <diamond mode="TEMP:tempus">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="AGENS">
+        <nom name="b1:artefaktum"/>
+        <prop name="Buch"/>
+        <diamond mode="NUM">
+          <prop name="plur"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="q1:sem-obj"/>
+          <prop name="quantbeide"/>
+        </diamond>
+      </diamond>
+      <diamond mode="PATIENS">
+        <nom name="ü1:abstraktum"/>
+        <prop name="Übung"/>
+        <diamond mode="NUM">
+          <prop name="plur"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <target>beide Bücher enthalten Übungen</target>
+</xml>

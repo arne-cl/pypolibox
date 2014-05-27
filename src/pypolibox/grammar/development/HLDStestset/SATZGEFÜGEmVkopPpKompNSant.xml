@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="k1:subjunktion">
+      <prop name="komma"/>
+      <diamond mode="HS">
+        <nom name="s1:prädikation"/>
+        <prop name="sein-kop"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="SUBJ">
+          <nom name="b1:artefaktum"/>
+          <prop name="Buch"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d1:sem-obj"/>
+            <prop name="dem"/>
+          </diamond>
+          <diamond mode="ATTRIB">
+            <nom name="s2:artefaktum"/>
+            <prop name="Seite"/>
+            <diamond mode="NUM">
+              <prop name="plur"/>
+            </diamond>
+            <diamond mode="PRÄP">
+              <nom name="m1:zugehörigkeit"/>
+              <prop name="mit"/>
+            </diamond>
+            <diamond mode="MOD">
+              <nom name="n1:kardinal"/>
+              <prop name="680"/>
+            </diamond>
+          </diamond>
+        </diamond>
+        <diamond mode="PRKOMPL">
+          <nom name="a1:adjunktion"/>
+          <prop name="adjunktor"/>
+          <diamond mode="MOD">
+            <nom name="u1:eigenschaft"/>
+            <prop name="umfangreich"/>
+            <diamond mode="KOMP">
+              <prop name="komp"/>
+            </diamond>
+          </diamond>
+          <diamond mode="KOMPAR">
+            <nom name="b2:artefaktum"/>
+            <prop name="Buch"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d2:sem-obj"/>
+              <prop name="def"/>
+            </diamond>
+            <diamond mode="MOD">
+              <nom name="e1:ordinal"/>
+              <prop name="erster"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+      <diamond mode="NSAnt">
+        <nom name="w1:adversativ"/>
+        <prop name="während"/>
+        <diamond mode="VL">
+          <nom name="s3:prädikation"/>
+          <prop name="sein-kop"/>
+          <diamond mode="TEMP:tempus">
+            <prop name="präs"/>
+          </diamond>
+          <diamond mode="SUBJ">
+            <nom name="x1:sem-obj"/>
+            <diamond mode="PERS">
+              <prop name="3te"/>
+            </diamond>
+            <diamond mode="PRO">
+              <prop name="perspro"/>
+            </diamond>
+            <diamond mode="GEN">
+              <prop name="neut"/>
+            </diamond>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+          </diamond>
+          <diamond mode="PRKOMPL">
+            <nom name="a2:adjunktion"/>
+            <prop name="adjunktor"/>
+            <diamond mode="SUPPL">
+              <nom name="j1:art"/>
+              <prop name="Jahr"/>
+              <diamond mode="NUM">
+                <prop name="plur"/>
+              </diamond>
+              <diamond mode="PRÄP">
+                <nom name="m2:zugehörigkeit"/>
+                <prop name="mit"/>
+              </diamond>
+              <diamond mode="MOD">
+                <nom name="z1:kardinal"/>
+                <prop name="zwei"/>
+              </diamond>
+            </diamond>
+            <diamond mode="MOD">
+              <nom name="ä1:eigenschaft"/>
+              <prop name="älter"/>
+              <diamond mode="KOMP">
+                <prop name="komp"/>
+              </diamond>
+            </diamond>
+            <diamond mode="KOMPAR">
+              <nom name="b3:artefaktum"/>
+              <prop name="Buch"/>
+              <diamond mode="NUM">
+                <prop name="sing"/>
+              </diamond>
+              <diamond mode="ART">
+                <nom name="d3:sem-obj"/>
+                <prop name="def"/>
+              </diamond>
+              <diamond mode="MOD">
+                <nom name="e2:ordinal"/>
+                <prop name="erster"/>
+              </diamond>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>während es mit zwei Jahren älter als das erste Buch ist , ist dieses Buch mit 680 Seiten umfangreicher als das erste Buch</target>-->
+</xml>

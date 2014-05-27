@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xml>
+  <lf>
+    <satop nom="art">
+      <prop name="Thema"/>
+      <diamond mode="NUM">
+        <prop name="plur"/>
+      </diamond>
+      <diamond mode="ART">
+        <nom name="sem-obj"/>
+        <prop name="def"/>
+      </diamond>
+      <diamond mode="NOMERG">
+        <nom name="konjunktion"/>
+        <prop name="und"/>
+        <diamond mode="">
+          <nom name="sorte"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <prop name="pragmatics"/>
+        </diamond>
+        <diamond mode="NP1">
+          <nom name="konjunktion"/>
+          <prop name="komma"/>
+          <diamond mode="">
+            <nom name="sorte"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <prop name="semantics"/>
+          </diamond>
+          <diamond mode="">
+            <nom name="sorte"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <prop name="automata_theory"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+</xml>

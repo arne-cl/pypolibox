@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="x1:sem-obj">
+      <diamond mode="PERS">
+        <prop name="3te"/>
+      </diamond>
+      <diamond mode="PRO">
+        <prop name="perspro"/>
+      </diamond>
+      <diamond mode="GEN">
+        <prop name="neut"/>
+      </diamond>
+      <diamond mode="NUM">
+        <prop name="plur"/>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>sie</target>-->
+</xml>

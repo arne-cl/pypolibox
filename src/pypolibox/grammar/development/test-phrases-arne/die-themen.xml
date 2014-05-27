@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="t1:art">
+      <prop name="Thema"/>
+      <diamond mode="NUM">
+        <prop name="plur"/>
+      </diamond>
+      <diamond mode="ART">
+        <nom name="d1:sem-obj"/>
+        <prop name="def"/>
+      </diamond>
+    </satop>
+  </lf>
+  <target>die Themen</target>
+</xml>

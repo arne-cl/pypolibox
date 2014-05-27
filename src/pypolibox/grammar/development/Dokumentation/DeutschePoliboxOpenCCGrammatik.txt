@@ -1,0 +1,3007 @@
+Donnerstag, 02.Juni, 2011
+
+							***********************************************
+							***	Die Deutsche Polibox OpenCCG Grammatik	***
+							***********************************************
+
+
+
+	*** HLDS-Formen zur Erzeugung von Worten und Phrasen und Sätzen:
+
+		*	SUBSTANTIVE tragen ein NUMERUS- und ein GENUS Merkmal in einer HLDS-Form:
+				Substantive verwenden folgende HLDS-Merkmale:
+						NUM:[sing|plur]
+						GEN:[mask|fem(|neut)] (vorerst wird nur zw. Maskulinum und Femininum unterschieden)
+						NOMERG
+
+					Das Genus-Merkmal ist notwendig, um bei manchen Substantiven das
+					dem Kontext angemessene Genus in der HLDS-Form zu selegieren.
+					Beispiel:
+						<nom name="r1:abstraktum"/>
+						<prop name="Rolle"/>
+						<diamond mode="NUM">
+							<prop name="sing"/>
+						</diamond>
+						<diamond mode="GEN">
+							<prop name="fem"/>
+						</diamond>
+
+				POSTNOMINALES ERGÄNZUNGSNOMEN
+					Substantiven, die eine Art angegeben, kann ein postnominales Ergänzungsnomen folgen, das
+					eine Sorte dieser Art angibt.
+					Das postnominale Substantiv wird dabei in einem 'NOMERG'-Diamanten eingebettet mitsamt
+					eigenem Nominal und notwendigen Attributen (i.e. NUM und ggf. GEN) in den Skopus des
+					Kopfnomens gestellt.
+						ACHTUNG:
+								Kopfnomen und postnominales Ergänzungsnomen MÜSSEN in einer semantischen
+								ART->SORTE Relation stehen, das heißt, das Kopfnomen muss vom Typ 'art'
+								sein, und das Ergänzungsnomen vom Typ 'sorte'!
+
+					Beispiel:
+						<diamond mode="AGENS">
+							<nom name="t1:art"/>
+							<prop name="Thema"/>
+							<diamond mode="NUM">
+								<prop name="sing"/>
+							</diamond>
+							<diamond mode="ART">
+								<nom name="d1:sem-obj"/>
+								<prop name="def"/>
+							</diamond>
+							<diamond mode="NOMERG">
+								<nom name="s1:sorte"/>
+								<prop name="Syntax"/>
+								<diamond mode="NUM">
+									<prop name="sing"/>
+								</diamond>
+							</diamond>
+						</diamond>
+
+
+		*	PRONOMEN
+				POSSESSIV,
+				PERSONAL,
+				QUANTIFIKATIV,
+				DEMONSTRATIV,
+				ETC.
+				… sind nun vollständig via HLDS-Form generierbar.
+
+				Possessivpronomen verwenden folgende HLDS-Merkmale:
+						PRO:[posspro|dempro2|dempro3|perspro|quantprobeide|
+							 quantprokein|reflpro|rezprkpro|indefpro|negpro]
+						GEN:x
+						NUM:y
+						PERS:z
+
+				Für jedes Pronomen muss ein korrespondierendes NOMINAL erzeugt werden,
+				das einen SEMANTISCHEN KOPF repräsentiert, weil Pronomen Stellvertreter
+				für Substantive sind.
+
+					Beispiel:
+						<diamond name="AGENS">
+							<nom name="PRONOMEN:sem-obj"/>
+							<diamond mode="PRO">
+								<prop name="posspro"/>
+							</diamond>
+							<diamond mode="GEN">
+								<prop name="neut"/>
+							</diamond>
+							<diamond mode="NUM">
+								<prop name="sing"/>
+							</diamond>
+							<diamond mode="PERS">
+								<prop name="4te"/>
+							</diamond>
+						</diamond>
+
+				Mit Possesivpronomen kann man schon ANAPHERN erzeugen.
+
+				DEMONSTRATIVPRONOMEN können auch anaphorisch verwendet werden.
+				Sie können in ZWEI ENTFERNUNGSGRADEN:
+					1.:	der, die, das 			=>	dempro3
+					2.:	dieser, diese, dieses	=>	dempro2
+				erzeugt werden.
+				Demonstrativepronomen verwenden folgende HLDS-Merkmale:
+						PRO:dempro
+						GEN:neut
+						NUM:sing
+						PERS:3te
+
+					Beispiel:
+						<diamond name="AGENS">
+							<nom name="PRONOMEN:sem-obj"/>
+							<diamond mode="PRO">
+								<prop name="dempro2"/>
+							</diamond>
+							<diamond mode="GEN">
+								<prop name="neut"/>
+							</diamond>
+							<diamond mode="NUM">
+								<prop name="sing"/>
+							</diamond>
+							<diamond mode="PERS">
+								<prop name="3te"/>
+							</diamond>
+						</diamond>
+
+				PERSONALPRONOMEN (anaphorische Pronomen - nur die 3ten Personen in Sing. und Plur.)
+				sind Anaphern schlechthin;
+
+				Personalpronomen verwenden folgende HLDS-Merkmale:
+						PRO:perspro
+						GEN:neut
+						NUM:plur
+						PERS:3te
+					Beispiel:
+						<diamond name="AGENS">
+							<nom name="PRONOMEN:sem-obj"/>
+							<diamond mode="PRO">
+								<prop name="perspro"/>
+							</diamond>
+							<diamond mode="GEN">
+								<prop name="neut"/>
+							</diamond>
+							<diamond mode="NUM">
+								<prop name="plur"/>
+							</diamond>
+							<diamond mode="PERS">
+								<prop name="3te"/>
+							</diamond>
+						</diamond>
+
+				QUANTIFIKATIV-PRONOMEN (e.c. beide) können auch sehr schön als Anaphern verwendet werden;
+				sie können allein durch Angabe des Pronomen-Typs 'quantpro[beide|kein]' generiert werden.
+
+				Quantitativpronomen verwenden folgende HLDS-Merkmale:
+						PRO:quantprobeide
+				… oder
+						PRO:quantprokein
+
+				'quantprobeide' bedarf lediglich eines Nominals für seine Generierung; es ist ein
+				Pluraletantum, und flektiert nicht hinsichtlich Genus.
+
+					Beispiel1:
+						<diamond name="AGENS">
+							<nom name="PRONOMEN:sem-obj"/>
+							<diamond mode="PRO">
+								<prop name="quantprobeide"/>
+							</diamond>
+						</diamond>
+
+				'quantprokein' wird (… wie andere Pronomen) unter Angabe von GENUS, NUMERUS und PERSON
+				generiert, und dient der NEGATION:
+
+					Beispiel2:
+						<diamond name="AGENS">
+							<nom name="PRONOMEN:sem-obj"/>
+							<diamond mode="PRO">
+								<prop name="quantprokein"/>
+							</diamond>
+							<diamond mode="GEN">
+								<prop name="neut"/>
+							</diamond>
+							<diamond mode="NUM">
+								<prop name="plur"/>
+							</diamond>
+							<diamond mode="PERS">
+								<prop name="3te"/>
+							</diamond>
+						</diamond>
+
+				Der NEGATION dient auch das INDEFINITE NEGATIONSPRONOMEN 'nichts', das seine Form nicht
+				ändert. Es wird m.H. der Proposition 'negpro' selektiert.
+
+
+		*	ARTIKEL sind ebenfalls als
+					DEFINITE (def. Artikel für Analepsen in NPs),
+					INDEFINITE,
+					DEMONSTRATIVE,
+					QUANTIFIKATIVE,
+					POSSESSIV-Artikel
+				via HLDS generierbar.
+
+				Artikel verwenden folgende HLDS-Merkmale:
+						ART:def|indef|dem|quant|poss
+				je nachdem, ob ein definiter, indefiniter oder ein demonstrativer
+				Artikel generiert werden soll.
+
+				Auch jeder Artikel führt sein eigenes Nominal mit in die HLDS-Formel
+				ein, und wird damit als ein semantischer Dependent des korrespondierenden
+				Substantivs aufgefasst.
+
+					Beispiel:
+						Indefiniter Artikel:
+							<diamond mode="ART">
+								<nom name="ARTIKEL_NOMINAL:sem-obj"/>
+								<prop name="indef"/>
+							</diamond>
+						Demonstrativer Artikel:
+							<diamond mode="ART">
+								<nom name="ARTIKEL_NOMINAL:sem-obj"/>
+								<prop name="dem"/>
+							</diamond>
+
+				Possessiv-Artikel verwenden folgende HLDS-Merkmale:
+						ART:poss
+						PERS:[1te|2te|3te|4te|5te|6te|7te]
+
+					Beispiel:
+						<diamond mode="ART">
+							<nom name="ARTIKEL_NOMINAL:sem-obj"/>
+							<prop name="poss"/>
+						</diamond>
+						<diamond mode="PERS">
+							<prop name="3te"/>
+						</diamond>
+
+				Definite und indefinite Artikel sind wichtig, um den INFORAMTIONSSTATUS 'Given/New'
+				zu kodieren, und spielen damit auch für die SALIENZ eines Diskursgegenstandes
+				eine Rolle.
+				Demonstrative Artikel können in Referierenden Ausdrücken gut verwendet werden.
+
+				Quantitativ-Artikel verwenden folgende HLDS-Merkmale:
+						ART:quantbeide
+				… oder
+						ART:quantkein
+				erzeugt werden.
+
+						Beispiel:
+							<diamond mode="ART">
+								<nom name="ARTIKEL_NOMINAL:sem-obj"/>
+								<prop name="quantbeide"/>
+							</diamond>
+
+				Die Quantitativ-Artikel können sehr gut als Anaphern eingesetzt werden, 'quantkein' für
+				die NEGATION.
+
+
+				ANALEPSE von Substantiven in NPs:
+
+                        Mit 680 Seiten ist dieses Buch ein wenig länger als DAS LETZTE.
+
+				Idee ist, das weggelassene Substantiv 'Buch' im obigen Beispiel allein aus dem
+				Kontext wieder rekonstruieren zu können (Analepse).
+				Hier geschieht das durch den Bezug auf das Subjekt (dieses Buch).
+
+				Die 'Mechanik' in der Grammatik funktioniert dementsprechend: Stellvertretend für das
+				ausgelassene Substantiv trägt DER ARTIKEL DIE GNC-MERKMALE und kogruiert mit dem
+				Adjektiv und dem Subjekt (i.e. 'letzte' 'dieses Buch …').
+
+				Die einzige lex. Kategorie, mit der solche Strukturen korrekt erzeugt werden können, ist
+				(bisher) der Eintrag "pp_ant-komparativ" in der lex. Familie 'Vkopula', mit dem Sätze nach
+				dem Strickmuster des Beispiels oben generiert werden können.
+
+				Um also solche analeptischen NPs erzeugen zu können, existiert eine extra lex. Familie
+				'AnalepseArtikel', deren Mitglieder den PoS-Tag 'ARTANA' tragen, und die eine lex. Kategorie
+				'artana' zurückgibt (i.e. Resultatkategorie: artana).
+				Lexikoneinträge dieser lex.Familie sind Artikel, die Substantiven ähnlich sind, indem sie
+				alle GNC-Merkmale tragen, aber außerdem auch noch das artikeleigene 'flex'-Merkmal, mit dem
+				ein Artikel starke bzw.schwache Flektion bei den Adjektiven fordert.
+				Schlussendlich können 'artana'-Elmente mit Adjektiven kombiniert werden, und ergeben dann
+				eine NP, deren Kopf die GNC-Merkmale des Artikels trägt, und die für die Generierung mit
+				einer anderen NP kongruieren muss (i.e. via HLDS kann man lediglich den Artikel 'def-ana'
+				als Proposition selektieren, jedoch KEINE GNC-Merkmale festlegen - die müssen via Kongruenz
+				von einer anderen Satzkomponente geliefert werden.)
+				In HLDS verhalten sich solche Artikel wie Substantive, d.h. sie bilden Satzkomponenten, die
+				mit Adjektiven modifiziert werden können.
+				Im Beispiel tritt solch eine analeptische NP als Vergleichsgegenstand in einer
+				Komparativstruktur auf (eingebettet in eine KOMPAR-Modalität: 1) ). Was man nicht sieht, ist,
+				dass dieser mit dem Subjekt des Satzes (cf. Beispiel oben) kongruiert:
+
+					Subjekt: 'dieses Buch'		<=GNC-Kongruenz=>		Vergleichsgegenstand:	'das letzte'
+
+				Um eine solche Struktur zu erzeugen, muss man den analeptischen Artikel stellvertretend für
+				ein Substantiv selektieren: 2).
+				Zusätzlich wird dieser Artikel immer noch durch ein Adjektiv qualifiziert: 3).
+                    1)    <diamond mode="KOMPAR">
+                            <nom name="d2:sem-obj"/>
+                    2)    	<prop name="def_ana"/>
+                    3)		<diamond mode="MOD">
+                                <nom name="l2:eigenschaft"/>
+                                <prop name="letzt"/>
+                                <diamond mode="KOMP">
+                                    <prop name="pos"/>
+                                </diamond>
+                            </diamond>
+                        </diamond>
+                    </diamond>
+
+			REDEWENDUNG 'ein wenig':
+				Ein Eintrag bei den indefiniten Artikeln ist speziell für die Redewendung
+				'ein wenig' gedacht, und darin für den indefiniten Artikel 'ein' gedacht.
+				Er verhindert, dass eine Partikel auch mit allen anderen Artikeln, außer
+				dem indefiniten Artikel 'ein', kombinierbar ist.
+				Dieser Atikel wird selektiert, wenn in Verbindung mit einer PRTK-Modalität
+				eine ART-Modalität bei der Generierung der Redewendung 'ein wenig' verwendet
+				wird - sonst nirgends.
+
+				Dieser speziell für diesen Fall vorhandene indefinite Artikel hat einen
+				von den übrigen Artikeln unterschiedlichen PoS: 'ARTINDEF'.
+				Auch seine lex. Kategorie unterscheidet sich von allen übrigen Artikeln: 'art-indef'.
+
+
+		*	ADJEKTIVE/ADJEKTIV-ATTRIBUT
+				STARKE FLEXION
+				SCHWACHE FLEXION
+				KOMPARATION (bisher nur Komparativ)
+
+				Adjektive verwenden folgende HLDS-Merkmale:
+					MOD (+ Nominal + Adjektiv)
+					KOMP:[pos|komp]
+
+			    Semantisch (i.S.v. HLDS) führt jedes Adjektiv sein eigenes Nominal ein,
+				dessen zugeordnete Proposition ein entsprechendes Adjektiv ist.
+				Die gesamte Adjektiv-Konstruktion steht in einer Modalität '<MOD>'
+				(i.e. MODIFIER) als Dependent des jeweiligen Kopfnomens.
+
+				Um via HLDS eine bestimmte Form eines Adjektives selektieren zu können,
+				tragen alle Adjektiv-Wortformen ausser Kardinalia ein
+				'@hlds.komp.pos|komp|super'-Merkmal, das die semantische Struktur eines
+				Adjektivs ergänzt um die Modalität '<KOMP>' mit einer der drei Propositionen
+				'pos', 'komp' oder 'super'
+					Beispiel:
+						<diamond mode="MOD">
+							<nom name="NOMINAL_ADJEKTIV:sem-obj"/>
+							<prop name="umfassend"/>
+							<diamond mode="KOMP">
+								<prop name="komp"/>
+							</diamond>
+						</diamond>
+
+					Beispiel: Kardinalzahl
+						<diamond mode="MOD">
+							<nom name="NOMINAL_KARDINAL:kardinal"/>
+							<prop name="193"/>
+						</diamond>
+
+				Kardinalzahlen werden damit als Propositionen von Nominalen repräsentiert,
+				die in einem MOD-Diamanten eingefasst sind.
+
+				Adjektive verfügen im Deutschen über das reichhaltigste Formenparadigma aller
+				Wortarten.
+				Die Flektionsparadigma sind:
+					-	starke/schwache Flektion,
+					-	Genus Numerus Kasus Kongruenz mit dem modifizierten Substantiv, und
+					-	Komparation mit Komparativ und Superlativ.
+
+				Werden Adjektive gemeinsam mit Artikeln in einer HLDS-Formel aufgeführt, so werden
+				sie automatisch bezüglich aller Flektionsparadigma korrekt flektiert.
+				Nur die Komparation-Stufe muss expliziet angegeben werden - den Rest besorgt die
+				Grammatik ;).
+
+				Adjektive können näher durch eine Partikel spezifiziert werden. In die MOD Modalität
+				des Adjektivs ist dann zusätzlich eine SPEZ Modalität eingebettet, die die Partikel
+				enthält.
+						Beispiel HLDS-Repräsentation:
+							<diamond mode="MOD">
+								<nom name="n1:eigenschaft"/>
+								<prop name="neu"/>
+								<diamond mode="KOMP">
+									<prop name="pos"/>
+								</diamond>
+								<diamond mode="SPEZ">
+									<nom name="b2:hervorhebung"/>
+									<prop name="besonders"/>
+								</diamond>
+							</diamond>
+							(besonders neu)
+
+				Partikeln in Verbindung mit Adjektiven dienen der Feinabstimmung der durch ein entprechendes
+				Adjektiv vorgenommenen Modifikation eines Prädikats. Sie verändern jedoch nicht den Wahrheitsgehalt
+				des Prädikats (außer im Fall der Negationspartikel).
+
+
+		*	PRÄPOSITIONEN
+				Präpositionen verwenden folgende HLDS-Merkmale:
+					PRÄP (+ Nominal + Präposition)
+					ATTRIB + PRÄP (+ Nominal + Präposition)
+
+				Präpositionen regieren einen Kasus.
+				Sie können adjazent auftreten (e.c."IN dem Buch VOM Autoren") oder auch einzeln.
+				In HLDS bekommt jede Präposition ein eigenes Nominal zugewiesen, das auch typisiert
+				sein kann.
+				Wichtig ist, dass je eine Präposition einem Substantiv zugeordnet ist, auf das es
+				sich bezieht:
+								<satop nom="SUBS_Y">
+									<prop name="Autor"/>
+									<diamond mode="ART">
+										<prop name="def"/>
+									</diamond>
+									<diamond mode="GEN">
+										<prop name="fem"/>
+									</diamond>
+									<diamond mode="NUM">
+										<prop name="sing"/>
+									</diamond>
+									<diamond mode="PRÄP">
+										<nom name="NOMINAL_PRÄPOSITION"/>
+										<prop name="von"/>
+									</diamond>
+								</satop>
+								("von der Autorin").
+				Das bedeutet, dass jede Präposition ein Kind-Element desjenigen Erfüllungsoperators
+				(i.e. <satop nom=NOMINAL"> …) von dem Nominal, das auf das Bezugsnomen der Präposition
+				verweist, ist.
+
+				Präpositionen werden in HLDS also 'innerhalb' von Nominalen, die sich auf Substantive
+				beziehen, definiert. Man kann sie deshalb als Modifizierer von Substantiven ansehen, wenn
+				man möchte … man könnte die HLDS Struktur aber (wahrscheinlich) auch einfach anders
+				strukturieren.
+				Präpositionen werden also mit Hilfe der Modalität 'PRÄP' eingeführt, wobei eben auch ein
+				Nominal für die zu verwendende Präposition eingeführt werden muss. Die zu diesem Nominal
+				korrespondierende Proposition selegiert dann die gewünschte Präposition.
+				Beispiel:
+							<satop nom="SUBSTANTIV NOMINAL">
+								…
+								<diamond mode="PRÄP">
+									<nom name="NOMINAL_PRÄPOSITION"/>
+									<prop name="über"/>
+								</diamond>
+								…
+							</satop>
+				ACHTUNG:	Der Erzeuger der HLDS-Struktur ist verantwortlich dafür, dass bestimmte
+							Präpositionen (e.c. vom) nicht zusammen mit einem Artikel generiert werden
+							(i.e. *vom dem Autor).
+
+				Im Allgemeinen treten Präpositionen gemeinsam mit ihren Bezugsnomen innerhalb eines
+				'ATTRIB'-Diamanten auf - als Attribute/Supplemente von Satzgliedern oder Sätzen.
+
+
+				PRÄPOSITIONAL-ATTRIBUT:
+				Nominalphrasen können durch Präpositionalphrasen im Sinne von Präpositional-Attributen
+				ergänzt werden (e.c.:"[Das Buch [IN DEUTSCHER SPRACHE]pp ]np").
+				Um ein Präpositionalattribut via HLDS zu generieren, muss innerhalb des Skopus von dem
+				Nominal, das sich auf die zu attribuierende NP bezieht eine 'ATTRIB' Modalität verwendet
+				werden.
+				Innerhalb des Skopus dieses Diamanten tritt dann mindestens ein Substantiv
+				(… wahrscheinlich durch einen Artikel oder ein Adjektiv ergänzt) auf gemeinsam mit der
+				Präposition, die wie oben beschrieben generiert wird.
+
+				Beispiel:
+						<nom name="b2:artefaktum"/>
+						<prop name="Buch"/>
+						<diamond mode="NUM">
+							<prop name="sing"/>
+						</diamond>
+					|<=============Attribuierung=============
+						<diamond mode="ATTRIB">
+							<nom name="s1:abstraktum"/>
+							<prop name="Sprache"/>
+							<diamond mode="NUM">
+								<prop name="sing"/>
+							</diamond>
+							<diamond mode="PRÄP">
+								<nom name="i1:zusammenhang"/>
+								<prop name="in"/>
+							</diamond>
+							<diamond mode="MOD">
+								<nom name="d1:eigenschaft"/>
+								<prop name="deutsch"/>
+								<diamond mode="KOMP">
+									<prop name="pos"/>
+								</diamond>
+							</diamond>
+						</diamond>
+					=============Attribuierung=============>|
+					(Buch in deutscher Sprache).
+
+		*	GENETIV-ATTRIBUTE
+				Genetiv-Attribute verwenden folgende HLDS-Merkmale:
+					ATTRIB + (ART + Genetiv-Artikel)
+
+				Genetiv-Attribute sind auch Attribute. So werden sie ebenfalls wie auch
+				die Präpositional-Attribute mit einer 'ATTRIB'-Modalität markiert.
+				Während Präpositional-Attribute allerdings dann mit einer 'PRÄ'-Modalität
+				gekennzeichnet werden, werden Genetiv-Attribute demgegenüber mit einer
+				'ART'-Modalität gekennzeichnet.
+				Für den Genetiv-Artikel wird ein EIGENES NOMINAL erschaffen, und durch
+				die Angabe eines bestimmten Artikels als Proposition (i.e. dem, pers, def,
+				indef, poss, quantbeide, quantkein) wird dieser selegiert.
+
+				Bei Genetiv-Attributen steht also die modifizierende NP innerhalb eines 'ATTRIB'
+				Skopus, und diese 'ATTRIB'-Modalität steht gemeinsam mit der zu modifizierenden NP
+				unter dem Skopus einer übergeordneten Relation.
+
+				Beispiel:
+						<diamond mode="PATIENS">
+							<nom name="NOMINAL_SUBSTANTIV_1:abstraktum"/>
+							<prop name="Thema"/>
+							<diamond mode="NUM">
+								<prop name="sing"/>
+							</diamond>
+							<diamond mode="ART">
+								<nom name="NOMINAL_ARTIKEL_1:sem-obj"/>
+								<prop name="indef"/>
+							</diamond>
+							<diamond mode="ATTRIB">
+								<nom name="NOMINAL_SUBSTANTIV_2:bel-phys-körper"/>
+									<prop name="Autor"/>
+								<diamond mode="GEN">
+									<prop name="mask"/>
+								</diamond>
+								<diamond mode="NUM">
+									<prop name="sing"/>
+								</diamond>
+								<diamond mode="ART">
+									<nom name="NOMINAL_ARTIKEL_2:sem-obj"/>
+									<prop name="def"/>
+								</diamond>
+							</diamond>
+						</diamond>
+						(… ein Thema des Autors).
+
+				Wenn die Nominalphrase durch ein ADJEKTIV IM GENETIV modifiziert wird,
+				dann enthält der 'ATTRIB'-Diamant anstelle des ART-Diamanten einen MOD-Diamant:
+                        <diamond mode="ATTRIB">
+                            <nom name="a1:bel-phys-körper"/>
+                            <prop name="Autor"/>
+                            <diamond mode="GEN">
+                                <prop name="mask"/>
+                            </diamond>
+                            <diamond mode="NUM">
+                                <prop name="plur"/>
+                            </diamond>
+                            <diamond mode="MOD">
+                                <nom name="d2:kardinal"/>
+                                <prop name="drei"/>
+                            </diamond>
+                        </diamond>
+                    </diamond> (… [das Buch] dreier Autoren )
+
+		*	ADJUNKTE
+			Zu Adjunkten in Prädikativsätzen s. unten unter VERBEN=>KOPULAVERBEN.
+				Adjunkte verwenden folgende HLDS-Merkmale:	AJKT (+ Nominal + Präposition) +
+															KONN (+ Nominal + Präposition)
+
+			ADJUNKTE können (bisher) anteponiert im Vorfeld auftreten, und fungieren als Verbgruppen-Adverbiale.
+			Damit modifizieren sie den gesamten Satz und führen dementsprechend
+			einen
+				1)	AJKT (Adjunkt)-Diamanten ein, in dessen Skopus der gesamte Satz, i.e. AGENS und PATIENS steht.
+			Adjunkte bestehen (bisher) aus
+				2)	einem Kopf, dem Adjunktor, einer Unterart der Konnektoren, der mit der KONN-Modalität
+					gekennzeichnet wird,
+			sowie aus einem
+				3)	Komplement, das (bisher) aus einem infiniten Verbum (Partizip Perfekt)
+			besteht:
+					<satop nom="b1:handlung">
+						<prop name="bieten"/>
+						<diamond mode="TEMP:tempus">
+							<prop name="präs"/>
+						</diamond>
+						|<=============Adjunkt=============
+				1)		<diamond mode="AJKT">
+				3)			<nom name="w1:handlung"/>
+							<prop name="wünschen"/>
+				2)			<diamond mode="KONN">
+								<nom name="a1:adjunktion"/>
+								<prop name="adjunktor"/>
+							</diamond>
+						===================================>|
+							<diamond mode="AGENS">
+									…
+							</diamond>
+							<diamond mode="PATIENS">
+									…
+							</diamond>
+						</diamond>
+					</satop>
+
+			Sätze mit Adjunktorphrasen unterscheiden sich bzgl. ihrer HLDS-Form also durch eine zusätzlich
+			Qualifikation ihres Kopfes, des Verbums, das das Prädikat ausdrückt, durch eine AJKT-Modalität,
+			die alle Komplemente umfasst.
+
+		*	SUPPLEMENTE
+			Supplemente können in Sätzen mit transitiven Vollverben und als PP-Supplemente in Prädikativsätzen
+			(cf. Abschnitt: VERBEN->KOPULAVERBEN->PP-SUPPLEMENTE unten) auftreten.
+			An dieser Stelle werden nur diejenigen Supplemente, die in Verbindung mit transitiven Verben
+			auftreten, beschrieben.
+
+				Beispiel für ein PP-Supplement in einem Satz mit einem transitiven Verb ('entsprechen'):
+					"Das Buch entspricht IN HOHEM MAß ihren Suchkriterien."
+
+			Die Reihenfolge von PP-Supplement und direktem Objekt ist dabei variabel (SCRAMBLING). Das gilt
+			für V-1, V-2 und V-L Sätze.
+			In HLDS werden Supplemente in die SUPPL-Modalität eingebettet.
+			Die SUPPL-Modalität selbst ist in den Skopus des sem.Kopfes des Satzes, das Verb, eingebettet, und
+			folgt auf derselben Einbettungsebene dem Objekt (i.e. PATIENS-Modalität):
+					<satop nom="b1:handlung">
+						<prop name="x"/>
+						<diamond mode="TEMP:tempus">
+							<prop name="y"/>
+						</diamond>
+						<diamond mode="AGENS">
+								… A …
+						</diamond>
+						<diamond mode="PATIENS">
+								… B …
+						</diamond>
+						<diamond mode="SUPPL">
+								… C …
+							<diamond mode="PRÄP">
+								<nom name="m1:zugehörigkeit"/>
+								<prop name="mit"/>
+							</diamond>
+								… D …
+						</diamond>
+					</satop>
+					(A xt B mit C D)
+
+
+		*	KOORDINATION
+				Koordinationen verwenden folgende HLDS-Merkmale:
+		… Koordination v. NPs:						(+ Nominal:konjunktion + Präposition)	+	NP1	+	NP2
+		… Koordination v. Ergänzungssubstantiven:	(+ Nominal:konjunktion + Präposition)	+	N1	+	N2
+		… Koordination v. Sätzen:					(+ Nominal:konjunktion + Präposition)	+	S1	+	S2
+		… Koordination v. Propositionen:			(+ Nominal:konjunktion + Präposition)	+	S1
+		… Koordination v. Komparativstrukuren:		(+ Nominal:konjunktion + Präposition)	+	KOMPAR1	+	KOMPAR2
+		… Koordination v. Prädikativkomplementen:	(+ Nominal:konjunktion + Präposition)	+	a)	NP1	+	PP
+																								b)	PP	+	NP2
+																								c)	PRD	+	NP
+																								d)	PRD	+	PP
+		… Koordination v. Verbgruppen:				(+ Nominal:konjunktion + Präposition)	+	S1	+	VG
+
+
+			Koordination wird in HLDS repräsentiert als Dependenzstruktur, deren Kopf der Konjunktor, und
+			deren Dependenten die in entsprechenden Modalitäten eingefassten koordinierten Ausdrücke sind.
+			Die Koordinationsstruktur als ganzes bildet im grammatischen Sinn eine Phrase (bisher NP), die
+			als Satzglied fungiert.
+			Im Sinne von HLDS ist eine vollständige Koordinationsstruktur immer eingebettet in eine einem
+			bestimmten Satzglied entsprechende Modalität, wie beispielsweise <PATIENS>, <AGENS>, der dann
+			das Nominal und die Proposition des Konjunktors zugeordnet wird:
+
+				<PATIENS>@KONN:konjunktion ^ 'und'	^ <NP1>X:sem-obj ^ 'Syntax' ^ <NP2>Y:sem-obj ^ Semantik
+
+			für:
+									[Das Buch behandelt] SYNTAX UND SEMANTIK.
+
+			Konjunktoren sind "und" und das "," (selektierbar mit 'komma') für asyndetische Koordination.
+			Die semantische Sorte der Nominalen ist 'konjunktion'.
+
+			Koordination IST REKURSIV:	Der jeweils zweite Ausdruck kann  jeweils ein weiteres Paar von
+										koordinierten Ausdrücken in sich bergen (cf. NPs unten).
+
+			-	NPs:
+
+				NPs werden wie oben beschrieben Koordiniert. Als Modalitäten für die koordinierten NPs
+				sind NP1 für die linear erste NP, und NP2 für die folgende NP vorgesehen.
+				NP2 kann jeweils ein weiteres NP1 + NP2 - Paar enthalten (RECHTSVERZWEIGUNG), wie im
+				folgenden Beispiel.
+					Beispiel:
+						<diamond mode="PATIENS">
+							<nom name="k1:konjunktion"/>
+							<prop name="komma"/>
+							<diamond mode="NP1">
+									…
+							</diamond>
+							<diamond mode="NP2">
+								<nom name="u1:konjunktion"/>
+								<prop name="und"/>
+								<diamond mode="NP1">
+									…
+								</diamond>
+								<diamond mode="NP2">
+									…
+								</diamond>
+							</diamond>
+						</diamond>
+						(np1, np2 und np3)
+
+				Auch NPs, die in Prädikativsätzen als PRÄDIKATIVKOMPLEMENTE fungieren, lassen sich so
+				koordinieren.
+				In diesem Fall ist die gesamte Koordinationsstruktur in eine PRKOMPL-Modalität
+				eingebettet, fungiert also als das Prädikativkomplement.
+					Beispiel: "Es ist [193 Seiten lang UND sieben Jahre alt]."
+
+				Entsprechendes gilt für NPs, die TEIL EINER KOMPARATIVSTRUKTUR sind. In diesem Fall
+				ist die Koordinationsstruktur eingebettet in eine 'MOD' Modalität
+				(cf. VERBEN#KOMPARATIVSTRUKTUR unter 2) unten).
+					Beispiel: "Das Buch ist [zehn Jahre älter UND 193 Seiten länger] als das erste Buch."
+
+
+			-	ERGÄNZUNGSSUBSTANTIVE:
+
+				Bei der Koordination von Ergänzungssubstantiven wird anstelle der Modalitäten NP1 und NP2
+				jeweils N1 und N2 verwendet.
+				Anders als die NP-Koordination, ist die Koordination von Ergänzungssubstantiven
+				LINKSVERZWEIGEND, d.h.: N1 kann bei mehr, als zwei koordinierten Ergänzungssubstantiven
+				jeweils eine Koordinationsstruktur mit einem Koordinationspaar N1, N2 enthalten - rekursiv.
+				Die gesamte Koordinationsstruktur in eine NOMERG-Modalität eingebettet.
+					Beispiel:
+						<diamond mode="PATIENS">
+							…	ergänzungsfähiges Substantiv
+								(e.c. "Programmiersprache", "Thema", etc.)
+							<diamond mode="NOMERG">
+								<nom name="u1:konjunktion"/>
+								<prop name="und"/>
+								<diamond mode="N1">
+									<nom name="k1:konjunktion"/>
+									<prop name="komma"/>
+									<diamond mode="N1">
+										… Ergänzungssubstantiv 1
+									</diamond>
+									<diamond mode="N2">
+										… Ergänzungssubstantiv 2
+									</diamond>
+								</diamond>
+								<diamond mode="N2">
+									… Ergänzungssubstantiv 3
+								</diamond>
+								</diamond>
+							</diamond>
+						</diamond>
+			(ergänzungsfähiges Substantiv Ergänzungssubstantiv 1, Ergänzungssubstantiv 2 UND Ergänzungssubstantiv 3)
+
+			-	SÄTZE:
+
+				Mit dem Doppelpunkt oder Komma (Propositionen: 'd-punkt'|'komma') lassen sich Sätze koordinieren.
+				Der erste Satz ist dabei in einen S1-Diamanten, der zweite in einen S2-Diamanten eingebettet.
+				Der sem. Kopf der Koordinationsstruktur ist der Konjunktor selbst.
+				Diese Satzkoordinationskonstruktion ist für die Koordination zweier Sätze vorgesehen, und
+				lässt sich hervorragend als Manifest einer Evidence-Relation (i.e. RST) verwenden.
+					Beispiel:
+						<satop nom="d1:konjunktion">
+							<prop name="d-punkt"/>
+							<diamond mode="S1">
+								<nom name="s1:prädikation"/>
+								<prop name="sein-kop"/>
+								<diamond mode="SUBJ">
+									… W …
+								</diamond>
+								<diamond mode="PRKOMPL">
+									… X …
+								</diamond>
+							</diamond>
+							<diamond mode="S2">
+								<nom name="u1:handlung"/>
+								<prop name="yz"/>
+								<diamond mode="AGENS">
+									… Y …
+								</diamond>
+								<diamond mode="PATIENS">
+									… Z …
+								</diamond>
+							</diamond>
+						</satop>
+						(W ist X : Y yz Z)
+
+			-	PROPOSITIONEN:
+
+				Propostionen lassen sich über Satzgrenzen hinweg koordinieren durch Sätze, die mit
+				dem Konjunktor "und" eingeleitet werden.
+				Die HLDS-Form entspricht dabei der einer Satzkoordinationskonstruktion ohne zweiten
+				Satz, i.e. es existiert nur EIN in die S1-Modalität eingebetteter Satz.
+					Beispiel:
+						<satop nom="u1:konjunktion">
+							<prop name="und"/>
+							<diamond mode="S1">
+								<nom name="s1:prädikation"/>
+								<prop name="sein-kop"/>
+								<diamond mode="SUBJ">
+									… X …
+								</diamond>
+								<diamond mode="PRKOMPL">
+									… Y …
+								</diamond>
+							</diamond>
+						</satop>
+						(und X ist Y)
+				Diese Koordinationsstruktur von Propositionen kann beispielsweise zur Signalisierung einer
+				RST List-Relation(i.e. "List") dienen. Aber auch für beliebige weitere RST-Relationen
+				in Sinne einer Konjunktion von einer beliebigen Proposition.
+
+			-	KOMPARATIVSTRUKTUREN:
+
+				Komparativstrukturen in Prädikativsätzen lassen sich mit Hilfe der Modalitäten KOMPAR1 und
+				KOMPAR2 koordinieren.
+				In jede dieser Modalitäten ist dann je eine Komparativstruktur eingebettet.
+				(zu Komparativstrukturen cf.:VERBEN#KOMPARATIVSTRUKTUR unten).
+				Dies gesamte Koordinationsstruktur selbst ist eingebettet in eine PRKOMPL-Modalität, fungiert
+				also als Prädikativkomplement.
+					Beispiel:"Das Buch ist [länger als das erste Buch UND zehn Jahre älter als das zweite Buch]."
+
+			-	KOORDINATION IN PRÄDIKATIVKOMPLEMENTEN:
+
+				Unterschiedliche lex. Kategorien lassen sich innerhalb von Prädikativkomplementen koordinieren.
+				Allen diesen Koordinationen ist gemein, dass sie in eine PRKOMPL-Modalität eingebettet sind,
+				und dass sie ausschließlich mit dem Konjunktor "und" koordinierbar sind.
+				Folgende Kategorien sind zu einem komplexen Prädikativkomplement koordinierbar:
+					a)	NP1 + PP: Das Thema ist [Computerlinguistik] UND [in Deutsch].
+					b)	PP + NP2: Das Thema ist  [auf Deutsch] UND [Computerlinguistik].
+					c)	PRD + NP: Das Buch ist [deutsch] UND [680 Seiten lang].
+					d)	PRD + PP: Das Buch ist [lang] UND [auf Englisch].
+				Die Kategorien repräsentieren zugleich auch die Modalitäten, die in den Koordinationsstrukturen
+				jeweils die Konjunkte einbetten müssen.
+				NP1 und NP2 repräsentieren dabei jeweils eine NP, wobei NP1 für eine LINEAR VOR einer PP
+				realisierten NP steht, und NP2 für eine LINEAR NACH einer PP realisierten NP.
+					Beispiel ( zu b) oben):
+							<diamond mode="PRKOMPL">
+								<nom name="u1:konjunktion"/>
+								<prop name="und"/>
+								<diamond mode="NP2">
+									… X	…
+								</diamond>
+								<diamond mode="PP">
+									… Y …
+								</diamond>
+							</diamond>
+
+			-	KOORDINATION VON VERBGRUPPEN
+
+				Wie bei der Koordination von Sätzen ist auch bei der Koordination von Verbgruppen der
+				sem. Kopf der Konjunktor selbst.
+				Der Satz, an den eine Vergruppe koordiniert wird, ist in einen S1-Diamanten eingebettet, die
+				Verbgruppe in einen VG-Diamanten.
+				Verbgruppen und Sätze lassen sich mit dem 'und' oder ','- Konjunktor koordinieren.
+
+				Die koordinierte Verbgruppe entspricht im Sinne von HLDS einem Satz ohne AGENS.
+					Beispiel:
+						<satop nom="u1:konjunktion">
+							<prop name="und"/>
+							<diamond mode="S1">
+									… Satz …
+							</diamond>
+							<diamond mode="VG">
+								<nom name="b2:handlung"/>
+								<prop name="Verb"/>
+								<diamond mode="TEMP:tempus">
+									<prop name="präs"/>
+								</diamond>
+								<diamond mode="PATIENS">
+										… Objekt …
+								</diamond>
+							</diamond>
+						</satop>
+						(Satz UND Verb Objekt)
+
+				Wenn mehrere Verbgruppen mit einem Satz koordiniert werden sollen, dann müssen
+				verschachtelte S1-VG Paare jeweils in S1 eingebettet werden.
+
+		*	SUBORDINATION
+				Subordination verwendet folgende HLDS-Merkmale:
+					HS :	Skopus - umfasst einen Ober/Hauptsatz.
+					NS		(+ Nominal + Präposition):	Skopus - umfasst einen Unter/Nebensatz
+														inklusive Subjunktor.
+					NSAnt	(+ Nominal + Präposition):	Skopus - umfasst einen anteponierten
+														Unter/Nebensatz inklusive Subjunktor.
+					VL:		Skopus - umfasst einen Verb-Letzt Satz ohne Subjunktor.
+
+				Es lassen sich ZWEI TYPEN VON SATZGEFÜGEN generieren:
+						A)	V-2 Satz + V-L Satz, und
+						B)	V-L Satz + V-1 Satz.
+
+				Typ A) wird mit der Kombination der beiden Modalitäten
+						HS und NS (für: Hauptsatz und Nebensatz)
+				erzeugt, und Type B) mit den Modalitäten
+						NSAnt und HS (für: anteponierten Nebensatz und Hauptsatz).
+
+				In Vebindung mit einer NS-Modalität, wird der in die entsprechende HS-Modalität eingebettete
+				Hauptsatz als V-2 Satz realisiert, tritt der in der HS-Modalität eingebettete Hauptsatz
+				demgegenüber in Verbindung mit der NSAnt-Modalität auf, wird er als ein V-1 Satz realisiert.
+
+				Ein kompletter Nebensatz besteht aus der NS oder NSAnt-Modalität, in die eine VL-Modalität
+				eingebettet sein muss.
+				NS-Modalitäten repräsentieren Nebensätze, die ihren Hauptsätzen FOLGEN, während NSAnt-Modalitäten
+				ANTEPONIERTE Modalitäten repräsentieren, die ihren Hauptsätzen vorasusgehen.
+
+				Der semantische Kopf in HLDS solcher Satzgefüge ist ein Komma als Zeichen, dass Hauptsatz und
+				Nebensatz verbindet. Damit ist eine solche Strukture am besten mit einer Baumstrukture zu beschreiben,
+				der Wurzel das Komma ist, und deren zwei Nachkommen jeweils ein Haupt - und ein Nebensatz sind.
+
+														,(komma)
+														/	\
+													   /	 \
+												Hauptsatz   Nebensatz
+
+				Ganz ähnlich, wie bei der Koordination also, bei der die Nackommen die Konjunkte repräsentieren.
+				Es können alle Sätze mit Ausnahme von Sätzen mit anteponiertem Adjunkt ein Satzgefüge bilden.
+
+				AUFBAU NEBENSATZ:
+					Nebensätze sind -wie bereits erwähnt - in eine NS bzw. NSAnt Modalität eingebettet.
+					Zu ihre gehört auch immer ein Nominal von der sem. Sorte 'subjunktion' (cf. 'types.xml'
+					für die Untertypen)sowie ein Proposition, die einen bestimmten Subjunktor selektiert und
+					diesen vor den folgenden V-L Satz präfigiert:
+
+						<diamond mode="NSAnt"> (bzw.: <diamond mode="NS">)
+							<nom name="w1:adversativ"/>
+							<prop name="während"/>
+							<diamond mode="VL">
+								… V-L Satz …
+							</diamond>
+						</diamond>
+
+				AUFBAU SATZGEFÜGE:
+					Eine HS-Modalität dominiert direkt ein Verbum mit seinen Komplementen (… sowie ggf.
+					Supplementen).
+					Sie wird direkt dominiert von dem den Haupt- und Nebensatz verbindenden Komma.
+					Als "Schwester-Modalität" kommen entweder NS oder NSAnt in Frage:
+
+						<satop nom="k1:subjunktion">
+							<prop name="komma"/>
+							<diamond mode="HS">
+							…	V-1 bzw. je nachdem,
+								ob NS oder NSAnt verwendet
+								wird, V-2 Satz	…
+							</diamond>
+							<diamond mode="NSAnt"> (bzw.: <diamond mode="NS">)
+								<nom name="w1:adversativ"/>
+								<prop name="während"/>
+								<diamond mode="VL">
+									… V-L Satz …
+								</diamond>
+							</diamond>
+						</satop>
+
+					Während also HS und VL-Modalitäten jeweils direkt ein Nominal von der semantischen Sorte
+					'ereignis' dominieren (… das auf ein Verbum und damit Satz verweist …), dominieren NS oder
+					NSAnt jeweils ein Nominal der semantischen Sorte 'subjunktion' bzw. einen Untertypen davon,
+					und damit einen Subjunktor, wie "während" oder "obwohl".
+
+				Die sonstige Definition der Sätze in HLDS unterscheidet sich nicht von anderen Sätzen.
+				Satzglieder können auch Koordinationen enthalten, womit ein ziemlich komplexer Satzaufbau möglich
+				wird, falls benötigt.
+
+
+		*	VERBEN
+				Verben verwenden folgende HLDS-Merkmale:
+					TEMP:präs|prät|imperf(|plusqmperf|fut1|fut2)
+					AUX: Skopus - Umfasst die gesamte Proposition.
+					AGENS: Skopus
+					PATIENS: Skopus
+					SUPPL: Skopus
+					AntSUPPL: Skopus
+					PRKOMPL: Skopus
+
+												**********
+			-	TRANSITIVE Verben können sowohl NP- als auch PP-Komplemente subkategorisieren.
+					NP-Komplemente: "Das Buch beschreibt das Thema Syntax."
+						In diesem Fall ist eine NP HLDS-Struktur in den Skopus der PATIENS-Modalität
+						eingebettet:
+                            <diamond mode="PATIENS">
+									…	Objekt	…
+                                <diamond mode="ART">
+									…	Artikel …
+                                </diamond>
+                            </diamond>
+							(… 'Artikel' 'Objekt' …)
+
+					PP-Komplemente: "Während das Buch mit ihren Suchkriterien übereinstimmt …"
+						In diesem Fall ist ein PP HLDS-Struktur in den Skopus der PATIENS-Modalität
+						eingebettet:
+                            <diamond mode="PATIENS">
+									…	Objekt	…
+                                <diamond mode="PRÄP">
+                                    <nom name="m1:zugehörigkeit"/>
+                                    <prop name="mit"/>
+                                </diamond>
+                                <diamond mode="ART">
+									…	z.B. Possessiv-Artikel …
+                                </diamond>
+                            </diamond>
+							(… mit 'Possessiv-Artikel' 'Objekt' …)
+
+					Andere Verben fordern ein OBLIGATORISCHES REFLEXIVPRONOMEN
+					(e.c. "sich finden in", "sich richten an").
+					Die entsprechenden Sätze haben die folgenden Struktur von Modalitäten:
+						AGENS-PRO-PATIENS.
+					Die PRO-Modalität ist dabei von ihrer Verwendung als Kennzeichen eines Pronomens
+					zu unterscheiden, denn sie enthält eine weitere PRO-Modalität, die genau das macht:
+					Ein bestimmtes Pronomen kennzeichnen:
+						<satop nom="b1:handlung">
+							<prop name="x"/>
+							<diamond mode="TEMP:tempus">
+								<prop name="y"/>
+							</diamond>
+                            <diamond mode="AGENS">
+								…	X	…
+                            </diamond>
+                            <diamond mode="PRO">
+                                <diamond mode="PRO">
+                                    <prop name="reflpro"/>
+                                </diamond>
+                                <nom name="x2:sem-obj"/>
+                                <diamond mode="PERS">
+                                    <prop name="3te"/>
+                                </diamond>
+                                <diamond mode="GEN">
+                                    <prop name="neut"/>
+                                </diamond>
+                                <diamond mode="NUM">
+                                    <prop name="sing"/>
+                                </diamond>
+                            </diamond>
+                            <diamond mode="PATIENS">
+								…	Y	…
+                            </diamond>
+						</satop>
+						(X xt sich Y)
+
+												**********
+
+			-	Verben bilden motiviert durch Verbart, Tempus, Genus Verbi, Modus
+				oder Modalität VERBALKOMPLEXe mit infiniten Verbteilen.
+
+				In der Polibox-Domäne sind Verbtyp und Tempus allein ausschlaggebend
+				für Verbalkomplexe (bisher).
+				Ausserdem werden sowohl PARTIKELVERBSTÄMME als auch HILFSVERBEN als
+				Hilfsverben semantisch in den Skopus des Diamanten AUX eingefasst,
+				und damit als von einer ident. Kategorie aufgefasst.
+				Nominale dieser lex. Kategorie (Vfinit) müssen von einer vordefinierten
+				sem. Sorte sein:
+					hilfsverb|modalverb|partverbstamm, cf. 'types.xml'
+				Und in einem Polibox-Verbalkomplex sind dementsprechend das PARTIZIP oder
+				das PRÄVERB die semantischen Köpfe einer HLDS-Form:
+					a)	Partikelverb (Präsens, Präteritum):
+							@Nominal:infinitum (Proposition_infinitum (e.c."voraus"))
+								<AUX> (Nominal:partverbstamm ^ Proposition_partverbstamm (e.c."setzen"))
+									<TEMP> ["präs"|"prät"]
+									<AGENS>
+												…
+									<PATIENS>
+												…
+				Partizipien und Präverben gehören in dieser Grammatik einer der Klassen 'VinfinitX'
+				(X ist eine Nummer) an - je nach Anzahl ihrer Komplemente, aber auch nach anderen
+				Eigenschaften.
+					b)	Perfektbildung:
+							@Nominal:infinitum (Proposition_infinitum (e.c."ist"))
+								<AUX> (Nominal:partverbstamm ^ Proposition_partverbstamm (e.c."erschienen"))
+									<TEMP> "imperf"
+									<AGENS>
+												…
+									[ <PATIENS>	… ]
+				Die Perfekt HLDS-Form eines Verbums unterscheidet sich von einer Partikelverb HLDS-Form
+				durch das TEMPus-Merkmal: Partikelverben sind im Präsens oder Präteritum dieser lex. Kategorie
+				zuzuordnen, während Perfektbildung im Perfekt geschieht :)
+				Konvention:
+					Die TEMPUSMARKIERUNG findet immer am HILFSVERB/PARTIKELVERBSTAMM statt, also innerhalb
+					des AUX-Skopus!
+				Ausserdem entspricht selbstverständlich der sem. Kopf einem Partizip (… das eine Anzahl von
+				Komplementen subkategorisiert, denen es auch Kasus zuweist), und das Hilfsverb einer mit
+				dem entsprechenden Subjekt kongruierenden Form von 'sein' oder 'haben' (die Grammatik definiert
+				momentan weder Passiv, wofür 'werde' von Bedeutung wäre, noch Modalität und als Modus einzig
+				Indikativ).
+
+				Zwischen dem FINITEN TEIL eines Verbalkomplexes in der linken Satzklammer, und seinem entsprechenden
+				INIFINITEN TEIL in der rechten Satzklammer besteht KONGRUENZ: Die infiniten Teile fordern jeweils
+				ihr eigenes, festgelegtes finites Verb (i.e. Partikelverbstamm, Hilfsverb), das seinerseits mit
+				dem Subjekt kongruiert. Diese Kongruenz wird über das grammatische 'vform'-Attribut, das jedem
+				finiten Verbteil zueigen ist, hergestellt, indem ein bestimmter Wert dieses Attributes von dem
+				infiniten Teil eines Verbkomplexes in der rechten Satzklammer gefordert wird.
+				Dieses Merkmal bildet also eine Art Brücke zwischen den Satzklammerteilen über das Mittelfeld
+				hinweg. Für die Generierung bedeutet dass, das man keine nicht-zusammengehörigen Teile eines
+				Verbkomplexes generieren kann, wie zum Beispiel: 'das buch HAT 2010 ERSCHIENEN.'
+				Bei den Partikelverben ist die Konsequenz, dass man alle möglichen Kombinationen von
+				Partikelverbstamm und Präverb explizit im Lexikon angeben muss (aus-/vor-/einführen, …),
+				weil ein Attribut immer nur einen Wert zu einer Zeit annehmen kann.
+
+				Die PRÄDIKATE/PROPOSITIONEN DER PRÄVERBEN in den HLDS-Repräsentationen haben folgende Formen:
+					vor-X, aus-X, voraus-X, etc.
+				Die PRÄDIKATE/PROPOSITIONEN DER PARTIKELVERBSTÄMME sehen folgender Art aus:
+					voraus-setzen, aus-führen, vor-stellen, etc.
+
+
+				Es existieren unterschiedliche lex. Kategorien für den Verbalkomplex, die sich hinsichtlich
+				der Anzahl und Eigenschaft der subkategorisierten Komplemente unterscheiden.
+				Die Gesamtheit der Varianten bildet die Variation im Polibox-Mittelfeld ab.
+
+												**********
+
+			-	KOPULAVERBEN erzeugen gemeinsam mit einen PRÄDIKATIVKOMPLEMENT einen PRÄDIKATIVSATZ.
+
+				In Polibox werden Prädikativsätz über
+					a)	die SEMANTISCHE SORTE ("prädikation") DES NOMINALS, das den
+						semantischen Kopf (i.e. die Kopula) repräsentiert,
+					b)	über die SELEKTION EINER BESTIMMTEN KOPULA (e.c.'sein-kop'), und
+					c)	die Angabe eines TEMPUS-Wertes als Proposition des Diamanten TEMP
+				erzeugt:
+						a)	<satop nom="s1:prädikation">
+						b)		<prop name="sein-kop"/>
+						c)		<diamond mode="TEMP:tempus">
+									<prop name="präs"/>
+								</diamond>
+								…
+							</satop>
+				Ferner müssen
+						d)	Subjekt und
+						e)	Prädikativkomplement gekennzeichnet werden.
+				Das Subjekt wird mit der Modalität SUBJ gekennzeichnet, das Prädikativkomplement
+				mit der Modalität PRKOMPL:
+								<satop nom="s1:prädikation">
+									<prop name="sein-kop"/>
+									<diamond mode="TEMP:tempus">
+										<prop name="präs"/>
+									</diamond>
+						d)			<diamond mode="SUBJ">
+										…
+									</diamond>
+						e)			<diamond mode="PRKOMPL">
+										…
+									</diamond>
+								</satop>
+				Prädikativkomplemente (alles innerhalb von 'e)') können vielfältig sein.
+				Vergleiche 'testbedHLDS.xml', Abschnitt 'Prädikativsätze'.
+
+				PRÄDIKATIV VERWENDETE ADJEKTIVE ODER ADVERBIEN können auch 'gestapelt' werden.
+				In diesem Falle ist dasjenig prädikative Adjektiv in eine MOD-Modalität (cf. 3)) eingebettet, das
+				im Text rechts erscheint (e.c. "aktuell" in "X und Y sind vergleichbar aktuell.").
+				Solche Konstruktionen können als ganzen Prädikativkomplemente dienen:
+								<diamond mode="PRKOMPL">
+									<nom name="v1:eigenschaft"/>
+									<prop name="vergleichbar"/>
+									<diamond mode="KOMP">
+										<prop name="pos"/>
+									</diamond>
+						1)			<diamond mode="MOD">
+										<nom name="a1:eigenschaft"/>
+										<prop name="aktuell"/>
+										<diamond mode="KOMP">
+											<prop name="pos"/>
+										</diamond>
+									</diamond>
+								</diamond>
+								(… vergleichbar aktuell)
+
+
+				PRÄDIKATIVKOMPLEMENTE können auch MIT PARTIKELN modifiziert werden. Genauer gesagt, gilt das für
+				jene Prädikativkomplemente, die ein prädikativ verwendetes Adverb oder Adjektiv (i.e. PoS: 'prd')
+				enthalten, was aber fast immer der Fall ist.
+				Kurz:	Alles, was als prädikativ verwendetes Adver oder Adjektiv vorkommen darf, kann auch durch
+						eine Partikle näher spezifiziert werden.
+						In diesem Fall ist in die entsprechende PRKOMPL-Modalität eine SPEZ-Modalität mit der
+						entsprechenden Partikel eingebettet.
+
+				In dem folgenden Beispiel wird als Partikel die Redewendung 'ein wenig' gebraucht, die sich durch
+				eine in die SPEZ-Modalität eingebettete ART-Modalität auszeichnet, die den indefiniten Artikel
+				'ein' in sich birgt.
+
+								<diamond mode="PRKOMPL">
+									<nom name="l1:eigenschaft"/>
+									<prop name="länger"/>
+									<diamond mode="KOMP">
+										<prop name="komp"/>
+									</diamond>
+									<diamond mode="SPEZ">
+										<nom name="w1:abschwächung"/>
+										<prop name="wenig"/>
+										<diamond mode="ART">
+											<nom name="i1:sem-obj"/>
+											<prop name="indef"/>
+										</diamond>
+									</diamond>
+								</diamond>
+								(ein wenig länger)
+
+				KOMPARATIVSTRUKTUREN als Teil von Prädikativkomplementen in Prädikativsätzen repräsentieren
+				einen Vergleich des Subjekts mit einem Vergleichsgegenstand.
+				Die Komparativstruktur ist Teil des Prädikativkomplements, befindet sich also im Beispiel
+				oben innerhalb von e).
+				Komparativstrukturen bestehen aus
+					1)	einem Adjunktor (von der semantischen Sorte 'adjunktion'; den Adjunktor selbst selegiert
+						man über die Proposition 'adjunktor', die je nach lex. Kategorie den angemessenen Adjunktor
+						wählt)
+				in dessen Skopus zwei Komponenten eingebettet sind:
+					2)	ein Prädikativkomplement, das ein prädikativ verwendetes Adjektiv enthalten muss,
+						welches kompariert ist, wobei das gesamte Prädikativkomplement in einen MOD-Diamanten
+						eingebettet ist,
+				und
+					3)	ein nominaler Ausdruck, der den Vergleichsgegenstand repräsentiert. Dieser Teil ist
+						in einen KOMPAR-Diamanten eingebettet.
+
+								<diamond mode="PRKOMPL">
+					1)				<nom name="a1:adjunktion"/>
+									<prop name="adjunktor"/>
+											…
+					2)				<diamond mode="MOD">
+										<nom name="l1:eigenschaft"/>
+										<prop name="länger"/>
+										<diamond mode="KOMP">
+											<prop name="komp"/>
+										</diamond>
+									</diamond>
+					3)				<diamond mode="KOMPAR">
+											…
+									</diamond>
+								</diamond>
+
+				Das Prädikativkomplement 2) kann dabei auch allein aus einem gesteigerten, prädikativ gebrauchten
+				Adjektiv bestehen (e.c. "Das Buch ist UMFANGREICHER als das erste Buch.")
+
+				PP-SUPPLEMENTE können in Verbindung mit Komparativstrukturen auftreten (e.c. "Das Buch ist mit
+				680 Seiten deutlich umfangreicher als das erste").
+				Diese PP-Supplemente können dabei auch anteponiert auftreten.
+				Solche Strukturen werden gebildet, indem zwischen 1) & 2) (cf. KOMPARATIVSTRUKTUREN oben) ein
+				Supplement 1.a) eingefügt wird.
+								<diamond mode="PRKOMPL">
+					1)				<nom name="a1:adjunktion"/>
+									<prop name="adjunktor"/>
+					1.a) 			<diamond mode="SUPPL"> (<diamond mode="AntSUPPL">)
+											…
+										<diamond mode="PRÄP">
+											<nom name="m1:zugehörigkeit"/>
+											<prop name="mit"/>
+										</diamond>
+											…
+									</diamond>
+					2)				<diamond mode="MOD">
+										<nom name="l1:eigenschaft"/>
+										<prop name="länger"/>
+										<diamond mode="KOMP">
+											<prop name="komp"/>
+										</diamond>
+									</diamond>
+					3)				<diamond mode="KOMPAR">
+											…
+									</diamond>
+								</diamond>
+				Wie angedeutet,muss dieses Supplement eine Präposition enthalten.
+				Wenn das PP-Supplement ANTEPONIERT werden soll, muss anstelle der SUPPL-Modalität
+				die AntSUPPL-Modalität verwendet werden.
+
+
+				SUPPLEMENTE in Prädikativsätzen können auch REZIPROKPRONOMEN enthalten:
+					"Beide Bücher sind einander ähnlich.".
+				Reziprokpronomen setzen ein Subjekt im Plural voraus (VORSICHT! Die Grammatik erlegt hier
+				keine Beschränkungen auf: Sie würde auch Reziprokpronomen generieren, die sich auf ein
+				Subjekt im Singular beziehen: * Das Buch ist einander ähnlich.).
+				In HLDS beinhalten solche Sätze eine (eingebettete) PRO-Modalität (cf. 1), 2)) innerhalb
+				des mit PRKOMPL gekennzeichnete Prädikativkomplements (cf. 1)):
+					SUBJ-PRDKOMPL->PRO(PRO).
+
+				Reziprokpronomen werden mit Hilfe der Proposition 'rezprkpro' selektiert (cf. 3.a)).
+
+                   1)       <diamond mode="PRKOMPL">
+                                <nom name="v1:eigenschaft"/>
+                                <prop name="vergleichbar"/>
+                                <diamond mode="KOMP">
+                                    <prop name="pos"/>
+                                </diamond>
+                   2)           <diamond mode="PRO">
+                                    <nom name="x3:sem-obj"/>
+                                    <diamond mode="PERS">
+                                        <prop name="3te"/>
+                                    </diamond>
+                   3)               <diamond mode="PRO">
+                   3.a)                 <prop name="rezprkpro"/>
+                                    </diamond>
+                                    <diamond mode="GEN">
+                                        <prop name="mask"/>
+                                    </diamond>
+                                    <diamond mode="NUM">
+                                        <prop name="plur"/>
+                                    </diamond>
+                                </diamond>
+                            </diamond>
+							( … einander vergleichbar.)
+
+
+
+				ADJUNKTE in Prädikativsätzen können (bisher) anteponiert im Vorfeld auftreten, und fungieren bei
+				Prädikativsätzen als Satzadverbiale (wobei sie jedoch im Allgemeinen als Verbgruppen-Adverbiale
+				angesehen werden). Damit modifizieren sie den gesamten Prädikativsatz und führen dementsprechend
+				einen
+					1)	AJKT (Adjunkt)-Diamanten ein, in dessen Skopus der gesamte Prädikativsatz steht.
+				Adjunkte bestehen (bisher) aus
+					2)	einem Kopf, dem Adjunktor, einer Unterart der Konnektoren, der mit der KONN-Modalität
+						gekennzeichnet wird,
+				sowie aus einem
+					3)	Komplement, das (bisher) aus einem infiniten Verbum (Partizip Perfekt)
+				besteht:
+							<satop nom="s1:prädikation">
+								<prop name="sein-kop"/>
+								<diamond mode="TEMP:tempus">
+									<prop name="präs"/>
+								</diamond>
+						|<=============Adjunkt=============
+					1)			<diamond mode="AJKT">
+					3)				<nom name="w1:handlung"/>
+									<prop name="wünschen"/>
+					2)				<diamond mode="KONN">
+										<nom name="a1:adjunktion"/>
+										<prop name="adjunktor"/>
+									</diamond>
+						===================================>|
+									<diamond mode="SUBJ">
+											…
+									</diamond>
+									<diamond mode="PRKOMPL">
+											…
+									</diamond>
+								</diamond>
+							</satop>
+
+				Solche Konstruktionen unterscheiden sich von 'normalen' Prädikativsätzen also
+				dadurch, dass Subjekt (SUBJ) und Prädikativkomplement (PRKOMPL) eingefasst werden
+				in den Einflussbereich eines Adjunkts (AJKT).
+
+
+												**********
+
+			-	Verben bestimmen (neben Konnektoren) die SATZFORM.
+
+												**********
+
+			-	Verben weisen ihren KOMPLEMENTEn einen bestimmten KASUS zu (e.c. Subjekt: Nominativ,
+				Objekt:Akkusativ).
+
+												**********
+
+			-	Verben können KOMPLEMENTE/ARGUMENTE von einem bestimmten SEMANTISCHEN TYP (e.c. belebt,
+				unbelebt) fordern.
+
+												**********
+
+		*	KONNEKTOREN
+				Konnektoren verwenden folgende HLDS-Merkmale:
+						KONN (+ Nominal + Präposition)
+
+				Konnektoren können sich mit einer PARTIKEL zu einem zusammengesetzten Konnektor
+				verbinden. In diesem Fall ist in die Konnektoren-Struktur 1) ( … die in eine KONN Modalität
+				eingebettet ist …) eine SPEZ Modalität (2)) eingebettet, die die entsprechende Partikel enthält.
+
+					Beispiel HLDS-Repräsentation:
+						1)	<satop nom="a1:adversativ">
+								<prop name="aber"/>
+						2)		<diamond mode="SPEZ">
+									<nom name="w1:affirmation"/>
+									<prop name="wohl"/>
+								</diamond>
+							</satop>
+							(wohl aber)
+
+				ZUSAMMENGESETZTE KONNEKTOREN:
+				Konnektoren können zusammengesetzt sein aus:
+
+					1) Mehreren Adverbkonnektoren: Die verschachtelten Konnektoren sind in eine KONN-Modalität
+									eingebettet (1)) (e.c.: aber dafür):
+											<satop nom="a1:adversativ">
+												<prop name="aber"/>
+										1)		<diamond mode="KONN">
+													<nom name="d1:adversativ"/>
+													<prop name="dafür"/>
+												</diamond>
+											</satop>
+											(aber dafür)
+
+
+					2)	Einer Partikel und einem Adverbkonnektor (e.c.:wohl aber, aber auch).
+						Partikeln können in zusammengesetzten Konnektoren dem Adverbkonnektor vorausgehen.
+						Die Partikel ist dabei in eine SPEZAnt-Modalität eingebettet (1)):
+											<satop nom="a1:adversativ">
+												<prop name="aber"/>
+										1)		<diamond mode="SPEZAnt">
+													<nom name="w1:affirmation"/>
+													<prop name="wohl"/>
+												</diamond>
+											</satop>
+											(wohl aber)
+
+						Die Partikel kann dem Konnektor auch folgen (e.c.: auch etwas); dann ist sie in eine
+						SPEZ Modalität eingebettet (1)):
+											<satop nom="a1:adversativ">
+										2)		<prop name="aber"/>
+										3)		<diamond mode="KONN">
+													<nom name="a2:addition"/>
+													<prop name="auch"/>
+										1)			<diamond mode="SPEZ">
+														<nom name="w1:abschwächung"/>
+														<prop name="wenig"/>
+														<diamond mode="ART">
+															<nom name="i1:sem-obj"/>
+															<prop name="indef"/>
+														</diamond>
+													</diamond>
+												</diamond>
+											</satop>
+											(aber auch ein wenig)
+						Dieser Konnektor ist aus zwei Adverbkonnektoren (i.e aber + auch) zusammengesetzt (cf. 2), 3)),
+						sowie aus einer diesen folgenden, ebenfalls in sich selbst komplexen Partikel (i.e "ein wenig";
+						für eine Beschreibung, cf. Abschnitt PARTIKEL=>Redewendung).
+
+
+					2.a)Zu diesem Konnektortyp gehört auch eine etwas UNSCHÖNE KONSTRUKTION: Es handelt sich
+						um einen Spezialfall, in dem zwei Subjekt-NPs, die weit voneinander entfernt stehen,
+						koordiniert werden sollen:
+							[Syntax]_np1 findet sich in dem Buch nicht, wohl aber [Semantik]_np2.
+						Der Fall ist so gelöst, dass "wohl aber Semantik" an das "nicht" drangeklebt wird.
+						Die HLDS-Struktur ist ziemlich 'wild', weil sie die koordinierte NP nicht gut integrieren
+						kann. "nicht" wird in dieser Struktur doppelt verwendet:
+							a)	als Satznegation (1)), und
+							b)	als 'Anhängepunkt' für die zweite NP mitsamt Adverbkonnektor und Komma
+								", wohl aber Semantik" (1.a))
+						Dadurch haben die beiden Instanzen von "nicht" in der HLDS-Struktur auch ein identisches
+						Nominal.
+						Der Konnektor "wohl aber" wird, wie oben beschrieben, gebildet (2)). In dieser Struktur
+						ist die
+						"Kopf der Konjunktion" ist in diesem Fall das Komma (4)). Es handelt sich um eine
+						Kombination aus Konjunktor (i.e. Komma) und Adverbkonnektor, wie unten unter 3) beschrieben.
+						Das Besondere an dieser Konstruktion ist aber, dass das eine Konnekt die Negationspartikel
+						'nicht' ist, während das andere die koordinierte Subjekt-NP darstellt (grammatisch gesehen
+						ist diese Konstruktion von der lex. Kategorie 'prktk').
+						Die koordinierte Subjekt-NP schließlich wird in einer AGENS2 Modalität eingebettet:
+											<satop nom="s1:handlung">
+												<prop name="s.finden_in"/>
+												<diamond mode="TEMP:tempus">
+													<prop name="präs"/>
+												</diamond>
+										1)		<diamond mode="SPEZ">
+													<nom name="n1:negation"/>
+													<prop name="nicht"/>
+												</diamond>
+												<diamond mode="AGENS">
+													…
+												</diamond>
+												<diamond mode="PRO">
+													…
+												</diamond>
+												<diamond mode="PATIENS">
+													…
+												</diamond>
+											</satop>
+										4)	<satop nom="k1:konjunktion">
+												<prop name="komma"/>
+										1.a)	<diamond mode="SPEZ">
+													<nom name="n1:negation"/>
+												</diamond>
+										2)		<diamond mode="KONN">
+													<nom name="a1:adversativ"/>
+													<prop name="aber"/>
+										3)			<diamond mode="AGENS2">
+														…
+													</diamond>
+										2)			<diamond mode="SPEZAnt">
+													<nom name="w1:affirmation"/>
+													<prop name="wohl"/>
+													</diamond>
+												</diamond>
+											</satop>
+											(AGENS findet sich PATIENS nicht , wohl aber AGENS2)
+
+
+
+					3)	Einem Konjunktor und einem (komplexen) Adverbkonnektor (e.c.: und auch, "nicht ,
+						wohl aber" etc.).
+						Solche Konstruktionen bestehen aus einer Koordinationsstruktur von NPs
+						(cf. oben: KOORDINATION), wie sie unten im Beispiel unter 1) mit ihren beiden Komponenten
+						2) und 4) gezeigt ist. Die besonderheit ist, dass die zweite Komponente (i.e. 4) unten)
+						eingebettet ist in eine KONN-Modalität (cf.: 3)). Diese selegiert den Adverbkonnektor
+						("auch" im Beispiel - cf. 5)):
+									1)	<satop nom="u1:konjunktion">
+											<prop name="und"/>
+									2)		<diamond mode="NP1">
+												…
+											</diamond>
+									3)		<diamond mode="KONN">
+												<nom name="a1:addition"/>
+									5)			<prop name="auch"/>
+									4)			<diamond mode="NP2">
+													…
+												</diamond>
+											</diamond>
+										</satop>
+										(NP1 und auch NP2)
+						Der eingebettete Adverkonnektor (cf.: 3)) kann selbst auch wieder komplex sein
+						(e.c.: "… NP1 und auch ein wenig NP2 …").
+						Die Konjunktion muss nicht durch "und" repräsentiert werden, sondern kann auch
+						durch ein Kommma (e.c.: "… nicht NP1, aber dafür NP2 …") repräsentiert werden.
+
+
+				KOMPLEXE KONNEKTOREN:
+				Komplexe Konnektoren sind Konstruktionen, wie "sowohl X als auch Y". Sie repräsentieren NPs
+				(im Plural) und können Satzglieder sein, i.e. in AGENS oder PATIENS Modalitäten eingebettet sein.
+				Sie beginnen auf jeden Fall mit dem Konnektor-Teil "sowohl" (1)), und bestehen aus einer
+				NP1-Modalität, in die die erste NP eingebettet ist, einem zweiten Konnektor-Teil "als auch", "als
+				auch ein wenig" oder beispielsweise auch "aber auch" o.ä (3)). Dieser zweite Konnektor-Teil, der
+				zwischen den Konnekten steht, kann also selbst komplex sein, und muss es bis zu einem bestimmten
+				Grad bei dieser Konstruktion auch sein (i.e.: * sowohl X auch Y …).
+				Das zweite Konnekt, also die zweite NP ist in eine NP2 Modalität eingebettet (4)):
+											<satop nom="s1:addition">
+										1)		<prop name="sowohl"/>
+										2)		<diamond mode="NP1">
+													…
+												</diamond>
+										3)		<diamond mode="KONN">
+													<nom name="a1:addition"/>
+													<prop name="als"/>
+													<diamond mode="KONN">
+														<nom name="a2:addition"/>
+														<prop name="auch"/>
+													</diamond>
+												</diamond>
+										4)		<diamond mode="NP2">
+													…
+												</diamond>
+											</satop>
+											(sowohl NP1 als auch NP2)
+
+
+				ADVERBKONNEKTOREN
+				Im Gegensatz zu Konjunktoren und Subjunktoren gehören Adverbkonnektoren zu den
+				konnektintegrierten Konnektoren; sie sind Teil des Satzes, in dem sie auftreten.
+				Diesen Satz nenn man das TRÄGERKONNEKT, den, mit dem das Trägerkonnekt via Adverb-
+				konnektor verbunden wird, das BEZUGSKONNEKT genannt.
+				Bei Adverkonnektoren geht das Bezugskonnekt dem Trägerkonnekt immer VORAUS.
+				Bezugs- und Trägerkonnekt können innerhalb eines Satzgefüges auftreten, oder aber
+				über Satzgrenzen hinaus:
+					- Bezugs - und Trägerkonnekt in EINEM SATZ:
+
+
+					- Bezugs - und Trägerkonnekt NICHT in einem Satz:
+						Adverbkonnektoren können - je nach den Beschränkungen ihrer Stellungsmöglichkeiten
+						an unterschiedlichen Positionen eines Satzes auftreten. Dieser Satz repräsentiert
+						dann das Trägerkonnekt und der Adverbkonnektore verbindet dieses mit dem Bezugskonnekt,
+						also dem vorasusgehenden Satz.
+						Adverbkonnektoren müssen sich nicht unbedingt von Adverben unterscheiden.
+						Diese Grammatik kennzeichnet sie (anstelle der ADV-Modalität) mit der
+						KONN-Modalität (1)):
+							Beispiel:
+								<satop nom="p1:deklarativ">
+									<prop name="punkt"/>
+									<diamond mode="DEKL">
+										<nom name="b1:handlung"/>
+										<prop name="behandeln"/>
+										<diamond mode="TEMP:tempus">
+											<prop name="präs"/>
+										</diamond>
+								1)		<diamond mode="KONN">
+											<nom name="a1:adversativ"/>
+											<prop name="aber"/>
+										</diamond>
+										<diamond mode="AGENS">
+											…
+										</diamond>
+										<diamond mode="PATIENS">
+											…
+										</diamond>
+									</diamond>
+								</satop>
+								(Aber AGENS behandelt PATIENS.)
+
+						Da bestimmte Adverbkonnektoren an unterschiedlichen Positionen ein und desselben Satzes
+						auftreten können, ist die eindeutige Zuordnung einer HLDS-Struktur manchmal etwas knifflig.
+						Weil die jeweiligen Positionen dann das einzige Unterscheidungsmerkmal sind, und
+						dementsprechend gekennzeichnet werden müssen.
+						Prinzipiell unterscheiden sich Sätze mit Adverbkonnektoren allein durch die in ihrer
+						HLDS-Struktur enthaltenen KONN-Modalitäten (cf. 1) oben).
+						Einem Satz mit Adverbkonnektor muss immer eine eindeutige und einzigartige HLDS-Struktur
+						entsprechen, damit der korrespondierende Satz in eindeutiger Weise generiert werden kann.
+						Im folgenden werden Sätze, in denen Adverbkonnektoren auftreten könne, aufgelistet und
+						deren HLDS-Struktur abgekürzt durch die in ihr auftretenden Modalitäten aufgeführt.
+						Einbettungen sind ggf. durch eckige Klammern gekennzeichnet (sie bilden die Positionen
+						von Adverbkonnektoren innerhalb von Satzgliedern ab):
+
+			Vtrans:
+				s\np/prtk/np/konn:				TEMP	+	KONN	+	SPEZ	+	AGENS	+	PATIENS
+				s\np/np/konn:					TEMP	+	KONN	+	AGENS	+	PATIENS
+				s\konn/np_obj/np_subj:			TEMP	+	KONNAnt	+	AGENS	+	PATIENS
+				s\konn\np_subj/np_obj:			TEMP	+	KONNAnt	+	AGENS2	+	PATIENS
+
+			Vinfinit:
+				s\konn\v_aux\np_subj\np_obj:	KONNAnt	+	AUX
+
+			Vkopula:
+				s\konn/np_präd/np_subj:			TEMP	+	SUBJ	+	PRKOMPL	+	KONN
+
+				s\pp/kmp/konn/np_subj:			…		+	PRKOMPL[	+	AntSUPPL	+	MOD	+	KOMPAR	+	KONN]
+
+				s\konn/pp/np_subj:				TEMP	+	SUBJ	+	PRKOMPL	+	KONN
+				s\konn/prdkomp/np_subj:			TEMP	+	SUBJ	+	PRKOMPL	+	KONN
+				s\np/prd/pp/konn:				TEMP	+	SUBJ	+	PRKOMPL[	+	KOMP	+	SUPPL	+	KONN]
+
+
+		*	ADVERBIEN
+				Adverbien verwenden folgende HLDS-Merkmale:
+						ADV (+ Nominal + Präposition)
+
+			Adverbien modifizieren Verben, und stehen damit relativ zu Verben auf der selben Einbettungsebene,
+			wie die TEMP-Modalitäten. In adverbial modifizierten Sätzen können sie der TEMP-Modalität direkt
+			folgen (1)).
+
+			-	Adverbien in komplexen Prädikaten (intransitive Verben im Imperfekt, intransitive
+				Partikelverben).
+					Beispiel:
+							<satop nom="e1:inchoativ">
+								<prop name="erscheinen"/>
+								<diamond mode="AUX">
+									<nom name="s1:sein"/>
+									<prop name="sein"/>
+									<diamond mode="TEMP:tempus">
+										<prop name="imperf"/>
+									</diamond>
+					1)				<diamond mode="ADV">
+										<nom name="n1:modus"/>
+										<prop name="2003"/>
+									</diamond>
+									<diamond mode="AGENS">
+										…
+									</diamond>
+								</diamond>
+							</satop>
+							(… ist 2003 erschienen.)
+
+			-	Adverbien in transitiven V-2 Sätzen:
+					Beispiel:
+							<satop nom="p1:deklarativ">
+								<prop name="punkt"/>
+								<diamond mode="DEKL">
+									<nom name="b1:handlung"/>
+									<prop name="behandeln"/>
+									<diamond mode="TEMP:tempus">
+										<prop name="präs"/>
+									</diamond>
+					1)				<diamond mode="ADV">
+										<nom name="a1:modus"/>
+										<prop name="ausführlich"/>
+									</diamond>
+									<diamond mode="AGENS">
+										…
+									</diamond>
+									<diamond mode="PATIENS">
+										…
+								</diamond>
+							</satop>
+							(AGENS behandelt PATIENS ausführlich.)
+
+			Adverbien können NÄHER DURCH EINE PARTIKEL SPEZIFIZIERT werden. In die ADV Modalität ist dann zusätzlich
+			eine SPEZ Modalität, die die Partikel enthält, eingebettet.
+
+					Beispiel HLDS-Repräsentation:
+							<diamond mode="ADV">
+								<prop name="ausführlich"/>
+								<diamond mode="SPEZ">
+									<nom name="s1:intensivierung"/>
+									<prop name="sehr"/>
+								</diamond>
+							</diamond>
+							(sehr ausführlich)
+
+			Die folgende List zeigt, welche Satztypen durch ein Adverb modifiziert werden können:
+
+				Vtrans:
+					1) s\adv/np_obj/pp/np_subj :	LEIDER erfahren sie in diesem Buch nichts über Syntax .
+					2) s\np/adv/np :                Das Buch behandelt das Thema Computerlinguistik AUSFÜHRLICH .
+					3) s-vl\np_subj\adv\np_obj :    … wohingegen Syntax DORT keine Rolle spielt.
+
+				Vinfinit:
+
+				Vkopula:
+
+
+		*	EIGENNAMEN: PERSONENNAMEN & BUCHTITEL
+				Eigennamen verwenden folgende HLDS-Merkmale:
+						N1 (+ Nominal:personenname + Proposition):
+							Nominal einer Proposition, die einen (Vor-)Namen in einer komplexen
+							Namenskonstruktion aus Vor- und Nachnamen bezeichnet.
+
+						ASS (+ Nominal:personenname + Proposition):
+							Skopus für eine Namenskonstruktion eines Namens, der mit einer Sache
+							assoziiert wird.
+
+						99  (+ Nominal:anführungöffnen + Proposition):
+							Öffnende Anführungszeichen.
+
+						66  (+ Nominal:anführungschließen + Proposition):
+							Schließende Anführungszeichen.
+
+			PERSONENNAMEN
+			Eigennamen werden in dieser Grammatik nur insofern unterschieden, als dass sie Personennamen sind.
+			Personennamen können atomar sein (entweder Vor- oder Nachnamen, cf. Beispiel 1)) oder aber
+			komplex (Mehrere Vornamen oder Vorname(n) + Nachname,  cf. Beispiel 2)). Komplexe Namenskonstruktionen
+			bestehen aus einem Kopf, dem zuletzt verknüpften Namen (meistens wird das der Nachname sein, cf. a) in
+			Beispiel 2), sowie weiteren, je in eine N1-Modalität eingebetteten Vornamen (cf. b1), b2) in Beispiel 2)).
+			Sie kommen nur im Singular vor.
+			Eine Ausnahme davon ist eine Namenskonstruktion, die aus einem Nachnamen und "et.al." (i.e. "et alii")
+			besteht. Solche Konstruktionen resultieren immer in einer NP im Plural.
+
+					Beispiele HLDS-Repräsentation:
+						1)
+								<satop nom="h1:nachname">
+									<prop name="Hopcroft"/>
+								</satop>
+								(Hopcroft)
+
+						2)
+							a)	<satop nom="h1:nachname">
+									<prop name="Hopcroft"/>
+							b1)		<diamond mode="N1">
+										<nom name="e1:vorname"/>
+										<prop name="E."/>
+							b2)			<diamond mode="N1">
+											<nom name="j1:vorname"/>
+											<prop name="John"/>
+										</diamond>
+									</diamond>
+								</satop>
+								(John E. Hopcroft)
+
+			Namenskonstruktionen können im Sinne einer genetivischen Possessivkonstruktion
+			(e.c."Oltmanns Notebook") assoziativ mit weiteren Substantiven verknüpft werden.
+			Solche assoziativen Personennamen-Substantiv Konstruktionen bestehen aus einem
+			Substantiv (cf. a) im Beispiel) und einer ASS-Modalität, die den assoziierten
+			Personennamen einbettet (cf. b) im Beispiel). Eingebettete Personennamen können
+			wie in den Beispielen 1) und 2) oben atomar oder komplex sein. In jedem Fall aber
+			müssen die Namenskonstruktionen im Genetiv auftreten.
+			Kopf solche einer Personennamen-Substantiv Konstruktion ist immer das assoziierte
+			Substantiv (i.e. a) im Beispiel).
+
+					Beispiele HLDS-Repräsentation:
+							a)	<satop nom="b1:artefaktum">
+									<prop name="Buch"/>
+									<diamond mode="NUM">
+										<prop name="sing"/>
+									</diamond>
+							b)		<diamond mode="ASS">
+										<nom name="h1:nachname"/>
+										<prop name="Hopcroft"/>
+										<diamond mode="N1">
+											<nom name="e1:vorname"/>
+											<prop name="E."/>
+											<diamond mode="N1">
+												<nom name="j1:vorname"/>
+												<prop name="John"/>
+											</diamond>
+										</diamond>
+									</diamond>
+								</satop>
+								(John E. Hopcrofts Buch)
+
+			ACHTUNG!	Substantive, die mit Personennamen assoziierbar sein sollen (e.c. "Buch"), müssen
+						Mitglieder der lex. Familie 'AssoziativPersonennamenNP' sein.
+						Das gilt nicht für Buchtitel, einen eigenen Eintrag für ihre Assoziation mit
+						Personennamen haben.
+
+        BUCHTITEL
+            … müssen in dt. Anführungszeichen eingeschlossen sein. Sie sind Singulariatantum,
+            und kommen nur in den Kasus Nominativ, Dativ und Akkusativ vor.
+            Damit beschränkt sich ihre syntaktische Funktion in dieser Grammatik auf Subjekte,
+            direkte oder indirekte Objekte. Auch sind sie nicht durch Adjektive modifizierbar.
+
+                    „ Angewandte_Computerlinguistik “
+
+			Buchtitel treten NUR in Zusammenhang mit den Modalitäten <99> und <66> (cf.b) & c) im Beispiel) auf,
+			die in mnemotechnischer Weise an die öffnenden und schließenden Anführungszeichen im Deutschen
+			erinnern sollen.
+			Das Nominal der öffnenden Anführungszeichen muss von der sem. Sort 'anführungöffnen'- und das der
+			schließenden Anführungszeichen von der sem. Sorte 'anführungschließen' sein (cf. b1), c1) im Beispiel).
+			Die jeweiligen Anführungszeichen werden via die Proposition 'anföffn' bzw. 'anfschl' selektiert
+			(cf.b2), c2) im Beispiel).
+			Das Nominal eines Buchtitels selbst ist von der sem. Sorte 'buchtitel' (cf.a) im Beispiel).
+
+				Beispiele HLDS-Repräsentation:
+					a)	<satop nom="a1:buchtitel">
+							<prop name="Angewandte_Computerlinguistik"/>
+					b)		<diamond mode="99">
+					b1)			<nom name="a2:anführungöffnen"/>
+					b2)			<prop name="anföffn"/>
+							</diamond>
+					c)		<diamond mode="66">
+					c1)			<nom name="a3:anführungschließen"/>
+					c2)			<prop name="anfschl"/>
+							</diamond>
+						</satop>
+						(„ Angewandte_Computerlinguistik “)
+
+
+             Buchtitel gehören zu den nominale Konstrukten, die mit Personennamen im Genetiv assoziierbar sind.
+
+                    Lohnsteins „ Formale_Semantik_und_natürliche_Sprache “
+
+			Diese Konstruktionen unterscheiden sich von den oben besprochenen Assoziativ-Konstruktionen dadurch,
+			dass anstelle eines Substantivs (cf. a) im Beispiel oben) ein Buchtitel mitsamt öffnendem und
+			schließendem Anführungszeichen (cf. a1) im Beispiel unten) mit einem Namen (cf. b1) im Beispiel unten)
+			assoziiert wird:
+
+				Beispiele HLDS-Repräsentation:
+					a1)	<satop nom="f1:buchtitel">
+							<prop name="Formale_Semantik_und_natürliche_Sprache"/>
+							<diamond mode="99">
+								<nom name="a1:anführungöffnen"/>
+								<prop name="anföffn"/>
+							</diamond>
+							<diamond mode="66">
+								<nom name="a2:anführungschließen"/>
+								<prop name="anfschl"/>
+							</diamond>
+					b1)		<diamond mode="ASS">
+								<nom name="l1:nachname"/>
+								<prop name="Lohnstein"/>
+							</diamond>
+						</satop>
+						(Lohnsteins „ Formale_Semantik_und_natürliche_Sprache “)
+
+          Buchtitel müssen in einem Postprocessing-Prozess noch weiterverarbeitet werden:
+              a) Unterstrichen müssen durch Leerzeichen ersetzt werden,
+              b) Anführungszeichen müssen an die Buchtitel herangerückt werden.
+
+
+		*	NUMERALE
+				Jahreszahlen:
+						'Das Buch ist im JAHR 1999 erschienen.'
+
+					Numerale treten (bisher) als SUBSTANTIVE in der
+					Bedeutung von Jahreszahlen auf, und können besonders
+					mit dem Substantiv 'Jahr' als Ergänzungsnomen
+					auftreten, zum Beispiel: '… im Jahr 2002 …'
+					Sie sind Sigulariatantum, und kommen nur im
+					Neutrum-Nominativ in dieser Grammatik vor.
+					Ihre primäre Verwendung beschränkt sich also auf
+					die als Ergänzungsnomen in der Bedeutung von
+					Jahreszahlen.
+						Beispiel HLDS-Repräsentation:
+							<…>
+								<nom name="j1:art"/>
+								<prop name="Jahr"/>
+								<diamond mode="NUM">
+									<prop name="sing"/>
+								</diamond>
+								<diamond mode="NOMERG">
+									<nom name="n1:sorte"/>
+									<prop name="1998"/>
+									<diamond mode="NUM">
+										<prop name="sing"/>
+									</diamond>
+								</diamond>
+							<…>	(… Jahr 1998 …)
+
+					Sie können aber auch als ADVERBIEN auftreten: " Das Buch ist 2003 erschienen."
+
+				Seitenzahlen:
+					Seitenzahlen treten als Kardinale in der Wortart der ADJEKTIVE auf:
+					"Das Buch ist 300 Seiten länger".
+
+
+
+		*	PARTIKELN (die Partikeln)
+				Partikel verwenden folgende HLDS-Merkmale:
+					SPEZ (+ Nominal + Präposition):	Skopus für Partikeln
+					ART (+ Nominal + Präposition):	NUR in der Redewendung "ein wenig" für den
+													indefiniten Artikel 'ein'.
+
+				Der Bereich der Partikeln gehört zu den uneinheitlichsten Bereichen in Bezug auf die Wortarten-
+                klassifikation.
+                Die Wortart der Partikeln enthält prinzipiell viele Homonyme, wie auch in dieser Grammatik
+                beispielsweise das Wort 'besonders' sowohl zu der Wortart der Partikel als auch der Adverben gehört.
+
+                Diese Grammatik folgt der Wortartenklassifizierung der Partikel, indem sie der Wortart Partikel
+                die folgenden sie charackterisierenden Kriterien zugrundelegt:
+                Partikel
+                              -  … sind unflektierbare Worte,
+                              -  … bilden keine Phrasen,
+                              -  … können allein nicht im Vorfeld stehen und unterliegen weiteren Beschränkungen
+                                     ihrer Stellungsmöglichkeiten,
+                              -  … sind polyfunktional.
+                (cf.: http://hypermedia.ids-mannheim.de/pls/public/sysgram.ansicht?v_typ=d&v_id=279, 9.Juli, 16:05)
+
+                In dieser Grammatik sind sie kombinierbar mit:
+                              -  sich selbst (wohl besonders, nicht sehr, etc.)
+                              -  Adverbien (Das Buch beschreibt die Syntax SEHR AUSFÜHRLICH).
+                              -  Adjektiven (Das BESONDERS NEUE Buch).
+                              -  Prädikativ verwendeten Adverben oder Adjektiven (Das Buch ist BESONDERS NEU.).
+                              -  Konnektoren (Dieses Buch behandelt das Thema Syntax, NICHT ABER die
+											  Programmiersprache Prolog.).
+
+                Der Grund dafür, die Wortart der Partikeln in dieser Grammatik einzuführen, liegt bei der
+				Negationspartikel 'nicht', die ansonsten als Adverb angesehen werden müsste, und damit bei der
+				Negation durch die Negationspartikel.
+
+						Beispiel HLDS-Repräsentation:
+							<satop nom="s1:intensivierung">
+								<prop name="sehr"/>
+							</satop>
+							(sehr)
+
+						Partikel werden m.H. eines Nominals der semantischen Sorte 'eigenschaft' (oder einer
+						von dieser dominierten Sorte - "nicht" bildet eine Ausnahme, indem es von der semantischen
+						Sorte 'negation' ist!) erzeugt, wobei eine bestimmte Partikel durch ihre
+						Angabe als Proposition selektiert wird:
+							sehr, kaum, nicht, wenig, etwa, besonders, wohl
+
+						Wenn Partikel miteinander kombiniert werden, dann ist der rechte von beiden stets in eine
+						SPEZ-Modalität eingebettet.
+
+						Beispiel HLDS-Repräsentation:
+							<satop nom="n1:negation">
+								<prop name="nicht"/>
+								<diamond mode="SPEZ">
+									<nom name="s1:intensivierung"/>
+									<prop name="sehr"/>
+								</diamond>
+							</satop>
+							(nicht sehr)
+
+						Einen Spezialfall bildet die Redewendung "ein wenig" als abschwächende Intensitätspartikel:
+						Sie wird in HLDS gekennzeichnet durch eine Partikel, in die eine ART (i.e. Artikel) Modalität
+						mitsamt eines (indefiniten) Artikels einer speziellen lex. Kategorie 'art-indef'
+						eingebettet ist.
+
+						Beispiel HLDS-Repräsentation:
+							<satop nom="w1:abschwächung">
+								<prop name="wenig"/>
+								<diamond mode="ART">
+									<nom name="i1:sem-obj"/>
+									<prop name="indef"/>
+								</diamond>
+							</satop>
+							(ein wenig)
+
+				Partikeln, die mit anderen Wortarten kombiniert werden, sind IMMER in eine SPEZ-Modalität eingebettet.
+				SPEZ steht für 'Spezifizierung', denn das ist die Funktion der meisten Artikel: Sie spezifizieren ein
+				Modifikation eines Prädikats, ohne den Wahrheitsgehalt der Propostion zu ändern; eine Ausnahme davon
+				bildet freilich die Negationspartikel 'nicht'.
+
+				Weitere Dokumentation in den Dateien:
+					HLDS-testbed.xml,
+					lexicon-base.xml,
+					dict.xml
+				jeweils bei den Partikel-Abschnitten. In 'dict.xml' auch unter dem Abschnitt 'Indefinite Artikel'.
+
+
+		*	NEGATION
+			Negation kann im Deutschen außer durch nicht durch ein breites Spektrum sprachlicher
+			Ausdrücke realisiert werden. Verwendet werden:
+					Wortbildungsaffixe:	 		un- und a- in ungeschickt, asozial, illegal, missvergnügt, Unrecht
+					Konnektoren:				weder ... noch oder ohne dass
+					Quantifikativ-Artikel: 		kein in kein Mensch
+					Quantifikativ-Pronomina:	keiner, niemand, nichts
+					negative Satzadverbien:		nie, niemals, nirgendwo, nirgends, keinesfalls, mitnichten, keineswegs
+					Responsive:			 		nein
+			(cf.:http://hypermedia.ids-mannheim.de/pls/public/sysgram.ansicht?v_typ=d&v_id=563, Sonntag,
+			10. Juli, 2011 (18:50))
+
+			In dieser Grammatik ist Negation durch folgende Wortarten möglich:
+				1)	Quantifikativ-Artikel: 	kein Buch,
+				2)	Quantifikativ-Pronomen:	KeinER/E/ES,
+				3)	Indefinit-Pronomen:		Nichts,
+				4)	Negativ-Partikel:		nicht.
+
+			Quantifikativ-Artikekel lassen sich gut für die Negation von NPs einsetzen:
+					"… keine Beispiele".
+			Jede NP lässt sich mit dieser Methode negieren.
+
+			Quantifikativ-Pronomen lassen sich gut einsetzen, um zwei miteinander verglichene
+			Bücher hinsichtlich eines Merkmals gemeinsam zu negieren:
+					"Keines greift das Thema Syntax auf."
+
+			Negative indefinite Pronomen eignen sich in Redewendungen, wie:
+					"Sie erfahren in diesem Buch nichts über Syntax."
+
+			Die beiden letztgenannten Methoden sind als NP überall einsetzbar.
+
+			Die Negation durch Negativ-Partikel kann in JPolibox überall dort, wo Partikeln auftreten,
+			eingesetzet werden:
+				1)	prtk/prtk:
+					„nicht wenig“, „nicht sehr“,
+					„nicht besonders“, „nicht etwa“.
+				2)	n\prtk/n:
+					„das nicht große Buch“, „das nicht alte Buch“,
+					„das nicht lange Buch“, etc.
+				3)	np\prtk/n:
+					cf. 2), jedoch als NP.
+				4)	konn\prtk:
+					„nicht aber“, „nicht dagegen“.
+				5)	konn/prtk:
+					„auch nicht“, „dagegen nicht“,
+					„aber nicht“, „dafür nicht“,
+					„außerdem nicht“, „zudem nicht“.
+				6)	prtk\prkt/np/konn:
+					„ [… X] nicht, wohl aber [Y …]“
+				7)	adv\prtk:
+					„nicht ausführlich“, „nicht lang“,
+					„nicht viel“, „nicht wenig“,
+					„nicht vergleichbar“, etc.
+				8)	prd\prtk:
+					„nicht älter“, „nicht deutsch“,
+					„nicht englisch“, „nicht vergleichbar“, etc.
+
+			Insbesondere existieren aber (derzeit) vier lexikalische Kategorien, die explizit für die
+			Satznegation gedacht sind. Diese Kategorien richten sich nach der Art der Negation, die auch
+			im JPolibox-Korpus auftaucht. Um die Anzahl der lex. Kategorien nicht ausufern zu lassen,
+			existieren nur diese vier lex. Kategorien; diese Sind:
+				1.:Vtrans 	-	Negierter V-2 Satz:
+							s\np/prtk/pp/np
+						Beispiel:	Das Buch behandelt die Themen Syntax und Semantik nicht.
+
+				2.:Vtrans 	-	Negierter V-L Satz:
+							s-vl\np\np\prtk
+						Beispiel:	Obwohl es die Syntax nicht aufgreift, …
+
+				3.:Vtrans 	-	Negierter V-2 Satz mit PP Komplement und obligatorischem Reflexivpronomen:
+							s\np/prtk/pp/np
+						Beispiel:	Übungsaufgaben finden sich in ihm nicht.
+
+				4.:Vinfinit	-	Negierte Vergruppe (Prädikat + Objekt):
+							vgrp\v_aux{\prtk\np}
+								Negierte Verbgruppe mit PP-Komplement:
+							vgrp\v_aux\prtk\pp
+
+						Beispiel:	… greift die Themen Syntax und Semantik nicht auf.
+									… greift nicht die Themen Syntax und Semantik auf.
+									… stimm nicht mit X überein.
+
+			Negation erfolgt in HLDS durch das Einfügen einer SPEZ Modalität (1)), in der die Negationspartikel
+			selektiert wird. Die geschieht durch die Wahl der Proposition 'nicht'(2)), wobei ihr Nominal von
+			der sem. Sorte 'negation' ist (3)).
+				Beispiel HLDS-Repräsentation:
+					1)		<diamond mode="SPEZ">
+					3)			<nom name="n1:negation"/>
+					2)			<prop name="nicht"/>
+							</diamond>
+
+			Alle Satz- oder Verbgruppen-Strukturen von 1. - 4. oben, die diese Teilstruktur auf derselben Ebene,
+			wie die TEMP Modalität enthalten, sind mit der Negationspartikel verneint.
+
+		*	SATZMODUS
+			Die JPolibox-Domäne sieht nur DEKLARATIVSÄTZE vor.
+			Dieser Satzmodus manifestiert sich mit dem Punkt: ".".
+			Jeder Satz oder jedes Satzgefüge, das mit einem Punkt abgeschlossen wird, ist daher auch ein Deklarativsatz.
+
+			Deklarativsatz werden via HLDS erzeugt, indem ganze Sätze- oder Satzgefügestrukturen eingebettet werden
+			in eine DEKL Modalität.
+			Kopf eines Satzes ist dann ein Nominal von der sem. Sorte 'deklarativ' (1)), dessen Valuation ein
+			Einermenge (i.e. singleton set) zurückgibt, die eine Proposition 'punkt' enthält (2)).
+			Der gesamte, folgende Satz/Satzgefüge ist dann - wie erwähnt - in eine DEKL Modalität eingebettet (3)):
+
+					1)		<satop nom="p1:deklarativ">
+					2)			<prop name="punkt"/>
+					3)			<diamond mode="DEKL">
+									<nom name="s1:prädikation"/>
+									<prop name="sein-kop"/>
+									<diamond mode="TEMP:tempus">
+										<prop name="präs"/>
+									</diamond>
+									<diamond mode="SUBJ">
+										<nom name="t1:art"/>
+										<prop name="Thema"/>
+										<diamond mode="NUM">
+											<prop name="sing"/>
+										</diamond>
+										<diamond mode="ART">
+											<nom name="d1:sem-obj"/>
+											<prop name="def"/>
+										</diamond>
+									</diamond>
+									<diamond mode="PRKOMPL">
+										<nom name="s2:sorte"/>
+										<prop name="Syntax"/>
+										<diamond mode="NUM">
+											<prop name="sing"/>
+										</diamond>
+										<diamond mode="ART">
+											<nom name="d2:sem-obj"/>
+											<prop name="def"/>
+										</diamond>
+									</diamond>
+								</diamond>
+							</satop>
+							(Das Thema ist die Syntax.)
+
+		*	TEXT/PUNKT
+				Texte/Punkte verwenden folgende HLDS-Merkmale:
+					SATZ1:		Skopus
+									…	für den gesamten ersten Satz eines Textes anstelle der DEKL-Modalität.
+					DEKL:		Skopus
+									…	für je einen Satz: Siehe SATZMODUS oben.
+					EINBETTUNG: Skopus
+									…	für je einen weiteren Deklarativsatz, in die DEKL-Modalität eingebettet.
+					TEXT:		Skopus
+									…	für alle Sätze im Text.
+
+			Es gibt drei zu unterscheidende Punkte in dieser Grammatik:
+				1)	Der ERSTE Punkt in einem Text gliedert den ersten und zweiten Satz jeweils in einer SATZ1 und
+					DEKL-Modalität in die HLDS-Struktur ein:
+								(+ Nominal:deklarativ + Präposition:'puntk') + SATZ1 + DEKL
+				2)	Jeder Punkt, der weder der erste noch der letzte Punkt in einem Text ist, gliedert den bereits
+					verarbeiteten Teil des Textes auf seiner linken Seite in eine EINBETTUNG-Modalität ein, und
+					den noch nicht verarbeiteten Satz zu seiner rechten in eine DEKL-Modalität.
+								(+ Nominal:deklarativ + Präposition:'puntk') + EINBETTUNG + DEKL
+				3)  Der LETZTE Punkt in einem Text fasst alle verarbeiteten Sätze zu seiner linken in eine
+					TEXT-Modalität ein.
+								(+ Nominal:deklarativ + Präposition:'puntk') + TEXT
+
+			Einem Text wird also folgende Struktur von Modalität mit folgender Einbettung zugeordnet:
+					TEXT
+						DEKL
+						EINBETTUNG
+							DEKL
+							EINBETTUNG
+								…
+									DEKL
+									SATZ1
+
+			Deklarativsätze werden durch einen Punkt abgeschlossen und durch die DEKL-Modalität gekennzeichnet
+			(Bisher gibt es nur Deklarativsätze in dieser Grammatik).
+			Es können beliebig viele Sätze zu einem Text zusammengefügt werden.
+			Der erste Satz ist dabei immer in eine SATZ1-Modalität anstelle einer DEKL-Modalität eingebettet
+			(cf. 1)).
+			Der erste und zweite Satz bilden eine Einheit, die durch die Modalitäten SATZ1 (erster Satz) +
+			DEKL (zweiter Satz) gekennzeichnet ist (cf. 2) & 1)).
+			Jeder weitere Satz wird als DEKL - also Deklarativsatz - gekennzeichnet und in die Textstruktur
+			mit der Modalität EINBETTUNG (cf. 3)) integriert.
+			Der letzte Satz in einem Text bettet alle verarbeiteten Sätze in die TEXT-Modalität ein (cf. 4)).
+
+				Beispiel HLDS-Repräsentation:
+						<satop nom="p1:deklarativ">
+							<prop name="punkt"/>
+					4)		<diamond mode="TEXT">
+								<nom name="p2:deklarativ"/>
+								<prop name="punkt"/>
+								<diamond mode="DEKL">
+										…	Satz	…
+								</diamond>
+					3)			<diamond mode="EINBETTUNG">
+									<diamond mode="DEKL">
+											…	Satz	…
+									</diamond>
+
+										… weitere Sätze …
+
+									<nom name="p3:deklarativ"/>
+									<prop name="punkt"/>
+					2)				<diamond mode="DEKL">
+											…	Satz	…
+									</diamond>
+					1)				<diamond mode="SATZ1">
+											…	Satz	…
+									</diamond>
+								</diamond>
+							</diamond>
+						</satop>
+
+
+		*********************************************************************
+		*****	Eigenschaften der deutschen Polibox OpenCCG - Grammatik	*****
+		*********************************************************************
+
+		*	KONGRUENZ
+				-	Subjekt-Verb Kongruenz.
+					Zwischen Subjekt und Verb herrscht hinsichtlich der Merkmale
+						PERSON
+					und
+						NUMERUS
+					Subjekt-Verb Kongruenz.
+
+				-	Genus-Numerus-Casus (GNC-) Kongruenz
+					Innerhalb einer Nominalphrase herrscht hinsichtlich der Merkmale
+						GENUS,
+						NUMERUS
+					und
+						KASUS
+					GNC-Kongruenz.
+
+				-	Es herrscht eine Kongruenz zwischen FINITEM und INFINITEM TEIL
+					eines VERBALKOMPLEXES über das Mittelfeld hinweg hinsichtlich
+					von:
+						a)	Partikelverbstämmen und ihren Präververben,
+						b)	Perfektformen: Partizipien und ihren Hilfsverben,
+					und
+						c)	Transitiven/Intransitiven Partikelverbstämmen und ihren Präverben.
+
+				-	SUBSTANTIVE (… die für gewöhnlich nichts subkategorisieren), die zu den
+					Kategorien 'Ergänzungssubstantive'/'ErgänzungssubstantiveNP'gehören,
+					fordern den Nominativ von ihren Ergänzungssubstantiven.
+
+					Ausserdem setzen sie den Wert des 'flex'-Attributes auf 'strk' (stark),
+					um die Anbindung eventuell auftretender, schwach flektierter Adjektive
+					zu verhindern. Diese müssen vor dem Ergänzungssubstantiv im Nominativ
+					starkt flektiert auftreten.
+					In der Polibox-Domäne sind Konstruktionen mit Ergänzungssubstantiven
+					gedacht für definite NPs der Art: "Das Thema maschinelle Übersetzung …".
+
+
+		*	GRAMMATISCHE PHÄNOMENE DES DEUTSCHEN
+			=> 	BERÜCKSICHTIGTE
+
+					TEMPUS.
+					-	Präsens
+					-	Präteritum
+					-	Perfekt
+
+					MODUS:
+					-	Indikativ
+
+					WORTARTEN:
+					->	Adjektive
+						-	Komparation.
+						-	starke und schwache Flexion.
+
+					->	Artikel
+						-	Possessivartikel
+						-	Demonstrativartikel 1
+						-	Demonstrativartikel 2
+						-	Personalartikel
+						-	Quantifikativartikel
+
+					->	Verben/Verbalkomplex:
+						-	finite Verben
+						-	infinite Verben
+						-	Hilfsverben
+						-	Partikelverben (bes. Präsens)
+						-	Kopulaverben
+
+					->	Pronomen
+						-	Possessivpronomen
+						-	Demonstrativpronomen 2: "dieser"
+						-	Demonstrativpronomen 3: "der"
+						-	Personalpronomen
+						-	Quantifikativpronomen
+						-	Reflexivpronomen
+						-	Reziprokpronomen
+						-	Indefinitpronomen (nichts, etwas)
+
+					->	Adverbien
+						-	Kardinalzahlen
+						-	… als Modifikatoren von Adjektiven:
+							Partikel modifizieren Adjektive in dieser Grammatik
+							- nicht Adverbien!
+						-	… als Modifikatoren von Verben
+						-	… viele weitere, e.c. Konnektoren, etc.
+
+					->	Partikel
+						-	Intensitätspartikeln: sehr, kaum, wenig.
+						-	Fokuspartikeln: besonders,etwa.
+						-	Abtöunungspartikel: wohl
+						-	Negationspartikel: nicht
+
+					->	Numerale
+						-	Kardinalia
+								a)	Substantive (e.c. "Das Jahr 2001"),
+								b)	Adjektive (e.c. "193 Seiten"),
+								c)	Adverbien (e.c. "Das Buch ist 193 Seiten lang")
+
+							-	Zahlworte (Null bis zwölf)
+									a)	Adjektive (e.c.	"Das Buch ist zwölf Seiten lang")
+
+						-	Ordinalia
+								a) Adjektive (e.c.	"Das erste Buch", "Ein erstes Buch")
+
+					->	Negation/Verneinung:
+						-	Quantifikativpronomen ("Keins")
+						-	Quantifikativartikel ("kein Buch")
+						-	Indefinitpronomen ("nichts")
+						-	Partikel (nicht)
+
+
+					PHRASEN:
+					->	Nominalphrasen:
+						-	Mit/ohne Artikel
+						-	Genetiv-Attribut (Substantiv, Adjektiv)
+						-	Präpositional-Attribut
+						-	Pronomen
+						-	Modifikation durch Adjektive
+						-	Erweiterungsnomina
+						-	Maßangaben ("323 Seiten")
+						-	… oder eine Mischung daraus.
+						-	Buchtitel
+						-	Autorennamen (Nachnamen)
+						-	Artikel + Adjektiv i.S.v. Ellipse ("das vorige [Buch]")
+
+					->	Präpositionalphrasen
+						-	über
+						-	von
+						-	für
+						-	auf
+						-	in
+						-	im
+						-	um
+						-	bei
+						-	mit
+
+					->	Adjunktorphrasen
+						-	Adjunktor (wie) + infin.Verb (Partizip Perfekt): "wie gewünscht"
+
+					->	Prädikativkomplemente:
+						-	Adjektiv (Komparativ) + Adjunktor (als) + NP: " … umfangreicher als dieses Buch"
+						-	PP_1: Präposition: "… in Deutsch"
+						-	PP_2: Präposition inkl. NP : "in deutscher Sprache"
+						-	NP: "[Das Thema des Buches ist] die Pragmatik."
+
+					SYNTAX:
+					->	Satztypen:
+						-	V-2
+						-	Prädikativsätze
+						-	V-1
+							#	Erledigt (i.S.v. 'Subjekt-Prädikat Inversion')in via Adjunkt
+								modifizierten Sätzen m.trans. Verb und Prädikativsätzen.
+							#	Erledigt in Satzgefügen mit anteponiertem Nebensatz.
+						-	V-L eingeleitet
+						-	V-L nicht eingeleitet
+
+					->	Topikalisierung/Bewegung
+						-	Adverb an Satzanfang OHNE Inversion
+						-	Adverb/Adverbiale an Satzanfang MIT Inversion: Prädikativsatz + topik. Adjunktorphrase
+						-	PP an Satzanfang MIT Inversion
+
+					KONNEXION:
+					->	Konnektoren
+						-	aber (koord.Junktor)
+						-	sowohl X als auch Y (koord.Junktor)
+						-	als (adjung.Junktor)
+						-	wie	(adjung.Junktor)
+						-	und (koord.Junktor)
+						-	,	(koord.Junktor)
+						-	obwohl (subord.Junktor)
+						-	während (adversativ, subord.Junktor)
+						-	,	(subord.Junktor)
+
+					->	Koordination
+						-	Koordination von Verbgruppen/VPs mit ident. Subjekt
+						-	Asyndetische Koordination von Verbgruppen/VPs mit ident. Subjekt
+						-	Koordination von Prädikativkomplementen
+						-	Eingeleitete Koordination ganzer Sätze
+						-	Asyndetische Koordination ganzer Sätze mit Komma oder Doppelpunkt
+						-	Koordination von NPs/Ergänzungssubstantiven
+						-	Asyndetische Koordination von NPs/Ergänzungssubstantiven
+
+					->	Subordination: Cf. Konnektoren
+
+					->	Adjunktion
+						-	Prädikativsatz + Adjunktorphrase als Satzadverbiale
+						-	Satz m. trans. Verb + Adjunktorphrase als Satzadverbiale
+
+					->	Interpunktion
+						-	Komma: ","
+								#	Erledigt in Koordination von NPs, Ergänzungssubstantiven, Verbgruppen
+									und von Sätzen.
+								# Erledigt in Subordination von Nebensätzen.
+
+						-	Punkt:	"."
+						-	Doppelpunkt:	":"
+								# Erledigt in Koordination von Sätzen.
+
+					FORMAT:
+					->	Groß-Kleinschreibung: Postprocessing?
+						-	Substantive GROß.
+						-	Alle Nicht-Substantive klein.
+
+
+			=>	NICHT BERÜCKSICHTIGE
+					-	Passiv
+					-	Konjunktiv
+					-	Modalität/Modalverben
+					-	Futur I
+					-	Futur II
+					-	Plusquamperfekt/Präteritumsperfekt
+					-	…
+
+
+		*	LEXIKALISCHEN KATEGORIEN
+
+		Anzahl der Kategorien insgesamt: 	37 (17:PräpositionPräd gelöscht)
+
+
+			<== ATOMARE KATEGORIEN ==>
+
+				1.:		Substantive				=>		Substantive:
+							Lex. Kat:				n
+
+				2.:		NomenNP					=>		NPs die aus einem Substantiv bestehen.
+							Lex. Kat:				np
+
+				3.:		PronomenNP				=>		NPs die aus einem Pronomen bestehen.
+							Lex. Kat:				np
+
+				4.:		Vfinit					=>		Hilfsverben, Stämme von Partikelverben.
+							Lex. Kat:				v_aux
+
+				5.:		AdjPr					=>		Prädikatives Adjektiv
+							Lex. Kat:				prd
+
+				6.:		Adverb 					=>		Adverb
+							Lex. Kat:				adv
+
+				7.:		Adjunktor				=>		Konnektor, der Adjunktorphrasen/Vergleichssätze einleiten kann.
+														Vorkommen: Adjunktorphrasen.
+							Lex. Kat:				ajkt
+
+				29.:	Partikeln				=>		Partikeln
+							Lex. Kat:				prtk
+													prtk/prtk
+													prtk\art-indef ( … speziell: Redewendung "ein wenig")
+
+				32.:	Artikel					=>		Einzelne, indefinite Artikel ("ein") zur Kombination
+														mit der Partikel "wenig" bei der Redewendung "ein wenig".
+														PoS: "ARTINDEF" (alle übrigen Artikel: "ART").
+							Lex. Kat:				art-indef
+
+				33.:	Artikel f. Analepse		=>		Artikel mit GNC-Merkmalen zum Ersatz eines Substantivs.
+													artana
+
+				34.:	Anführungszeichen		=>		Buchtitel müssen in dt. Anführungszeichen (i.e. „“) stehen
+													anfzn
+
+			<== KOMPLEXE KATEGORIEN ==>
+
+				8.:		Ergänzungssubstantive	=>		Substantiv	+	postnominales Ergänzungsnomen|
+																		koord. Menge von Erg.nom.
+														ACHTUNG:		Substantive die eine Art repräsentieren
+																		und erweiterbar sind (e.c. das THEMA Syntax,
+																		das JAHR 1999), müssen in dieser Kategorie sein.
+							Lex. Kat:				n/n:				Ein Substantiv im Singular wird von einem
+																		Ergänzungssubstantiv ergänzt.
+													n/nomerg:			Ein Substantiv im Plural wird von einer Menge
+																		von Ergänzungssubstantiven ergänzt
+																		("die Themen X, Y und Z").
+
+				9.:		ErgänzungssubstantiveNP	=>		Substantiv + postnominales Ergänzungsnomen
+														bilden eine NP.
+							Lex. Kat:				np/n
+
+				10.:	Präposition				=>		PPs die aus einer Präposition und einer NP bestehen.
+							Lex. Kat:				pp/np
+
+				11.:	KomplexePPs				=>		PPs, die aus mehreren PPs bestehen.
+							Lex. Kat:				pp\pp/np
+
+				12.:	Artikel					=>		NPs, die aus einem Artikel und einem
+														(modifizierten) Substantiv bestehen.
+							Lex. Kat:				np/n
+
+				13.:	Adjektiv				=>		Durch Adjektiv(e) modifizierte Substantive.
+							Lex. Kat:				n/n
+													n\prtk/n 	Adjektiv + Partikel: besonders neues Buch
+													np\artana	Analepse von Substantiven: Artikel + Adjektiv: das letzte …
+
+				14.:	AdjAttribNP				=>		NPs die aus einem oder mehreren stark flektierten
+														Adjektiv(en) und einem Substantiv bestehen.
+							Lex. Kat:				np/n
+
+												=>		NPs die aus einem Adjektiv, das durch eine Partikel
+														modifiziert wird, sowie aus einem Substantiv bestehen.
+														Grund für diese Kategorie gab die PP-Konstruktion
+														"von etwa 680 Seiten", wobei die Präposition "von"
+														rechts nach einer NP sucht.
+							Lex. Kat:				np\prtk/n
+
+
+				15.:	GenAttribNP				=>		Genetiv-Attribut in einer NP: "das buch DER autorin …"
+														Lexikalische Kategorie ist PoS ART zugeordnet.
+							Lex. Kat:				np\np/np
+
+				16.:	PräpAttribNP			=>		Präpositionalattribut in einer NP: "IN dem buch VON der autorin"
+														Lexikalische Kategorie ist PoS PRÄ zugeordnet.
+							Lex. Kat:				np\np/np
+
+
+				18.:	Nprd					=>		Substantiv (ggf.modifiziert) gefolgt von einem Prädikativ.
+							Lex. Kat:				n/prd
+
+
+				19.:	GenAttribNP1			=>		Genetivattribute von NPs in Form von Adjektiven im Genetiv.
+														Lexikalische Kategorie ist PoS ADJ zugeordnet.
+							Lex. Kat:				np\np/np
+
+				20.:	Adjunktorphrase			=>		Adjunkt: Komplement (e.c. infinites Verb - PP) + Adjunktor.
+														Vorkommen: Prädikativsätze.
+							Lex. Kat:				ajkt\ajkt
+
+				21.:	Komparativstruktur		=>		Komparativstruktur/Vergleichssatz/Adjunktorphrase:
+														Prädikativkomplement + Vergleichsgegenstand.
+														Vorkommen: Prädikativsätze
+							Lex.Kat:				kmp\np/np
+													kmp\prd/np
+
+				22.:	Koordination			=>		Koordination von Ausdrücken.
+														Jeder Typ von Ausdruck hat seinen eigenen Eintrag in dieser
+														lexikalischen Familie.
+							Lex.Kat:				np\np/np :		Koordination von NPs.
+													nomerg\n/n:		Koordination von zwei Ergänzungssubstantiven.
+													nomerg\nomerg/n:	Koordination von mehr als zwei
+																		Ergänzungssubstantiven.
+													s\s/s:			Koordination von Sätzen
+																	(aller Art) via Doppelpunkt.
+
+													s/s:			Koordination von Propositionen via
+																	satzeinleitenden Konjunktor (Koordination über
+																	Satzgrenzen hinaus).
+
+													kmp\kmp/kmp: 	Koordination von Komparativstrukturen.
+													prdkomp\np/pp:	Koordination einer NP und einer PP
+													prdkomp\pp/np:	Koordination einer PP und einer NP
+													prdkomp\prd/np:	Koordination eines präd. verwendeten Adjektivs
+																	und einer NP.
+													prdkomp\prd/pp:	Koordination eines präd. verwendeten Adjektivs
+																	und einer PP.
+													s\s/vgrp:	Koordination von Verbgruppen.
+
+														'GEBASTEL': Koordination einer weit entfernten Subjekts-NP
+														via Adverbkonnektor
+														(e.c.:"SYNTAX findet sich in dem Buch nicht, wohl aber SEMANTIK.")
+													prtk\prkt/np/konn
+
+				38.:	Subordination			=>		Subjunktoren leiten V-L Sätze ein, die als Untersatz eines
+														Obersatzes fungieren.
+														Steht der V-L vor seinem Obersatz, so ist der Obersatz ein
+														V-1 Satz; steht er hinter ihm, ist der Obersatz ein V-2 Satz.
+													s\s-vl/s-v1:	Satzgefüge: V-L + V-1 Satz.
+													s\s/s-vl:		Satzgefüge: V-2 + V-L Satz.
+													s-vl/s-vl:		Einleitung eines V-L Satzes
+																	mit "während" oder "obwohl".
+
+				27.:	Konnexion
+						(Adverbkonnektoren)		=>		Adverbkonnektoren (aber, dagegen, außerdem, zudem, auch, etc.),
+														zusammengesetzte Adverbkonnektoren (aber dafür),
+														komplexe Adverbkonnektoren (sowohl X als auch Y)
+							Lex. Kat:				konn/konn
+													konn
+
+														Adverbkonnektoren kombiniert mit Partikeln (wohl aber,
+														auch ein wenig):
+							Lex. Kat:				konn/prkt
+													konn\prkt
+
+														Kombinationen aus Konjunktor und Adverbkonnektoren
+														zur Koordination von NPs ( "… X und auch ein wenig Y …"):
+							Lex. Kat:				np\np/np/konn
+
+														Koordination von NPs mit "sowohl X als auch Y".
+													np/np/konn/np
+
+				28.:	Satzzeichen				=>		Zeichen, die in einem Satz zur Strukturierung der syntaktischen
+														Struktur, oder zum Abschluss eines Satzes auftreten.
+														Mehrere Sätze sind auch zu einem Text zusammenfügbar:
+							Lex. Kat:				s-dkl\s				(Einzelsatz)
+													s-dekl\s/s			(Textanfang)
+													s-dekl\s-dekl/s 	(Textmitte)
+													s-dekl\s-dekl		(Textende)
+
+				30.:	Adverb					=>		Adverb + Partikel: besonders ausführlich, ein wenig groß.
+													adv\prtk
+
+				31.:	AdjPr					=>		Prädikativ verwendetes Adverb/Adjektiv + Partikel:
+														vergleichbar lang.
+													prd\prtk
+
+				35.:	Personennamen			=>		Komplexe Personennamen zusammengesetzt aus
+														Vorname(n) + Nachname:
+													n\n:personenname
+													np\n:personenname
+
+				36.: AssoziativPersonennamenNP	=>		Assoziativkonstruktionen bestehend aus einem (komplexen)
+														Personennamen + Substantiv (etwas, das mit einer Person
+														assoziiert werden kann (e.c.: "Hopcrofts Buch")):
+													np\n:personenname_im_Genetiv
+
+				37.:	NomenNP:
+						-	buchtitel,			=>		Buchtitel in dt. Anführungszeichen
+														(„Formale_Semantik_und_natürliche_Sprache“):
+													np\anfzn/anfzn
+
+				-	assoziation_buchtitel_autor	=>		Buchtitel in Assoziation mit einem Personennamen,
+														(Lohnsteins „Formale_Semantik_und_natürliche_Sprache“):
+													np\n:personenname\anfzn/anfzn
+
+
+			<== KOMPLEXE KATEGORIEN:Satztypen ==>
+
+				23.:	Vintrans						Deklarativsätze mit einem intransitiven Verb.
+							Lex. Kat:				s\np_[nom][-präd]
+													s-v1/np_[nom][-präd]
+													s-vl\np_[nom][-präd]
+
+				24.:	Vtrans							Deklarativsätze bestehend aus einem transitiven Verb.
+							Lex. Kat:				s\np_[nom][-präd]/np_[akk][-präd]
+													s-v1/np_[akk][-präd]/np_[nom][-präd]
+													s-vl\np_[nom][-präd]\np_[akk][-präd]
+
+														Deklarativsätze mit adverbialer Modifikation:
+													s\np/adv/np
+
+														Negierter Deklarativsatz (nur V-2 & V-L Sätze)
+							Lex. Kat:				s\np/prtk/np
+													s-vl\np\np\prtk
+
+														Sätze mit Adverbkonnektoren:
+							Lex. Kat:				s\np/prtk/np/konn
+													s\np/np/konn
+													s\konn/np_obj/np_subj	(Mit Subj.-Präd. Inversion (e.c.dagegenVSO))
+													s\konn\np_subj/np_obj   (Ohne Subj.-Präd. Inversion (e.c.aber SVO))
+
+														Verben mit PP-Komplement:
+							Lex. Kat:				s\np/pp
+													s-v1/pp/np
+													s-vl\np\pp
+
+														Verben mit Reflexivpronomen und PP-Komplement
+														(sich finden in …, sich richten an … ):
+							Lex. Kat:				s\np/pp/np
+													s-v1/pp/np_subj/np_reflexivpron (… findet sich das Thema in …)
+													s-v1/pp/np_reflexivpron/np_subj (… richtet das Buch sich an …)
+													s-vl\np\np\pp
+
+														Negierter Satz mit PP-Komplement und obligatorischem
+														Reflexivpronomen (nur V-2 Sätze):
+							Lex. Kat:				s\np/prtk/pp/np		(X findet sich in Y nicht.)
+
+														… 'prtk' vor 'pp' mit Modalität 'SPEZAnt' in HLDS kennzeichnen:
+													s\np/pp/prtk/np		(X findet sich nicht in Y.)
+
+														Transitive Verben mit einem PP-Supplement.
+														SCRAMBLING:
+															Die Reihenfolge von direktem und
+															indirektem Objekt ist variabel.
+														("Das Buch entspricht in hohem Maß ihren Suchkriterien.")
+														("Das Buch entspricht ihren Suchkriterien in hohem Maß.")
+							Lex. Kat:				s\np{/pp/np}
+													s-v1{/pp/np}/np
+													s-vl\np{\np\pp}
+
+														Verbgruppe (Prädikat + Objekt) eines transitiven
+														Verbs.
+							Lex. Kat:				vgrp/np
+
+				25.:	Vinfinit						Sätze mit Verbalkomplex im Imperfekt oder mit
+														Partikelverben im Präsens oder Präteritum, die
+														eine NP im Mittelfeld enthalten
+														(i.e. TRANSITIVE Verben).
+							Lex. Kat:				s\np_[nom][-präd]\v_aux\np_[akk][-präd]
+													s-v1\v_aux\np_[nom][-präd]\np_[akk][-präd]
+
+							Lex. Kat:					Sätze mit Adverbkonnektoren:
+													s\konn\v_aux\np_subj\np_obj
+
+														PP-Komplement im Mittelfeld transitiver, starker
+														Verben oder Perfektkonstruktionen:
+							Lex. Kat:				s\np\v_aux\pp
+													s-v1\v_aux\np\pp
+
+														Verbgruppe (Prädikat + Objekt) eines Verbs im
+														Perfekt oder eines Partikelverbs.
+							Lex. Kat:				vgrp\v_aux\np
+
+														Verbgruppe eines Verbs mit PP-Komplement
+														(e.c."übereinstimmen mit").
+							Lex. Kat:				vgrp\v_aux\pp
+
+														Negierte Verbgruppe:
+															… und geht nicht auf X und Y ein.
+															… und geht auf X und Y nicht ein.
+							Lex. Kat:				vgrp\v_aux{\prtk\np}
+															… stimmt nicht mit X überein.
+													vgrp\v_aux\prtk\pp
+
+														Sätze mit Verbalkomplex im Imperfekt oder mit
+														Partikelverben im Präsens oder Präteritum für
+														INTRANSITIVE Verben.
+							Lex. Kat:				s\np_[nom][-präd]\v_aux
+													s-v1\v_aux\np_[nom][-präd]
+
+														Sätze mit Verbalkomplex im Imperfekt oder mit
+														Partikelverben im Präsens oder Präteritum, die
+														eine PP IM MITTELFELD enthalten
+														(i.e. TRANSITIVE Verben).
+							Lex. Kat:				s\np_[nom][-präd]\v_aux\pp
+													s-v1/v_aux/np_[nom][-präd]/pp
+													s-vl\np_[nom][-präd]\pp/v_aux
+
+													s\np_[nom][-präd]\v_aux\adv
+													s-v1/v_aux/np_[nom][-präd]/adv
+													s-vl\np_[nom][-präd]\adv/v_aux
+
+				26.:	Vkopula					=>	Prädikativsätze.
+														Es gibt je eine V-1, V-2 und V-L Version (fast)
+														jeden Eintrags.
+
+														Prädikativsätze mit einem NP Prädikativkomplement
+							Lex. Kat:				s\np_[nom][-präd]/np_[nom][+präd]
+													s-v1/np_[nom][+präd]/np_[nom][-präd]
+													s-vl\np_[nom][-präd]\np_[nom][+präd]
+
+														Prädikativsätze mit einem PP - oder
+														prädikatives Adjektiv-Prädikativkomplement.
+							Lex. Kat:				s\np_[nom][-präd]/pp
+													s/pp/np_[nom][-präd]
+													s\np_[nom][-präd]\pp
+
+													s\np_[nom][-präd]/prd
+													s-v1/prd/np_[nom][-präd]
+													s-vl\np_[nom][-präd]\prd
+
+														Prädikativsätze mit anteponiertem Adjunkt und
+														Subjekt-Prädikat Inversion.
+							Lex. Kat:				s\ajkt/pp/np
+							Lex. Kat:				s\ajkt/np_obj/np_subj
+
+														Prädikativsatz, dessen Prädikativkomplement
+														eine Komparativstruktur ist.
+							Lex. Kat:				s\np/kmp
+													s-v1/kmp/np
+													s-vl\np\kmp
+
+														Prädikativsatz mit anteponiertem PP-Supplement,
+														und Komparativstruktur.
+							Lex. Kat:				s\pp/kmp/np
+
+														Prädikativsatz mit PP-Supplement, und Komparativstruktur.
+							Lex. Kat:				s\np/kmp/pp
+													s-v1/kmp/pp/np
+													s-vl\np\pp\kmp
+
+														Prädikativsatz mit präd. Adjektiv/Adverb und PP-Supplement.
+							Lex. Kat:				s\np/prd/pp
+													s-v1/prd/np/pp
+													s-vl\np\pp\prd
+
+							Lex. Kat:					Prädikativsatz, dessen Prädikativkomplement komplex ist,
+														i.e. es ist aus mehreren unterschiedlichen Prädikativ-
+														komplementen zusammengesetzt.
+													s\np/prdkomp
+													s-v1/prdkomp/np
+													s-vl\np\prdkomp
+
+							Lex. Kat:					Prädikativsätze mit Reziprokpronomen und prädikativ verwendetem
+														Adjektiv/Adverb ("Beide Bücher sind einander ähnlich.").
+													s\np/prd/np
+													s-v1/prd/np_rezpron/np_subj
+													s-vl\np_subj\np_rezpron\prd
+
+							Lex. Kat:					Sätze mit Adverbkonnektoren:
+													s\konn/np_präd/np_subj
+													s\pp/kmp/konn/np_subj
+													s\konn/pp/np_subj
+													s\konn/prdkomp/np_subj
+													s\np/prd/pp/konn
+
+
+			<== DIE EINZELNEN RESULTAT-KATEGORIEN ==>
+				-	n
+				-	np
+				-	v_aux
+				-	prd
+				-	adv
+				-	pp
+				-	s
+				-	s-v1
+				-	s-vl
+				-	ajkt
+				-	kmp
+				-	nomerg
+				-	konj
+				-	prdkomp
+
+
+		*	HLDS-MODALIÄTEN
+				-	Substantive:		NUM:[sing|plur]	(Numerus)
+										GEN:[mask|fem(|neut)]	(Genus)
+										NOMERG:Proposition (postnominales Ergänzungsnomen)
+										N1:personenname (Personenname)
+
+				-	Artikel:			ART:[def|indef|dem|quant|poss]
+										PERS:[1te|2te|3te] (Person bei Possessivartikeln)
+
+				-	Pronomen:			PRO:[posspro|dempro2|dempro3|perspro|quantprobeide|
+											 quantprokein|reflpro|rezprkpro|indefpro|negpro]
+										GEN:[mask|fem|neut] (Genus)
+										NUM:[sing|plur] (Numerus)
+										PERS:[1te|2te|3te] (Person)
+									und:
+										PRO:Auch als Skopus für ein eingebettetes PRO, wie oben angegeben.
+
+				-	Adjektive:			MOD:Proposition (Modifikation)
+										KOMP:[pos|komp] (Komparation)
+
+				-	Adverbien:			ADV:Proposition	(Modifikation einer Handlung)
+
+				-	Partikeln:			SPEZ:Proposition (Nähere Spezifizierung einer Modifikation, Negation).
+										SPEZAnt:	Proposition.
+												-	Kennzeichnet in negierten transitiven Sätzen mit obligatorischem
+													Reflexivpronomen und PP-Komplement, dass die Negationspartikel
+													'nicht' der PP vorangeht.
+												-	Ebenso in zusammengesetzten Konnektoren, dass eine Partikel dem
+													Konnektor vorausgeht.
+
+				-	Präpositionen:		PRÄP:Proposition
+
+				-	Attribute:			ATTRIB:	Fungiert als Skopus für weitere Nominale und Modalitäten.
+												Enthält komplexe Attribute, beispielsweise Genetiv- oder
+												Präpositionalattribute: ATTRIB + PRÄP (+ Nominal + Präposition).
+										ASS:	Assoziation einer durch ein entsprechendes Substantiv repräsentierten
+												Sache mit einem Personennamen (e.c. "Hopcrofts Buch").
+
+				-	Verbalkomplex:
+					Hilfsverben/
+					Partikelverbstämme:	AUX:Fungiert als Skopus für weitere Nominale und Modalitäten.
+											Markiert den finiten Teil eines Partikelverbs, bzw. ein
+											Hilfs- oder Modalverb.
+											Der AUX-Diamant ist eingebettet in einen infiniten Kopf,
+											und enthält selbst den Rest (i.e. die Komplemente) der
+											Proposition.
+
+				-	Verben:				AGENS:		Agens:
+														Fungiert als Skopus für weitere Nominale und Modalitäten.
+
+										AGENS2:		Koordinierte Subjekt-NP (X_2 in folgendem Beispiel:
+																"X_1 findet sich in Y nicht, aber X_2").
+														Fungiert als Skopus für eine NP.
+													Auch:	AGENS in Sätzen mit einleitendem Adverbkonnektor
+															ohne Subjekt-Prädikat Inversion.
+
+										AGENSAnt	Anteponiertes Agens in V-1 Sätzen mit obligatorischem
+													Reflexivpronomen und PP Komplement - das Subjekt geht hier
+													dem Reflexivpronomen voraus, nicht umgekehrt:
+													" … richtet das Buch sich an ein fortgeschrittenes Publikum."
+
+														Fungiert als Skopus für weitere Nominale und Modalitäten.
+										PATIENS:	Patiens:
+														Fungiert als Skopus für weitere Nominale und Modalitäten.
+										SUPPL:		Supplement:
+														Fungiert als Skopus für weitere Nominale und Modalitäten.
+										PRO:		Reflexivpronomen:
+														Fungiert als Skopus für ein weiteres, eingebettetes PROnomen,
+														in Sätzen, deren Verben obligatorischen Reflexivpronomen
+														fordern (e.c. "sich finden in", "sich richten an").
+										AntSUPPL:	Anteponiertes Supplement:
+														Fungiert als Skopus für weitere Nominale und Modalitäten.
+										PRKOMPL:		Prädikativkomplement:
+														Fungiert als Skopus für weitere Nominale und Modalitäten.
+										TEMP:präs|prät|imperf(|plusqmperf|fut1|fut2)
+
+				-	Koordination:		KONN:		Konnektor:
+														Fungiert in Adjunktorphrasen zu deren Kennzeichnung in
+														Verbindung mit einer übergeordneten AJKT-Modalität.
+
+										N1, N2:		Ergänzungssubstantive in Koordinationen.
+													Skopus für je ein Substantiv.
+
+										NP1, NP2:	Nominalphrasen in Koordinationen.
+													Skopus für je eine NP.
+
+										S1, S2:		Koordinierte Sätze.
+
+										KOMPAR1,
+										KOMPAR2:	Koordination von Komparativstrukturen in Prädikativsätzen.
+
+										NP1, NP2,
+										PP, PRD:	Koordination von unterschiedlichen Kategorieen in Prädikativ-
+													sätzen.
+
+										S1, VG:		Koordination von Verbgruppen.
+
+				-	Satzgefüge,
+					Subjunktion:		AJKT:		Adjunkt:
+														Fungiert als Kennzeichnung eines Adjunkts in einem
+														Prädikativsatz, das dort als Verbgruppen-Adverbiale
+														fungiert, und den gesamte Prädikation 'einfärbt'.
+														Außer der TEMP-Modalität enthält ein AJKT-Diamant
+														den gesamten Prädikativsatz (insbesondere die
+														KONN-Modalität, die zur Auszeichnung als Prädikativsatz gehört).
+
+										KOMPAR:		Komparativstruktur:
+														Kennzeichnet in einer Komparativstruktur den
+														Vergleichsgegenstand - fungiert also als Skopus, in dem
+														ein nominaler Ausdruck definiert sein muss.
+														Ist Bestandteil (i.e. wird dominiert) von einem übergeordneten
+														PRKOMPL-Diamanten.
+
+										SUBJ:		Subjekt in Prädikativsätzen.
+														Fungiert als Skopus für die Repräsentation des Subjekts in
+														Prädikativsätzen.
+
+										HS:			Ober/Hauptsatz in Satzgefügen:
+														Fungiert als Skopus für den gesamten Hauptsatz in einem
+														Satzgefüge. Zusammen mit der Modalität NSAnt wird der
+														entsprechende Hauptsatz als V-1 Satz realisiert; zusammen
+														mit der Modalität NS als V-2 Satz.
+
+										NS:			Unter/Nebensatz in Satzgefügen:
+														Fungiert als Skopus für den gesamten Nebensatz in einem
+														Satzgefüge.
+
+										NSAnt:		Anteponierter Unter/Nebensatz in Satzgefügen:
+														Fungiert als Skopus für den gesamten Nebensatz in einem
+														Satzgefüge.
+														Diese Nebensätze treten immer zuerst auf im Satzgefüge, und
+														bedingen als Hauptsatz einen V-1 Satz.
+
+										VL:			Verb-Letzt Satz in Satzgefügen:
+														Fungiert als Skopus für einen gesamten Satz mit Verb-Letzt
+														Stellung OHNE Einstellungselement (Subjunktor).
+
+				-	Konnektoren:		S1, KONN,
+										ADV:		Koordination von Objekt NPs in adversativer Relation in V-2 Sätzen
+													mit adverbialer Modifikation des Prädikats.
+
+										S1, KONN:	Koordination von Objekt NPs/PPs in adversativer Relation in
+													V-2 Sätzen.
+
+										NP1, KONN,
+										NP2:		Zwei koordinierte NPs in adversativer Relation:
+													"… keine Syntax, WOHL ABER Semantik …".
+
+
+				-	Ganze Sätze:		DEKL:		Deklarativsätze werden durch einen Punkt abgeschlossen:
+														Fungiert als Skopus für einen gesamten Satz/Satzgefüge.
+
+										SATZ1:		Erster Satz in einem Text:
+														Fungiert als Skopus für einen gesamten Satz/Satzgefüge.
+
+										EINBETTUNG:	Jeder Satz in einem Text wird in eine Einbettungsebene eingefügt.
+														Fungiert als Skopus für einen gesamten Satz/Satzgefüge inkl.
+														DEKL-Modalität und also auch dem Punkt.
+
+										TEXT:		Der letzte Satz in einem Text bettet alle verarbeiteten Sätze
+													in die TEXT-Modalität ein:
+														Fungiert als Skopus für die Gesamtheit der Sätze eines Textes.
+
+
+		*	VARIABLEN für unterschiedene NOMINALE
+				-	Allgemein:			X, Y, Z
+				-	Adjektive:			M
+				-	Adverbien:			M
+				-	Genetiv Artikel: 	M
+				-	NPs als Prädikativ-
+					komplemente in
+					Komparativ-
+					strukturen			M
+				-	Prädikativ ver-
+					wendete Adjektive
+					in Prädikativ-
+					sätzen mit Komp-
+					arativstrukturen	M
+				-	Artikel:			A
+				-	Präposition:		P
+				-	Pronomen:			PN
+				-	Substantive:		N
+				-	Verben:				E
+				-	Hilfsverben/
+					Partikelverbstämme/
+					Verbgruppen:		E1
+				-	Adjunkte:			AD
+				-	Konnektoren:		KONN
+				-	Partikeln:			PRTK
+
+
+		*	PARTS of SPEECH (gemäß lex. Kategorien):
+				-	N			=>	Nominale
+				-	PRO			=>	Pronomen
+				-	ART			=>	Artikel
+				-	ARTNA		=>	Artikel mit GNC-Merkmalen für Analepsen in NPs: das letzte, der vorige, etc.
+				-	ARTINDEF	=>	Indefiniter Artikel "ein" in der Redewendung "ein wenig".
+				-	ADJ 		=>	Adjektive
+				-	ADJP		=>	Prädikativ verwendete Adjektive
+				-	PRÄ			=>	Präpositionen
+				-	ADV			=>	Adverbien
+				-	V 			=>	Verben (Vollverben)
+				-	Vfin	 	=>	Finite Verben (Partikelverbstämme, Hilfsverben)
+				-	Vinf	 	=>	Infinite Verben (Präverben, Partizipien)
+				-	ADJKT		=>	Adjunktor
+				-	KONJKT		=>	Konjunktor/Koordinator
+				-	SUBJKT		=>	Subjunktor/Subordinator
+				-	KONN		=>	(Adverbial-) Konnektoren
+				-	DEKL		=>	Deklarativsätze (PoS des Punktes ".".)
+				-	PRTK		=>	Partikel
+
+		*	ZUORDNUNG:
+				PARTS of SPEECH	=>	RESULTAT-KATEGORIEN
+				-	N			=>	n, np
+				-	PRO			=>	np
+				-	ART			=>	np
+				-	ADJ 		=>	n, np
+				-	ADJP		=>	prd
+				-	PRÄ			=>	np, pp
+				-	ADV			=>	adv
+				-	V 			=>	s, s-v1, s-vl, vgrp
+				-	Vfin 		=>	v_aux
+				-	Vinfinit	=>	s, s-v1, s-vl, vgrp
+				-	ADJKT		=>	ajkt, kmp
+				-	KONJKT		=>	np, nomerg, s, konj, kmp, prdkomp
+				-	SUBJKT		=>	s
+
+
+		*	GRAMMATISCHE MERKMALE
+				-	 Genus:						gen={ mask, fem, neut }
+				-	 Numerus:					num={ sing, plur }
+				-	 Kasus:						cas={ nom, gen, dat, akk }
+				-	 Modus:						mod={ ind, konj, imp, inf }
+				-	 Person:					pers={ 1te, 2te, 3te }
+				-	 Tempus:					temp={ plusqmperf, imperfperf, prät, präs, fut1, fut2 }
+				-	 Genus Verbi:				genv={ akt, med, pass }
+				-	 Kongruenz:					kongr={ gnc, sv }
+				-	 Flexion(Adjektive):		flex={ strk, schw }
+				-	 Verbposition:				vpos={ 2 }
+				-	 Verbform (Hilfsverb):		vform={ haben, sein, müssen, dürfe, setzen, stellen, … }
+														Als Attribut-Werte treten alle finiten Teile von
+														Verbalkomplexen auf; auch Partikelverbstämme.
+												trans={ transitiv, intransitiv }
+				-	Prädikativ:					präd={ +, - }
+				-	Lexem:						lex={ wie, als }
+
+
+

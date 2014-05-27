@@ -1,0 +1,130 @@
+# Kommentare von Martin zur Grammatik und zur Verwendung von tccg (2011-07-18)
+
+Ich bin gerade erst fertig geworden mit der Integration aller ling. Phänomen,
+die in der Polibox-Sprachdomäne eine Rolle spielen. Einerseits basiert die
+Grammatik auf einer Reihe von Sätzen und Satzgefügen, die Manfred mir und
+Daniel vor einiger Zeit geschickt hat, andererseits habe ich mir einen eigenen
+JPolibox-Korpus entwickelt, der auf den RST-Strukturen beruht und ebenso
+an diesem die Grammatikentwicklung ausgerichtet.
+
+Es gibt zwei Textdateien in dem german-jpolibox-Verzeichnis:
+
+1) DeutschePoliboxOpenCCGrammatik.txt,
+
+und
+
+2) GrammatikÜberblick.txt
+
+In 1) ist genau beschrieben, wie man die einzelnen „Sprachbaustein“ via
+HLDS-Struktur generiert. In dem 'HLDStestset' Unterverzeichnis finden sich
+auch XML-Dateien mit entsprechenden HLDS-Strukuren zum Generieren.
+
+In 2) habe ich versucht, einen kurzen Überblick über die grammatischen
+Phänomene zu erstellen, die die Grammatik nun generieren kann.
+
+[...]
+
+Ich habe immer mit der openccg-Version 0.9.3 gearbeitet. Diese 
+OpenCCG-Version hat ein Unterverzeichnis 'grammars', in das ich die 
+Polibox-Grammatik auch gelegt habe.
+
+Auf der Konsole wechselt man dann in dieses '…/grammars/german-jpolibox'-Verzeichnis
+und „kompiliert“ die Grammatik (… denn die ist ja auch in einer vereinfachten XML-Notation
+geschrieben - nicht im dotCCG/VisCCG-Format zwar, aber immerhin …):
+
+$> ccg-build -autoproxy -v grammar
+
+Danach kann man - im selben Verzeichnis -
+
+$> tccg
+
+starten, und mit der Grammatik experimentieren.
+
+Wenn man die HLDS-Struktur von einem geparsten Satz speichern möchte (alles in der
+"tccg"-Shell), dann wählt man den Parse, den man haben will mit
+
+$> :sel NUMBER
+
+aus (falls es mehrere Parses gibt), und speichert die HLDS-Struktur mit
+
+$> :2xml DATEINAME
+
+Um mit diesen HLDS-Strukturen in XML wiederum Text zu erzeugen gibt es den dann Befehl:
+
+$> ccg-realize /Pfad/zur/XML/Datei
+
+
+Das ist, wie ich es immer tue.
+
+Ach so, man kann auch beliebig viele Sätze in einem „testbed.xml“ speichern, und dann
+diese mit
+
+$> ccg-test /Pfad/zur/XYtestbed.xml/Datei
+
+generieren und parsen; es gibt auch einen Schalter, mit dem man das Parsing oder die
+Generierung jeweils abschalten kann - weiß gerade nicht, wie der ging.
+
+All das ist aber auch am Ende der „grammars-rough-guide.pdf“ beschrieben.
+
+Es gibt in der Grammatik an einigen Stellen noch sog. „setarg“-Konstrukte. Das sind Wesen,
+die dazu da sind, die Reihenfolge ihrer Elemente unterspezifiziert zu lassen, was im Deutschen
+
+Mittelfeld i.S.v. Scrambling sehr sinnvoll ist:
+
+X hat Y im Park gesehen.
+
+X hat im Park Y gesehen.
+
+Die Frage ist nur, ob das auch für die Generierung so toll ist: Solange es beispielsweise für
+die beiden Beispiele oben nur EINE HLDS-Struktur gibt, woher soll OpenCCG dann wissen,
+welche der beiden Varianten ich generieren möchte?
+
+Das ist also noch eine Baustelle. Wahrscheinlich kann man diese Frage m.H. eines Sprachmodells
+lösen, das sagt:
+
+[Y, im, Park] = 0.2,
+
+[im, Park, Y] = 1.00.
+
+Aber das muss ich noch ausprobieren.
+
+Falls Du sicher gehen möchtest, dann könntest Du in der Grammatik (i.e. "lexicon-base.xml")
+nach Kategorien suchen, die geschweifte Klammern enthalten (e.c. s-vl\np{\np\pp}) und dann in
+den entsprechenden Einträgen einfach die "setarg"-Elemente entfernen:
+
+<setarg>
+<slash dir="\" mode="*"/>
+<atomcat type="np">
+<fs id="3">
+<feat attr="index">
+
+<lf>
+<nomvar name="Y"/>
+</lf>
+
+</feat>
+</fs>
+
+</atomcat>
+<slash dir="\" mode="^"/>
+<atomcat type="pp">
+<fs id="2">
+<feat attr="index">
+<lf>
+<nomvar name="Z"/>
+</lf>
+</feat>
+</fs>
+</atomcat>
+</setarg>.
+
+Danach ist die Reihenfolge, wie sie dann in der XML-Datei steht, fest und unumstößlich.
+
+Ich hoffe, Du kannst etwas anfangen mit dieser Grammatik; sie bietet 
+auf jeden Fall die Möglichkeit, ein paar RST-Strukturen sprachlich 
+auszudrücken (cf. Konnexion) und auch unterschiedlich auf Dinge 
+(i.e. Bücher, Autoren) zu referieren. Ich kann mir allerdings 
+vorstellen, dass sie nicht so einfach zu lesen ist, wenn man sie 
+nicht selbst geschrieben hat. Für diesen Fall kannst Du Dich aber an 
+den Testsätzen in „testbedHLDS.xml“ orientieren, und diese als 
+Bausteine für Deine Sätze verwenden.

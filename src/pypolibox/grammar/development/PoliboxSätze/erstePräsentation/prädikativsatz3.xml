@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="s1:prädikation">
+      <prop name="sein-kop"/>
+      <diamond mode="TEMP:tempus">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="SUBJ">
+        <nom name="x1:sem-obj"/>
+        <diamond mode="PERS">
+          <prop name="3te"/>
+        </diamond>
+        <diamond mode="PRO">
+          <prop name="perspro"/>
+        </diamond>
+        <diamond mode="GEN">
+          <prop name="neut"/>
+        </diamond>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+      </diamond>
+      <diamond mode="PRKOMPL">
+        <nom name="d1:eigenschaft"/>
+        <prop name="deutsch"/>
+        <diamond mode="KOMP">
+          <prop name="pos"/>
+        </diamond>
+        <diamond mode="PRÄP">
+          <nom name="a1:zusammenhang"/>
+          <prop name="auf"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>es ist auf deutsch</target>-->
+</xml>

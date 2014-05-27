@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="v1:handlung">
+      <prop name="verwenden"/>
+      <diamond mode="TEMP:tempus">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="AGENS">
+        <nom name="b1:artefaktum"/>
+        <prop name="Buch"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d1:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+      </diamond>
+      <diamond mode="PATIENS">
+        <nom name="p1:art"/>
+        <prop name="Programmiersprache"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="q1:sem-obj"/>
+          <prop name="quantkein"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <target>das Buch verwendet keine Programmiersprache</target>
+</xml>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xml>
+    <lf>
+        <satop nom="s1:prädikation">
+            <prop name="sein-kop"/>
+            <diamond mode="TEMP:tempus">
+                <prop name="präs"/>
+            </diamond>
+            <diamond mode="TEMP:tempus">
+                <prop name="prät"/>
+            </diamond>
+        </satop>
+    </lf>
+</xml>

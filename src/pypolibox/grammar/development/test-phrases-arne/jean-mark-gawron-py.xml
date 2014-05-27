@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf8'?>
+<xml>
+  <lf>
+    <satop nom="nachname">
+      <prop name="Gawron"/>
+      <diamond mode="N1">
+        <nom name="vorname"/>
+        <prop name="Mark"/>
+        <diamond mode="N1">
+          <nom name="vorname"/>
+          <prop name="Jean"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+</xml>

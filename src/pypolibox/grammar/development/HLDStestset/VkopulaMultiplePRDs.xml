@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="s1:prädikation">
+      <prop name="sein-kop"/>
+      <diamond mode="TEMP:tempus">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="SUBJ">
+        <nom name="b1:artefaktum"/>
+        <prop name="Buch"/>
+        <diamond mode="NUM">
+          <prop name="plur"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="q1:sem-obj"/>
+          <prop name="quantbeide"/>
+        </diamond>
+      </diamond>
+      <diamond mode="PRKOMPL">
+        <nom name="v1:eigenschaft"/>
+        <prop name="vergleichbar"/>
+        <diamond mode="KOMP">
+          <prop name="pos"/>
+        </diamond>
+        <diamond mode="MOD">
+          <nom name="a1:eigenschaft"/>
+          <prop name="aktuell"/>
+          <diamond mode="KOMP">
+            <prop name="pos"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>beide Bücher sind vergleichbar aktuell</target>-->
+</xml>

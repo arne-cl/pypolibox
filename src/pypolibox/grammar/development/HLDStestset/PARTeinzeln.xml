@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="s1:intensivierung">
+      <prop name="sehr"/>
+    </satop>
+  </lf>
+  <!--<target>sehr</target>-->
+</xml>

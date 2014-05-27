@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="e1:inchoativ">
+      <prop name="erscheinen"/>
+      <diamond mode="AUX">
+        <nom name="s1:sein"/>
+        <prop name="sein"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="imperf"/>
+        </diamond>
+        <diamond mode="AGENS">
+          <nom name="c1:buchtitel"/>
+          <prop name="Computational_Linguistics._An_Introduction."/>
+          <diamond mode="99">
+            <nom name="a1:anführungöffnen"/>
+            <prop name="anföffn"/>
+          </diamond>
+          <diamond mode="66">
+            <nom name="a2:anführungschließen"/>
+            <prop name="anfschl"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <target>„ Computational_Linguistics._An_Introduction. “ ist erschienen</target>
+</xml>

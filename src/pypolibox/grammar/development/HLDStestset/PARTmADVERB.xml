@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="a1:modus">
+      <prop name="ausführlich"/>
+      <diamond mode="SPEZ">
+        <nom name="s1:intensivierung"/>
+        <prop name="sehr"/>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>sehr ausführlich</target>-->
+</xml>

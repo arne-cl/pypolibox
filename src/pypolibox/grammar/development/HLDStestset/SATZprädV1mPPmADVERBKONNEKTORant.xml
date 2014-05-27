@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="p1:deklarativ">
+      <prop name="punkt"/>
+      <diamond mode="DEKL">
+        <nom name="s1:prädikation"/>
+        <prop name="sein-kop"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="SUBJ">
+          <nom name="b1:artefaktum"/>
+          <prop name="Buch"/>
+          <diamond mode="NUM">
+            <prop name="plur"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="q1:sem-obj"/>
+            <prop name="quantbeide"/>
+          </diamond>
+        </diamond>
+        <diamond mode="PRKOMPL">
+          <nom name="d1:abstraktum"/>
+          <prop name="Deutsch"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="PRÄP">
+            <nom name="a1:zusammenhang"/>
+            <prop name="auf"/>
+          </diamond>
+        </diamond>
+        <diamond mode="KONN">
+          <nom name="z1:addition"/>
+          <prop name="zudem"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>zudem sind beide Bücher auf Deutsch .</target>-->
+</xml>

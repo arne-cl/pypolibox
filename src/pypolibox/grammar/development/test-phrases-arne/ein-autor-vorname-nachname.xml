@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="m1:nachname">
+      <prop name="Manning"/>
+      <diamond mode="N1">
+        <nom name="c1:vorname"/>
+        <prop name="Christopher"/>
+      </diamond>
+    </satop>
+  </lf>
+  <target>Christopher Manning</target>
+</xml>

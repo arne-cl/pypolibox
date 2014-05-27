@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="k1:konjunktion">
+      <prop name="komma"/>
+      <diamond mode="NP1">
+        <nom name="j1:vorname"/>
+        <prop name="Jean"/>
+      </diamond>
+      <diamond mode="NP2">
+        <nom name="k2:konjunktion"/>
+        <prop name="komma"/>
+        <diamond mode="NP1">
+          <nom name="j2:vorname"/>
+          <prop name="John"/>
+        </diamond>
+        <diamond mode="NP2">
+          <nom name="u1:konjunktion"/>
+          <prop name="und"/>
+          <diamond mode="NP1">
+            <nom name="j3:vorname"/>
+            <prop name="Jeffrey"/>
+          </diamond>
+          <diamond mode="NP2">
+            <nom name="j4:vorname"/>
+            <prop name="J."/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <target>Jean , John , Jeffrey und J.</target>
+</xml>

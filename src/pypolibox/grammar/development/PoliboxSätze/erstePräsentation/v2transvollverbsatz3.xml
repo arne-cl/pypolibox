@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="b1:handlung">
+      <prop name="bieten"/>
+      <diamond mode="TEMP:tempus">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="AGENS">
+        <nom name="x1:sem-obj"/>
+        <diamond mode="PERS">
+          <prop name="3te"/>
+        </diamond>
+        <diamond mode="PRO">
+          <prop name="quantprokein"/>
+        </diamond>
+        <diamond mode="GEN">
+          <prop name="mask"/>
+        </diamond>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ATTRIB">
+          <nom name="a1:bel-phys-körper"/>
+          <prop name="Autor"/>
+          <diamond mode="GEN">
+            <prop name="mask"/>
+          </diamond>
+          <diamond mode="NUM">
+            <prop name="plur"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d1:sem-obj"/>
+            <prop name="def"/>
+          </diamond>
+        </diamond>
+      </diamond>
+      <diamond mode="PATIENS">
+        <nom name="c1:abstraktum"/>
+        <prop name="Code-Beispiel"/>
+        <diamond mode="NUM">
+          <prop name="plur"/>
+        </diamond>
+        <diamond mode="ATTRIB">
+          <nom name="p1:art"/>
+          <prop name="Programmiersprache"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="NOMERG">
+            <nom name="a2:sorte"/>
+            <prop name="Ada"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+          </diamond>
+          <diamond mode="PRÄP">
+            <nom name="i1:zusammenhang"/>
+            <prop name="in"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d2:sem-obj"/>
+            <prop name="def"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>keiner der Autoren bietet Code-Beispiele in der Programmiersprache Ada</target>-->
+</xml>

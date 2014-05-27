@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="b1:durativ">
+      <prop name="behandeln"/>
+      <diamond mode="TEMP">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="AGENS">
+        <nom name="x1:sem-obj"/>
+        <diamond mode="PRO">
+          <prop name="dempro2"/>
+        </diamond>
+        <diamond mode="GEN">
+          <prop name="neut"/>
+        </diamond>
+        <diamond mode="PERS">
+          <prop name="3te"/>
+        </diamond>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+      </diamond>
+      <diamond mode="PATIENS">
+        <nom name="x2:sem-obj"/>
+        <diamond mode="PRO">
+          <prop name="dempro2"/>
+        </diamond>
+        <diamond mode="GEN">
+          <prop name="mask"/>
+        </diamond>
+        <diamond mode="PERS">
+          <prop name="3te"/>
+        </diamond>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>dieses behandelt diesen</target>-->
+</xml>

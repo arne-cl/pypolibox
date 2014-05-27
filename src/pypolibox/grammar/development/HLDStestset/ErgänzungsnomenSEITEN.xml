@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="u1:durativ">
+      <prop name="umfassen"/>
+      <diamond mode="TEMP:tempus">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="AGENS">
+        <nom name="b1:artefaktum"/>
+        <prop name="Buch"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d1:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+      </diamond>
+      <diamond mode="PATIENS">
+        <nom name="n1:art"/>
+        <prop name="933"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="NOMERG">
+          <nom name="s1:sorte"/>
+          <prop name="Seite"/>
+          <diamond mode="NUM">
+            <prop name="plur"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das Buch umfasst 933 Seiten</target>-->
+</xml>

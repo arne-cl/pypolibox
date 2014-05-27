@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="b1:durativ">
+      <prop name="behandeln"/>
+      <diamond mode="TEMP">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="AGENS">
+        <nom name="b2:artefaktum"/>
+        <prop name="Buch"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d1:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+        <diamond mode="ATTRIB">
+          <nom name="s1:abstraktum"/>
+          <prop name="Sprache"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="PRÄP">
+            <nom name="i1:zusammenhang"/>
+            <prop name="in"/>
+          </diamond>
+          <diamond mode="MOD">
+            <nom name="d2:eigenschaft"/>
+            <prop name="deutsch"/>
+            <diamond mode="KOMP">
+              <prop name="pos"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+      <diamond mode="PATIENS">
+        <nom name="t1:abstraktum"/>
+        <prop name="Thema"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d3:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das Buch in deutscher Sprache behandelt das Thema</target>-->
+</xml>

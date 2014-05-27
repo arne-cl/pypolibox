@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="k1:subjunktion">
+      <prop name="komma"/>
+      <diamond mode="HS">
+        <nom name="s1:prädikation"/>
+        <prop name="sein-kop"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="SUBJ">
+          <nom name="b1:artefaktum"/>
+          <prop name="Buch"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d1:sem-obj"/>
+            <prop name="dem"/>
+          </diamond>
+        </diamond>
+        <diamond mode="PRKOMPL">
+          <nom name="u1:konjunktion"/>
+          <prop name="und"/>
+          <diamond mode="PP">
+            <nom name="d2:abstraktum"/>
+            <prop name="Deutsch"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="PRÄP">
+              <nom name="a1:zusammenhang"/>
+              <prop name="auf"/>
+            </diamond>
+          </diamond>
+          <diamond mode="NP2">
+            <nom name="ü1:abstraktum"/>
+            <prop name="Überblick"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="i1:sem-obj"/>
+              <prop name="indef"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+      <diamond mode="NSAnt">
+        <nom name="w1:adversativ"/>
+        <prop name="während"/>
+        <diamond mode="VL">
+          <nom name="s2:prädikation"/>
+          <prop name="sein-kop"/>
+          <diamond mode="TEMP:tempus">
+            <prop name="präs"/>
+          </diamond>
+          <diamond mode="SUBJ">
+            <nom name="b2:artefaktum"/>
+            <prop name="Buch"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d3:sem-obj"/>
+              <prop name="def"/>
+            </diamond>
+            <diamond mode="MOD">
+              <nom name="e1:ordinal"/>
+              <prop name="erster"/>
+            </diamond>
+          </diamond>
+          <diamond mode="PRKOMPL">
+            <nom name="u2:konjunktion"/>
+            <prop name="und"/>
+            <diamond mode="PP">
+              <nom name="n1:abstraktum"/>
+              <prop name="Norwegisch"/>
+              <diamond mode="NUM">
+                <prop name="sing"/>
+              </diamond>
+              <diamond mode="PRÄP">
+                <nom name="i2:zusammenhang"/>
+                <prop name="in"/>
+              </diamond>
+            </diamond>
+            <diamond mode="PRD">
+              <nom name="l1:eigenschaft"/>
+              <prop name="lang"/>
+              <diamond mode="KOMP">
+                <prop name="pos"/>
+              </diamond>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>während das erste Buch lang und in Norwegisch ist , ist dieses Buch auf Deutsch und ein Überblick</target>-->
+</xml>

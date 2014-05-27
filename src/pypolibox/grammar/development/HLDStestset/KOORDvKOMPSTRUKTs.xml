@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="s1:prädikation">
+      <prop name="sein-kop"/>
+      <diamond mode="TEMP:tempus">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="SUBJ">
+        <nom name="b1:artefaktum"/>
+        <prop name="Buch"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d1:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+      </diamond>
+      <diamond mode="PRKOMPL">
+        <nom name="u1:konjunktion"/>
+        <prop name="und"/>
+        <diamond mode="KOMPAR1">
+          <nom name="a1:adjunktion"/>
+          <prop name="adjunktor"/>
+          <diamond mode="MOD">
+            <nom name="l1:eigenschaft"/>
+            <prop name="länger"/>
+            <diamond mode="KOMP">
+              <prop name="komp"/>
+            </diamond>
+          </diamond>
+          <diamond mode="KOMPAR">
+            <nom name="b2:artefaktum"/>
+            <prop name="Buch"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="MOD">
+              <nom name="e1:ordinal"/>
+              <prop name="erster"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d2:sem-obj"/>
+              <prop name="def"/>
+            </diamond>
+          </diamond>
+        </diamond>
+        <diamond mode="KOMPAR2">
+          <nom name="a2:adjunktion"/>
+          <prop name="adjunktor"/>
+          <diamond mode="MOD">
+            <nom name="j1:art"/>
+            <prop name="Jahr"/>
+            <diamond mode="NUM">
+              <prop name="plur"/>
+            </diamond>
+            <diamond mode="MOD">
+              <nom name="z1:kardinal"/>
+              <prop name="zehn"/>
+            </diamond>
+            <diamond mode="MOD">
+              <nom name="ä1:eigenschaft"/>
+              <prop name="älter"/>
+              <diamond mode="KOMP">
+                <prop name="komp"/>
+              </diamond>
+            </diamond>
+          </diamond>
+          <diamond mode="KOMPAR">
+            <nom name="b3:artefaktum"/>
+            <prop name="Buch"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="MOD">
+              <nom name="z2:ordinal"/>
+              <prop name="zweite"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d3:sem-obj"/>
+              <prop name="def"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das Buch ist länger als das erste Buch und zehn Jahre älter als das zweite Buch</target>-->
+</xml>

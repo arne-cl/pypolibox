@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="k1:subjunktion">
+      <prop name="komma"/>
+      <diamond mode="HS">
+        <nom name="v1:infinitum"/>
+        <prop name="vor-X-trans"/>
+        <diamond mode="AUX">
+          <nom name="v2:partverbstamm"/>
+          <prop name="vor-stellen"/>
+          <diamond mode="TEMP:tempus">
+            <prop name="präs"/>
+          </diamond>
+          <diamond mode="AGENS">
+            <nom name="x1:sem-obj"/>
+            <diamond mode="PERS">
+              <prop name="3te"/>
+            </diamond>
+            <diamond mode="PRO">
+              <prop name="perspro"/>
+            </diamond>
+            <diamond mode="GEN">
+              <prop name="fem"/>
+            </diamond>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+          </diamond>
+          <diamond mode="PATIENS">
+            <nom name="p1:art"/>
+            <prop name="Programmiersprache"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d1:sem-obj"/>
+              <prop name="def"/>
+            </diamond>
+            <diamond mode="NOMERG">
+              <nom name="h1:sorte"/>
+              <prop name="Haskell"/>
+              <diamond mode="NUM">
+                <prop name="sing"/>
+              </diamond>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+      <diamond mode="NS">
+        <nom name="o1:konzessiv"/>
+        <prop name="obwohl"/>
+        <diamond mode="VL">
+          <nom name="v3:durativ"/>
+          <prop name="vorstellen"/>
+          <diamond mode="TEMP:tempus">
+            <prop name="präs"/>
+          </diamond>
+          <diamond mode="AGENS">
+            <nom name="a1:bel-phys-körper"/>
+            <prop name="Autor"/>
+            <diamond mode="GEN">
+              <prop name="fem"/>
+            </diamond>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d2:sem-obj"/>
+              <prop name="def"/>
+            </diamond>
+          </diamond>
+          <diamond mode="PATIENS">
+            <nom name="s1:sorte"/>
+            <prop name="Syntax"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d3:sem-obj"/>
+              <prop name="def"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>sie stellt die Programmiersprache Haskell vor , obwohl die Autorin die Syntax vorstellt</target>-->
+</xml>

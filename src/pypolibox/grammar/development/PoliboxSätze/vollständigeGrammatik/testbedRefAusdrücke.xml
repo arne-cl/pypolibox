@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+                     ***  Ausdrücke von RST Relationen in der Polibox-Domäne   *** 
+
+  Autor: Martin Oltmann
+  Datum: 18. Juli, 2011
+-->
+<!-- =====================Referierende Ausdrücke für „Buch von Horst Lohnstein“=================== -->
+<regression>
+    <item numOfParses="1" string="Horst Lohnsteins „ Formale_Semantik_und_natürliche_Sprache “">
+        <xml>
+            <lf>
+                <satop nom="f1:buchtitel">
+                    <prop name="Formale_Semantik_und_natürliche_Sprache"/>
+                    <diamond mode="99">
+                        <nom name="a1:anführungöffnen"/>
+                        <prop name="anföffn"/>
+                    </diamond>
+                    <diamond mode="66">
+                        <nom name="a2:anführungschließen"/>
+                        <prop name="anfschl"/>
+                    </diamond>
+                    <diamond mode="ASS">
+                        <nom name="l1:nachname"/>
+                        <prop name="Lohnstein"/>
+                        <diamond mode="N1">
+                            <nom name="h1:vorname"/>
+                            <prop name="Horst"/>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>Horst Lohnsteins „ Formale_Semantik_und_natürliche_Sprache “</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="Lohnsteins „ Formale_Semantik_und_natürliche_Sprache “">
+        <xml>
+            <lf>
+                <satop nom="f1:buchtitel">
+                    <prop name="Formale_Semantik_und_natürliche_Sprache"/>
+                    <diamond mode="99">
+                        <nom name="a1:anführungöffnen"/>
+                        <prop name="anföffn"/>
+                    </diamond>
+                    <diamond mode="66">
+                        <nom name="a2:anführungschließen"/>
+                        <prop name="anfschl"/>
+                    </diamond>
+                    <diamond mode="ASS">
+                        <nom name="l1:nachname"/>
+                        <prop name="Lohnstein"/>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>Lohnsteins „ Formale_Semantik_und_natürliche_Sprache “</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="das Buch von Horst Lohnstein">
+        <xml>
+            <lf>
+                <satop nom="b1:artefaktum">
+                    <prop name="Buch"/>
+                    <diamond mode="NUM">
+                        <prop name="sing"/>
+                    </diamond>
+                    <diamond mode="ART">
+                        <nom name="d1:sem-obj"/>
+                        <prop name="def"/>
+                    </diamond>
+                    <diamond mode="ATTRIB">
+                        <nom name="l1:nachname"/>
+                        <prop name="Lohnstein"/>
+                        <diamond mode="PRÄP">
+                            <nom name="v1:zugehörigkeit"/>
+                            <prop name="von"/>
+                        </diamond>
+                        <diamond mode="N1">
+                            <nom name="h1:vorname"/>
+                            <prop name="Horst"/>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>das Buch von Horst Lohnstein</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="Lohnsteins Buch">
+        <xml>
+            <lf>
+                <satop nom="b1:artefaktum">
+                    <prop name="Buch"/>
+                    <diamond mode="NUM">
+                        <prop name="sing"/>
+                    </diamond>
+                    <diamond mode="ASS">
+                        <nom name="l1:nachname"/>
+                        <prop name="Lohnstein"/>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>Lohnsteins Buch</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="Horsts Buch">
+        <xml>
+            <lf>
+                <satop nom="b1:artefaktum">
+                    <prop name="Buch"/>
+                    <diamond mode="NUM">
+                        <prop name="sing"/>
+                    </diamond>
+                    <diamond mode="ASS">
+                        <nom name="h1:vorname"/>
+                        <prop name="Horst"/>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>Horsts Buch</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="„ Formale_Semantik_und_natürliche_Sprache “">
+        <xml>
+            <lf>
+                <satop nom="f1:buchtitel">
+                    <prop name="Formale_Semantik_und_natürliche_Sprache"/>
+                    <diamond mode="99">
+                        <nom name="a1:anführungöffnen"/>
+                        <prop name="anföffn"/>
+                    </diamond>
+                    <diamond mode="66">
+                        <nom name="a2:anführungschließen"/>
+                        <prop name="anfschl"/>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>„ Formale_Semantik_und_natürliche_Sprache “</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="das Buch">
+        <xml>
+            <lf>
+                <satop nom="b1:artefaktum">
+                    <prop name="Buch"/>
+                    <diamond mode="NUM">
+                        <prop name="sing"/>
+                    </diamond>
+                    <diamond mode="ART">
+                        <nom name="d1:sem-obj"/>
+                        <prop name="def"/>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>das Buch</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="dieses Buch">
+        <xml>
+            <lf>
+                <satop nom="b1:artefaktum">
+                    <prop name="Buch"/>
+                    <diamond mode="NUM">
+                        <prop name="sing"/>
+                    </diamond>
+                    <diamond mode="ART">
+                        <nom name="d1:sem-obj"/>
+                        <prop name="dem"/>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>dieses Buch</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="das letzte Buch">
+        <xml>
+            <lf>
+                <satop nom="b1:artefaktum">
+                    <prop name="Buch"/>
+                    <diamond mode="NUM">
+                        <prop name="sing"/>
+                    </diamond>
+                    <diamond mode="ART">
+                        <nom name="d1:sem-obj"/>
+                        <prop name="def"/>
+                    </diamond>
+                    <diamond mode="MOD">
+                        <nom name="l1:eigenschaft"/>
+                        <prop name="letzt"/>
+                        <diamond mode="KOMP">
+                            <prop name="pos"/>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>das letzte Buch</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="das letzte">
+        <xml>
+            <lf>
+                <satop nom="d1:sem-obj">
+                    <prop name="def_ana"/>
+                    <diamond mode="MOD">
+                        <nom name="l1:eigenschaft"/>
+                        <prop name="letzt"/>
+                        <diamond mode="KOMP">
+                            <prop name="pos"/>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>das letzte</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="es">
+        <xml>
+            <lf>
+                <satop nom="x1:sem-obj">
+                    <diamond mode="PERS">
+                        <prop name="3te"/>
+                    </diamond>
+                    <diamond mode="PRO">
+                        <prop name="perspro"/>
+                    </diamond>
+                    <diamond mode="GEN">
+                        <prop name="neut"/>
+                    </diamond>
+                    <diamond mode="NUM">
+                        <prop name="sing"/>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>es</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="die Bücher">
+        <xml>
+            <lf>
+                <satop nom="b1:artefaktum">
+                    <prop name="Buch"/>
+                    <diamond mode="NUM">
+                        <prop name="plur"/>
+                    </diamond>
+                    <diamond mode="ART">
+                        <nom name="d1:sem-obj"/>
+                        <prop name="def"/>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>die Bücher</target>-->
+        </xml>        
+    </item>
+    <item numOfParses="1" string="sie">
+        <xml>
+            <lf>
+                <satop nom="x1:sem-obj">
+                    <diamond mode="PERS">
+                        <prop name="3te"/>
+                    </diamond>
+                    <diamond mode="PRO">
+                        <prop name="perspro"/>
+                    </diamond>
+                    <diamond mode="GEN">
+                        <prop name="neut"/>
+                    </diamond>
+                    <diamond mode="NUM">
+                        <prop name="plur"/>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>sie</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="beide">
+        <xml>
+            <lf>
+                <satop nom="x1:sem-obj">
+                    <diamond mode="PRO">
+                        <prop name="quantprobeide"/>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>beide</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="beide Bücher">
+        <xml>
+            <lf>
+                <satop nom="b1:artefaktum">
+                    <prop name="Buch"/>
+                    <diamond mode="NUM">
+                        <prop name="plur"/>
+                    </diamond>
+                    <diamond mode="ART">
+                        <nom name="q1:sem-obj"/>
+                        <prop name="quantbeide"/>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>beide Bücher</target>-->
+        </xml>
+    </item>    
+    <item numOfParses="1" string="dort">
+        <xml>
+            <lf>
+                <satop nom="d1:lokalität">
+                    <prop name="dort"/>
+                </satop>
+            </lf>
+            <!--<target>dort</target>-->
+        </xml>
+    </item>    
+</regression>

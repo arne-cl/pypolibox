@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="nachname">
+      <prop name="Norvig"/>
+      <diamond mode="N1">
+        <nom name="vorname"/>
+        <prop name="Barbara"/>
+        <diamond mode="N1">
+          <nom name="vorname"/>
+          <prop name="Detlef"/>
+          <diamond mode="N1">
+            <nom name="vorname"/>
+            <prop name="Peter"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <target>Peter Detlef Barbara Norvig</target>
+</xml>

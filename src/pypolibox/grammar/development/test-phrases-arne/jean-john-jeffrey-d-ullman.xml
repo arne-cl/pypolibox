@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="u1:nachname">
+      <prop name="Ullman"/>
+      <diamond mode="N1">
+        <nom name="d1:vorname"/>
+        <prop name="D."/>
+        <diamond mode="N1">
+          <nom name="j1:vorname"/>
+          <prop name="Jeffrey"/>
+          <diamond mode="N1">
+            <nom name="j2:vorname"/>
+            <prop name="John"/>
+            <diamond mode="N1">
+              <nom name="j3:vorname"/>
+              <prop name="Jean"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <target>Jean John Jeffrey D. Ullman</target>
+</xml>

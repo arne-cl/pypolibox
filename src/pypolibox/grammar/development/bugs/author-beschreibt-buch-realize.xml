@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- <regression>
+    <item numOfParses="1" string="der Autor beschreibt das Buch"> -->
+        <xml>
+            <lf>
+                <satop nom="b1:handlung">
+                    <prop name="beschreiben"/>
+                    <diamond mode="TEMP">
+                        <prop name="präs"/>
+                    </diamond>
+                    <diamond mode="AGENS">                        
+                        <nom name="a1:bel-phys-körper"/>
+                        <prop name="Autor"/>
+                        <diamond mode="GEN">
+                            <prop name="mask"/>
+                        </diamond>
+                        <diamond mode="NUM">
+                            <prop name="sing"/>
+                        </diamond>
+                        <diamond mode="ART">
+                            <nom name="d1:sem-obj"/>
+                            <prop name="def"/>
+                        </diamond>
+                    </diamond>
+                    <diamond mode="PATIENS">
+                        <nom name="b2:artefaktum"/>
+                        <prop name="Buch"/>
+                        <diamond mode="NUM">
+                            <prop name="sing"/>
+                        </diamond>
+                        <diamond mode="ART">
+                            <nom name="d2:sem-obj"/>
+                            <prop name="def"/>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <target>der Autor beschreibt das Buch</target>
+        </xml>
+<!--    </item>
+</regression> -->

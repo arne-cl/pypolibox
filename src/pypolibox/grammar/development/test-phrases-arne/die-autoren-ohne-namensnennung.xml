@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="a1:bel-phys-körper">
+      <prop name="Autor"/>
+      <diamond mode="GEN">
+        <prop name="mask"/>
+      </diamond>
+      <diamond mode="NUM">
+        <prop name="plur"/>
+      </diamond>
+      <diamond mode="ART">
+        <nom name="d1:sem-obj"/>
+        <prop name="def"/>
+      </diamond>
+    </satop>
+  </lf>
+  <target>die Autoren</target>
+</xml>

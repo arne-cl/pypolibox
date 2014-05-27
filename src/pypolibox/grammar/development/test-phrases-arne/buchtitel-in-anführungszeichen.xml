@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="c1:buchtitel">
+      <prop name="Computational_Linguistics._An_Introduction."/>
+      <diamond mode="99">
+        <nom name="a1:anführungöffnen"/>
+        <prop name="anföffn"/>
+      </diamond>
+      <diamond mode="66">
+        <nom name="a2:anführungschließen"/>
+        <prop name="anfschl"/>
+      </diamond>
+    </satop>
+  </lf>
+  <target>„ Computational_Linguistics._An_Introduction. “</target>
+</xml>

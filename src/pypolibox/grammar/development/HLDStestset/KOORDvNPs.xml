@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="b1:handlung">
+      <prop name="behandeln"/>
+      <diamond mode="TEMP:tempus">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="AGENS">
+        <nom name="a1:bel-phys-körper"/>
+        <prop name="Autor"/>
+        <diamond mode="GEN">
+          <prop name="mask"/>
+        </diamond>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d1:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+      </diamond>
+      <diamond mode="PATIENS">
+        <nom name="k1:konjunktion"/>
+        <prop name="komma"/>
+        <diamond mode="NP1">
+          <nom name="s1:sorte"/>
+          <prop name="Semantik"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+        </diamond>
+        <diamond mode="NP2">
+          <nom name="u1:konjunktion"/>
+          <prop name="und"/>
+          <diamond mode="NP1">
+            <nom name="p1:sorte"/>
+            <prop name="Pragmatik"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+          </diamond>
+          <diamond mode="NP2">
+            <nom name="s2:sorte"/>
+            <prop name="Syntax"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d2:sem-obj"/>
+              <prop name="def"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>der Autor behandelt Semantik , Pragmatik und  die Syntax</target>-->
+</xml>

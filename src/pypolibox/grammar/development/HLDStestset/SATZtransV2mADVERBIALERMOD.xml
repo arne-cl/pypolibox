@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="p1:deklarativ">
+      <prop name="punkt"/>
+      <diamond mode="DEKL">
+        <nom name="b1:handlung"/>
+        <prop name="behandeln"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="ADV">
+          <nom name="a1:modus"/>
+          <prop name="ausführlich"/>
+        </diamond>
+        <diamond mode="AGENS">
+          <nom name="b2:artefaktum"/>
+          <prop name="Buch"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d1:sem-obj"/>
+            <prop name="def"/>
+          </diamond>
+        </diamond>
+        <diamond mode="PATIENS">
+          <nom name="t1:art"/>
+          <prop name="Thema"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d2:sem-obj"/>
+            <prop name="def"/>
+          </diamond>
+          <diamond mode="NOMERG">
+            <nom name="c1:sorte"/>
+            <prop name="Computerlinguistik"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das Buch behandelt das Thema Computerlinguistik ausführlich .</target>-->
+</xml>

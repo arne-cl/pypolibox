@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="p1:deklarativ">
+      <prop name="punkt"/>
+      <diamond mode="DEKL">
+        <nom name="k1:subjunktion"/>
+        <prop name="komma"/>
+        <diamond mode="HS">
+          <nom name="s1:handlung"/>
+          <prop name="s.richten_an"/>
+          <diamond mode="TEMP:tempus">
+            <prop name="präs"/>
+          </diamond>
+          <diamond mode="PRO">
+            <nom name="x1:sem-obj"/>
+            <diamond mode="PERS">
+              <prop name="3te"/>
+            </diamond>
+            <diamond mode="PRO">
+              <prop name="reflpro"/>
+            </diamond>
+            <diamond mode="GEN">
+              <prop name="neut"/>
+            </diamond>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+          </diamond>
+          <diamond mode="PATIENS">
+            <nom name="p2:abstraktum"/>
+            <prop name="Publikum"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="PRÄP">
+              <nom name="a1:gerichtetebez"/>
+              <prop name="an"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="i1:sem-obj"/>
+              <prop name="indef"/>
+            </diamond>
+            <diamond mode="MOD">
+              <nom name="f1:eigenschaft"/>
+              <prop name="fortgeschritten"/>
+              <diamond mode="KOMP">
+                <prop name="pos"/>
+              </diamond>
+            </diamond>
+          </diamond>
+          <diamond mode="AGENSAnt">
+            <nom name="x2:sem-obj"/>
+            <diamond mode="PERS">
+              <prop name="3te"/>
+            </diamond>
+            <diamond mode="PRO">
+              <prop name="perspro"/>
+            </diamond>
+            <diamond mode="GEN">
+              <prop name="neut"/>
+            </diamond>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+          </diamond>
+        </diamond>
+        <diamond mode="NSAnt">
+          <nom name="o1:konzessiv"/>
+          <prop name="obwohl"/>
+          <diamond mode="VL">
+            <nom name="e1:durativ"/>
+            <prop name="entsprechen"/>
+            <diamond mode="TEMP:tempus">
+              <prop name="präs"/>
+            </diamond>
+            <diamond mode="AGENS">
+              <nom name="b1:artefaktum"/>
+              <prop name="Buch"/>
+              <diamond mode="NUM">
+                <prop name="sing"/>
+              </diamond>
+              <diamond mode="ART">
+                <nom name="d1:sem-obj"/>
+                <prop name="def"/>
+              </diamond>
+            </diamond>
+            <diamond mode="SUPPL">
+              <nom name="m1:abstraktum"/>
+              <prop name="Maß"/>
+              <diamond mode="NUM">
+                <prop name="sing"/>
+              </diamond>
+              <diamond mode="PRÄP">
+                <nom name="i2:zusammenhang"/>
+                <prop name="in"/>
+              </diamond>
+              <diamond mode="MOD">
+                <nom name="h1:eigenschaft"/>
+                <prop name="hoch"/>
+                <diamond mode="KOMP">
+                  <prop name="pos"/>
+                </diamond>
+              </diamond>
+            </diamond>
+            <diamond mode="PATIENS">
+              <nom name="s2:abstraktum"/>
+              <prop name="Suchkriterium"/>
+              <diamond mode="NUM">
+                <prop name="plur"/>
+              </diamond>
+              <diamond mode="ART">
+                <nom name="p3:sem-obj"/>
+                <prop name="poss"/>
+                <diamond mode="PERS">
+                  <prop name="7te"/>
+                </diamond>
+              </diamond>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>obwohl das Buch ihren Suchkriterien in hohem Maß entspricht , richtet es sich an ein fortgeschrittenes Publikum .</target>-->
+</xml>

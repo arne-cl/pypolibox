@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="s1:prädikation">
+      <prop name="sein-kop"/>
+      <diamond mode="TEMP:tempus">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="SUBJ">
+        <nom name="b1:artefaktum"/>
+        <prop name="Buch"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d1:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+      </diamond>
+      <diamond mode="PRKOMPL">
+        <nom name="s2:sorte"/>
+        <prop name="Sprache"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="PRÄP">
+          <nom name="i1:zusammenhang"/>
+          <prop name="in"/>
+        </diamond>
+        <diamond mode="MOD">
+          <nom name="d2:eigenschaft"/>
+          <prop name="deutsch"/>
+          <diamond mode="KOMP">
+            <prop name="pos"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das Buch ist in deutscher Sprache</target>-->
+</xml>

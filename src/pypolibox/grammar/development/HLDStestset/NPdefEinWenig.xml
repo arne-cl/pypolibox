@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="b1:artefaktum">
+      <prop name="Buch"/>
+      <diamond mode="NUM">
+        <prop name="sing"/>
+      </diamond>
+      <diamond mode="ART">
+        <nom name="d1:sem-obj"/>
+        <prop name="def"/>
+      </diamond>
+      <diamond mode="MOD">
+        <nom name="u1:eigenschaft"/>
+        <prop name="umfangreich"/>
+        <diamond mode="KOMP">
+          <prop name="pos"/>
+        </diamond>
+        <diamond mode="SPEZ">
+          <nom name="w1:abschwächung"/>
+          <prop name="wenig"/>
+          <diamond mode="ART">
+            <nom name="i1:sem-obj"/>
+            <prop name="indef"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das ein wenig umfangreiche Buch</target>-->
+</xml>

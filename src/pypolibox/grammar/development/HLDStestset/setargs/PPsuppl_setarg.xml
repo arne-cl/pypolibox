@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="p1:deklarativ">
+      <prop name="punkt"/>
+      <diamond mode="DEKL">
+        <nom name="e1:durativ"/>
+        <prop name="entsprechen"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="AGENS">
+          <nom name="b1:artefaktum"/>
+          <prop name="Buch"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d1:sem-obj"/>
+            <prop name="def"/>
+          </diamond>
+        </diamond>
+        <diamond mode="SUPPL">
+          <nom name="m1:abstraktum"/>
+          <prop name="Maß"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="PRÄP">
+            <nom name="i1:zusammenhang"/>
+            <prop name="in"/>
+          </diamond>
+          <diamond mode="MOD">
+            <nom name="h1:eigenschaft"/>
+            <prop name="hoch"/>
+            <diamond mode="KOMP">
+              <prop name="pos"/>
+            </diamond>
+          </diamond>
+        </diamond>
+        <diamond mode="PATIENS">
+          <nom name="s1:abstraktum"/>
+          <prop name="Suchkriterium"/>
+          <diamond mode="NUM">
+            <prop name="plur"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="p2:sem-obj"/>
+            <prop name="poss"/>
+            <diamond mode="PERS">
+              <prop name="7te"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das Buch entspricht ihren Suchkriterien in hohem Maß .</target>-->
+</xml>

@@ -1,0 +1,52 @@
+Hinweise von Martin zur Grammatik
+=================================
+
+[...] der nominale Part der Grammatik (Substantive, Adjektive, Pronomen, 
+Attribute, NPs, Ergänzungssubstantive (e.c.: das THEMA PRAGMATIK, die 
+PROGRAMMIERSPRACHE LISP, das JAHR 2003, etc.) - kurz: Alles Deklinierbare) ist 
+prinzipiell fertig, und wird eventuell noch um einige Lexeme ergänzt werden 
+müssen. 
+
+Bezüglich der Verben sind Verbalkomplexe ( X ist Y erschienen/ X setzt Y 
+voraus) möglich, wobei sich 'Y' in den Schemata auf das deutsche Mittelfeld 
+bezieht, das noch ergänzt werden muss (e.c. Negation via Adverbien, die im 
+Deutschen am rechten Innenrand des Mittelfeldes stehen).
+
+Weiterhin sind Prädikativsätze generierbar, die besondere 
+Prädikativkomplemente nehmen (e.c. X ist Y, wobei Y solch ein 
+Prädikativkomplement ist: Y=933 Seiten lang, Y=ein umfassendes Buch, Y=auf 
+deutsch, etc.). Prädikativkomplemente sind ein'Mittelwesen' zwischen 
+Adverbialkomplementen, und Termkomplementen (cf. http://hypermedia.ids-mannheim.de/pls/public/sysgram.ansicht?v_typ=d&v_id=1535). 
+
+Und zu guter Letzt lassen sich V2 Sätze aus transitive Vollverben generieren 
+(e.c. beschreiben, umfassen, behandeln, bieten, erfahren, etc.).
+
+Fehlen tun noch V-1 und V-L Sätze für Satzgefüge, sowie Konnektoren, die 
+solche (Teil-) Sätze miteinander verbinden (… und in eine bestimmte 
+semantische Beziehung zueinander setzen, wie 'adversativ', 'kausal', etc.). 
+Ausserdem noch einige Adverbien (mindestens für Negation: "Das buch umfasst 
+NICHT das Thema Morphologie.").
+
+Weiterhin ist vorgesehen, dass auch Phrasen konnektierbar sein sollen (e.c. 
+"Der Autor beschreibt das Thema Syntax UND das weite Feld der 
+Textgenerierung"). 
+
+
+How To
+------
+
+Den Inhalt des tar.gz-Archivs am besten in das 'grammars' Unterverzeichnis der 
+OpenCCG Installation entpacken, und aus diesem heraus die OpenCCG Programme 
+(tccg, ccg-test, ccg-realize) starten. 
+
+Das Archiv enthält eine Textdatei 'DeutschePoliboxOpenCCGrammatik.txt', in 
+der ich notiert habe, wie man die einzelne 'Satzbausteine' als HLDS-Formeln 
+generieren kann. 
+
+Aber auch die Unterverzeichnisse 'HLDStestset' und 'PoliboxSätze' enthalten 
+zahlreiche HLDS-Formeln - ersteres für jeden 'Satzbaustein' eine 
+exemplarische HLDS-Struktur. 
+
+Die Grammatik ist [...] stark kommentiert, und ich habe alle 
+Kommentare einmal einfach so stehen gelassen, in der Hoffnung, dass sie 
+hilfreich sein mögen.

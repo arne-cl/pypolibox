@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="t1:art">
+      <prop name="Thema"/>
+      <diamond mode="NUM">
+        <prop name="plur"/>
+      </diamond>
+      <diamond mode="ART">
+        <nom name="d1:sem-obj"/>
+        <prop name="def"/>
+      </diamond>
+      <diamond mode="NOMERG">
+        <nom name="u1:konjunktion"/>
+        <prop name="und"/>
+        <diamond mode="N1">
+          <nom name="k1:konjunktion"/>
+          <prop name="komma"/>
+          <diamond mode="N1">
+            <nom name="p1:sorte"/>
+            <prop name="pragmatics"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+          </diamond>
+          <diamond mode="N2">
+            <nom name="s1:sorte"/>
+            <prop name="semantics"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+          </diamond>
+        </diamond>
+        <diamond mode="N2">
+          <nom name="a1:sorte"/>
+          <prop name="automata_theory"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <target>die Themen pragmatics , semantics und automata_theory</target>
+</xml>

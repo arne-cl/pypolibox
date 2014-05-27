@@ -1,0 +1,138 @@
+ccg-test vs. ccg-realize
+========================
+
+Given the same input (excluding <regression> and <item> tags), the output 
+of ccg-test and ccg-realize differs (sometimes dramatically). While the 
+HLDS XML representation of "der Autor beschreibt das Buch" can be realized 
+just fine with ccg-test, ccg-realize merely returns "der Autor das Buch".
+
+While the HLDS XML representation of "dieses Buch ist 20 Seiten länger als 
+das erste Buch" works with both programs, a modified version (missing the 
+<diamond> that describes the cardinal "20") is not recognized as erroneous 
+by ccg-test. In contrast, ccg-realize "spots the mistake" and only returns 
+"dieses Buch ist Seiten als das erste Buch".
+
+ccg-test bugs/author-beschreibt-buch-test.xml
+---------------------------------------------
+
+Loading: author-beschreibt-buch-test
+Parse	Realize	String
+-----	-------	------
+(2)	ok	der Autor beschreibt das Buch
+
+Strings realized completely (in fragments): 1 (0)
+Strings realized exactly (inexactly): 1 (0)
+Strings where realization finished: 1
+
+
+ccg-realize bugs/author-beschreibt-buch-realize.xml
+---------------------------------------------------
+
+Complete Edges (unsorted):
+
+Complete Edges (sorted):
+
+Best Edge:
+{0.38} [0.208] der Autor :- np {0-3,11}
+(der Autor)
+
+Best Joined Edge:
+{0.69} [0.160] der Autor das Buch :- np {0-3,8-12}
+((der Autor) (das Buch))
+
+
+ccg-test bugs/20-seiten-laenger-test.xml
+----------------------------------------
+
+Loading: 20-seiten-laenger-test
+Parse	Realize	String
+-----	-------	------
+ok	ok	dieses Buch ist 20 Seiten länger als das erste Buch
+
+Strings realized completely (in fragments): 1 (0)
+Strings realized exactly (inexactly): 1 (0)
+Strings where realization finished: 1
+
+ccg-realize bugs/20-seiten-laenger-realize.xml
+----------------------------------------------
+
+Complete Edges (unsorted):
+112. {1.00} [1.000] dieses Buch ist 20 Seiten länger als das erste Buch :- s {0-23} (11 110 <)
+115. {1.00} [0.620] ist dieses Buch 20 Seiten länger als das erste Buch :- s-v1 {0-23} (75 109 >)
+116. {1.00} [0.576] dieses Buch 20 Seiten länger als das erste Buch ist :- s-vl {0-23} (11 113 <)
+
+Complete Edges (sorted):
+{1.00} [1.000] dieses Buch ist 20 Seiten länger als das erste Buch :- s {0-23}
+{1.00} [0.620] ist dieses Buch 20 Seiten länger als das erste Buch :- s-v1 {0-23}
+{1.00} [0.576] dieses Buch 20 Seiten länger als das erste Buch ist :- s-vl {0-23}
+
+Best Edge:
+{1.00} [1.000] dieses Buch ist 20 Seiten länger als das erste Buch :- s {0-23}
+((dieses Buch) (ist ((20 (Seiten länger)) (als (das (erste Buch))))))
+
+
+ccg-test bugs/20-seiten-laenger-test-removed-kardinal.xml 
+---------------------------------------------------------
+
+Loading: 20-seiten-laenger-test-removed-kardinal
+Parse	Realize	String
+-----	-------	------
+ok	ok	dieses Buch ist 20 Seiten länger als das erste Buch
+
+Strings realized completely (in fragments): 1 (0)
+Strings realized exactly (inexactly): 1 (0)
+Strings where realization finished: 1
+
+
+ccg-realize bugs/20-seiten-laenger-realize-removed-kardinal.xml 
+---------------------------------------------------------------
+
+Complete Edges (unsorted):
+
+Complete Edges (sorted):
+
+Best Edge:
+{0.86} [0.406] dieses Buch ist Seiten als das erste Buch :- s {0-12,15-20}
+((dieses Buch) (ist (Seiten (als (das (erste Buch))))))
+
+Best Joined Edge:
+{0.95} [0.357] dieses Buch ist Seiten als das erste Buch länger :- s {0-20}
+(((dieses Buch) (ist (Seiten (als (das (erste Buch)))))) länger)
+
+
+
+
+directory name as file name bug
+===============================
+
+:2xml name.of.directory filename.xml (instead of :2xml directory/filename.xml)
+
+Exception in thread "main" java.io.FileNotFoundException: pypolibox (Is a directory)
+	at java.io.FileOutputStream.open(Native Method)
+	at java.io.FileOutputStream.<init>(FileOutputStream.java:194)
+	at java.io.FileOutputStream.<init>(FileOutputStream.java:145)
+	at opennlp.ccg.grammar.Grammar.saveToXml(Grammar.java:388)
+	at opennlp.ccg.TextCCG.main(TextCCG.java:368)
+
+
+trying to generate stuff that is not in the dictionary bug
+==========================================================
+
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="nachname">
+      <prop name="Mertz" />
+      <diamond mode="N1">
+        <nom name="vorname" />
+        <prop name="David" />
+      </diamond>
+    </satop>
+  </lf>
+</xml>
+
+Exception in thread "main" java.lang.NullPointerException
+	at opennlp.ccg.realize.Chart.combine(Chart.java:317)
+	at opennlp.ccg.realize.Realizer.realize(Realizer.java:155)
+	at opennlp.ccg.realize.Realizer.realize(Realizer.java:126)
+	at opennlp.ccg.Realize.main(Realize.java:173)

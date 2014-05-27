@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="u1:handlung">
+      <prop name="umfassen"/>
+      <diamond mode="TEMP:tempus">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="AGENS">
+        <nom name="t1:art"/>
+        <prop name="Thema"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d1:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+        <diamond mode="ATTRIB">
+          <nom name="s1:sorte"/>
+          <prop name="Sprache"/>
+          <diamond mode="NUM">
+            <prop name="plur"/>
+          </diamond>
+<!--
+          <diamond mode="ART">
+            <nom name="d2:sem-obj"/>
+            <prop name="def"/>
+          </diamond>          
+-->
+          <diamond mode="MOD">
+            <nom name="f1:modus"/>
+            <prop name="formal"/>
+            <diamond mode="KOMP">
+              <prop name="pos"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+      <diamond mode="PATIENS">
+        <nom name="x1:sem-obj"/>
+        <diamond mode="PERS">
+          <prop name="3te"/>
+        </diamond>
+        <diamond mode="PRO">
+          <prop name="perspro"/>
+        </diamond>
+        <diamond mode="GEN">
+          <prop name="neut"/>
+        </diamond>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das Thema formaler Sprachen umfasst es</target>-->
+</xml>

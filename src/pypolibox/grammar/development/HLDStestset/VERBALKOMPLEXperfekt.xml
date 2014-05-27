@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="v1:inchoativ">
+      <prop name="vorstellen"/>
+      <diamond mode="AUX">
+        <nom name="h1:haben"/>
+        <prop name="haben"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="imperf"/>
+        </diamond>
+        <diamond mode="AGENS">
+          <nom name="a1:bel-phys-körper"/>
+          <prop name="Autor"/>
+          <diamond mode="GEN">
+            <prop name="mask"/>
+          </diamond>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d1:sem-obj"/>
+            <prop name="def"/>
+          </diamond>
+        </diamond>
+        <diamond mode="PATIENS">
+          <nom name="b1:artefaktum"/>
+          <prop name="Buch"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="p1:sem-obj"/>
+            <prop name="poss"/>
+            <diamond mode="PERS">
+              <prop name="3te"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>der Autor hat sein Buch vorgestellt</target>-->
+</xml>

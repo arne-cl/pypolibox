@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="k1:subjunktion">
+      <prop name="komma"/>
+      <diamond mode="HS">
+        <nom name="s1:prädikation"/>
+        <prop name="sein-kop"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="SUBJ">
+          <nom name="d1:sem-obj"/>
+          <prop name="def_ana"/>
+          <diamond mode="MOD">
+            <nom name="e1:ordinal"/>
+            <prop name="erster"/>
+          </diamond>
+        </diamond>
+        <diamond mode="PRKOMPL">
+          <nom name="c1:abstraktum"/>
+          <prop name="Chinesisch"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="PRÄP">
+            <nom name="i1:zusammenhang"/>
+            <prop name="in"/>
+          </diamond>
+        </diamond>
+      </diamond>
+      <diamond mode="NSAnt">
+        <nom name="w1:adversativ"/>
+        <prop name="während"/>
+        <diamond mode="VL">
+          <nom name="s2:prädikation"/>
+          <prop name="sein-kop"/>
+          <diamond mode="TEMP:tempus">
+            <prop name="präs"/>
+          </diamond>
+          <diamond mode="SUBJ">
+            <nom name="b1:artefaktum"/>
+            <prop name="Buch"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d2:sem-obj"/>
+              <prop name="dem"/>
+            </diamond>
+          </diamond>
+          <diamond mode="PRKOMPL">
+            <nom name="d3:abstraktum"/>
+            <prop name="Deutsch"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="PRÄP">
+              <nom name="a1:zusammenhang"/>
+              <prop name="auf"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>während dieses Buch auf Deutsch ist , ist das erste in Chinesisch</target>-->
+</xml>

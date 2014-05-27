@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="u1:konjunktion">
+      <prop name="und"/>
+      <diamond mode="NP1">
+        <nom name="p1:sorte"/>
+        <prop name="pragmatics"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+      </diamond>
+      <diamond mode="NP2">
+        <nom name="s1:sorte"/>
+        <prop name="semantics"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <target>pragmatics und semantics</target>
+</xml>

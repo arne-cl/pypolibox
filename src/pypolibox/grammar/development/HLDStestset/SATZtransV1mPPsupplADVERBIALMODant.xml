@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="p1:deklarativ">
+      <prop name="punkt"/>
+      <diamond mode="DEKL">
+        <nom name="e1:inchoativ"/>
+        <prop name="erfahren"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="ADV">
+          <nom name="l1:modus"/>
+          <prop name="leider"/>
+        </diamond>
+        <diamond mode="AGENS">
+          <nom name="x1:sem-obj"/>
+          <diamond mode="PERS">
+            <prop name="3te"/>
+          </diamond>
+          <diamond mode="PRO">
+            <prop name="perspro"/>
+          </diamond>
+          <diamond mode="GEN">
+            <prop name="mask"/>
+          </diamond>
+          <diamond mode="NUM">
+            <prop name="plur"/>
+          </diamond>
+        </diamond>
+        <diamond mode="SUPPL">
+          <nom name="b1:artefaktum"/>
+          <prop name="Buch"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="PRÄP">
+            <nom name="i1:zusammenhang"/>
+            <prop name="in"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d1:sem-obj"/>
+            <prop name="dem"/>
+          </diamond>
+        </diamond>
+        <diamond mode="PATIENS">
+          <nom name="x2:sem-obj"/>
+          <diamond mode="PERS">
+            <prop name="3te"/>
+          </diamond>
+          <diamond mode="PRO">
+            <prop name="negpro"/>
+          </diamond>
+          <diamond mode="GEN">
+            <prop name="neut"/>
+          </diamond>
+          <diamond mode="NUM">
+            <prop name="plur"/>
+          </diamond>
+          <diamond mode="ATTRIB">
+            <nom name="s1:sorte"/>
+            <prop name="Syntax"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="PRÄP">
+              <nom name="ü1:thematisierung"/>
+              <prop name="über"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>leider erfahren sie in diesem Buch nichts über Syntax .</target>-->
+</xml>

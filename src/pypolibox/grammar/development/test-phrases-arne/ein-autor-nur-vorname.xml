@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="p1:vorname">
+      <prop name="Peter"/>
+    </satop>
+  </lf>
+  <target>Peter</target>
+</xml>

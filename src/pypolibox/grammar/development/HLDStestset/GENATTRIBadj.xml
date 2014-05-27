@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="b1:handlung">
+      <prop name="behandeln"/>
+      <diamond mode="TEMP:tempus">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="AGENS">
+        <nom name="b2:artefaktum"/>
+        <prop name="Buch"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d1:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+        <diamond mode="ATTRIB">
+          <nom name="a1:bel-phys-körper"/>
+          <prop name="Autor"/>
+          <diamond mode="GEN">
+            <prop name="mask"/>
+          </diamond>
+          <diamond mode="NUM">
+            <prop name="plur"/>
+          </diamond>
+          <diamond mode="MOD">
+            <nom name="d2:kardinal"/>
+            <prop name="drei"/>
+          </diamond>
+        </diamond>
+      </diamond>
+      <diamond mode="PATIENS">
+        <nom name="s1:sorte"/>
+        <prop name="Syntax"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d3:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das Buch dreier Autoren behandelt die Syntax</target>-->
+</xml>

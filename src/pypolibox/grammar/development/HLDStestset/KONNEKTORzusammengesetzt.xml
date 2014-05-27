@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="a1:adversativ">
+      <prop name="aber"/>
+      <diamond mode="KONN">
+        <nom name="d1:adversativ"/>
+        <prop name="dafür"/>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>aber dafür</target>-->
+</xml>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="u1:durativ">
+      <prop name="umfassen"/>
+      <diamond mode="TEMP">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="AGENS">
+        <nom name="b1:artefaktum"/>
+        <prop name="Buch"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="p1:sem-obj"/>
+          <prop name="poss"/>
+          <diamond mode="PERS">
+            <prop name="4te"/>
+          </diamond>
+        </diamond>
+      </diamond>
+      <diamond mode="PATIENS">
+        <nom name="t1:abstraktum"/>
+        <prop name="Thema"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="p2:sem-obj"/>
+          <prop name="poss"/>
+          <diamond mode="PERS">
+            <prop name="1te"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>ihr Buch umfasst mein Thema</target>-->
+</xml>

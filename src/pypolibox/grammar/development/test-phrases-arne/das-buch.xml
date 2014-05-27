@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="b1:artefaktum">
+      <prop name="Buch"/>
+      <diamond mode="NUM">
+        <prop name="sing"/>
+      </diamond>
+      <diamond mode="ART">
+        <nom name="d1:sem-obj"/>
+        <prop name="def"/>
+      </diamond>
+    </satop>
+  </lf>
+  <target>das Buch</target>
+</xml>

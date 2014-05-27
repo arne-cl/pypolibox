@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="p1:sorte">
+      <prop name="Pragmatik"/>
+      <diamond mode="NUM">
+        <prop name="sing"/>
+      </diamond>
+    </satop>
+  </lf>
+  <target>Pragmatik</target>
+</xml>

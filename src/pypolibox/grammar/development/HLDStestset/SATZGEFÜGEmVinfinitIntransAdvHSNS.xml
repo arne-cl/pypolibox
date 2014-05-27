@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="k1:subjunktion">
+      <prop name="komma"/>
+      <diamond mode="HS">
+        <nom name="a1:infinitum"/>
+        <prop name="aus-X-intrans"/>
+        <diamond mode="AUX">
+          <nom name="a2:partverbstamm"/>
+          <prop name="aus-setzen"/>
+          <diamond mode="TEMP:tempus">
+            <prop name="präs"/>
+          </diamond>
+          <diamond mode="ADV">
+            <nom name="n1:modus"/>
+            <prop name="2001"/>
+          </diamond>
+          <diamond mode="AGENS">
+            <nom name="a3:bel-phys-körper"/>
+            <prop name="Autor"/>
+            <diamond mode="GEN">
+              <prop name="mask"/>
+            </diamond>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d1:sem-obj"/>
+              <prop name="def"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+      <diamond mode="NS">
+        <nom name="w1:adversativ"/>
+        <prop name="während"/>
+        <diamond mode="VL">
+          <nom name="e1:inchoativ"/>
+          <prop name="erscheinen"/>
+          <diamond mode="AUX">
+            <nom name="s1:sein"/>
+            <prop name="sein"/>
+            <diamond mode="TEMP:tempus">
+              <prop name="imperf"/>
+            </diamond>
+            <diamond mode="ADV">
+              <nom name="n2:modus"/>
+              <prop name="1999"/>
+            </diamond>
+            <diamond mode="AGENS">
+              <nom name="x1:sem-obj"/>
+              <diamond mode="PERS">
+                <prop name="3te"/>
+              </diamond>
+              <diamond mode="PRO">
+                <prop name="perspro"/>
+              </diamond>
+              <diamond mode="GEN">
+                <prop name="neut"/>
+              </diamond>
+              <diamond mode="NUM">
+                <prop name="sing"/>
+              </diamond>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>der Autor setzt 2001 aus , während es 1999 erschienen ist</target>-->
+</xml>

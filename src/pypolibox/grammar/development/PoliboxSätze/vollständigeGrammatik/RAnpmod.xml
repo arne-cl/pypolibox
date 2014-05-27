@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="b1:artefaktum">
+      <prop name="Buch"/>
+      <diamond mode="NUM">
+        <prop name="sing"/>
+      </diamond>
+      <diamond mode="ART">
+        <nom name="d1:sem-obj"/>
+        <prop name="def"/>
+      </diamond>
+      <diamond mode="MOD">
+        <nom name="l1:eigenschaft"/>
+        <prop name="letzt"/>
+        <diamond mode="KOMP">
+          <prop name="pos"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das letzte Buch</target>-->
+</xml>

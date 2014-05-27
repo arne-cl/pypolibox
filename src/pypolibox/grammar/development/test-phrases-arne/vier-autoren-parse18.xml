@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="u1:konjunktion">
+      <prop name="und"/>
+      <diamond mode="NP1">
+        <nom name="k1:konjunktion"/>
+        <prop name="komma"/>
+        <diamond mode="NP1">
+          <nom name="k2:konjunktion"/>
+          <prop name="komma"/>
+          <diamond mode="NP1">
+            <nom name="k3:konjunktion"/>
+            <prop name="komma"/>
+            <diamond mode="NP1">
+              <nom name="a1:nachname"/>
+              <prop name="Allen"/>
+            </diamond>
+            <diamond mode="NP2">
+              <nom name="h1:nachname"/>
+              <prop name="Hitzenberger"/>
+            </diamond>
+          </diamond>
+          <diamond mode="NP2">
+            <nom name="m1:nachname"/>
+            <prop name="Manning"/>
+          </diamond>
+        </diamond>
+        <diamond mode="NP2">
+          <nom name="h2:nachname"/>
+          <prop name="Hausser"/>
+        </diamond>
+      </diamond>
+      <diamond mode="NP2">
+        <nom name="p1:nachname"/>
+        <prop name="Pereira"/>
+      </diamond>
+    </satop>
+  </lf>
+  <target>Allen , Hitzenberger , Manning , Hausser und Pereira</target>
+</xml>

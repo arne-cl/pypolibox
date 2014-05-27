@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="p1:deklarativ">
+      <prop name="punkt"/>
+      <diamond mode="DEKL">
+        <nom name="u1:handlung"/>
+        <prop name="umfassen"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="PATIENS">
+          <nom name="t1:art"/>
+          <prop name="Thema"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d1:sem-obj"/>
+            <prop name="def"/>
+          </diamond>
+          <diamond mode="NOMERG">
+            <nom name="s1:sorte"/>
+            <prop name="Statistik"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+          </diamond>
+        </diamond>
+        <diamond mode="AGENS2">
+          <nom name="b1:artefaktum"/>
+          <prop name="Buch"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d2:sem-obj"/>
+            <prop name="dem"/>
+          </diamond>
+        </diamond>
+        <diamond mode="KONNAnt">
+          <nom name="a1:adversativ"/>
+          <prop name="aber"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>aber dieses Buch umfasst das Thema Statistik .</target>-->
+</xml>

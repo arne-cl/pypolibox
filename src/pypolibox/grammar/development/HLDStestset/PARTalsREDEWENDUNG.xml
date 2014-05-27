@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="w1:abschwächung">
+      <prop name="wenig"/>
+      <diamond mode="ART">
+        <nom name="i1:sem-obj"/>
+        <prop name="indef"/>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>ein wenig</target>-->
+</xml>

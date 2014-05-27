@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="l1:handlung">
+      <prop name="liegen"/>
+      <diamond mode="TEMP:tempus">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="AGENS">
+        <nom name="b1:artefaktum"/>
+        <prop name="Buch"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d1:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+      </diamond>
+      <diamond mode="PATIENS">
+        <nom name="a1:bel-phys-körper"/>
+        <prop name="Autor"/>
+        <diamond mode="GEN">
+          <prop name="mask"/>
+        </diamond>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="PRÄP">
+          <nom name="b2:ort"/>
+          <prop name="bei"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d2:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das Buch liegt bei dem Autoren</target>-->
+</xml>

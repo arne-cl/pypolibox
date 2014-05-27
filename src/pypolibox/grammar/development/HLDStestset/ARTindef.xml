@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="b1:inchoativ">
+      <prop name="beschreiben"/>
+      <diamond mode="TEMP">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="AGENS">
+        <nom name="a1:bel-phys-körper"/>
+        <prop name="Autor"/>
+        <diamond mode="GEN">
+          <prop name="mask"/>
+        </diamond>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="i1:sem-obj"/>
+          <prop name="indef"/>
+        </diamond>
+      </diamond>
+      <diamond mode="PATIENS">
+        <nom name="t1:abstraktum"/>
+        <prop name="Thema"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="i2:sem-obj"/>
+          <prop name="indef"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>ein Autor beschreibt ein Thema</target>-->
+</xml>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="b1:artefaktum">
+      <prop name="Buch"/>
+      <diamond mode="NUM">
+        <prop name="sing"/>
+      </diamond>
+      <diamond mode="ASS">
+        <nom name="h1:nachname"/>
+        <prop name="Hopcroft"/>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>Hopcrofts Buch</target>-->
+</xml>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="p1:deklarativ">
+      <prop name="punkt"/>
+      <diamond mode="DEKL">
+        <nom name="u1:konjunktion"/>
+        <prop name="und"/>
+        <diamond mode="S1">
+          <nom name="s1:prädikation"/>
+          <prop name="sein-kop"/>
+          <diamond mode="TEMP:tempus">
+            <prop name="präs"/>
+          </diamond>
+          <diamond mode="SUBJ">
+            <nom name="x1:sem-obj"/>
+            <diamond mode="PERS">
+              <prop name="3te"/>
+            </diamond>
+            <diamond mode="PRO">
+              <prop name="perspro"/>
+            </diamond>
+            <diamond mode="GEN">
+              <prop name="neut"/>
+            </diamond>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+          </diamond>
+          <diamond mode="PRKOMPL">
+            <nom name="d1:abstraktum"/>
+            <prop name="Deutsch"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="PRÄP">
+              <nom name="i1:zusammenhang"/>
+              <prop name="in"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+<!--  <target>und es ist in Deutsch .</target>-->
+</xml>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="k1:subjunktion">
+      <prop name="komma"/>
+      <diamond mode="HS">
+        <nom name="l1:handlung"/>
+        <prop name="liegen"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="AGENS">
+          <nom name="t1:art"/>
+          <prop name="Thema"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="p1:sem-obj"/>
+            <prop name="poss"/>
+            <diamond mode="PERS">
+              <prop name="3te"/>
+            </diamond>
+          </diamond>
+          <diamond mode="ATTRIB">
+            <nom name="x1:sem-obj"/>
+            <diamond mode="PERS">
+              <prop name="3te"/>
+            </diamond>
+            <diamond mode="PRO">
+              <prop name="dempro3"/>
+            </diamond>
+            <diamond mode="GEN">
+              <prop name="fem"/>
+            </diamond>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="PRÄP">
+              <nom name="b1:ort"/>
+              <prop name="bei"/>
+            </diamond>
+          </diamond>
+        </diamond>
+        <diamond mode="PATIENS">
+          <nom name="s1:sorte"/>
+          <prop name="Semantik"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+        </diamond>
+      </diamond>
+      <diamond mode="NSAnt">
+        <nom name="o1:konzessiv"/>
+        <prop name="obwohl"/>
+        <diamond mode="VL">
+          <nom name="ü1:handlung"/>
+          <prop name="übereinstimm"/>
+          <diamond mode="TEMP:tempus">
+            <prop name="präs"/>
+          </diamond>
+          <diamond mode="AGENS">
+            <nom name="b2:artefaktum"/>
+            <prop name="Buch"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d1:sem-obj"/>
+              <prop name="def"/>
+            </diamond>
+          </diamond>
+          <diamond mode="PATIENS">
+            <nom name="s2:abstraktum"/>
+            <prop name="Suchkriterium"/>
+            <diamond mode="NUM">
+              <prop name="plur"/>
+            </diamond>
+            <diamond mode="PRÄP">
+              <nom name="m1:zugehörigkeit"/>
+              <prop name="mit"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="p2:sem-obj"/>
+              <prop name="poss"/>
+              <diamond mode="PERS">
+                <prop name="7te"/>
+              </diamond>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>obwohl das Buch mit ihren Suchkriterien übereinstimmt , liegt sein Thema bei der Semantik</target>-->
+</xml>

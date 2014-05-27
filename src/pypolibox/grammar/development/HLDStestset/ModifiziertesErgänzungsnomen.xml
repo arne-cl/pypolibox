@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="u1:durativ">
+      <prop name="umfassen"/>
+      <diamond mode="TEMP">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="AGENS">
+        <nom name="t1:art"/>
+        <prop name="Thema"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d1:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+        <diamond mode="NOMERG">
+          <nom name="ü1:sorte"/>
+          <prop name="Übersetzung"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="MOD">
+            <nom name="m1:eigenschaft"/>
+            <prop name="maschinell"/>
+            <diamond mode="KOMP">
+              <prop name="pos"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+      <diamond mode="PATIENS">
+        <nom name="s1:sorte"/>
+        <prop name="Statistik"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d2:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das Thema maschinelle Übersetzung umfasst die Statistik</target>-->
+</xml>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="s1:prädikation">
+      <prop name="sein-kop"/>
+      <diamond mode="TEMP:tempus">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="SUBJ">
+        <nom name="a1:buchtitel"/>
+        <prop name="Angewandte_Computerlinguistik"/>
+        <diamond mode="99">
+          <nom name="a2:anführungöffnen"/>
+          <prop name="anföffn"/>
+        </diamond>
+        <diamond mode="66">
+          <nom name="a3:anführungschließen"/>
+          <prop name="anfschl"/>
+        </diamond>
+      </diamond>
+      <diamond mode="PRKOMPL">
+        <nom name="b1:artefaktum"/>
+        <prop name="Buch"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="i1:sem-obj"/>
+          <prop name="indef"/>
+        </diamond>
+        <diamond mode="ATTRIB">
+          <nom name="h1:nachname"/>
+          <prop name="Hitzenberger"/>
+          <diamond mode="PRÄP">
+            <nom name="v1:zugehörigkeit"/>
+            <prop name="von"/>
+          </diamond>
+          <diamond mode="N1">
+            <nom name="l1:vorname"/>
+            <prop name="Ludwig"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <target>„ Angewandte_Computerlinguistik “ ist ein Buch von Ludwig Hitzenberger</target>
+</xml>

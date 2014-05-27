@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="e1:inchoativ">
+      <prop name="erscheinen"/>
+      <diamond mode="AUX">
+        <nom name="s1:sein"/>
+        <prop name="sein"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="imperf"/>
+        </diamond>
+        <diamond mode="ADV">
+          <nom name="n1:modus"/>
+          <prop name="1986"/>
+        </diamond>
+        <diamond mode="AGENS">
+          <nom name="b1:artefaktum"/>
+          <prop name="Buch"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d1:sem-obj"/>
+            <prop name="def"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das Buch ist 1986 erschienen</target>-->
+</xml>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="p1:deklarativ">
+      <prop name="punkt"/>
+      <diamond mode="DEKL">
+        <nom name="s1:prädikation"/>
+        <prop name="sein-kop"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="AJKT">
+          <nom name="w1:handlung"/>
+          <prop name="wünschen"/>
+          <diamond mode="SUBJ">
+            <nom name="b1:artefaktum"/>
+            <prop name="Buch"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d1:sem-obj"/>
+              <prop name="def"/>
+            </diamond>
+          </diamond>
+          <diamond mode="PRKOMPL">
+            <nom name="d2:abstraktum"/>
+            <prop name="Deutsch"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="PRÄP">
+              <nom name="i1:zusammenhang"/>
+              <prop name="in"/>
+            </diamond>
+          </diamond>
+          <diamond mode="KONN">
+            <nom name="a1:adjunktion"/>
+            <prop name="adjunktor"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>wie gewünscht ist das Buch in Deutsch .</target>-->
+</xml>

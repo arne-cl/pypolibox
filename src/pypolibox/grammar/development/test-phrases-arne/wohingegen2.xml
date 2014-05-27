@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="k1:subjunktion">
+      <prop name="komma"/>
+      <diamond mode="HS">
+        <nom name="s1:prädikation"/>
+        <prop name="sein-kop"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="SUBJ">
+          <nom name="b1:artefaktum"/>
+          <prop name="Buch"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d1:sem-obj"/>
+            <prop name="def"/>
+          </diamond>
+          <diamond mode="MOD">
+            <nom name="a1:eigenschaft"/>
+            <prop name="aktuell"/>
+            <diamond mode="KOMP">
+              <prop name="pos"/>
+            </diamond>
+          </diamond>
+        </diamond>
+        <diamond mode="PRKOMPL">
+          <nom name="d2:abstraktum"/>
+          <prop name="Deutsch"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="PRÄP">
+            <nom name="a2:zusammenhang"/>
+            <prop name="auf"/>
+          </diamond>
+        </diamond>
+      </diamond>
+      <diamond mode="NS">
+        <nom name="w1:adversativ"/>
+        <prop name="wohingegen"/>
+        <diamond mode="VL">
+          <nom name="s2:prädikation"/>
+          <prop name="sein-kop"/>
+          <diamond mode="TEMP:tempus">
+            <prop name="präs"/>
+          </diamond>
+          <diamond mode="SUBJ">
+            <nom name="b2:artefaktum"/>
+            <prop name="Buch"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d3:sem-obj"/>
+              <prop name="def"/>
+            </diamond>
+            <diamond mode="MOD">
+              <nom name="e1:ordinal"/>
+              <prop name="erster"/>
+            </diamond>
+          </diamond>
+          <diamond mode="PRKOMPL">
+            <nom name="e2:abstraktum"/>
+            <prop name="Englisch"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="PRÄP">
+              <nom name="a3:zusammenhang"/>
+              <prop name="auf"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <target>das aktuelle Buch ist auf Deutsch , wohingegen das erste Buch auf Englisch ist</target>
+</xml>

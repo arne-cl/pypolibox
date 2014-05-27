@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="p1:deklarativ">
+      <prop name="punkt"/>
+      <diamond mode="DEKL">
+        <nom name="b1:handlung"/>
+        <prop name="behandeln"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="ADV">
+          <nom name="g1:modus"/>
+          <prop name="gründlich"/>
+          <diamond mode="SPEZ">
+            <nom name="s1:intensivierung"/>
+            <prop name="sehr"/>
+          </diamond>
+        </diamond>
+        <diamond mode="AGENS">
+          <nom name="l1:nachname"/>
+          <prop name="Lohnstein"/>
+        </diamond>
+        <diamond mode="PATIENS">
+          <nom name="k1:konjunktion"/>
+          <prop name="komma"/>
+          <diamond mode="NP1">
+            <nom name="s2:sorte"/>
+            <prop name="Syntax"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="q1:sem-obj"/>
+              <prop name="quantkein"/>
+            </diamond>
+          </diamond>
+          <diamond mode="KONN">
+            <nom name="a1:adversativ"/>
+            <prop name="aber"/>
+            <diamond mode="NP2">
+              <nom name="s3:sorte"/>
+              <prop name="Semantik"/>
+              <diamond mode="NUM">
+                <prop name="sing"/>
+              </diamond>
+              <diamond mode="ART">
+                <nom name="d1:sem-obj"/>
+                <prop name="def"/>
+              </diamond>
+            </diamond>
+            <diamond mode="KONN">
+              <nom name="d2:adversativ"/>
+              <prop name="dafür"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>Lohnstein behandelt keine Syntax , aber dafür die Semantik sehr gründlich .</target>-->
+</xml>

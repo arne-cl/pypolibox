@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="p1:deklarativ">
+      <prop name="punkt"/>
+      <diamond mode="DEKL">
+        <nom name="u1:konjunktion"/>
+        <prop name="und"/>
+        <diamond mode="S1">
+          <nom name="b1:handlung"/>
+          <prop name="bieten"/>
+          <diamond mode="TEMP:tempus">
+            <prop name="präs"/>
+          </diamond>
+          <diamond mode="AJKT">
+            <nom name="w1:handlung"/>
+            <prop name="wünschen"/>
+            <diamond mode="AGENS">
+              <nom name="b2:artefaktum"/>
+              <prop name="Buch"/>
+              <diamond mode="NUM">
+                <prop name="sing"/>
+              </diamond>
+              <diamond mode="ART">
+                <nom name="d1:sem-obj"/>
+                <prop name="def"/>
+              </diamond>
+            </diamond>
+            <diamond mode="PATIENS">
+              <nom name="u2:konjunktion"/>
+              <prop name="und"/>
+              <diamond mode="NP1">
+                <nom name="ü1:abstraktum"/>
+                <prop name="Übung"/>
+                <diamond mode="NUM">
+                  <prop name="plur"/>
+                </diamond>
+              </diamond>
+              <diamond mode="NP2">
+                <nom name="b3:abstraktum"/>
+                <prop name="Beispiel"/>
+                <diamond mode="NUM">
+                  <prop name="plur"/>
+                </diamond>
+              </diamond>
+            </diamond>
+            <diamond mode="KONN">
+              <nom name="a1:adjunktion"/>
+              <prop name="adjunktor"/>
+            </diamond>
+          </diamond>
+        </diamond>
+        <diamond mode="VG">
+          <nom name="v1:infinitum"/>
+          <prop name="voraus-X-trans"/>
+          <diamond mode="AUX">
+            <nom name="v2:partverbstamm"/>
+            <prop name="voraus-setzen"/>
+            <diamond mode="TEMP:tempus">
+              <prop name="präs"/>
+            </diamond>
+            <diamond mode="PATIENS">
+              <nom name="k1:abstraktum"/>
+              <prop name="Kenntnis"/>
+              <diamond mode="NUM">
+                <prop name="plur"/>
+              </diamond>
+              <diamond mode="ART">
+                <nom name="q1:sem-obj"/>
+                <prop name="quantkein"/>
+              </diamond>
+              <diamond mode="ATTRIB">
+                <nom name="p2:sorte"/>
+                <prop name="Prolog"/>
+                <diamond mode="NUM">
+                  <prop name="sing"/>
+                </diamond>
+                <diamond mode="PRÄP">
+                  <nom name="i1:zusammenhang"/>
+                  <prop name="in"/>
+                </diamond>
+              </diamond>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>wie gewünscht bietet das Buch Übungen und Beispiele und setzt keine Kenntnisse in Prolog voraus .</target>-->
+</xml>

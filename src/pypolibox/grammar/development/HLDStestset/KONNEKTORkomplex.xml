@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="s1:addition">
+      <prop name="sowohl"/>
+      <diamond mode="NP1">
+        <nom name="s2:sorte"/>
+        <prop name="Syntax"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+      </diamond>
+      <diamond mode="NP2">
+        <nom name="s3:sorte"/>
+        <prop name="Semantik"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+      </diamond>
+      <diamond mode="KONN">
+        <nom name="a1:addition"/>
+        <prop name="als"/>
+        <diamond mode="KONN">
+          <nom name="a2:addition"/>
+          <prop name="auch"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>sowohl Syntax als auch Semantik</target>-->
+</xml>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="p1:deklarativ">
+      <prop name="punkt"/>
+      <diamond mode="DEKL">
+        <nom name="b1:handlung"/>
+        <prop name="beschreiben"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="PATIENS">
+          <nom name="s1:sorte"/>
+          <prop name="Syntax"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="q1:sem-obj"/>
+            <prop name="quantkein"/>
+          </diamond>
+        </diamond>
+        <diamond mode="AGENS2">
+          <nom name="b2:artefaktum"/>
+          <prop name="Buch"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d1:sem-obj"/>
+            <prop name="def"/>
+          </diamond>
+        </diamond>
+        <diamond mode="KONNAnt">
+          <nom name="a1:adversativ"/>
+          <prop name="aber"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>aber das Buch beschreibt keine Syntax .</target>-->
+</xml>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="s1:handlung">
+      <prop name="s.finden_in"/>
+      <diamond mode="TEMP:tempus">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="SPEZ">
+        <nom name="n1:negation"/>
+        <prop name="nicht"/>
+      </diamond>
+      <diamond mode="AGENS">
+        <nom name="s2:sorte"/>
+        <prop name="Syntax"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+      </diamond>
+      <diamond mode="PRO">
+        <nom name="x1:sem-obj"/>
+        <diamond mode="PERS">
+          <prop name="3te"/>
+        </diamond>
+        <diamond mode="PRO">
+          <prop name="reflpro"/>
+        </diamond>
+        <diamond mode="GEN">
+          <prop name="fem"/>
+        </diamond>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+      </diamond>
+      <diamond mode="PATIENS">
+        <nom name="b1:artefaktum"/>
+        <prop name="Buch"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="PRÄP">
+          <nom name="i1:zusammenhang"/>
+          <prop name="in"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d1:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+      </diamond>
+    </satop>
+    <satop nom="k1:konjunktion">
+      <prop name="komma"/>
+      <diamond mode="SPEZ">
+        <nom name="n1:negation"/>
+      </diamond>
+      <diamond mode="KONN">
+        <nom name="a1:adversativ"/>
+        <prop name="aber"/>
+        <diamond mode="AGENS2">
+          <nom name="s3:sorte"/>
+          <prop name="Semantik"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+        </diamond>
+        <diamond mode="SPEZAnt">
+          <nom name="w1:affirmation"/>
+          <prop name="wohl"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>Syntax findet sich in dem Buch nicht , wohl aber Semantik</target>-->
+</xml>

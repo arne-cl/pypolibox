@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="h1:nachname">
+      <prop name="Hitzenberger"/>
+      <diamond mode="N1">
+        <nom name="x1:personenname"/>
+      </diamond>
+    </satop>
+  </lf>
+  <target>Hitzenberger</target>
+</xml>

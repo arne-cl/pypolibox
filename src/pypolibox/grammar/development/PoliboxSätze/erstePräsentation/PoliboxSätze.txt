@@ -1,0 +1,176 @@
+Mittwoch, 08. Juni, 2011 <00:35:18:255255>
+
+								***	Lexikon	***
+	* Substantive:
+		Computerlinguistik,
+		Informatiker,
+		Semantik,
+		Syntax,
+		Sprache,
+		Übungsaufgabe,
+		Beispiel,
+		Code-Beispiel,
+		Überblick,
+		Anwendung,
+		Morphologie,
+		Rolle,
+		Parsing,
+		Kenntnis,
+		Programmiersprache,
+		Prolog,
+		Pragmatik,
+		Jahr,
+		1986,1989-2010,
+		Buch,
+		Seiten,
+		Autor,
+		Thema,
+		Kunde,
+		Statistik,
+		Phonetik,
+		Phonologie,
+		Spracherkennung,
+		Textgenerierung,
+		Übersetzung,
+		Diskurs,
+		Lexikon,
+		Python, C, C#, C++, Haskell, Java, Prolog, Lisp, Ada, Perl, Bash, Ruby, Scheme, Ocaml, VB.NET
+
+	* Pronomen:
+		seine, ihre,
+		er, sie, es,
+		das, dieses,
+		beide, keine
+
+	* Artikel:
+		der, die, das,
+		ein, einer,
+		dieser,
+		keine, beide,
+		sein, ihr
+
+	* Adjektive:
+		umfassend, umfassender
+		gründlich, gründlicher
+		alt, älter
+		lang, länger,
+		zentral,
+		deutsch,
+		englisch,
+		ein, zwei, drei, vier, fünf, sechs, sieben, acht, neun, zehn, elf, zwölf,
+		erster, zweite, drittes,
+		193,
+		wenig, weniger
+		formal,
+		maschinell
+
+	* Präpositionen:
+		in,
+		im,
+		auf,
+		um,
+		über,
+		von,
+		für,
+		bei
+
+	* Verben:
+		kaufen,
+		umfassen,
+		behandeln,
+		bieten,
+		beschreiben,
+		spielen,
+		erscheinen,
+		voraussetzen,
+		vorführen,
+		ausstellen,
+		vorstellen,
+		sein (Kopula + Hilfsverb),
+		haben (Hilfsverb)
+
+	* Adverbien:
+		1986, 1989-2010
+
+	* Partikel:
+
+
+	* Konnektoren:
+
+	* Eigenname:
+
+
+								***	Phrasen	***
+	* Ergänzungsnominale:
+		Jahr 1999
+		Thema Syntax
+		Programmiersprache Lisp
+		Thema maschinelle Übersetzung
+		Thema maschineller Diskurs
+		Thema formale Sprachen
+
+
+	* Adjektivattribute:
+		193 Seiten
+		formale Sprache
+		erstes Buch
+		deutsches Buch
+		umfassendes Buch
+		älteres Buch
+		längeres Buch
+		längeres englisches Buch
+
+	* Genetivattribute:
+		Autor des Buches
+		Autor des älteren Buches
+		Bücher beider Autoren
+		Buch keines Autors
+		Das Thema formaler Sprachen
+		der Autor des ersten Buches
+		das Thema der formalen Sprachen
+
+	* Präpositionalattribute:
+		in dem Buch von dem Autoren
+		über die Programmiersprache Java
+
+	* Prädikativkomplemente:
+		193 Seiten lang
+		10 Jahre alt
+		in deutsch
+		auf englisch
+
+
+
+								***	Sätze	***
+	**	V2-Sätze:
+
+		*	Prädikativsätze:
+				das Buch ist 461 Seiten lang
+				das Buch ist zehn Seiten länger
+				es ist auf deutsch
+				das Thema ist die Textgenerierung
+				das Buch ist über Pragmatik
+
+		*	Verbalkomplexe:
+				-	Partikelverben:
+						das Buch stellt das Thema Syntax vor
+						es setzt umfassende Kenntnisse (in) der Statistik voraus
+
+				-	Perfekt:
+						das Buch ist 1986 erschienen
+						das Buch ist im Jahr 2003 erschienen
+
+		*	Transitive Vollverben:
+				sein Buch bietet einen umfassenden Überblick über formale Semantik
+				beide Bücher bieten Code-Beispiele
+				keiner der (zwei) Autoren bietet Code-Beispiele in der Programmiersprache Ada
+
+
+
+
+
+
+
+
+
+

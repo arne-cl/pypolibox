@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="a1:adversativ">
+      <prop name="aber"/>
+      <diamond mode="SPEZAnt">
+        <nom name="w1:affirmation"/>
+        <prop name="wohl"/>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>wohl aber</target>-->
+</xml>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="s1:prädikation">
+      <prop name="sein-kop"/>
+      <diamond mode="TEMP:tempus">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="SUBJ">
+        <nom name="x1:sem-obj"/>
+        <diamond mode="PERS">
+          <prop name="3te"/>
+        </diamond>
+        <diamond mode="PRO">
+          <prop name="perspro"/>
+        </diamond>
+        <diamond mode="GEN">
+          <prop name="neut"/>
+        </diamond>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+      </diamond>
+      <diamond mode="PRKOMPL">
+        <nom name="u1:konjunktion"/>
+        <prop name="und"/>
+        <diamond mode="NP1">
+          <nom name="s2:artefaktum"/>
+          <prop name="Seite"/>
+          <diamond mode="NUM">
+            <prop name="plur"/>
+          </diamond>
+          <diamond mode="MOD">
+            <nom name="n1:kardinal"/>
+            <prop name="193"/>
+          </diamond>
+          <diamond mode="MOD">
+            <nom name="l1:eigenschaft"/>
+            <prop name="lang"/>
+            <diamond mode="KOMP">
+              <prop name="pos"/>
+            </diamond>
+          </diamond>
+        </diamond>
+        <diamond mode="NP2">
+          <nom name="j1:art"/>
+          <prop name="Jahr"/>
+          <diamond mode="NUM">
+            <prop name="plur"/>
+          </diamond>
+          <diamond mode="MOD">
+            <nom name="s3:kardinal"/>
+            <prop name="sieben"/>
+          </diamond>
+          <diamond mode="MOD">
+            <nom name="a1:eigenschaft"/>
+            <prop name="alt"/>
+            <diamond mode="KOMP">
+              <prop name="pos"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>es ist 193 Seiten lang und sieben Jahre alt</target>-->
+</xml>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="u1:konjunktion">
+      <prop name="und"/>
+      <diamond mode="NP1">
+        <nom name="k1:konjunktion"/>
+        <prop name="komma"/>
+        <diamond mode="NP1">
+          <nom name="n1:nachname"/>
+          <prop name="Norvig"/>
+        </diamond>
+        <diamond mode="NP2">
+          <nom name="s1:nachname"/>
+          <prop name="Schuetze"/>
+        </diamond>
+      </diamond>
+      <diamond mode="NP2">
+        <nom name="m1:nachname"/>
+        <prop name="Manning"/>
+      </diamond>
+    </satop>
+  </lf>
+  <target>Norvig , Schuetze und Manning</target>
+</xml>

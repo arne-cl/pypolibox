@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="b1:durativ">
+      <prop name="behandeln"/>
+      <diamond mode="TEMP">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="AGENS">
+        <nom name="b2:artefaktum"/>
+        <prop name="Buch"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d1:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+        <diamond mode="ATTRIB">
+          <nom name="a1:bel-phys-körper"/>
+          <prop name="Autor"/>
+          <diamond mode="GEN">
+            <prop name="mask"/>
+          </diamond>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="PRÄP">
+            <nom name="v1:zugehörigkeit"/>
+            <prop name="von"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d2:sem-obj"/>
+            <prop name="def"/>
+          </diamond>
+        </diamond>
+      </diamond>
+      <diamond mode="PATIENS">
+        <nom name="p1:abstraktum"/>
+        <prop name="Pragmatik"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d3:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das Buch von dem Autoren behandelt die Pragmatik</target>-->
+</xml>

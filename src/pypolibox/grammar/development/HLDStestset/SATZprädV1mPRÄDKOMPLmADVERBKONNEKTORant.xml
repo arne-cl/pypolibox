@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="p1:deklarativ">
+      <prop name="punkt"/>
+      <diamond mode="DEKL">
+        <nom name="s1:prädikation"/>
+        <prop name="sein-kop"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="SUBJ">
+          <nom name="x1:sem-obj"/>
+          <diamond mode="PRO">
+            <prop name="quantprobeide"/>
+          </diamond>
+        </diamond>
+        <diamond mode="PRKOMPL">
+          <nom name="u1:konjunktion"/>
+          <prop name="und"/>
+          <diamond mode="PP">
+            <nom name="e1:abstraktum"/>
+            <prop name="Englisch"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="PRÄP">
+              <nom name="i1:zusammenhang"/>
+              <prop name="in"/>
+            </diamond>
+          </diamond>
+          <diamond mode="PRD">
+            <nom name="n1:eigenschaft"/>
+            <prop name="neu"/>
+            <diamond mode="KOMP">
+              <prop name="pos"/>
+            </diamond>
+            <diamond mode="SPEZ">
+              <nom name="s2:intensivierung"/>
+              <prop name="sehr"/>
+            </diamond>
+          </diamond>
+        </diamond>
+        <diamond mode="KONN">
+          <nom name="a1:adversativ"/>
+          <prop name="aber"/>
+          <diamond mode="KONN">
+            <nom name="d1:adversativ"/>
+            <prop name="dafür"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>aber dafür sind beide sehr neu und in Englisch .</target>-->
+</xml>

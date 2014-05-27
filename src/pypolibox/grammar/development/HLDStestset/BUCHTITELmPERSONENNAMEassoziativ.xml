@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="f1:buchtitel">
+      <prop name="Formale_Semantik_und_natürliche_Sprache"/>
+      <diamond mode="99">
+        <nom name="a1:anführungöffnen"/>
+        <prop name="anföffn"/>
+      </diamond>
+      <diamond mode="66">
+        <nom name="a2:anführungschließen"/>
+        <prop name="anfschl"/>
+      </diamond>
+      <diamond mode="ASS">
+        <nom name="l1:nachname"/>
+        <prop name="Lohnstein"/>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>Lohnsteins „ Formale_Semantik_und_natürliche_Sprache “</target>-->
+</xml>

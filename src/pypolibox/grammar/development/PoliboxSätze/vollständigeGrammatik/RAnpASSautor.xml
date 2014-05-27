@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="b1:artefaktum">
+      <prop name="Buch"/>
+      <diamond mode="NUM">
+        <prop name="sing"/>
+      </diamond>
+      <diamond mode="ART">
+        <nom name="d1:sem-obj"/>
+        <prop name="def"/>
+      </diamond>
+      <diamond mode="ATTRIB">
+        <nom name="l1:nachname"/>
+        <prop name="Lohnstein"/>
+        <diamond mode="PRÄP">
+          <nom name="v1:zugehörigkeit"/>
+          <prop name="von"/>
+        </diamond>
+        <diamond mode="N1">
+          <nom name="h1:vorname"/>
+          <prop name="Horst"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das Buch von Horst Lohnstein</target>-->
+</xml>

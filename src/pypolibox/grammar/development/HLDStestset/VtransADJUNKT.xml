@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="b1:handlung">
+      <prop name="bieten"/>
+      <diamond mode="TEMP:tempus">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="AJKT">
+        <nom name="w1:handlung"/>
+        <prop name="wünschen"/>
+        <diamond mode="KONN">
+          <nom name="a1:adjunktion"/>
+          <prop name="adjunktor"/>
+        </diamond>
+        <diamond mode="AGENS">
+          <nom name="b2:artefaktum"/>
+          <prop name="Buch"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d1:sem-obj"/>
+            <prop name="def"/>
+          </diamond>
+        </diamond>
+        <diamond mode="PATIENS">
+          <nom name="b3:abstraktum"/>
+          <prop name="Beispiel"/>
+          <diamond mode="NUM">
+            <prop name="plur"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>wie gewünscht bietet das Buch Beispiele</target>-->
+</xml>

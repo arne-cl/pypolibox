@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="a1:infinitum">
+      <prop name="auf-X-trans"/>
+      <diamond mode="AUX">
+        <nom name="a2:partverbstamm"/>
+        <prop name="auf-greifen"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="SPEZ">
+          <nom name="n1:negation"/>
+          <prop name="nicht"/>
+        </diamond>
+        <diamond mode="PATIENS">
+          <nom name="t1:art"/>
+          <prop name="Thema"/>
+          <diamond mode="NUM">
+            <prop name="plur"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d1:sem-obj"/>
+            <prop name="def"/>
+          </diamond>
+          <diamond mode="NOMERG">
+            <nom name="u1:konjunktion"/>
+            <prop name="und"/>
+            <diamond mode="N1">
+              <nom name="s1:sorte"/>
+              <prop name="Syntax"/>
+              <diamond mode="NUM">
+                <prop name="sing"/>
+              </diamond>
+            </diamond>
+            <diamond mode="N2">
+              <nom name="s2:sorte"/>
+              <prop name="Semantik"/>
+              <diamond mode="NUM">
+                <prop name="sing"/>
+              </diamond>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>greift nicht die Themen Syntax und Semantik auf</target>-->
+</xml>

@@ -1,0 +1,164 @@
+Montag, 18. Juli, 2011
+
+
+	***	RST-Ausdrücke	***
+
+	*	describe:
+			A)
+				[Evaluation
+						[List … ]_nuc
+						[Evidence
+							…_nuc
+							[List … ]_sat
+						]_sat
+					]_TOP
+			B)
+					[Evaluation
+						[List … ]_nuc
+						[Evidence … ]_sat
+					]_TOP
+
+		"Evaluation": Explizit via Evaluation-fact: „X zeigt eine hohe Übereinstimmung mit Y.“:
+			s. „'Evidence' via Doppelpunkt“
+
+		"Evidence" a) via Doppelpunkt:
+			Lohnsteins Buch ist etwas länger als das vorige : es umfasst 315 Seiten .
+
+		"Evidence" b) via Asyndese: Doppelpunkt mit Punkt ersetzen.
+			Lohnsteins Buch ist etwas länger als das vorige . es umfasst 315 Seiten .
+
+		"Evidence" c) via Adjunktion (… nur bei postivem "ValOfChoice"-Wert):
+			wie gewünscht bietet das Buch Übungen und Beispiele und setzt keine Kenntnisse in Prolog voraus .
+
+		"List" via „außerdem“:
+			außerdem setzt das Buch keine Kenntnisse in einer Programmiersprache voraus .
+
+		"List" via anteponiertes „und“:
+			und es ist auf Deutsch .
+
+		"List" via „auch“:
+			Lohnstein behandelt auch das Thema Semantik .
+
+	*	describe-compare:
+
+			A)	[Contrast
+					[Evidence
+						[List … ]_nuc
+						[List … ]_sat
+					]_nuc1,
+					[Elaboration
+						[Contrast … ]_nuc
+						[List
+							[Elaboration … ]_nuc1,
+							…
+						]_sat
+					]_nuc2
+				]_TOP
+
+			B)	[Contrast
+					[Evidence
+						[List … ]_nuc
+						[List … ]_sat
+					]_nuc1,
+					[Elaboration
+						[Contrast … ]_nuc
+						…_sat
+					]_nuc2
+				]_TOP
+
+			C)	[Contrast
+					[Evidence
+						[List … ]_nuc
+						[List … ]_sat
+					]_nuc1,
+					[List …]_nuc2
+				]_TOP
+
+			D)	[Contrast
+					[Evidence
+						[List … ]_nuc
+						[List … ]_nuc1,
+					[Elaboration
+						[Contrast …]_nuc
+						[List … ]_sat
+					]_nuc2
+				]_TOP
+
+
+			"Contrast" a) explizit via Similarity-fact:
+				beide Bücher sind einander sehr ähnlich .
+
+			"Contrast" b) via „aber“, „aber dafür“, „wohl aber“:
+				1)	aber dieses Buch umfasst das Thema Statistik .
+				2)	Lohnstein behandelt keine Syntax , aber dafür die Semantik sehr gründlich .
+				3)	Syntax findet sich in Lohnsteins Buch nicht , wohl aber die Semantik .
+
+			"Contrast" c) via „während“:
+				während das Thema Syntax in diesem Buch eine zentrale Rolle spielt , behandelt Lohnstein das Thema Semantik .
+
+			"Contrast" d) via „dagegen“:
+				mit 680 Seiten ist dieses Buch dagegen ein wenig umfangreicher als das vorige .
+
+			"Elaboration" via Asyndese:
+				Tritt nur mittelbar in Erscheinung i.S.v. einer genaueren Ausführung des
+				Unterschieds zwischen zwei Büchern.
+
+
+
+	*	recommend:
+			A)	[Elaboration
+					[List … ]_nuc
+					[List
+						[Concession
+							[List … ]_nuc
+							…_sat
+						]_nuc1,
+						…_nuc2
+					]_sat
+				]_TOP
+
+			B)	[Elaboration
+					[List … ]_nuc
+					[List … ]_sat
+				]_TOP
+
+			C)	[Elaboration
+					[List … ]_nuc
+					[List
+						[Concession
+							…_nuc
+							…_sat
+						]_nuc1,
+						…_nuc2
+					]_sat
+				]_TOP
+
+			"Concession" via „obwohl“:
+				obwohl sich das Buch an ein fortgeschrittenes Publikum richtet ,
+				entspricht es ihren Suchkriterien in hohem Maß .
+
+
+
+	***	Referierende Ausdrücke	***
+
+	*	Auf ein Buch referieren:
+			-	Horst Lohnsteins „Formale Semantik und natürliche Sprache“
+			-	Lohnsteins „Formale Semantik und natürliche Sprache“
+			-	das Buch von Horst Lohnstein
+			-	Lohnsteins Buch.
+			-	Horsts Buch.
+			-	„Formale Semantik und natürliche Sprache“
+			-	das Buch
+			-	dieses Buch
+			-	das letzte/vorige Buch
+			-	das vorige/letzte (Analepse)
+			-	es
+			-	die Bücher
+			-	sie
+			-	beide
+			-	beide Bücher
+			-	dort
+
+
+
+

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="h1:nachname">
+      <prop name="Hopcroft"/>
+    </satop>
+  </lf>
+  <!--<target>Hopcroft</target>-->
+</xml>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="k1:konjunktion">
+      <prop name="komma"/>
+      <diamond mode="SPEZ">
+        <nom name="n1:negation"/>
+      </diamond>
+      <diamond mode="KONN">
+        <nom name="a1:adversativ"/>
+        <prop name="aber"/>
+        <diamond mode="SPEZAnt">
+          <nom name="w1:affirmation"/>
+          <prop name="wohl"/>
+        </diamond>
+        <diamond mode="AGENS2">
+          <nom name="s1:sorte"/>
+          <prop name="Syntax"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+    <satop nom="n1:negation">
+      <prop name="nicht"/>
+    </satop>
+  </lf>
+  <!--<target>nicht , wohl aber Syntax</target>-->
+</xml>

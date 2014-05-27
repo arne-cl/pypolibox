@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+                                 ***  JPolibox Test-LFs  *** 
+    
+    Logische Formen, die die Ausgabe des JPolibox Satzplaners repräsentieren als Test-Eingabe
+    für die Realisierung mit openCCG.
+  
+      Autor: Martin Oltmann
+      Datum: 8.Juni, 2011
+-->
+
+<regression>
+    <item numOfParses="1" string="das Buch ist über Pragmatik">
+        <xml>
+            <lf>
+                <satop nom="s1:prädikation">
+                    <prop name="sein-kop"/>
+                    <diamond mode="TEMP:tempus">
+                        <prop name="präs"/>
+                    </diamond>
+                    <diamond mode="SUBJ">
+                        <nom name="b1:artefaktum"/>
+                        <prop name="Buch"/>
+                        <diamond mode="NUM">
+                            <prop name="sing"/>
+                        </diamond>
+                        <diamond mode="ART">
+                            <nom name="d1:sem-obj"/>
+                            <prop name="def"/>
+                        </diamond>
+                    </diamond>
+                    <diamond mode="PRKOMPL">
+                        <nom name="p1:sorte"/>
+                        <prop name="Pragmatik"/>
+                        <diamond mode="NUM">
+                            <prop name="sing"/>
+                        </diamond>
+                        <diamond mode="PRÄP">
+                            <nom name="ü1:thematisierung"/>
+                            <prop name="über"/>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>das Buch ist über Pragmatik</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="das Thema ist die Textgenerierung">
+        <xml>
+            <lf>
+                <satop nom="s1:prädikation">
+                    <prop name="sein-kop"/>
+                    <diamond mode="TEMP:tempus">
+                        <prop name="präs"/>
+                    </diamond>
+                    <diamond mode="SUBJ">
+                        <nom name="t1:art"/>
+                        <prop name="Thema"/>
+                        <diamond mode="NUM">
+                            <prop name="sing"/>
+                        </diamond>
+                        <diamond mode="ART">
+                            <nom name="d1:sem-obj"/>
+                            <prop name="def"/>
+                        </diamond>
+                    </diamond>
+                    <diamond mode="PRKOMPL">
+                        <nom name="t2:sorte"/>
+                        <prop name="Textgenerierung"/>
+                        <diamond mode="NUM">
+                            <prop name="sing"/>
+                        </diamond>
+                        <diamond mode="ART">
+                            <nom name="d2:sem-obj"/>
+                            <prop name="def"/>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>das Thema ist die Textgenerierung</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="das Buch ist zehn Seiten länger">
+        <xml>
+            <lf>
+                <satop nom="s1:prädikation">
+                    <prop name="sein-kop"/>
+                    <diamond mode="TEMP:tempus">
+                        <prop name="präs"/>
+                    </diamond>
+                    <diamond mode="SUBJ">
+                        <nom name="b1:artefaktum"/>
+                        <prop name="Buch"/>
+                        <diamond mode="NUM">
+                            <prop name="sing"/>
+                        </diamond>
+                        <diamond mode="ART">
+                            <nom name="d1:sem-obj"/>
+                            <prop name="def"/>
+                        </diamond>
+                    </diamond>
+                    <diamond mode="PRKOMPL">
+                        <nom name="s2:artefaktum"/>
+                        <prop name="Seite"/>
+                        <diamond mode="NUM">
+                            <prop name="plur"/>
+                        </diamond>
+                        <diamond mode="MOD">
+                            <nom name="z1:kardinal"/>
+                            <prop name="zehn"/>
+                        </diamond>
+                        <diamond mode="MOD">
+                            <nom name="l1:eigenschaft"/>
+                            <prop name="länger"/>
+                            <diamond mode="KOMP">
+                                <prop name="komp"/>
+                            </diamond>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>das Buch ist zehn Seiten länger</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="das Buch ist 461 Seiten lang">
+        <xml>
+            <lf>
+                <satop nom="s1:prädikation">
+                    <prop name="sein-kop"/>
+                    <diamond mode="TEMP:tempus">
+                        <prop name="präs"/>
+                    </diamond>
+                    <diamond mode="SUBJ">
+                        <nom name="b1:artefaktum"/>
+                        <prop name="Buch"/>
+                        <diamond mode="NUM">
+                            <prop name="sing"/>
+                        </diamond>
+                        <diamond mode="ART">
+                            <nom name="d1:sem-obj"/>
+                            <prop name="def"/>
+                        </diamond>
+                    </diamond>
+                    <diamond mode="PRKOMPL">
+                        <nom name="s2:artefaktum"/>
+                        <prop name="Seite"/>
+                        <diamond mode="NUM">
+                            <prop name="plur"/>
+                        </diamond>
+                        <diamond mode="MOD">
+                            <nom name="n1:kardinal"/>
+                            <prop name="461"/>
+                        </diamond>
+                        <diamond mode="MOD">
+                            <nom name="l1:eigenschaft"/>
+                            <prop name="lang"/>
+                            <diamond mode="KOMP">
+                                <prop name="pos"/>
+                            </diamond>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>das Buch ist 461 Seiten lang</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="es ist auf deutsch">
+        
+    </item>
+    <xml>
+        <lf>
+            <satop nom="s1:prädikation">
+                <prop name="sein-kop"/>
+                <diamond mode="TEMP:tempus">
+                    <prop name="präs"/>
+                </diamond>
+                <diamond mode="SUBJ">
+                    <nom name="x1:sem-obj"/>
+                    <diamond mode="PERS">
+                        <prop name="3te"/>
+                    </diamond>
+                    <diamond mode="PRO">
+                        <prop name="perspro"/>
+                    </diamond>
+                    <diamond mode="GEN">
+                        <prop name="neut"/>
+                    </diamond>
+                    <diamond mode="NUM">
+                        <prop name="sing"/>
+                    </diamond>
+                </diamond>
+                <diamond mode="PRKOMPL">
+                    <nom name="d1:eigenschaft"/>
+                    <prop name="deutsch"/>
+                    <diamond mode="KOMP">
+                        <prop name="pos"/>
+                    </diamond>
+                    <diamond mode="PRÄP">
+                        <nom name="a1:zusammenhang"/>
+                        <prop name="auf"/>
+                    </diamond>
+                </diamond>
+            </satop>
+        </lf>
+        <!--<target>es ist auf deutsch</target>-->
+    </xml>
+    <item numOfParses="1" string="das Buch stellt das Thema Syntax vor">
+        <xml>
+            <lf>
+                <satop nom="v1:infinitum">
+                    <prop name="vor-X-trans"/>
+                    <diamond mode="AUX">
+                        <nom name="v2:partverbstamm"/>
+                        <prop name="vor-stellen"/>
+                        <diamond mode="TEMP:tempus">
+                            <prop name="präs"/>
+                        </diamond>
+                        <diamond mode="AGENS">
+                            <nom name="b1:artefaktum"/>
+                            <prop name="Buch"/>
+                            <diamond mode="NUM">
+                                <prop name="sing"/>
+                            </diamond>
+                            <diamond mode="ART">
+                                <nom name="d1:sem-obj"/>
+                                <prop name="def"/>
+                            </diamond>
+                        </diamond>
+                        <diamond mode="PATIENS">
+                            <nom name="t1:art"/>
+                            <prop name="Thema"/>
+                            <diamond mode="NUM">
+                                <prop name="sing"/>
+                            </diamond>
+                            <diamond mode="NOMERG">
+                                <nom name="s1:sorte"/>
+                                <prop name="Syntax"/>
+                                <diamond mode="NUM">
+                                    <prop name="sing"/>
+                                </diamond>
+                            </diamond>
+                            <diamond mode="ART">
+                                <nom name="d2:sem-obj"/>
+                                <prop name="def"/>
+                            </diamond>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>das Buch stellt das Thema Syntax vor</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="es setzt umfassende Kenntnisse in der Statistik voraus">
+        <xml>
+            <lf>
+                <satop nom="v1:infinitum">
+                    <prop name="voraus-X-trans"/>
+                    <diamond mode="AUX">
+                        <nom name="v2:partverbstamm"/>
+                        <prop name="voraus-setzen"/>
+                        <diamond mode="TEMP:tempus">
+                            <prop name="präs"/>
+                        </diamond>
+                        <diamond mode="AGENS">
+                            <nom name="x1:sem-obj"/>
+                            <diamond mode="PERS">
+                                <prop name="3te"/>
+                            </diamond>
+                            <diamond mode="PRO">
+                                <prop name="perspro"/>
+                            </diamond>
+                            <diamond mode="GEN">
+                                <prop name="neut"/>
+                            </diamond>
+                            <diamond mode="NUM">
+                                <prop name="sing"/>
+                            </diamond>
+                        </diamond>
+                        <diamond mode="PATIENS">
+                            <nom name="k1:abstraktum"/>
+                            <prop name="Kenntnis"/>
+                            <diamond mode="NUM">
+                                <prop name="plur"/>
+                            </diamond>
+                            <diamond mode="MOD">
+                                <nom name="u1:modus"/>
+                                <prop name="umfassend"/>
+                                <diamond mode="KOMP">
+                                    <prop name="pos"/>
+                                </diamond>
+                            </diamond>
+                            <diamond mode="ATTRIB">
+                                <nom name="s1:sorte"/>
+                                <prop name="Statistik"/>
+                                <diamond mode="NUM">
+                                    <prop name="sing"/>
+                                </diamond>
+                                <diamond mode="PRÄP">
+                                    <nom name="i1:zusammenhang"/>
+                                    <prop name="in"/>
+                                </diamond>
+                                <diamond mode="ART">
+                                    <nom name="d1:sem-obj"/>
+                                    <prop name="def"/>
+                                </diamond>
+                            </diamond>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>es setzt umfassende Kenntnisse in der Statistik voraus</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="das Buch ist 1986 erschienen">
+        <xml>
+            <lf>
+                <satop nom="e1:inchoativ">
+                    <prop name="erscheinen"/>
+                    <diamond mode="AUX">
+                        <nom name="s1:sein"/>
+                        <prop name="sein"/>
+                        <diamond mode="TEMP:tempus">
+                            <prop name="imperf"/>
+                        </diamond>
+                        <diamond mode="ADV">
+                            <nom name="n1:modus"/>
+                            <prop name="1986"/>
+                        </diamond>
+                        <diamond mode="AGENS">
+                            <nom name="b1:artefaktum"/>
+                            <prop name="Buch"/>
+                            <diamond mode="NUM">
+                                <prop name="sing"/>
+                            </diamond>
+                            <diamond mode="ART">
+                                <nom name="d1:sem-obj"/>
+                                <prop name="def"/>
+                            </diamond>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>das Buch ist 1986 erschienen</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="das Buch ist im Jahr 2003 erschienen">
+        <xml>
+            <lf>
+                <satop nom="e1:inchoativ">
+                    <prop name="erscheinen"/>
+                    <diamond mode="AUX">
+                        <nom name="s1:sein"/>
+                        <prop name="sein"/>
+                        <diamond mode="TEMP:tempus">
+                            <prop name="imperf"/>
+                        </diamond>
+                        <diamond mode="AGENS">
+                            <nom name="b1:artefaktum"/>
+                            <prop name="Buch"/>
+                            <diamond mode="NUM">
+                                <prop name="sing"/>
+                            </diamond>
+                            <diamond mode="ART">
+                                <nom name="d1:sem-obj"/>
+                                <prop name="def"/>
+                            </diamond>
+                        </diamond>
+                        <diamond mode="SUPPL">
+                            <nom name="j1:art"/>
+                            <prop name="Jahr"/>
+                            <diamond mode="NUM">
+                                <prop name="sing"/>
+                            </diamond>
+                            <diamond mode="NOMERG">
+                                <nom name="n1:sorte"/>
+                                <prop name="2003"/>
+                                <diamond mode="NUM">
+                                    <prop name="sing"/>
+                                </diamond>
+                            </diamond>
+                            <diamond mode="PRÄP">
+                                <nom name="i1:zusammenhang"/>
+                                <prop name="im"/>
+                            </diamond>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>das Buch ist im Jahr 2003 erschienen</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="sein Buch bietet einen umfassenden Überblick über formale Semantik">
+        <xml>
+            <lf>
+                <satop nom="b1:handlung">
+                    <prop name="bieten"/>
+                    <diamond mode="TEMP:tempus">
+                        <prop name="präs"/>
+                    </diamond>
+                    <diamond mode="AGENS">
+                        <nom name="b2:artefaktum"/>
+                        <prop name="Buch"/>
+                        <diamond mode="NUM">
+                            <prop name="sing"/>
+                        </diamond>
+                        <diamond mode="ART">
+                            <nom name="p1:sem-obj"/>
+                            <prop name="poss"/>
+                            <diamond mode="PERS">
+                                <prop name="3te"/>
+                            </diamond>
+                        </diamond>
+                    </diamond>
+                    <diamond mode="PATIENS">
+                        <nom name="ü1:abstraktum"/>
+                        <prop name="Überblick"/>
+                        <diamond mode="NUM">
+                            <prop name="sing"/>
+                        </diamond>
+                        <diamond mode="MOD">
+                            <nom name="u1:modus"/>
+                            <prop name="umfassend"/>
+                            <diamond mode="KOMP">
+                                <prop name="pos"/>
+                            </diamond>
+                        </diamond>
+                        <diamond mode="ART">
+                            <nom name="i1:sem-obj"/>
+                            <prop name="indef"/>
+                        </diamond>
+                        <diamond mode="ATTRIB">
+                            <nom name="s1:sorte"/>
+                            <prop name="Semantik"/>
+                            <diamond mode="NUM">
+                                <prop name="sing"/>
+                            </diamond>
+                            <diamond mode="PRÄP">
+                                <nom name="ü2:thematisierung"/>
+                                <prop name="über"/>
+                            </diamond>
+                            <diamond mode="MOD">
+                                <nom name="f1:modus"/>
+                                <prop name="formal"/>
+                                <diamond mode="KOMP">
+                                    <prop name="pos"/>
+                                </diamond>
+                            </diamond>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>sein Buch bietet einen umfassenden Überblick über formale Semantik</target>-->
+        </xml>        
+    </item>
+    <item numOfParses="1" string="beide Bücher bieten Code-Beispiele">
+        <xml>
+            <lf>
+                <satop nom="b1:handlung">
+                    <prop name="bieten"/>
+                    <diamond mode="TEMP:tempus">
+                        <prop name="präs"/>
+                    </diamond>
+                    <diamond mode="AGENS">
+                        <nom name="b2:artefaktum"/>
+                        <prop name="Buch"/>
+                        <diamond mode="NUM">
+                            <prop name="plur"/>
+                        </diamond>
+                        <diamond mode="ART">
+                            <nom name="q1:sem-obj"/>
+                            <prop name="quantbeide"/>
+                        </diamond>
+                    </diamond>
+                    <diamond mode="PATIENS">
+                        <nom name="c1:abstraktum"/>
+                        <prop name="Code-Beispiel"/>
+                        <diamond mode="NUM">
+                            <prop name="plur"/>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>beide Bücher bieten Code-Beispiele</target>-->
+        </xml>
+    </item>
+    <item numOfParses="1" string="keiner der Autoren bietet Code-Beispiele in der Programmiersprache Ada">
+        <xml>
+            <lf>
+                <satop nom="b1:handlung">
+                    <prop name="bieten"/>
+                    <diamond mode="TEMP:tempus">
+                        <prop name="präs"/>
+                    </diamond>
+                    <diamond mode="AGENS">
+                        <nom name="x1:sem-obj"/>
+                        <diamond mode="PERS">
+                            <prop name="3te"/>
+                        </diamond>
+                        <diamond mode="PRO">
+                            <prop name="quantprokein"/>
+                        </diamond>
+                        <diamond mode="GEN">
+                            <prop name="mask"/>
+                        </diamond>
+                        <diamond mode="NUM">
+                            <prop name="sing"/>
+                        </diamond>
+                        <diamond mode="ATTRIB">
+                            <nom name="a1:bel-phys-körper"/>
+                            <prop name="Autor"/>
+                            <diamond mode="GEN">
+                                <prop name="mask"/>
+                            </diamond>
+                            <diamond mode="NUM">
+                                <prop name="plur"/>
+                            </diamond>
+                            <diamond mode="ART">
+                                <nom name="d1:sem-obj"/>
+                                <prop name="def"/>
+                            </diamond>
+                        </diamond>
+                    </diamond>
+                    <diamond mode="PATIENS">
+                        <nom name="c1:abstraktum"/>
+                        <prop name="Code-Beispiel"/>
+                        <diamond mode="NUM">
+                            <prop name="plur"/>
+                        </diamond>
+                        <diamond mode="ATTRIB">
+                            <nom name="p1:art"/>
+                            <prop name="Programmiersprache"/>
+                            <diamond mode="NUM">
+                                <prop name="sing"/>
+                            </diamond>
+                            <diamond mode="NOMERG">
+                                <nom name="a2:sorte"/>
+                                <prop name="Ada"/>
+                                <diamond mode="NUM">
+                                    <prop name="sing"/>
+                                </diamond>
+                            </diamond>
+                            <diamond mode="PRÄP">
+                                <nom name="i1:zusammenhang"/>
+                                <prop name="in"/>
+                            </diamond>
+                            <diamond mode="ART">
+                                <nom name="d2:sem-obj"/>
+                                <prop name="def"/>
+                            </diamond>
+                        </diamond>
+                    </diamond>
+                </satop>
+            </lf>
+            <!--<target>keiner der Autoren bietet Code-Beispiele in der Programmiersprache Ada</target>-->
+        </xml>
+    </item>
+</regression>

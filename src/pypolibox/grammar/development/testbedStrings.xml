@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+                                 ***  JPolibox Test-LFs  *** 
+    
+    Logische Formen, die die Ausgabe des JPolibox Satzplaners repräsentieren als Test-Eingabe
+    für die Realisierung mit openCCG.
+  
+  Autor: Martin Oltmann
+  Datum: 14.Mai, 2011
+  
+  Anmerkung:
+    Test 'item'-Elemente können auch LFs enthalten (s. 'testbed.xml' aus 'routes'-Grammatik).
+-->
+<regression>
+  <!-- 
+    GNC-Kongruenz funktioniert.
+  -->
+  <!-- Maskulinum, Singular, Nominativ -->
+  <item numOfParses="2" string="ein Kunde"/>
+  <!-- Femininum, Singular, Nominativ + Akkusativ -->
+  <item numOfParses="4" string="eine Kundin"/>
+  <!-- Femininum, Singular, Nominativ + Akkusativ -->
+  <item numOfParses="4" string="die Kundin"/>
+  <!-- Femininum, Plural, Nominativ + Akkusativ -->
+  <item numOfParses="4" string="die Kundinnen"/>
+  <!-- Femininum, Plural, Nominativ + Akkusativ -->
+  <item numOfParses="4" string="irgendwelche Kundinnen"/>
+  <!-- Femininum, Singular, Genetiv + Dativ-->
+  <item numOfParses="4" string="der Kundin"/>
+  <!-- Für Kunde als von der sem. Sorte 'bel-phys-körper' kein Parse. -->
+  <item numOfParses="0" string="eine Kunde umfasst das Thema"/>
+  <item numOfParses="0" string="das Kunde behandelt die Programmiersprache"/>
+  <item numOfParses="0" string="dem Kundin spielt eine Rolle"/>
+  <!-- 
+    Subkategorisierung von semantischen Rollen funktioniert.
+  -->
+  <item numOfParses="1" string="ein Kunde kauft ein Buch"/>
+  <!--  
+    'buch' ist nicht von der semantischen Sorte 'bel-phys-körper', die als Subjekt von   
+    trans. Verben subkategorisiert/gefordert wird.
+  -->
+  <item numOfParses="0" string="ein Buch kauft einen Kunden"/>
+  <!-- 
+    Subjekt-Verb Kongruenz funktioniert.
+  -->
+  <item numOfParses="1" string="ein Kunde kauft das Buch"/>
+  <item numOfParses="1" string="irgendwelche Kundinnen kaufen ein Buch"/>
+  <item numOfParses="0" string="der Kunde kaufen irgendwelche Bücher"/>
+  <item numOfParses="0" string="die Kunden kauft das Buch"/>
+  <!--  … auch ohne Artikel -->
+  <item numOfParses="1" string="Kunden kaufen das Buch"/>
+  <item numOfParses="1" string="Kunde kauft Buch"/>
+  <item numOfParses="0" string="Kunden kauft Bücher"/>
+  <!--  
+    Possessivpronomen als Artikelwort
+  -->
+  <item numOfParses="1" string="ein Kunde kauft sein Buch"/>
+  <item numOfParses="1" string="ein Kunde kauft seine Bücher"/>
+  <item numOfParses="0" string="ein Kunde kauft sein Bücher"/>
+  <item numOfParses="1" string="irgendwelche Kundinnen kaufen ihre Bücher"/>
+  <!--  
+    Possessivpronomen als Pronomen
+  -->
+  <item numOfParses="0" string="unser kauft ein Buch"/>
+  <item numOfParses="0" string="mein kauft deinen"/>
+  <item numOfParses="1" string="unsere kaufen ein Buch"/>
+  <item numOfParses="1" string="eure kaufen ein Buch"/>
+  <item numOfParses="1" string="ihres kauft seine Bücher"/>
+  <item numOfParses="1" string="meins kauft euer Buch"/>
+  <item numOfParses="1" string="ihre kauft seine Bücher"/>
+  <item numOfParses="1" string="ihre kauft seine"/>
+  <item numOfParses="0" string="ihre kauft seinem"/>
+  <item numOfParses="0" string="ihrem kauft seine Bücher"/>
+  <item numOfParses="0" string="unseren kaufen deine Bücher"/>
+  <!-- 
+    Personalpronomen (nur 3te Person - sing, - plur.): Anaphorischen Personalpronomen.
+  -->
+  <item numOfParses="1" string="sie beschreibt einen Informatiker"/>
+  <item numOfParses="3" string="sie beschreiben einen Informatiker"/>
+  <!-- 
+    Demonstrativpronomen als Anapher
+  -->
+  <item numOfParses="1" string="dieses beschreibt einen Informatiker"/>
+  <!-- 
+    Demonstrativ-Artikel
+  -->
+  <item numOfParses="1" string="dieses Buch beschreibt einen Informatiker"/>
+  <!-- 
+    Starke und schwache Flexion der Adjektive, regiert durch Artikel, bzw.
+    deren Vorhandensein.
+  -->
+  <item numOfParses="1" string="ein umfassender Autor behandelt den Informatiker"/>
+  <item numOfParses="1" string="der umfassende Autor behandelt den Informatiker"/>
+  <item numOfParses="0" string="ein umfassende Autor behandelt den Informatiker"/>
+  <item numOfParses="1" string="gründlichere deutsche Autorinnen behandeln das englische Beispiel"/>
+  <item numOfParses="0" string="gründlichere deutsche Autorinnen behandeln das englisches Beispiel"/>
+  <!-- 
+    Intransitive Partikelverben können nicht transitiv verwendet werden, und umgekehrt.
+    Für positive Beispiele: 'testbedHLDS.xml'
+  -->
+  <item numOfParses="0" string="der Autor setzt sein Buch aus"/>
+  <item numOfParses="0" string="der Autor stellt vor"/>
+</regression>

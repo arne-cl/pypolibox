@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="u1:konjunktion">
+      <prop name="und"/>
+      <diamond mode="NP1">
+        <nom name="a1:nachname"/>
+        <prop name="Allen"/>
+      </diamond>
+      <diamond mode="NP2">
+        <nom name="h1:nachname"/>
+        <prop name="Hitzenberger"/>
+      </diamond>
+    </satop>
+  </lf>
+  <target>Allen und Hitzenberger</target>
+</xml>

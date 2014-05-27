@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="p1:deklarativ">
+      <prop name="punkt"/>
+      <diamond mode="DEKL">
+        <nom name="s1:prädikation"/>
+        <prop name="sein-kop"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="SUBJ">
+          <nom name="x1:sem-obj"/>
+          <diamond mode="PERS">
+            <prop name="3te"/>
+          </diamond>
+          <diamond mode="PRO">
+            <prop name="perspro"/>
+          </diamond>
+          <diamond mode="GEN">
+            <prop name="neut"/>
+          </diamond>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+        </diamond>
+        <diamond mode="PRKOMPL">
+          <nom name="n1:eigenschaft"/>
+          <prop name="neuer"/>
+          <diamond mode="KOMP">
+            <prop name="komp"/>
+          </diamond>
+          <diamond mode="SUPPL">
+            <nom name="e1:art"/>
+            <prop name="Erscheinungsjahr"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="PRÄP">
+              <nom name="m1:zugehörigkeit"/>
+              <prop name="mit"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="p2:sem-obj"/>
+              <prop name="poss"/>
+              <diamond mode="PERS">
+                <prop name="3te"/>
+              </diamond>
+            </diamond>
+            <diamond mode="NOMERG">
+              <nom name="n2:sorte"/>
+              <prop name="1999"/>
+              <diamond mode="NUM">
+                <prop name="sing"/>
+              </diamond>
+            </diamond>
+          </diamond>
+          <diamond mode="KONN">
+            <nom name="z1:addition"/>
+            <prop name="zudem"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>es ist zudem mit seinem Erscheinungsjahr 1999 neuer .</target>-->
+</xml>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="u1:konjunktion">
+      <prop name="und"/>
+      <diamond mode="S1">
+        <nom name="k1:konjunktion"/>
+        <prop name="komma"/>
+        <diamond mode="S1">
+          <nom name="s1:prädikation"/>
+          <prop name="sein-kop"/>
+          <diamond mode="TEMP:tempus">
+            <prop name="präs"/>
+          </diamond>
+          <diamond mode="SUBJ">
+            <nom name="b1:artefaktum"/>
+            <prop name="Buch"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d1:sem-obj"/>
+              <prop name="def"/>
+            </diamond>
+          </diamond>
+          <diamond mode="PRKOMPL">
+            <nom name="c1:sorte"/>
+            <prop name="Computerlinguistik"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="PRÄP">
+              <nom name="ü1:thematisierung"/>
+              <prop name="über"/>
+            </diamond>
+          </diamond>
+        </diamond>
+        <diamond mode="VG">
+          <nom name="b2:handlung"/>
+          <prop name="beschreiben"/>
+          <diamond mode="TEMP:tempus">
+            <prop name="präs"/>
+          </diamond>
+          <diamond mode="PATIENS">
+            <nom name="t1:art"/>
+            <prop name="Thema"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d2:sem-obj"/>
+              <prop name="def"/>
+            </diamond>
+            <diamond mode="NOMERG">
+              <nom name="s2:sorte"/>
+              <prop name="Sprache"/>
+              <diamond mode="NUM">
+                <prop name="plur"/>
+              </diamond>
+              <diamond mode="MOD">
+                <nom name="f1:modus"/>
+                <prop name="formal"/>
+                <diamond mode="KOMP">
+                  <prop name="pos"/>
+                </diamond>
+              </diamond>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+      <diamond mode="VG">
+        <nom name="v1:infinitum"/>
+        <prop name="voraus-X-trans"/>
+        <diamond mode="AUX">
+          <nom name="v2:partverbstamm"/>
+          <prop name="voraus-setzen"/>
+          <diamond mode="TEMP:tempus">
+            <prop name="präs"/>
+          </diamond>
+          <diamond mode="PATIENS">
+            <nom name="k2:abstraktum"/>
+            <prop name="Kenntnis"/>
+            <diamond mode="NUM">
+              <prop name="plur"/>
+            </diamond>
+            <diamond mode="MOD">
+              <nom name="u2:modus"/>
+              <prop name="umfassend"/>
+              <diamond mode="KOMP">
+                <prop name="pos"/>
+              </diamond>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das Buch ist über Computerlinguistik , beschreibt das Thema formale Sprachen und setzt umfassende Kenntnisse voraus</target>-->
+</xml>

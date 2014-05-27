@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="d1:konjunktion">
+      <prop name="d-punkt"/>
+      <diamond mode="S1">
+        <nom name="s1:prädikation"/>
+        <prop name="sein-kop"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="SUBJ">
+          <nom name="b1:artefaktum"/>
+          <prop name="Buch"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d2:sem-obj"/>
+            <prop name="def"/>
+          </diamond>
+        </diamond>
+        <diamond mode="PRKOMPL">
+          <nom name="a1:adjunktion"/>
+          <prop name="adjunktor"/>
+          <diamond mode="MOD">
+            <nom name="l1:eigenschaft"/>
+            <prop name="länger"/>
+            <diamond mode="KOMP">
+              <prop name="komp"/>
+            </diamond>
+          </diamond>
+          <diamond mode="KOMPAR">
+            <nom name="b2:artefaktum"/>
+            <prop name="Buch"/>
+            <diamond mode="NUM">
+              <prop name="sing"/>
+            </diamond>
+            <diamond mode="MOD">
+              <nom name="e1:ordinal"/>
+              <prop name="erster"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d3:sem-obj"/>
+              <prop name="def"/>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+      <diamond mode="S2">
+        <nom name="u1:handlung"/>
+        <prop name="umfassen"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="AGENS">
+          <nom name="x1:sem-obj"/>
+          <diamond mode="PERS">
+            <prop name="3te"/>
+          </diamond>
+          <diamond mode="PRO">
+            <prop name="perspro"/>
+          </diamond>
+          <diamond mode="GEN">
+            <prop name="neut"/>
+          </diamond>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+        </diamond>
+        <diamond mode="PATIENS">
+          <nom name="s2:artefaktum"/>
+          <prop name="Seite"/>
+          <diamond mode="NUM">
+            <prop name="plur"/>
+          </diamond>
+          <diamond mode="MOD">
+            <nom name="n1:kardinal"/>
+            <prop name="680"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das Buch ist länger als das erste Buch : es umfasst 680 Seiten</target>-->
+</xml>

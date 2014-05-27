@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="s1:prädikation">
+      <prop name="sein-kop"/>
+      <diamond mode="TEMP:tempus">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="SUBJ">
+        <nom name="b1:artefaktum"/>
+        <prop name="Buch"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d1:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+      </diamond>
+      <diamond mode="PRKOMPL">
+        <nom name="u1:konjunktion"/>
+        <prop name="und"/>
+        <diamond mode="NP">
+          <nom name="s2:artefaktum"/>
+          <prop name="Seite"/>
+          <diamond mode="NUM">
+            <prop name="plur"/>
+          </diamond>
+          <diamond mode="MOD">
+            <nom name="n1:kardinal"/>
+            <prop name="680"/>
+          </diamond>
+          <diamond mode="MOD">
+            <nom name="l1:eigenschaft"/>
+            <prop name="lang"/>
+            <diamond mode="KOMP">
+              <prop name="pos"/>
+            </diamond>
+          </diamond>
+        </diamond>
+        <diamond mode="PRD">
+          <nom name="d2:eigenschaft"/>
+          <prop name="deutsch"/>
+          <diamond mode="KOMP">
+            <prop name="pos"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das Buch ist deutsch und 680 Seiten lang</target>-->
+</xml>

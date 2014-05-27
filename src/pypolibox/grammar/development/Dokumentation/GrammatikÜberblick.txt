@@ -1,0 +1,138 @@
+Sonntag, 17. Juli, 2011
+
+							***	Überblick deutsche OpenCCG Polibox Grammatik	***
+
+
+	*	VERBEN bestimmen SATZTYPEN
+
+			1)		Vtrans:
+						Transitive Vollverben (… ohne abtrennbare Präverben).
+						Auch zusammengesetzte Verbformen von transitiven
+						Vollverben mit abtrennbarem Präverb für V-L Sätze.
+
+			1.a)	Vintrans:
+						Intransitive Vollverben (… ohne abtrennbare Präverben).
+						Auch zusammengesetzte Verbformen von intransitiven
+						Vollverben mit abtrennbarem Präverb für V-L Sätze.
+
+			2)		Vinfinit:
+						Verbalkomplexe (Perfektkonstruktionen, Vollverben mit abtrennbaren Präverben)
+						bestehend aus:
+							=>	transitiven oder intransitiven Vollverben im Präsens,
+							=>	transitiven oder intransitiven Verben im Perfekt.
+
+						Strukturkriterium für diese lex.Kategorie ist, dass es einen
+						infiniten Verbteil (in der reSKl) gibt: Partizip Perfekt oder Präverb.
+
+			3)		Vkopula:
+						Kopulaverben (hier nur: "sein").
+						Einem Subjekt wird in einem Prädikativsatz eine Eigenschaft zugesprochen.
+						Auch Vergleiche mit Vergleichsgegenständen.
+
+			Diese drei satzbildenden Haupttypen enthalten jeweils weitere Untertypen, die jeweils:
+				a)	Art der Komplemente (e.c. PP oder NP, NP als Reflexivpronomen bei best. Verben, etc.),
+				b)	An- bzw. Abwesenheit von Supplementen oder Adjunkten,
+				c)	An- bzw. Abwesenheit von Negation,
+				d)	An- bzw. Abwesenheit von adverbialer Modifikation/Adverbkonnektor,
+			und
+				e)	Abfolge von Komplementen, Supplementen, Negation, Adverbkonnektor und
+					adverbialer Modifikatoren
+			repräsentieren.
+
+			Unterypen, die dies erlauben, gibt es weithin jeweils in drei Varianten:
+				1)	V-1 Satz,
+				2)	V-2 Satz.
+				3)	V-L Satz.
+
+			Da die Anzahl aller Kombinationen aus:
+					- 	adverbiale MODIFIKATION <=> keine adverbiale Modifikation,
+					-	Beschaffenheit des SUBKATEGORISIERUNGSRAHMENS bestimmter Verben,
+					-	NEGATION <=> keine Negation,
+					-	SUPPLEMENT/ADJUNKT(e) <=> kein(e) Supplement/Adjunkt(e)
+					-	alle grammatischen ABFOLGEN der jeweils realisierten Satzglieder
+			den Rahmen dieser Grammatik vollkommen sprengen würden, hält sie sich mit ihrer Teilmenge
+			der Menge aller denkbaren und grammatischen Kombinationen von Satzgliedern oder Modifikation
+			an einen zuvor erdachten Korpus.
+
+	*	Nomen
+			-	Substantive
+				->	Personennamen
+				->	Buchtitel
+				->	Ergänzungsnomen
+				->	Numerale (Ziffern als Jahreszahlen)
+			-	Artikel
+				->	definit
+				->	indefinit
+				->	quantifikativ
+				->	demonstrativ
+				->	possessiv
+				->	"analeptisch" (i.e.	Artikel mit GNC-Merkmalen, die in Analepsen
+										stellvertretend Substantive repräsentieren.)
+
+			-	Pronomen
+				->	personal
+				->	possessiv
+				->	quantifikativ
+				->	indefinit
+				->	reflexiv
+				->	reziprokativ
+
+
+	*	Modifikatoren
+
+			nominale:
+				-	Adjektive
+					->	Numerale (kardinale, ordinale, Ziffern)
+
+				-	Präpositionen
+				-	Attribute
+					->	Adjektivattribute
+					->	Genetivattribute (X·Y)
+					->	Assoziationskonstruktionen (Person·Ding)
+					->	Präpositionalattribute
+					->	Adjunkte
+
+			verbale:
+				-	Adverben
+
+			nominale oder verbale:
+				-	Partikeln
+					->	Intensitätspartikel
+					->	Negationspartikel
+					->	Redewendung („ein wenig“)
+					[->	Fokuspartikel]
+					[->	Abtönungspartikel]
+
+
+	*	Konnexion
+
+		-	Konjunktion/Koordination
+				->	Sätzen
+				->	Propositionen (i.e. satzeinleitender Adverbkonnektor: Koordination über Satzgrenzen hinweg.)
+				->	NPs
+				->	Ergänzungssubstantiven
+				->	Komparativstrukuren
+				->	Prädikativkomplementen
+				->	Verbgruppen
+
+		-	Subjunktion/Satzgefüge
+				->	V-L + V-1 Satz
+				->	V-2 + V-L Satz
+
+		-	(Adverb-)Konnektoren
+				->	Adverbkonnektoren („aber“, „auch“, etc.)
+				->	zusammengesetzte („aber dafür“, „aber nicht“, „aber auch ein wenig“, etc.)
+				->	komplexe („sowohl X als auch Y“)
+
+	*	Negation
+			->	Negationspartikel
+			->	Quantifikativartikel
+			->	Quantifikativpronomen
+			->	Indefinitpronomen
+
+	*	Satzzeichen
+			->	Deutsche Anführungszeichen bei Buchtiteln: „“.
+			->	Komma bei Koordination/Aufzählung, Satzgefüge.
+			->	Doppelpunkt bei Satzkoordination.
+			->	Punkt nach Deklarativsatz.
+

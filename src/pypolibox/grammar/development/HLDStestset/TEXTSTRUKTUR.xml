@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="p1:deklarativ">
+      <prop name="punkt"/>
+      <diamond mode="TEXT">
+        <nom name="p2:deklarativ"/>
+        <prop name="punkt"/>
+        <diamond mode="DEKL">
+          <nom name="e1:inchoativ"/>
+          <prop name="erscheinen"/>
+          <diamond mode="AUX">
+            <nom name="s1:sein"/>
+            <prop name="sein"/>
+            <diamond mode="TEMP:tempus">
+              <prop name="imperf"/>
+            </diamond>
+            <diamond mode="ADV">
+              <nom name="n1:modus"/>
+              <prop name="1999"/>
+            </diamond>
+            <diamond mode="AGENS">
+              <nom name="b1:artefaktum"/>
+              <prop name="Buch"/>
+              <diamond mode="NUM">
+                <prop name="sing"/>
+              </diamond>
+              <diamond mode="ART">
+                <nom name="d1:sem-obj"/>
+                <prop name="def"/>
+              </diamond>
+            </diamond>
+          </diamond>
+        </diamond>
+        <diamond mode="EINBETTUNG">
+          <nom name="p3:deklarativ"/>
+          <prop name="punkt"/>
+          <diamond mode="DEKL">
+            <nom name="u1:konjunktion"/>
+            <prop name="und"/>
+            <diamond mode="S1">
+              <nom name="s2:prädikation"/>
+              <prop name="sein-kop"/>
+              <diamond mode="TEMP:tempus">
+                <prop name="präs"/>
+              </diamond>
+              <diamond mode="SUBJ">
+                <nom name="x1:sem-obj"/>
+                <diamond mode="PERS">
+                  <prop name="3te"/>
+                </diamond>
+                <diamond mode="PRO">
+                  <prop name="perspro"/>
+                </diamond>
+                <diamond mode="GEN">
+                  <prop name="neut"/>
+                </diamond>
+                <diamond mode="NUM">
+                  <prop name="sing"/>
+                </diamond>
+              </diamond>
+              <diamond mode="PRKOMPL">
+                <nom name="d2:abstraktum"/>
+                <prop name="Deutsch"/>
+                <diamond mode="NUM">
+                  <prop name="sing"/>
+                </diamond>
+                <diamond mode="PRÄP">
+                  <nom name="a1:zusammenhang"/>
+                  <prop name="auf"/>
+                </diamond>
+              </diamond>
+            </diamond>
+            <diamond mode="VG">
+              <nom name="b2:handlung"/>
+              <prop name="behandeln"/>
+              <diamond mode="TEMP:tempus">
+                <prop name="präs"/>
+              </diamond>
+              <diamond mode="PATIENS">
+                <nom name="k1:konjunktion"/>
+                <prop name="komma"/>
+                <diamond mode="NP1">
+                  <nom name="s3:sorte"/>
+                  <prop name="Semantik"/>
+                  <diamond mode="NUM">
+                    <prop name="sing"/>
+                  </diamond>
+                </diamond>
+                <diamond mode="NP2">
+                  <nom name="u2:konjunktion"/>
+                  <prop name="und"/>
+                  <diamond mode="NP1">
+                    <nom name="p4:sorte"/>
+                    <prop name="Pragmatik"/>
+                    <diamond mode="NUM">
+                      <prop name="sing"/>
+                    </diamond>
+                  </diamond>
+                  <diamond mode="KONN">
+                    <nom name="a2:addition"/>
+                    <prop name="auch"/>
+                    <diamond mode="SPEZ">
+                      <nom name="w1:abschwächung"/>
+                      <prop name="wenig"/>
+                      <diamond mode="ART">
+                        <nom name="i1:sem-obj"/>
+                        <prop name="indef"/>
+                      </diamond>
+                    </diamond>
+                    <diamond mode="NP2">
+                      <nom name="s4:sorte"/>
+                      <prop name="Syntax"/>
+                      <diamond mode="NUM">
+                        <prop name="sing"/>
+                      </diamond>
+                    </diamond>
+                  </diamond>
+                </diamond>
+              </diamond>
+            </diamond>
+          </diamond>
+          <diamond mode="SATZ1">
+            <nom name="u3:handlung"/>
+            <prop name="umfassen"/>
+            <diamond mode="TEMP:tempus">
+              <prop name="präs"/>
+            </diamond>
+            <diamond mode="AGENS">
+              <nom name="b3:artefaktum"/>
+              <prop name="Buch"/>
+              <diamond mode="NUM">
+                <prop name="sing"/>
+              </diamond>
+              <diamond mode="ART">
+                <nom name="d3:sem-obj"/>
+                <prop name="def"/>
+              </diamond>
+              <diamond mode="ATTRIB">
+                <nom name="a3:bel-phys-körper"/>
+                <prop name="Autor"/>
+                <diamond mode="GEN">
+                  <prop name="mask"/>
+                </diamond>
+                <diamond mode="NUM">
+                  <prop name="sing"/>
+                </diamond>
+                <diamond mode="ART">
+                  <nom name="d4:sem-obj"/>
+                  <prop name="def"/>
+                </diamond>
+              </diamond>
+            </diamond>
+            <diamond mode="PATIENS">
+              <nom name="s5:artefaktum"/>
+              <prop name="Seite"/>
+              <diamond mode="NUM">
+                <prop name="plur"/>
+              </diamond>
+              <diamond mode="MOD">
+                <nom name="n2:kardinal"/>
+                <prop name="510"/>
+              </diamond>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>das Buch des Autors umfasst 510 Seiten . es ist auf Deutsch und behandelt Semantik , Pragmatik und auch ein wenig Syntax . das Buch ist 1999 erschienen .</target>-->
+</xml>

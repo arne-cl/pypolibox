@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="u1:konjunktion">
+      <prop name="und"/>
+      <diamond mode="NP1">
+        <nom name="b1:artefaktum"/>
+        <prop name="Buch"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d1:sem-obj"/>
+          <prop name="def"/>
+        </diamond>
+        <diamond mode="ATTRIB">
+          <nom name="a1:nachname"/>
+          <prop name="Allen"/>
+          <diamond mode="PRÄP">
+            <nom name="v1:zugehörigkeit"/>
+            <prop name="von"/>
+          </diamond>
+        </diamond>
+      </diamond>
+      <diamond mode="NP2">
+        <nom name="h1:nachname"/>
+        <prop name="Hitzenberger"/>
+      </diamond>
+    </satop>
+  </lf>
+  <target>das Buch von Allen und Hitzenberger</target>
+</xml>

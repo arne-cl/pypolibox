@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="b1:durativ">
+      <prop name="behandeln"/>
+      <diamond mode="TEMP">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="AGENS">
+        <nom name="a1:bel-phys-körper"/>
+        <prop name="Autor"/>
+        <diamond mode="GEN">
+          <prop name="mask"/>
+        </diamond>
+        <diamond mode="NUM">
+          <prop name="plur"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="q1:sem-obj"/>
+          <prop name="quantbeide"/>
+        </diamond>
+      </diamond>
+      <diamond mode="PATIENS">
+        <nom name="t1:abstraktum"/>
+        <prop name="Thema"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="q2:sem-obj"/>
+          <prop name="quantkein"/>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>beide Autoren behandeln kein Thema</target>-->
+</xml>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="b1:artefaktum">
+      <prop name="Buch"/>
+      <diamond mode="NUM">
+        <prop name="sing"/>
+      </diamond>
+      <diamond mode="ASS">
+        <nom name="h1:nachname"/>
+        <prop name="Hopcroft"/>
+        <diamond mode="N1">
+          <nom name="e1:vorname"/>
+          <prop name="E."/>
+          <diamond mode="N1">
+            <nom name="j1:vorname"/>
+            <prop name="John"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>John E. Hopcrofts Buch</target>-->
+</xml>

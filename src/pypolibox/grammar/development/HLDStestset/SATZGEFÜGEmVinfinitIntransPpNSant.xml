@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="p1:deklarativ">
+      <prop name="punkt"/>
+      <diamond mode="DEKL">
+        <nom name="k1:subjunktion"/>
+        <prop name="komma"/>
+        <diamond mode="HS">
+          <nom name="e1:inchoativ"/>
+          <prop name="erscheinen"/>
+          <diamond mode="AUX">
+            <nom name="s1:sein"/>
+            <prop name="sein"/>
+            <diamond mode="TEMP:tempus">
+              <prop name="imperf"/>
+            </diamond>
+            <diamond mode="AGENS">
+              <nom name="x1:sem-obj"/>
+              <diamond mode="PERS">
+                <prop name="3te"/>
+              </diamond>
+              <diamond mode="PRO">
+                <prop name="perspro"/>
+              </diamond>
+              <diamond mode="GEN">
+                <prop name="neut"/>
+              </diamond>
+              <diamond mode="NUM">
+                <prop name="sing"/>
+              </diamond>
+            </diamond>
+            <diamond mode="SUPPL">
+              <nom name="a1:bel-phys-körper"/>
+              <prop name="Autor"/>
+              <diamond mode="GEN">
+                <prop name="mask"/>
+              </diamond>
+              <diamond mode="NUM">
+                <prop name="sing"/>
+              </diamond>
+              <diamond mode="PRÄP">
+                <nom name="b1:ort"/>
+                <prop name="bei"/>
+              </diamond>
+              <diamond mode="ART">
+                <nom name="d1:sem-obj"/>
+                <prop name="def"/>
+              </diamond>
+            </diamond>
+          </diamond>
+        </diamond>
+        <diamond mode="NSAnt">
+          <nom name="o1:konzessiv"/>
+          <prop name="obwohl"/>
+          <diamond mode="VL">
+            <nom name="e2:inchoativ"/>
+            <prop name="erscheinen"/>
+            <diamond mode="AUX">
+              <nom name="s2:sein"/>
+              <prop name="sein"/>
+              <diamond mode="TEMP:tempus">
+                <prop name="imperf"/>
+              </diamond>
+              <diamond mode="AGENS">
+                <nom name="x2:sem-obj"/>
+                <diamond mode="PERS">
+                  <prop name="3te"/>
+                </diamond>
+                <diamond mode="PRO">
+                  <prop name="perspro"/>
+                </diamond>
+                <diamond mode="GEN">
+                  <prop name="neut"/>
+                </diamond>
+                <diamond mode="NUM">
+                  <prop name="sing"/>
+                </diamond>
+              </diamond>
+              <diamond mode="SUPPL">
+                <nom name="d2:abstraktum"/>
+                <prop name="Deutsch"/>
+                <diamond mode="NUM">
+                  <prop name="sing"/>
+                </diamond>
+                <diamond mode="PRÄP">
+                  <nom name="i1:zusammenhang"/>
+                  <prop name="in"/>
+                </diamond>
+              </diamond>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>obwohl es in Deutsch erschienen ist , ist es bei dem Autoren erschienen .</target>-->
+</xml>

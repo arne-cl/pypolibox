@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="v1">
+      <!--<prop name="vor-X"/>-->
+      <prop name="vorstellen"/>
+      <diamond mode="AUX">
+        <nom name="v2"/>
+        <!--<prop name="vor-stellen"/>-->
+        <prop name="haben"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="imperf"/>
+          <!--<prop name="präs"/>-->
+        </diamond>
+        <diamond mode="AGENS">
+          <nom name="a1:bel-phys-körper"/>
+          <prop name="Autor"/>
+          <diamond mode="GEN">
+            <prop name="fem"/>
+          </diamond>
+          <diamond mode="NUM">
+            <prop name="plur"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d1:sem-obj"/>
+            <prop name="def"/>
+          </diamond>
+        </diamond>
+        <diamond mode="PATIENS">
+          <nom name="b1:artefaktum"/>
+          <prop name="Buch"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="MOD">
+            <nom name="mod"/>
+            <prop name="deutsch"/>
+            <diamond mode="KOMP">
+              <prop name="pos"/>
+            </diamond>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="p1:sem-obj"/>
+            <prop name="def"/>
+<!--
+            <diamond mode="PERS">
+              <prop name="6te"/>
+            </diamond>
+-->
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>die Autorinnen stellen seine Bücher vor</target>-->
+</xml>

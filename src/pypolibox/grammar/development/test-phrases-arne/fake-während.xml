@@ -1,0 +1,150 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xml>
+  <lf>
+    <satop nom="p1:deklarativ">
+      <prop name="punkt"/>
+      <diamond mode="DEKL">
+        <nom name="k1:subjunktion"/>
+        <prop name="komma"/>
+        <diamond mode="HS">
+          <nom name="b1:handlung"/>
+          <prop name="behandeln"/>
+          <diamond mode="TEMP:tempus">
+            <prop name="präs"/>
+          </diamond>
+          <diamond mode="AGENS">
+            <nom name="f1:buchtitel"/>
+            <prop name="Formale_Semantik_und_natürliche_Sprache"/>
+            <diamond mode="99">
+              <nom name="a3:anführungöffnen"/>
+              <prop name="anföffn"/>
+            </diamond>
+            <diamond mode="66">
+              <nom name="a4:anführungschließen"/>
+              <prop name="anfschl"/>
+            </diamond>
+            <diamond mode="ATTRIB">
+              <nom name="l1:nachname"/>
+              <prop name="Lohnstein"/>
+              <diamond mode="PRÄP">
+                <nom name="v1:zugehörigkeit"/>
+                <prop name="von"/>
+              </diamond>
+            </diamond>
+          </diamond>
+          <diamond mode="PATIENS">
+            <nom name="t2:art"/>
+            <prop name="Thema"/>
+            <diamond mode="NUM">
+              <prop name="plur"/>
+            </diamond>
+            <diamond mode="ART">
+              <nom name="d3:sem-obj"/>
+              <prop name="def"/>
+            </diamond>
+            <diamond mode="NOMERG">
+              <nom name="u2:konjunktion"/>
+              <prop name="und"/>
+              <diamond mode="N1">
+                <nom name="k3:konjunktion"/>
+                <prop name="komma"/>
+                <diamond mode="N1">
+                  <nom name="f2:sorte"/>
+                  <prop name="formal_languages"/>
+                  <diamond mode="NUM">
+                    <prop name="sing"/>
+                  </diamond>
+                </diamond>
+                <diamond mode="N2">
+                  <nom name="l2:sorte"/>
+                  <prop name="lexicon"/>
+                  <diamond mode="NUM">
+                    <prop name="sing"/>
+                  </diamond>
+                </diamond>
+              </diamond>
+              <diamond mode="N2">
+                <nom name="m1:sorte"/>
+                <prop name="mathematical_methods"/>
+                <diamond mode="NUM">
+                  <prop name="sing"/>
+                </diamond>
+              </diamond>
+            </diamond>
+          </diamond>
+        </diamond>
+        <diamond mode="NS">
+          <nom name="w1:adversativ"/>
+          <prop name="wohingegen"/>
+          <diamond mode="VL">
+            <nom name="a1:infinitum"/>
+            <prop name="auf-X-trans"/>
+            <diamond mode="AUX">
+              <nom name="a2:partverbstamm"/>
+              <prop name="auf-greifen"/>
+              <diamond mode="TEMP:tempus">
+                <prop name="präs"/>
+              </diamond>
+              <diamond mode="AGENS">
+                <nom name="x1:sem-obj"/>
+                <diamond mode="PERS">
+                  <prop name="3te"/>
+                </diamond>
+                <diamond mode="PRO">
+                  <prop name="perspro"/>
+                </diamond>
+                <diamond mode="GEN">
+                  <prop name="neut"/>
+                </diamond>
+                <diamond mode="NUM">
+                  <prop name="sing"/>
+                </diamond>
+              </diamond>
+              <diamond mode="PATIENS">
+                <nom name="t1:art"/>
+                <prop name="Thema"/>
+                <diamond mode="NUM">
+                  <prop name="plur"/>
+                </diamond>
+                <diamond mode="ART">
+                  <nom name="d1:sem-obj"/>
+                  <prop name="def"/>
+                </diamond>
+                <diamond mode="NOMERG">
+                  <nom name="u1:konjunktion"/>
+                  <prop name="und"/>
+                  <diamond mode="N1">
+                    <nom name="k2:konjunktion"/>
+                    <prop name="komma"/>
+                    <diamond mode="N1">
+                      <nom name="d2:sorte"/>
+                      <prop name="discourse"/>
+                      <diamond mode="NUM">
+                        <prop name="sing"/>
+                      </diamond>
+                    </diamond>
+                    <diamond mode="N2">
+                      <nom name="g1:sorte"/>
+                      <prop name="generation"/>
+                      <diamond mode="NUM">
+                        <prop name="sing"/>
+                      </diamond>
+                    </diamond>
+                  </diamond>
+                  <diamond mode="N2">
+                    <nom name="p2:sorte"/>
+                    <prop name="parsing"/>
+                    <diamond mode="NUM">
+                      <prop name="sing"/>
+                    </diamond>
+                  </diamond>
+                </diamond>
+              </diamond>
+            </diamond>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+</xml>
+

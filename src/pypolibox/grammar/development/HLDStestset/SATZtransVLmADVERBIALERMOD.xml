@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="w1:adversativ">
+      <prop name="wohingegen"/>
+      <diamond mode="VL">
+        <nom name="s1:durativ"/>
+        <prop name="spielen"/>
+        <diamond mode="TEMP:tempus">
+          <prop name="präs"/>
+        </diamond>
+        <diamond mode="ADV">
+          <nom name="d1:lokalität"/>
+          <prop name="dort"/>
+        </diamond>
+        <diamond mode="AGENS">
+          <nom name="s2:sorte"/>
+          <prop name="Syntax"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+        </diamond>
+        <diamond mode="PATIENS">
+          <nom name="r1:abstraktum"/>
+          <prop name="Rolle"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="q1:sem-obj"/>
+            <prop name="quantkein"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>wohingegen Syntax dort keine Rolle spielt</target>-->
+</xml>

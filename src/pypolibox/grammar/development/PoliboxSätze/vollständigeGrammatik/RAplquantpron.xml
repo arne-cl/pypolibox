@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="x1:sem-obj">
+      <diamond mode="PRO">
+        <prop name="quantprobeide"/>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>beide</target>-->
+</xml>

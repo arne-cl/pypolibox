@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="s1:prädikation">
+      <prop name="sein-kop"/>
+      <diamond mode="TEMP:tempus">
+        <prop name="präs"/>
+      </diamond>
+      <diamond mode="SUBJ">
+        <nom name="b1:artefaktum"/>
+        <prop name="Buch"/>
+        <diamond mode="NUM">
+          <prop name="sing"/>
+        </diamond>
+        <diamond mode="ART">
+          <nom name="d1:sem-obj"/>
+          <prop name="dem"/>
+        </diamond>
+      </diamond>
+      <diamond mode="PRKOMPL">
+        <nom name="a1:adjunktion"/>
+        <prop name="adjunktor"/>
+        <diamond mode="AntSUPPL">
+          <nom name="s2:artefaktum"/>
+          <prop name="Seite"/>
+          <diamond mode="NUM">
+            <prop name="plur"/>
+          </diamond>
+          <diamond mode="PRÄP">
+            <nom name="m1:zugehörigkeit"/>
+            <prop name="mit"/>
+          </diamond>
+          <diamond mode="MOD">
+            <nom name="n1:kardinal"/>
+            <prop name="193"/>
+          </diamond>
+        </diamond>
+        <diamond mode="MOD">
+          <nom name="u1:eigenschaft"/>
+          <prop name="umfangreich"/>
+          <diamond mode="KOMP">
+            <prop name="komp"/>
+          </diamond>
+        </diamond>
+        <diamond mode="KOMPAR">
+          <nom name="b2:artefaktum"/>
+          <prop name="Buch"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+          <diamond mode="ART">
+            <nom name="d2:sem-obj"/>
+            <prop name="def"/>
+          </diamond>
+          <diamond mode="MOD">
+            <nom name="e1:ordinal"/>
+            <prop name="erster"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>mit 193 Seiten ist dieses Buch umfangreicher als das erste Buch</target>-->
+</xml>

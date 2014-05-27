@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <lf>
+    <satop nom="u1:konjunktion">
+      <prop name="und"/>
+      <diamond mode="NP1">
+        <nom name="x1:sem-obj"/>
+      </diamond>
+      <diamond mode="KONN">
+        <nom name="a1:addition"/>
+        <prop name="auch"/>
+        <diamond mode="NP2">
+          <nom name="s1:sorte"/>
+          <prop name="Syntax"/>
+          <diamond mode="NUM">
+            <prop name="sing"/>
+          </diamond>
+        </diamond>
+      </diamond>
+    </satop>
+  </lf>
+  <!--<target>und auch Syntax</target>-->
+</xml>
