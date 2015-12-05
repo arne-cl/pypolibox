@@ -10,9 +10,9 @@ NEWS = open(os.path.join(here, 'NEWS.rst')).read()
 version = '1.0.2'
 
 if platform.system() == 'Windows':
-    install_requires = ["lxml", "nltk", "winpexpect"]
+    install_requires = ["lxml", "nltk", "winpexpect", "pyaml"]
 else:
-    install_requires = ["lxml", "nltk", "pexpect", "sphinxcontrib-napoleon"]
+    install_requires = ["lxml", "nltk", "pexpect", "pyaml", "sphinxcontrib-napoleon"]
 
 
 setup(name='pypolibox',
