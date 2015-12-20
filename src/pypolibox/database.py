@@ -415,7 +415,11 @@ class Books:
             for (score, index) in book_ranks:
                 sorted_books.append( (self.books[index], score) )
             #magic unzip / reverse zip function
-            self.books, self.scores = zip(*sorted_books)
+            if len(sorted_books) == 0:
+                self.books = []
+                self.scores = []
+            else:
+                self.books, self.scores = zip(*sorted_books)
 
     def get_book_ranks(self, possible_matches):
         """
