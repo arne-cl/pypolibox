@@ -225,10 +225,10 @@ Licence
 The code is licensed under GPL Version 3. The grammar fragment is licensed
 under `Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License <http://creativecommons.org/licenses/by-nc-sa/4.0/>`_.
 
-Author
-------
+Contributors
+------------
 
-Arne Neumann
+Arne Neumann (original author), Pablo Duboue
 
 
 Acknowledgements
