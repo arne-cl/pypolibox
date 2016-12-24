@@ -20,8 +20,6 @@ from textplan import (TextPlan, TextPlans, generate_textplan,
 from hlds import etreeprint
 from messages import Message, Messages, AllMessages
 from rules import ConstituentSet, Rule, Rules
-from lexicalization import phrase2sentence
-from lexicalize_messageblocks import lexicalize_message_block
 
 
 def test():
@@ -47,7 +45,7 @@ def initialize_openccg():
     return OpenCCG()
 
 
-def check_and_realize_textplan(openccg, textplan):
+def check_and_realize_textplan(openccg, textplan, lexicalize_messagle_block, phrase2sentence):
     """
     realizes a text plan and warns about message blocks that cannot be
     realized due to current restrictions in the OpenCC grammar.
@@ -91,14 +89,30 @@ def main():
         sys.stderr.write("Output format must be one of: {}\n".format(valid_output_formats))
         sys.exit(1)
 
+    try:
+        lexicalize_messageblocks =
+          __import__("lexicalize_messageblocks_%s" % query.args.output_language, globals(), locals(), [], -1))
+    except ImportError:
+        raise
+
+    try:
+        lexicalization =
+          __import__("lexicalization_%s" % query.args.output_language, globals(), locals(), [], -1))
+    except ImportError:
+        raise
+
+    lexicalize_message_block = lexicalize_messageblocks.lexicalize_message_block
+    phrase2sentence = lexicalization.phrase2sentence
+
+
     textplans = generate_textplans(query)
 
     if output_format == 'openccg':
-        openccg = initialize_openccg()
+        openccg = initialize_openccg(lang=query.args.output_language)
         print "{} text plans will be generated.".format(len(textplans.document_plans))
         for i, textplan in enumerate(textplans.document_plans):
             print "Generating text plan #%i:\n" % i
-            check_and_realize_textplan(openccg, textplan)
+            check_and_realize_textplan(openccg, textplan, lexicalize_message_block, phrase2sentence)
     elif output_format == 'hlds':
         from copy import deepcopy
         from hlds import (Diamond, Sentence, diamond2sentence,

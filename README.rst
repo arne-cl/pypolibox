@@ -106,6 +106,10 @@ You can choose between several output formats using the ``-o`` or
 * ``textplan-featstruct`` generates a feature structure representation (``nltk.featstruct``)
 * ``hlds`` generates an HLDS XML representations of all the sentences.
 
+In future versions, you will be able to choose between several output
+natural languages the ``-d`` or ``--output-language`` argument
+(currently only German is supported).
+
 The following example query will generate HLDS XML snippets describing books
 about Prolog written in German::
 
