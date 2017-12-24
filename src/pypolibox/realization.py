@@ -31,7 +31,7 @@ class OpenCCG(object):
     can either be run as a JSON-RPC server or simply imported as a Python
     module.
     """
-    def __init__(self, grammar_dir=GRAMMAR_DIR):
+    def __init__(self, grammar_dir=GRAMMAR_DIR, lang='de'):
         """
         spawns the OpenCCG/tccg server as a process
 
@@ -40,7 +40,7 @@ class OpenCCG(object):
         grammar_dir : path to the directory that contains the grammar
         """
         current_dir = os.getcwd()
-        grammar_path = GRAMMAR_DIR
+        grammar_path = os.path.join(GRAMMAR_DIR, lang)
         tccg_binary = "tccg"
 
         os.chdir(grammar_path)

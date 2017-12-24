@@ -95,6 +95,10 @@ class Query:
             default='openccg',
             help=("output format: openccg, hlds, textplan-xml, textplan-featstruct. "
                 "default: openccg"))
+        parser.add_argument("-d", "--output-language",
+            default='de',
+            help=("output natural language: currently only 'de' for German is supported. "
+                "default: de"))
 
         args = parser.parse_args(argv)
 
