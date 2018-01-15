@@ -90,14 +90,14 @@ def main():
         sys.exit(1)
 
     try:
-        lexicalize_messageblocks =
-          __import__("lexicalize_messageblocks_%s" % query.args.output_language, globals(), locals(), [], -1))
+        lexicalize_messageblocks = \
+            __import__("lexicalize_messageblocks_%s" % query.args.output_language, globals(), locals(), [], -1))
     except ImportError:
         raise
 
     try:
-        lexicalization =
-          __import__("lexicalization_%s" % query.args.output_language, globals(), locals(), [], -1))
+        lexicalization = \
+            __import__("lexicalization_%s" % query.args.output_language, globals(), locals(), [], -1))
     except ImportError:
         raise
 
