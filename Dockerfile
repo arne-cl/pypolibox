@@ -9,7 +9,7 @@ WORKDIR /opt
 # install OpenCCG for surface realization, then install pypolibox
 RUN wget https://downloads.sourceforge.net/project/openccg/openccg/openccg%20v0.9.5%20-%20deplen%2C%20kenlm%2C%20disjunctivizer/openccg-0.9.5.tgz && \
     tar -xvzf openccg-0.9.5.tgz && \
-    git clone https://github.com/arne-cl/pypolibox.git
+    git clone https://github.com/arne-cl/pypolibox
 
 WORKDIR /opt/pypolibox
 RUN python setup.py install

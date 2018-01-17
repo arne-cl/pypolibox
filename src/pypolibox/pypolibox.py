@@ -91,13 +91,13 @@ def main():
 
     try:
         lexicalize_messageblocks = \
-            __import__("lexicalize_messageblocks_%s" % query.args.output_language, globals(), locals(), [], -1))
+            __import__("lexicalize_messageblocks_%s" % query.args.output_language, globals(), locals(), [], -1)
     except ImportError:
         raise
 
     try:
         lexicalization = \
-            __import__("lexicalization_%s" % query.args.output_language, globals(), locals(), [], -1))
+            __import__("lexicalization_%s" % query.args.output_language, globals(), locals(), [], -1)
     except ImportError:
         raise
 
