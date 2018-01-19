@@ -91,13 +91,13 @@ def main():
 
     try:
         lexicalize_messageblocks = \
-            __import__("lexicalize_messageblocks_%s" % query.args.output_language, globals(), locals(), [], -1)
+            __import__("lexicalize_messageblocks_%s" % query.query_args.output_language, globals(), locals(), [], -1)
     except ImportError:
         raise
 
     try:
         lexicalization = \
-            __import__("lexicalization_%s" % query.args.output_language, globals(), locals(), [], -1)
+            __import__("lexicalization_%s" % query.query_args.output_language, globals(), locals(), [], -1)
     except ImportError:
         raise
 
@@ -108,7 +108,7 @@ def main():
     textplans = generate_textplans(query)
 
     if output_format == 'openccg':
-        openccg = initialize_openccg(lang=query.args.output_language)
+        openccg = initialize_openccg(lang=query.query_args.output_language)
         print "{} text plans will be generated.".format(len(textplans.document_plans))
         for i, textplan in enumerate(textplans.document_plans):
             print "Generating text plan #%i:\n" % i
