@@ -19,17 +19,6 @@ from lexicalization import (gen_art, gen_num,
     lexicalize_target, lexicalize_title, lexicalize_title_description,
     lexicalize_year)
 
-#from debug import gen_all_messages_of_type, printeach #TODO: dbg, rm
-
-#~ def enumrealize(diamond_list):
-    #~ """debugging function that realizes a list of diamonds, one at a time"""
-    #~ for diamond in diamond_list:
-        #~ printeach(openccg.realize(diamond))
-
-#~ def test(msg_type="id", block_number=0):
-    #~ msg_blocks = gen_all_messages_of_type(msg_type)
-    #~ lexicalized_msgs = lexicalize_message_block(msg_blocks[block_number])
-    #~ return [phrase2sentence(msg) for msg in lexicalized_msgs]
 
 def lexicalize_message_block(messageblock):
     msg_type = messageblock[Feature("msgType")]
