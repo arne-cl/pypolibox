@@ -37,12 +37,12 @@ def generate_textplans(query):
     return TextPlans(AllMessages(AllPropositions(AllFacts(books))))
 
 
-def initialize_openccg():
+def initialize_openccg(lang='de'):
     """
     starts OpenCCG's tccg realizer as a server in the background (ca. 20s).
     """
     from realization import OpenCCG
-    return OpenCCG()
+    return OpenCCG(lang=lang)
 
 
 def check_and_realize_textplan(openccg, textplan, lexicalize_messagle_block, phrase2sentence):
