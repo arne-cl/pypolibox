@@ -12,7 +12,7 @@ from copy import deepcopy
 from nltk.featstruct import Feature
 
 from hlds import Diamond, create_diamond
-from lexicalization import (gen_art, gen_num,
+from lexicalization_de import (gen_art, gen_num,
     lexicalize_authors, lexicalize_codeexamples, lexicalize_exercises,
     lexicalize_keywords, lexicalize_language, lexicalize_length,
     lexicalize_pages, lexicalize_proglang, lexicalize_recency,
