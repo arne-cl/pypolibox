@@ -45,7 +45,7 @@ def initialize_openccg(lang='de'):
     return OpenCCG(lang=lang)
 
 
-def check_and_realize_textplan(openccg, textplan, lexicalize_messagle_block, phrase2sentence):
+def check_and_realize_textplan(openccg, textplan, lexicalize_message_block, phrase2sentence):
     """
     realizes a text plan and warns about message blocks that cannot be
     realized due to current restrictions in the OpenCC grammar.
