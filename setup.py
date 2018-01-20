@@ -41,9 +41,9 @@ def gen_data_files(src_dir):
     return fpaths
 
 
-package_data_list = gen_data_files('data/*')
-package_data_list.extend(gen_data_files('grammar/*'))
-package_data_list.append('avm.sty')
+package_data_list = gen_data_files('src/pypolibox/data/*')
+package_data_list.extend(gen_data_files('src/pypolibox/grammar/*'))
+package_data_list.append('src/pypolibox/avm.sty')
 
 
 setup(name='pypolibox',

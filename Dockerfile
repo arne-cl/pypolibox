@@ -16,6 +16,4 @@ RUN python setup.py install
 
 ENV PATH=/opt/openccg/bin:$PATH OPENCCG_HOME=/opt/openccg JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
-RUN pip install pudb
-
 ENTRYPOINT ["pypolibox"]
