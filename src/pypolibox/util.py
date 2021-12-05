@@ -11,7 +11,7 @@ modules from pypolibox!
 
 import os
 import re
-import cPickle as pickle
+import pickle as pickle
 import yaml
 from nltk.featstruct import Feature
 
@@ -22,13 +22,13 @@ def ensure_utf8(string_or_int):
     converts integer input to a string.
     """
     if isinstance(string_or_int, int):
-        string = str(string_or_int)
-    elif isinstance(string_or_int, unicode):
+        string = str(string_or_int).encode("UTF8")
+    elif isinstance(string_or_int, str):
         string = string_or_int.encode("UTF8")
-    elif isinstance(string_or_int, (str, Feature)):
+    elif isinstance(string_or_int, bytes):
         string = string_or_int
     else:
-        print "string_or_int: ", string_or_int
+        print("string_or_int: ", string_or_int)
         raise Exception("can't process input of type {0}".format(type(string_or_int)))
     return string
 
@@ -40,7 +40,7 @@ def ensure_unicode(string_or_int):
     if isinstance(string_or_int, int):
         string_or_int = str(string_or_int)
 
-    if isinstance(string_or_int, unicode):
+    if isinstance(string_or_int, str):
         string = string_or_int
     else:
         #print "string_or_int: ", string_or_int, " with type: ", type(string_or_int)
@@ -109,7 +109,7 @@ def sql_array_to_list(sql_array):
 
 def msgs_instance_to_list_of_msgs(messages_instance):
     """converts a ``Messages`` instance into a list of ``Message`` instances"""
-    return [message for message in messages_instance.messages.values()]
+    return [message for message in list(messages_instance.messages.values())]
     
 def freeze_all_messages(message_list):
     """
@@ -140,7 +140,7 @@ def exists(thing, namespace):
     :type namespace: ``dict``
     :rtype: ``bool``
     """
-    if namespace.has_key(thing):
+    if thing in namespace:
         return True
     else:
         return False

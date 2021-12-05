@@ -372,10 +372,10 @@ class Facts():
         """prints the ``Facts`` instance, but omits empty values"""
         signifiers_of_emptyness = [ [], {}, set() ] # lists, dicts, sets can be empty (we can't simply say "if val:", since this this would not only exclude emtpy lists/dicts/sets but also "0")
         return_string = ""
-        for key, value in self.facts.iteritems():
+        for key, value in self.facts.items():
             if value not in signifiers_of_emptyness:
                 return_string += "\n{0}:\n".format(key)
-                for attribute, val in value.iteritems():
+                for attribute, val in value.items():
                     if val not in signifiers_of_emptyness:
                         return_string += "\t{0}: {1}\n".format(attribute, val)
         return return_string

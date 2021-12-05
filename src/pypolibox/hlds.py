@@ -72,7 +72,7 @@ from lxml import etree
 from lxml.builder import ElementMaker
 import nltk
 from nltk.featstruct import Feature, FeatDict
-from util import ensure_utf8, ensure_unicode, write_to_file
+from .util import ensure_utf8, ensure_unicode, write_to_file
 
 
 class HLDSReader():
@@ -124,15 +124,15 @@ class HLDSReader():
             self.sentences = [self.parse_sentence(root, single_sent=True)]
             
     def parse_sentence(self, sentence, single_sent=True):
-        if single_sent is False:
+        if not single_sent:
             item = sentence
             satop = item.find("xml/lf/satop") # root (verb) of the sentence
 
             # <item numOfParses="4" string="er beschreibt sie">
-            sentence_string = ensure_utf8(item.attrib["string"])
+            sentence_string = ensure_unicode(item.attrib["string"])
             expected_parses = item.attrib["numOfParses"]
 
-        elif single_sent is True:
+        elif single_sent:
             satop = sentence
             root = sentence.getroottree()
             target_element = root.find("target")
@@ -263,7 +263,7 @@ class Diamond(FeatDict):
             subdiamond_to_prepend.update({Feature("mode"): mode})
 
         # a featstruct is essentially a dictionary, so we'll need to sort it!
-        existing_subdiamonds = sorted([(dkey,d) for (dkey,d) in self.items() 
+        existing_subdiamonds = sorted([(dkey,d) for (dkey,d) in list(self.items()) 
                                             if isinstance(d, Diamond)], 
                                       key=itemgetter(0))
         
@@ -298,7 +298,7 @@ class Diamond(FeatDict):
             subdiamond_to_insert.update({Feature("mode"): mode})
 
         # a featstruct is essentially a dictionary, so we'll need to sort it!
-        existing_subdiamonds = sorted([(dkey,d) for (dkey,d) in self.items() 
+        existing_subdiamonds = sorted([(dkey,d) for (dkey,d) in list(self.items()) 
                                             if isinstance(d, Diamond)], 
                                       key=itemgetter(0))
         
@@ -362,7 +362,7 @@ def convert_diamond_xml2fs(etree):
     
     :rtype: ``Diamond``
     """
-    mode = ensure_utf8(etree.attrib["mode"])
+    mode = ensure_unicode(etree.attrib["mode"])
 
     nested_diamonds = []
     nom = "" # default value
@@ -373,9 +373,9 @@ def convert_diamond_xml2fs(etree):
             nested_diamond = convert_diamond_xml2fs(child)
             nested_diamonds.append(nested_diamond)
         elif child.tag == "nom":
-            nom = ensure_utf8(child.attrib["name"])
+            nom = ensure_unicode(child.attrib["name"])
         elif child.tag == "prop":
-            prop = ensure_utf8(child.attrib["name"])
+            prop = ensure_unicode(child.attrib["name"])
 
     return create_diamond(mode, nom, prop, nested_diamonds)
  
@@ -421,7 +421,7 @@ def create_hlds_file(sent_or_sent_list, mode="test", output="etree"):
     
     :rtype: ``str``
     """
-    if mode is "test":
+    if mode == "test":
         root = etree.Element("regression")
         doc = etree.ElementTree(root)
     
@@ -441,7 +441,7 @@ def create_hlds_file(sent_or_sent_list, mode="test", output="etree"):
             final_position = len(root)
             root.insert(final_position, sentence_etree)
 
-    elif mode is "realize":
+    elif mode == "realize":
         root = etree.Element("xml")
         doc = etree.ElementTree(root)
         
@@ -452,9 +452,8 @@ def create_hlds_file(sent_or_sent_list, mode="test", output="etree"):
             sentence_etree = __sentence_fs2xml(sent_or_sent_list[0], 
                                                mode="realize")
         else:
-            raise Exception, \
-                "ValueError: in 'realize' mode, sent_or_sent_list should be " \
-                "one Sentence or a list containing only one Sentence."
+            raise Exception("ValueError: in 'realize' mode, sent_or_sent_list should be " \
+                "one Sentence or a list containing only one Sentence.")
         root.insert(0, sentence_etree)
         
     if output == "etree":
@@ -480,7 +479,7 @@ def __sentence_fs2xml(sentence, mode="test"):
     :return: the input sentence in HLDS XML format (represented as an etree 
     element)
     """
-    if mode is "test":
+    if mode == "test":
         expected_parses = sentence[Feature("expected_parses")]
         text = sentence[Feature("text")]
         item = etree.Element("item", numOfParses=str(expected_parses),
@@ -514,7 +513,7 @@ def __sentence_fs2xml(sentence, mode="test"):
         final_position = len(satop)
         satop.insert(final_position, diamond)
    
-    if mode is "test":
+    if mode == "test":
         return item
     else:
         return lf
@@ -620,14 +619,14 @@ def test_conversion():
     random_sent_xml = create_hlds_file([random_sent_fs], output="xml")
     all_sents_xml = create_hlds_file(hlds_reader.sentences, output="xml")
                                               
-    print "random sentence: %i\n" % random_sent_index, random_sent_fs, \
-          "\n" * 3, random_sent_xml
+    print("random sentence: %i\n" % random_sent_index, random_sent_fs, \
+          "\n" * 3, random_sent_xml)
     return hlds_reader, all_sents_xml 
 
 
 def add_mode_suffix(diamond, mode="N"):
     matching_subdiamond_keys = []
-    for key in diamond.keys():
+    for key in list(diamond.keys()):
         if isinstance(key, str) and key.endswith(mode):
             if diamond[key][Feature("mode")] == mode:
                 matching_subdiamond_keys.append(key)
@@ -636,7 +635,7 @@ def add_mode_suffix(diamond, mode="N"):
     for i, key in enumerate(sorted_subdiamond_keys):
         diamond[key][Feature("mode")] = "{0}{1}".format(mode, i+1)
 
-    for key, value in diamond.items():
+    for key, value in list(diamond.items()):
         if isinstance(value, Diamond):
             add_mode_suffix(value, mode)
 
@@ -668,16 +667,16 @@ def add_nom_prefixes(diamond):
 
     for e in elements:
         if type(e) is Diamond:
-            if "nom" in e.keys():
+            if "nom" in list(e.keys()):
                 nom_prefix_char = __determine_nom_prefix(e)
                     
                 prop_dict[nom_prefix_char] += 1
                 nom_without_prefix = e["nom"]
                 nom_type = type(nom_without_prefix)
-                e["nom"] = "{0}{1}:{2}".format(ensure_utf8(nom_prefix_char), 
+                e["nom"] = "{0}{1}:{2}".format(ensure_unicode(nom_prefix_char), 
                                                prop_dict[nom_prefix_char],
-                                               ensure_utf8(nom_without_prefix))
-                if nom_type == unicode:
+                                               ensure_unicode(nom_without_prefix))
+                if nom_type == str:
                 # preserve unicode, if the string was unicode encoded before
                     e["nom"] = ensure_unicode(e["nom"])
 
@@ -697,8 +696,8 @@ def __determine_nom_prefix(diamond):
     """
     numbers_only = re.compile("\d+$")
     
-    if "prop" in diamond.keys():
-        prop = ensure_utf8(diamond["prop"])
+    if "prop" in list(diamond.keys()):
+        prop = ensure_unicode(diamond["prop"])
         if numbers_only.match(prop):
             nom_prefix_char = "n"
         else: # <prop> doesn't represent a year, page count etc.
@@ -707,7 +706,7 @@ def __determine_nom_prefix(diamond):
     else: #if there's no <prop> tag
         nom_prefix_char = "x"
     
-    return ensure_utf8(nom_prefix_char)
+    return ensure_unicode(nom_prefix_char)
     
 
 def remove_nom_prefixes(diamond):
@@ -717,7 +716,7 @@ def remove_nom_prefixes(diamond):
 
     for e in elements:
         if type(e) is Diamond:
-            if "nom" in e.keys():
+            if "nom" in list(e.keys()):
                 if prefix.match(e["nom"]):
                     e["nom"] = prefix.split(e["nom"], maxsplit=1)[1]
 
@@ -733,7 +732,7 @@ def last_diamond_index(featstruct):
     :type featstruct: ``Diamond`` or ``Sentence``
     :rtype: ``int``
     """
-    diamond_keys = [k for (k,v) in featstruct.items() if isinstance(v, Diamond)]
+    diamond_keys = [k for (k,v) in list(featstruct.items()) if isinstance(v, Diamond)]
     return len(diamond_keys) - 1
 
 
@@ -751,14 +750,14 @@ def featstruct2avm(featstruct, mode="non-recursive"):
         if isinstance(val, Diamond): #handles nested Diamond structures
             diamond_key = val[Feature("mode")]
             diamond_val = featstruct2avm(val, mode="recursive")
-            ret_str += "{0} & {1} \\\\\n".format( ensure_utf8(diamond_key),
-                                                  ensure_utf8(diamond_val))
+            ret_str += "{0} & {1} \\\\\n".format( ensure_unicode(diamond_key),
+                                                  ensure_unicode(diamond_val))
 
         elif isinstance(val, nltk.FeatStruct):
         #every other subclass of FeatStruct incl. FeatStruct
             nested_featstruct = featstruct2avm(val, mode="recursive")
-            ret_str += "{0} & {1} \\\\\n".format( ensure_utf8(key),
-                                                  ensure_utf8(nested_featstruct))
+            ret_str += "{0} & {1} \\\\\n".format( ensure_unicode(key),
+                                                  ensure_unicode(nested_featstruct))
             
             
         else: # normal key, value pairs within a FeatStruct
@@ -769,8 +768,8 @@ def featstruct2avm(featstruct, mode="non-recursive"):
             elif key == Feature("root_prop"):
                 key = Feature("prop")
 
-            ret_str += "{0} & `{1}' \\\\\n".format( ensure_utf8(key),
-                                                    ensure_utf8(val))
+            ret_str += "{0} & `{1}' \\\\\n".format( ensure_unicode(key),
+                                                    ensure_unicode(val))
 
     ret_str += " \]\n"
 
@@ -791,15 +790,15 @@ def etreeprint(element, debug=True, raw=False):
     don't add or prettify anything. if False: add an XML declaration and use
     pretty print to make the output more readable for humans.
     """
-    if raw is False:
+    if not raw:
         xml_string = etree.tostring(element, xml_declaration=True, 
                                     pretty_print=True, encoding="UTF-8")
     else:
         xml_string = etree.tostring(element, xml_declaration=False, 
                                     pretty_print=False, encoding="UTF-8")        
         
-    if debug is True:
-        print xml_string
+    if debug:
+        print(xml_string)
     return xml_string
 
 
@@ -842,7 +841,7 @@ def main():
         for filename in args.files:
             hlds_reader = HLDSReader(filename, input_format="file")
             for sentence in hlds_reader.sentences:
-                print >>args.outfile, sentence, "\n\n"
+                print(sentence, "\n\n", file=args.outfile)
 
     args.outfile.close()
 

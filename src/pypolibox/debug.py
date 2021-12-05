@@ -11,14 +11,14 @@ provides short cuts to generate frequently needed data.
 from lxml import etree
 from nltk.featstruct import Feature
 
-from database import Query, Results, Books
-from facts import AllFacts
-from propositions import AllPropositions
-from textplan import TextPlan, TextPlans
-from messages import Message, Messages, AllMessages
-from rules import Rules, ConstituentSet
-import util
-import hlds
+from .database import Query, Results, Books
+from .facts import AllFacts
+from .propositions import AllPropositions
+from .textplan import TextPlan, TextPlans
+from .messages import Message, Messages, AllMessages
+from .rules import Rules, ConstituentSet
+from . import util
+from . import hlds
 
 
 def compare_hlds_variants():
@@ -81,10 +81,10 @@ def genmessages(booknumber=0, querynumber=10):
     books = Books(Results(Query(testqueries[querynumber])))
     am = AllMessages(AllPropositions(AllFacts(books)))  
     
-    for message in am.books[booknumber].messages.values(): 
+    for message in list(am.books[booknumber].messages.values()): 
         message.freeze()
         #freeze messages, so Rule()s can be tested against them
-    return am.books[booknumber].messages.values()
+    return list(am.books[booknumber].messages.values())
 
 def genallmessages(query):
     """
@@ -151,12 +151,12 @@ def gen_all_textplans():
     """
     all_TextPlans = []
     for argnumber, arg in enumerate(testqueries):
-        print "generating TextPlans for the query:{0}\n".format(arg)
+        print("generating TextPlans for the query:{0}\n".format(arg))
         TextPlans = gen_textplans(argnumber)
-        print "generated {0} TextPlans".format(len(TextPlans.document_plans))
+        print("generated {0} TextPlans".format(len(TextPlans.document_plans)))
         for i, TextPlan in enumerate(TextPlans.document_plans):
             if TextPlan == None:
-                print "When using query argument {0}, no TextPlan could be generated for book {1}".format(arg, i)
+                print("When using query argument {0}, no TextPlan could be generated for book {1}".format(arg, i))
         all_TextPlans.append(TextPlans)
     return all_TextPlans
  
@@ -165,15 +165,15 @@ def enumprint(obj):
     prints every item of an iterable on its own line, preceded by its index
     """
     for index, item in enumerate(obj):
-        if type(item) is unicode:
-            print u"{0}:\n{1}\n".format(index, item)
+        if type(item) is str:
+            print("{0}:\n{1}\n".format(index, item))
         else:
-            print "{0}:\n{1}\n".format(index, item)
+            print("{0}:\n{1}\n".format(index, item))
 
 def printeach(obj):
     """prints every item of an iterable on its own line"""
     for item in obj:
-        print item
+        print(item)
 
 def msgtypes(messages):
     """
@@ -188,17 +188,17 @@ def msgtypes(messages):
     """
     if isinstance(messages, Messages):
         for i, message in enumerate(messages.messages.values()):
-            print i, __msgtype_print(message)    
+            print(i, __msgtype_print(message))    
     elif isinstance(messages, (list, set)):
     # if messages is a list/set of ``Message``/``ConstituentSet`` instances
         for i, message in enumerate(messages):
-            print i, __msgtype_print(message)
+            print(i, __msgtype_print(message))
     elif isinstance(messages, Message):
-        print "Message: ", __msgtype_print(messages)
+        print("Message: ", __msgtype_print(messages))
     elif isinstance(messages, TextPlan):
-        print "DocumentPlan: ", __msgtype_print(messages["children"])
+        print("DocumentPlan: ", __msgtype_print(messages["children"]))
     elif isinstance(messages, ConstituentSet):
-        print "ConstituentSet: ", __msgtype_print(messages)
+        print("ConstituentSet: ", __msgtype_print(messages))
 
                 
 def __msgtype_print(message):
@@ -302,18 +302,18 @@ def find_applicable_rules(messages):
     if type(messages) is list: # is 'messages' a list of Message() instances?
         pass
     elif isinstance(messages, Messages):
-        messages = messages.messages.values()
+        messages = list(messages.messages.values())
         
-    for name, rule in Rules().rule_dict.iteritems():
+    for name, rule in Rules().rule_dict.items():
         try:
             if rule.get_options(messages) != []:
                 nuc_candidates = \
                     [rulename for (rulename, msg) in rule.nucleus]
                 sat_candidates = \
                     [rulename for (rulename, msg) in rule.satellite]
-                print "{0}: {1} - {2}, {3} - is directly applicable and results in \n\t{4}\n\n".format(name, rule.ruleType, nuc_candidates, sat_candidates, rule.get_options(messages))
+                print("{0}: {1} - {2}, {3} - is directly applicable and results in \n\t{4}\n\n".format(name, rule.ruleType, nuc_candidates, sat_candidates, rule.get_options(messages)))
         except:
-            print "ERROR: Could not check if rule {0} is applicable. Possible solution: test if the rule's conditions are specified appropriately.\n\n".format(name)
+            print("ERROR: Could not check if rule {0} is applicable. Possible solution: test if the rule's conditions are specified appropriately.\n\n".format(name))
 
         
 def findrule(ruletype="", attribute="", value=""):
@@ -328,19 +328,19 @@ def findrule(ruletype="", attribute="", value=""):
     matching_rules = {}
     
     if ruletype == "":
-        for index, (name, rule) in enumerate(rules.iteritems()):
+        for index, (name, rule) in enumerate(rules.items()):
             if getattr(rule, attribute) is value:
-                print "rule {0} - {1}:\n{2}".format(index, name, rule)
+                print("rule {0} - {1}:\n{2}".format(index, name, rule))
                 matching_rules[name] = rule
     elif attribute == "":
-        for index, (name, rule) in enumerate(rules.iteritems()):
+        for index, (name, rule) in enumerate(rules.items()):
             if rule.ruleType is ruletype:
-                print "rule {0} - {1}:\n{2}".format(index, name, rule)
+                print("rule {0} - {1}:\n{2}".format(index, name, rule))
                 matching_rules[name] = rule
     else:
-        for index, (name, rule) in enumerate(rules.iteritems()):
+        for index, (name, rule) in enumerate(rules.items()):
             if rule.ruleType is ruletype and getattr(rule, attribute) is value:
-                print "rule {0} - {1}:\n{2}".format(index, name, rule)
+                print("rule {0} - {1}:\n{2}".format(index, name, rule))
                 matching_rules[name] = rule
     return matching_rules
 
@@ -362,14 +362,14 @@ def apply_rule(messages, rule_name):
             for message in messages:
                 message.freeze()
     else:
-        print "Sorry, this rule could not be applied to your messages."
+        print("Sorry, this rule could not be applied to your messages.")
 
 
 def compare_textplans():
     """
     helps to find out how many different text plan structures there are.
     """
-    import cPickle as pickle
+    import pickle as pickle
     f = open("data/alltextplans.pickle", "r")
     # alltextplans.pickle was generated by running test_all_TextPlans()
     
@@ -449,7 +449,7 @@ def test_cli(query_arguments=testqueries):
     """run several complex queries and print their results to stdout"""
     for arg in query_arguments:
         book_list = Books(Results(Query(arg)))
-        print "{0}:\n\n".format(arg)
+        print("{0}:\n\n".format(arg))
         for book in book_list.books:
-            print book.title, book.year
+            print(book.title, book.year)
 
