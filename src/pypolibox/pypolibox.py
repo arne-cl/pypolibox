@@ -37,12 +37,12 @@ def generate_textplans(query):
     return TextPlans(AllMessages(AllPropositions(AllFacts(books))))
 
 
-def initialize_openccg(lang=None):
+def initialize_openccg(lang='de'):
     """
     starts OpenCCG's tccg realizer as a server in the background (ca. 20s).
     """
     from .realization import OpenCCG
-    return OpenCCG()
+    return OpenCCG(lang=lang)
 
 
 def check_and_realize_textplan(openccg, textplan, lexicalize_message_block, phrase2sentence):
@@ -90,12 +90,14 @@ def main():
         sys.exit(1)
 
     try:
-        lexicalize_messageblocks = __import__("pypolibox.lexicalize_messageblocks_%s" % query.query_args.output_language, globals(), locals(), [None], 0)
+        lexicalize_messageblocks = \
+            __import__("pypolibox.lexicalize_messageblocks_%s" % query.query_args.output_language, globals(), locals(), [None], 0)
     except ImportError:
         raise
 
     try:
-        lexicalization = __import__("pypolibox.lexicalization_%s" % query.query_args.output_language, globals(), locals(), [None], 0)
+        lexicalization = \
+            __import__("pypolibox.lexicalization_%s" % query.query_args.output_language, globals(), locals(), [None], 0)
     except ImportError:
         raise
 
