@@ -11,8 +11,8 @@ import random
 from copy import deepcopy
 from nltk.featstruct import Feature
 
-from hlds import Diamond, create_diamond
-from lexicalization_de import (gen_art, gen_num,
+from .hlds import Diamond, create_diamond
+from .lexicalization_de import (gen_art, gen_num,
     lexicalize_authors, lexicalize_codeexamples, lexicalize_exercises,
     lexicalize_keywords, lexicalize_language, lexicalize_length,
     lexicalize_pages, lexicalize_proglang, lexicalize_recency,
@@ -169,11 +169,11 @@ def lexicalize_id(id_message_block):
                                                         msg_block["authors"]))
 
     identifiers = set(["title", "authors", "year"])
-    for msg_name, msg in msg_block.items():
+    for msg_name, msg in list(msg_block.items()):
         if isinstance(msg_name, Feature) or msg_name in identifiers:
             msg_block.pop(msg_name)
 
-    msg_names = msg_block.keys()
+    msg_names = list(msg_block.keys())
 
     if "codeexamples" in msg_names:
         if "proglang" in msg_names and msg_block["proglang"][0]:
@@ -193,7 +193,7 @@ def lexicalize_id(id_message_block):
                                         lexeme="random"))
         msg_block.pop("codeexamples")
 
-    for msg_name, msg in msg_block.items():
+    for msg_name, msg in list(msg_block.items()):
         lexicalize_function_name = "lexicalize_" + msg_name
         lxed_phrses.append(
             eval(lexicalize_function_name)(msg,
@@ -227,7 +227,7 @@ def lexicalize_extra(extra_message_block):
     title_variations = lexicalize_title_variations(title, authors)
 
     lxed_phrses = []
-    for msg_name, msg in msg_block.items():
+    for msg_name, msg in list(msg_block.items()):
         if isinstance(msg_name, str):
             lexicalize_function_name = "lexicalize_" + msg_name
             random_title = random_variation(title_variations)
@@ -263,7 +263,7 @@ def lexicalize_lastbook_match(lastbook_match_message_block):
     agens = create_diamond("AGENS", "artefaktum", "Buch", [num, art])
 
     lxed_phrses = []
-    for msg_name, msg in msg_block.items():
+    for msg_name, msg in list(msg_block.items()):
         if isinstance(msg_name, str) and msg_name not in ("lastbook_authors",
                                                           "lastbook_title",
                                                           "pagerange"):
@@ -278,16 +278,16 @@ def lexicalize_lastbook_nomatch(lastbook_nomatch_message_block):
     r"""
     Im Gegensatz zum ersten / vorhergehenden / anderen Buch ____
     """
-    raise NotImplementedError, "The grammar fragment can't handle lastbook non-matches, yet."
+    raise NotImplementedError("The grammar fragment can't handle lastbook non-matches, yet.")
 
 def lexicalize_usermodel_match(usermodel_match_message_block):
     r"""erfüllt Anforderungen / entspricht ihren Wünschen"""
-    raise NotImplementedError, "The grammar fragment can't handle usermodel matches, yet."
+    raise NotImplementedError("The grammar fragment can't handle usermodel matches, yet.")
 
 def lexicalize_usermodel_nomatch(usermodel_nomatch_message_block):
     r"""erfüllt (leider) Anforderungen nicht / entspricht nicht ihren
     Wünschen"""
-    raise NotImplementedError, "The grammar fragment can't handle usermodel non-matches, yet."
+    raise NotImplementedError("The grammar fragment can't handle usermodel non-matches, yet.")
 
 
 def random_variation(lexicalization_dictionary):
@@ -297,4 +297,4 @@ def random_variation(lexicalization_dictionary):
     name of a message and the value holds the corresponding ``Message``
     :rtype: a randomly chosen value from the given dictionary
     """
-    return random.choice(lexicalization_dictionary.values())
+    return random.choice(list(lexicalization_dictionary.values()))

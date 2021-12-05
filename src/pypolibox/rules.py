@@ -10,8 +10,8 @@ combine messages into constituent sets and ultimately form one ``TextPlan``.
 import itertools
 import nltk
 from nltk import Feature
-from messages import Message
-from util import exists
+from .messages import Message
+from .util import exists
 
 class ConstituentSet(nltk.featstruct.FeatDict):
     """
@@ -108,7 +108,7 @@ class Rule(object):
         string output for debugging purposes.
         """
         ret = ''
-        for (key, val) in self.__dict__.iteritems():
+        for (key, val) in self.__dict__.items():
             ret += str(key) + ' - ' + str(val) + '\n'
         return ret
 
@@ -220,7 +220,7 @@ class Rule(object):
         """
         satisfactory_groups = []
         for group in groups:
-            if all(self.get_conditions(group)) is True:
+            if all(self.get_conditions(group)):
                 satisfactory_groups.append(group)
         return satisfactory_groups
         
@@ -321,7 +321,7 @@ class Rules():
                 
     def __str__(self):
         ret_str = ""
-        for name, rule in self.rule_dict.iteritems():
+        for name, rule in self.rule_dict.items():
             rule_summary = "{0}({1}, {2})".format(rule.ruleType, rule.nucleus,
                                                   rule.satellite)
             ret_str += "{0}: {1}\n\n".format(name, rule_summary)
@@ -348,7 +348,7 @@ class Rules():
         nucleus = [('id', Message('id')), 
                   ('id_extra_sequence', ConstituentSet(nucleus=Message('id')))] 
         satellite = [('usermodel_match', Message('usermodel_match'))]
-        conditions = ['exists("usermodel_nomatch", locals()) is False']    
+        conditions = ['not exists("usermodel_nomatch", locals())']    
         return Rule('id_usermodelmatch', 'Elaboration', nucleus, satellite, 
                     conditions, 5)
 
@@ -403,9 +403,9 @@ class Rules():
         nucleus = [('id', Message('id')), 
              ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
         satellite = [('usermodel_match', Message('usermodel_match'))]
-        conditions = ['exists("usermodel_nomatch", locals()) is False', 
-                      'exists("lastbook_match", locals()) is False', 
-                      'exists("lastbook_nomatch", locals()) is False']
+        conditions = ['not exists("usermodel_nomatch", locals())', 
+                      'not exists("lastbook_match", locals())', 
+                      'not exists("lastbook_nomatch", locals())']
         return Rule('single_book_complete_usermodelmatch', 'Sequence', nucleus,
                     satellite, conditions, 4)
 
@@ -420,9 +420,9 @@ class Rules():
         nucleus = [('id', Message('id')), 
              ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
         satellite = [('usermodel_nomatch', Message('usermodel_nomatch'))]
-        conditions = ['exists("usermodel_match", locals()) is False', 
-                      'exists("lastbook_match", locals()) is False', 
-                      'exists("lastbook_nomatch", locals()) is False']
+        conditions = ['not exists("usermodel_match", locals())', 
+                      'not exists("lastbook_match", locals())', 
+                      'not exists("lastbook_nomatch", locals())']
         return Rule('single_book_complete_usermodelnomatch', 'Sequence', 
                     nucleus, satellite, conditions, 2)
 
@@ -436,7 +436,7 @@ class Rules():
         nucleus = [('id', Message('id')), 
             ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
         satellite = [('lastbook_nomatch', Message('lastbook_nomatch'))]
-        conditions = ['exists("lastbook_nomatch", locals()) is True']
+        conditions = ['exists("lastbook_nomatch", locals())']
         return Rule('book_differences', 'Contrast', nucleus, satellite, 
                     conditions, 5)
 
@@ -449,7 +449,7 @@ class Rules():
         nucleus = [('book_differences', 
                    ConstituentSet(satellite=Message('lastbook_nomatch')))]
         satellite = [('lastbook_match', Message('lastbook_match'))]
-        conditions = ['exists("lastbook_match", locals()) is True']
+        conditions = ['exists("lastbook_match", locals())']
         return Rule('concession_books', 'Concession', nucleus, satellite, 
                     conditions, 5)
 
@@ -463,7 +463,7 @@ class Rules():
         nucleus = [('book_differences', 
                     ConstituentSet(satellite=Message('lastbook_nomatch')))]
         satellite = [('usermodel_match', Message('usermodel_match'))]
-        conditions = ['exists("usermodel_nomatch", locals()) is False']
+        conditions = ['not exists("usermodel_nomatch", locals())']
         return Rule('concession_book_differences_usermodelmatch', 'Concession',
                     nucleus, satellite, conditions, 5)
 
@@ -479,8 +479,8 @@ class Rules():
         nucleus = [('id_usermodelmatch', 
                     ConstituentSet(satellite=Message('usermodel_match')))]
         satellite = [('lastbook_match', Message('lastbook_match'))] 
-        conditions = ['exists("lastbook_match", locals()) is True', 
-                      'exists("lastbook_nomatch", locals()) is True', 
+        conditions = ['exists("lastbook_match", locals())', 
+                      'exists("lastbook_nomatch", locals())', 
                       'len(lastbook_match) >= len(lastbook_nomatch)']
         return Rule('book_similarities', 'Elaboration', nucleus, satellite, 
                     conditions, 5)
@@ -497,8 +497,8 @@ class Rules():
         nucleus = [('id', Message('id')), 
                    ('id_extra_sequence', ConstituentSet(satellite=Message('extra')))]
         satellite = [('lastbook_nomatch', Message('lastbook_nomatch'))]
-        conditions = ['exists("lastbook_nomatch", locals()) is True', 
-                      'exists("lastbook_match", locals()) is False']
+        conditions = ['exists("lastbook_nomatch", locals())', 
+                      'not exists("lastbook_match", locals())']
         return Rule('no_similarities_concession', 'Concession', nucleus, 
                     satellite, conditions, 5)
 
@@ -516,9 +516,9 @@ class Rules():
                    ConstituentSet(satellite=Message('lastbook_nomatch')))]
         satellite = [('pos_eval', ConstituentSet(satellite=Message('usermodel_nomatch'))), 
                      ('neg_eval', ConstituentSet(nucleus=Message('usermodel_nomatch')))]
-        conditions = ['exists("usermodel_match", locals()) is True',
-                      'exists("usermodel_nomatch", locals()) is True'] 
-                      #'exists("lastbook_match", locals()) is False'
+        conditions = ['exists("usermodel_match", locals())',
+                      'exists("usermodel_nomatch", locals())'] 
+                      #'not exists("lastbook_match", locals())'
         return Rule('contrast_books_posneg_eval', 'Sequence', nucleus, 
                     satellite, conditions, 5)
 

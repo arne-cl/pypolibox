@@ -12,11 +12,12 @@ import re
 import pexpect
 import time
 from tempfile import NamedTemporaryFile
-from commands import getstatusoutput
+from subprocess import getstatusoutput
 from copy import deepcopy
 
-from hlds import (Diamond, Sentence, diamond2sentence, add_nom_prefixes,
+from .hlds import (Diamond, Sentence, diamond2sentence, add_nom_prefixes,
                   create_hlds_file)
+from .util import ensure_utf8, ensure_unicode
 
 
 if __name__ == '__main__':
@@ -45,12 +46,12 @@ class OpenCCG(object):
 
         os.chdir(grammar_path)
         self._server = pexpect.spawn(tccg_binary)
-        print "starting tccg as a server with this path: %s" % tccg_binary
+        print("starting tccg as a server with this path: %s" % tccg_binary)
         os.chdir(current_dir)
-        print "checking tccg settings ..."
+        print("checking tccg settings ...")
         self._server.expect("\ntccg>") # wait for the tccg input prompt
-        print "Okay, here you go."
-        print "current settings:\n{0}".format(self.parse(":sh"))
+        print("Okay, here you go.")
+        print("current settings:\n{0}".format(self.parse(":sh")))
 
     def parse(self, text, verbose=True, raw_output=True):
         """
@@ -78,7 +79,7 @@ class OpenCCG(object):
         # How much time should we give the parser to parse it?
         max_expected_time = 20.0
         if verbose:
-            print "Timeout", max_expected_time
+            print("Timeout", max_expected_time)
         end_time = time.time() + max_expected_time 
         incoming = ""
         while True: 
@@ -87,12 +88,12 @@ class OpenCCG(object):
                 ch = self._server.read_nonblocking (2000, 2)
                 freshlen = len(ch)
                 time.sleep (0.0001)
-                incoming = incoming + ch
+                incoming = incoming + ch.decode("UTF-8")
                 if "\ntccg>" in incoming:
                     break
             except pexpect.TIMEOUT:
                 if verbose:
-                    print "Timeout" 
+                    print("Timeout") 
                 if end_time - time.time() < 0:
                     return {'error': "timed out after %f seconds" % max_expected_time, 
                             'input': text,
@@ -126,7 +127,7 @@ class OpenCCG(object):
                                             output="xml")
     
         tmp_file = open("pypolibox-tccg.tmp", "w")
-        tmp_file.write(sentence_xml_str)
+        tmp_file.write(ensure_unicode(sentence_xml_str))
         tmp_file.close()
         tmp_file_path = os.path.abspath(tmp_file.name)
         self.tccg_output = self.realize_hlds(tmp_file_path)
@@ -154,5 +155,5 @@ def parse_tccg_generator_output(tccg_output):
         if match:
             results.append(match.groups()[0])
         else:
-            raise Exception, "Can't parse tccg output line:\n{0}".format(line)
+            raise Exception("Can't parse tccg output line:\n{0}".format(line))
     return sorted(set(results))

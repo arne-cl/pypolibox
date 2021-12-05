@@ -12,7 +12,7 @@ sqlite database and returning the results.
 import os
 import argparse
 import sqlite3
-import util
+from . import util
 
 if __name__ == '__main__':
     DB_FILE = 'data/books.sqlite'
@@ -335,9 +335,9 @@ class Results:
         """
         possible_matches = 0
         self.params = [param for param in self.query_args.__dict__
-                          if param is not 'minresults'
+                          if param != 'minresults'
                           if self.query_args.__getattribute__(param) is not None]
-        self.values = map(self.query_args.__getattribute__, self.params)
+        self.values = list(map(self.query_args.__getattribute__, self.params))
 
         for value in self.values:
             if type(value) == list:
@@ -361,7 +361,7 @@ class Results:
         table_info = self.curs.execute('PRAGMA table_info({0})'.format(table_name))
         db_columns = {}
         for index, name, data_type, notnull, dflt_value, pk in table_info:
-            db_columns[name.encode(DEFAULT_ENCODING)] = index
+            db_columns[name] = index
         return db_columns
 
     def __str__(self):
@@ -423,7 +423,7 @@ class Books:
                 self.books = []
                 self.scores = []
             else:
-                self.books, self.scores = zip(*sorted_books)
+                self.books, self.scores = list(zip(*sorted_books))
 
     def get_book_ranks(self, possible_matches):
         """
@@ -512,18 +512,18 @@ class Book:
         #needed for generating query facts later on
         self.query_args = query_args
 
-        self.title = db_item[db_columns["title"]].encode(DEFAULT_ENCODING)
+        self.title = db_item[db_columns["title"]]
         self.year = db_item[db_columns["year"]]
 
-        authors_array = db_item[db_columns["authors"]].encode(DEFAULT_ENCODING)
+        authors_array = db_item[db_columns["authors"]]
         self.authors = util.sql_array_to_set(authors_array)
 
-        keywords_array = db_item[db_columns["keywords"]].encode(DEFAULT_ENCODING)
+        keywords_array = db_item[db_columns["keywords"]]
         self.keywords = util.sql_array_to_set(keywords_array)
 
-        self.language = db_item[db_columns["lang"]].encode(DEFAULT_ENCODING)
+        self.language = db_item[db_columns["lang"]]
 
-        proglang_array = db_item[db_columns["plang"]].encode(DEFAULT_ENCODING)
+        proglang_array = db_item[db_columns["plang"]]
         self.proglang = util.sql_array_to_set(proglang_array)
 
         self.pages = db_item[db_columns["pages"]]
@@ -568,7 +568,7 @@ class Book:
         prints the book metadata gathered from the database
         """
         return_string = ""
-        for key, value in self.__dict__.iteritems():
+        for key, value in self.__dict__.items():
             return_string += "{0}:\t\t{1}\n".format(key, value)
         return return_string
 

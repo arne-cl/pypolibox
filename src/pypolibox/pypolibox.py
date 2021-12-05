@@ -12,20 +12,20 @@ code in case it is run from the command line without any arguments.
 import sys
 from nltk.featstruct import Feature
 
-from database import Query, Results, Book, Books
-from facts import Facts, AllFacts
-from propositions import Propositions, AllPropositions
-from textplan import (TextPlan, TextPlans, generate_textplan,
+from .database import Query, Results, Book, Books
+from .facts import Facts, AllFacts
+from .propositions import Propositions, AllPropositions
+from .textplan import (TextPlan, TextPlans, generate_textplan,
                       linearize_textplan, textplans2xml)
-from hlds import etreeprint
-from messages import Message, Messages, AllMessages
-from rules import ConstituentSet, Rule, Rules
+from .hlds import etreeprint
+from .messages import Message, Messages, AllMessages
+from .rules import ConstituentSet, Rule, Rules
 
 
 def test():
     """test and realize all text plans for all test queries"""
-    import cPickle
-    atp = cPickle.load(open("data/alltextplans.pickle", "r"))
+    import pickle
+    atp = pickle.load(open("data/alltextplans.pickle", "r"))
     for textplans in atp:
         for textplan in textplans.document_plans:
             check_and_realize_textplan(textplan)
@@ -41,7 +41,7 @@ def initialize_openccg(lang='de'):
     """
     starts OpenCCG's tccg realizer as a server in the background (ca. 20s).
     """
-    from realization import OpenCCG
+    from .realization import OpenCCG
     return OpenCCG(lang=lang)
 
 
@@ -61,18 +61,18 @@ def check_and_realize_textplan(openccg, textplan, lexicalize_message_block, phra
     for msg_block in msg_blocks:
         try:
             lexicalized_msg_block = lexicalize_message_block(msg_block)
-            print "The {0} message block can be realized " \
-                  "as follows:\n".format(msg_block[Feature("msgType")])
+            print("The {0} message block can be realized " \
+                  "as follows:\n".format(msg_block[Feature("msgType")]))
             for lexicalized_phrase in lexicalized_msg_block:
                 lexicalized_sentence = phrase2sentence(lexicalized_phrase)
                 for realized_sent in openccg.realize(lexicalized_sentence):
-                    print realized_sent
+                    print(realized_sent)
 
-        except NotImplementedError, err:
-            print err
-            print "The message block contains these messages:\n", msg_block, \
-                  "\n\n**********\n\n"
-        print
+        except NotImplementedError as err:
+            print(err)
+            print("The message block contains these messages:\n", msg_block, \
+                  "\n\n**********\n\n")
+        print()
 
 def main():
     """
@@ -91,13 +91,13 @@ def main():
 
     try:
         lexicalize_messageblocks = \
-            __import__("lexicalize_messageblocks_%s" % query.query_args.output_language, globals(), locals(), [], -1)
+            __import__("pypolibox.lexicalize_messageblocks_%s" % query.query_args.output_language, globals(), locals(), [None], 0)
     except ImportError:
         raise
 
     try:
         lexicalization = \
-            __import__("lexicalization_%s" % query.query_args.output_language, globals(), locals(), [], -1)
+            __import__("pypolibox.lexicalization_%s" % query.query_args.output_language, globals(), locals(), [None], 0)
     except ImportError:
         raise
 
@@ -109,17 +109,17 @@ def main():
 
     if output_format == 'openccg':
         openccg = initialize_openccg(lang=query.query_args.output_language)
-        print "{} text plans will be generated.".format(len(textplans.document_plans))
+        print("{} text plans will be generated.".format(len(textplans.document_plans)))
         for i, textplan in enumerate(textplans.document_plans):
-            print "Generating text plan #%i:\n" % i
+            print("Generating text plan #%i:\n" % i)
             check_and_realize_textplan(openccg, textplan, lexicalize_message_block, phrase2sentence)
     elif output_format == 'hlds':
         from copy import deepcopy
-        from hlds import (Diamond, Sentence, diamond2sentence,
+        from .hlds import (Diamond, Sentence, diamond2sentence,
             add_nom_prefixes, create_hlds_file)
 
         for i, textplan in enumerate(textplans.document_plans):
-            print "Text plan #%i:\n" % i
+            print("Text plan #%i:\n" % i)
 
             # TODO: refactor to avoid code duplication w/
             # check_and_realize_textplan()
@@ -127,8 +127,8 @@ def main():
             for msg_block in msg_blocks:
                 try:
                     lexicalized_msg_block = lexicalize_message_block(msg_block)
-                    print "The {0} message block can be realized " \
-                          "as follows:\n".format(msg_block[Feature("msgType")])
+                    print("The {0} message block can be realized " \
+                          "as follows:\n".format(msg_block[Feature("msgType")]))
                     for lexicalized_phrase in lexicalized_msg_block:
                         lexicalized_sentence = phrase2sentence(lexicalized_phrase)
 
@@ -139,18 +139,18 @@ def main():
                             temp_sentence = diamond2sentence(temp_sentence)
 
                         add_nom_prefixes(temp_sentence)
-                        print create_hlds_file(temp_sentence,
-                            mode="realize", output="xml")
+                        print(create_hlds_file(temp_sentence,
+                            mode="realize", output="xml"))
 
-                except NotImplementedError, err:
-                    print err
-                    print "The message block contains these messages:\n", msg_block, \
-                          "\n\n**********\n\n"
+                except NotImplementedError as err:
+                    print(err)
+                    print("The message block contains these messages:\n", msg_block, \
+                          "\n\n**********\n\n")
 
     elif output_format == 'textplan-featstruct':
         for i, textplan in enumerate(textplans.document_plans):
-            print "Text plan #%i:\n" % i
-            print textplan, "\n\n"
+            print("Text plan #%i:\n" % i)
+            print(textplan, "\n\n")
 
     else: # output_format == 'textplan-xml'
         etreeprint(textplans2xml(textplans))

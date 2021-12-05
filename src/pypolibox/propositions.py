@@ -46,24 +46,24 @@ class Propositions():
         propositions['extra'] = {}
         propositions['id'] = {}
         
-        for attribute, value in facts['query_facts']['usermodel_match'].iteritems():
+        for attribute, value in facts['query_facts']['usermodel_match'].items():
             propositions['usermodel_match'][attribute] =  (value, 'positive')
-        for attribute, value in facts['query_facts']['usermodel_nomatch'].iteritems():
+        for attribute, value in facts['query_facts']['usermodel_nomatch'].items():
             propositions['usermodel_nomatch'][attribute] = (value, 'negative')
             
-        if facts.has_key('lastbook_facts'): # 1st book doesn't have this
-            for attribute, value in facts['lastbook_facts']['lastbook_match'].iteritems():
+        if 'lastbook_facts' in facts: # 1st book doesn't have this
+            for attribute, value in facts['lastbook_facts']['lastbook_match'].items():
                 propositions['lastbook_match'][attribute] =  (value, 'neutral') # neutral (not positive, since it's not related 2 usermodel)
-            for attribute, value in facts['lastbook_facts']['lastbook_nomatch'].iteritems():
+            for attribute, value in facts['lastbook_facts']['lastbook_nomatch'].items():
                 propositions['lastbook_nomatch'][attribute] = (value, 'neutral')
         
-        if facts['extra_facts'].has_key('year'):
+        if 'year' in facts['extra_facts']:
             if facts['extra_facts']['year'] == 'recent':
                 propositions['extra']['year'] = (facts['extra_facts']['year'], 'positive')
             elif facts['extra_facts']['year'] == 'old':
                 propositions['extra']['year'] = (facts['extra_facts']['year'], 'negative')
                 
-        if facts['extra_facts'].has_key('pages'):
+        if 'pages' in facts['extra_facts']:
             propositions['extra']['pages'] = (facts['extra_facts']['pages'], 'neutral')
 
         for fact in facts['id_facts']:
@@ -81,8 +81,8 @@ class Propositions():
         Example: If there is an Extra/UserModelMatch etc. Proposition about "Pages" (e.g. >= 600) or Year, there should be no ID Proposition about the same fact.
         """
         attributes = set()
-        for proposition_type in propositions.keys():
-            attrib_list = propositions[proposition_type].keys()
+        for proposition_type in list(propositions.keys()):
+            attrib_list = list(propositions[proposition_type].keys())
             for attribute in attrib_list:
                 attributes.add(attribute)
         return attributes
@@ -91,10 +91,10 @@ class Propositions():
         """returns a string representation of a Propositions() instance omitting empty values"""
         return_string = ""
         return_string += "book score: {0}\n".format(self.book_score)
-        for key, value in self.propositions.iteritems():
+        for key, value in self.propositions.items():
             if value: # if value is not empty
                 return_string += "\n{0}:\n".format(key)
-                for attrib, val in value.iteritems():
+                for attrib, val in value.items():
                     if val:
                         return_string += "\t{0}: {1}\n".format(attrib, val)
         return return_string

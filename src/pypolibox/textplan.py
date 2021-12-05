@@ -32,11 +32,11 @@ from nltk.featstruct import Feature, FeatDict
 from lxml import etree
 from time import time
 
-from util import (flatten, freeze_all_messages, msgs_instance_to_list_of_msgs,
+from .util import (flatten, freeze_all_messages, msgs_instance_to_list_of_msgs,
                   ensure_unicode)
-from rules import Rules, ConstituentSet
-from messages import Message, Messages
-from hlds import etreeprint # TODO: dbg, rm
+from .rules import Rules, ConstituentSet
+from .messages import Message, Messages
+from .hlds import etreeprint # TODO: dbg, rm
 
 
 class TextPlan(nltk.featstruct.FeatDict):
@@ -68,7 +68,7 @@ class TextPlans(object):
         for index, book in enumerate(allmessages.books):
             before = time()
             
-            messages = book.messages.values() #all messages about a single book
+            messages = list(book.messages.values()) #all messages about a single book
             plan = generate_textplan(messages, rules, book.book_score)
             
             after = time()
@@ -76,19 +76,19 @@ class TextPlans(object):
             self.document_plans.append(plan)
 
             if debug == True:
-                print "Plan {0}: generated in {1} seconds.\n".format(index,
+                print("Plan {0}: generated in {1} seconds.\n".format(index,
                                                                      time_diff,
-                                                                     plan)
+                                                                     plan))
                 book_title = book.messages['id']['title']
                 
                 if index > 0:
                     lastbook = allmessages.books[index-1]
                     lastbook_title = lastbook.messages['id']['title']
-                    print "Comparing '{0}' " \
+                    print("Comparing '{0}' " \
                           "with '{1}':\n\n{2}".format(book_title,
-                                                      lastbook_title, plan)
+                                                      lastbook_title, plan))
                 else:
-                    print "Describing '{0}':\n\n{1}".format(book_title, plan)
+                    print("Describing '{0}':\n\n{1}".format(book_title, plan))
 
 
 
@@ -172,7 +172,7 @@ def __bottom_up_search(messages, rules):
             return None
 
         #sort all options by their score, beginning with the highest one
-        sorted_options = sorted(options_list, key = lambda (x,y,z): x, 
+        sorted_options = sorted(options_list, key = lambda x_y_z: x_y_z[0], 
                                 reverse=True) 
                                 
         for (score, rst_relation, removes) in sorted_options:
@@ -299,7 +299,7 @@ def __message2xml(message):
     msg_type = message[Feature("msgType")]
     msg = etree.Element("message", type=msg_type)
 
-    msg_elements = [(key, val) for (key, val) in message.items()
+    msg_elements = [(key, val) for (key, val) in list(message.items())
                                if key != Feature("msgType")]
     for key, val in msg_elements:
         if isinstance(key, str):
@@ -389,23 +389,23 @@ def test_textplan2xml_conversion():
     test text plan to XML conversion with all the text plans that were
     generated for all test queries with debug.gen_all_textplans().
     """
-    import cPickle
-    atp = cPickle.load(open("data/alltextplans.pickle", "r"))
+    import pickle
+    atp = pickle.load(open("data/alltextplans.pickle", "r"))
 
-    print """### Output: One XML file per query ###\n\n"""
+    print("""### Output: One XML file per query ###\n\n""")
     for atp_count, textplans in enumerate(atp):
             xml_plan = textplans2xml(textplans)
-            print "All text plans generated" \
-                  " for test query #{0}:\n".format(atp_count)
-            print etreeprint(xml_plan, debug=False), "\n\n\n"
+            print("All text plans generated" \
+                  " for test query #{0}:\n".format(atp_count))
+            print(etreeprint(xml_plan, debug=False), "\n\n\n")
 
-    print """### Output: One XML file per text plan ###\n\n"""
+    print("""### Output: One XML file per text plan ###\n\n""")
     for atp_count, tp in enumerate(atp):
         for tp_count, docplan in enumerate(tp.document_plans):
             xml_plan = textplan2xml(docplan)
-            print "Text plan {0} for " \
-                  "test query {1}:\n".format(atp_count, tp_count)
-            print etreeprint(xml_plan, debug=False), "\n\n\n"
+            print("Text plan {0} for " \
+                  "test query {1}:\n".format(atp_count, tp_count))
+            print(etreeprint(xml_plan, debug=False), "\n\n\n")
 
 
 if __name__ == "__main__":

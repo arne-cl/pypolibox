@@ -62,7 +62,7 @@ class Messages:
 
         # does not generate a message if there are no propositions about 
         # its content (e.g. about 'extra')
-        for proposition_type in self.propositions.iterkeys():
+        for proposition_type in self.propositions.keys():
             if self.propositions[proposition_type]:
                 self.messages[proposition_type] = \
                     self.generate_message(proposition_type)
@@ -86,19 +86,19 @@ class Messages:
         #frozensets (hashable) when creating rules and checking for duplicate 
         #messages
         if proposition_type in simple_propositions:
-            for attrib in proposition_dict.iterkeys():
+            for attrib in proposition_dict.keys():
                 value, rating = proposition_dict[attrib]
                 if type(value) == set: 
                     value = frozenset(value)
                 message.update({attrib: (value, rating)})
     
-        if proposition_type is 'extra':
+        if proposition_type == 'extra':
             message = self.generate_extra_message(proposition_dict)
     
-        if proposition_type is 'lastbook_nomatch':
+        if proposition_type == 'lastbook_nomatch':
             message = self.generate_lastbook_nomatch_message(proposition_dict)
     
-        if message[Feature("msgType")] is not 'id':
+        if message[Feature("msgType")] != 'id':
             message = self.add_identification_to_message(message)
 
         return message
@@ -110,7 +110,7 @@ class Messages:
         short / long. 
         """
         msg = Message(msgType='extra')
-        for attrib in proposition_dict.iterkeys():
+        for attrib in proposition_dict.keys():
             if attrib == 'year':
                 description, rating = proposition_dict['year']
                 recency = FeatDict({'description': description, 
@@ -130,7 +130,7 @@ class Messages:
         two books.
         """
         msg = Message(msgType='lastbook_nomatch')
-        for attrib in proposition_dict.iterkeys():
+        for attrib in proposition_dict.keys():
             if attrib == 'longer':
                 pages, rating = proposition_dict['longer']
                 magnitude = FeatDict({'number': pages, 'unit': 'pages'})
@@ -205,7 +205,7 @@ class Messages:
     def __str__(self):
         ret_str = ""
         ret_str += "book score: {0}\n\n".format(self.book_score)
-        for message in self.messages.iterkeys():
+        for message in self.messages.keys():
             if self.messages[message]:
                 ret_str += "{0}\n\n".format(self.messages[message])
         return ret_str

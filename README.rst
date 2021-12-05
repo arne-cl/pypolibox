@@ -13,7 +13,7 @@ pypolibox
 
 
 *pypolibox* is a database-to-text generation (NLG) software built
-on Python 2.7, *NLTK* and Nicholas FitzGerald's *pydocplanner*.
+on Python 3.9, *NLTK* and Nicholas FitzGerald's *pydocplanner*.
 
 Using a database of technical books and some user input, pypolibox
 generates sentences descriptions. These descriptions are then used by

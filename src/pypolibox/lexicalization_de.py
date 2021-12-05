@@ -11,9 +11,9 @@ import re
 import random
 from nltk.featstruct import Feature, FeatDict
 from copy import deepcopy
-from textplan import ConstituentSet, Message, linearize_textplan
-from hlds import Diamond, create_diamond, add_mode_suffix
-from util import ensure_unicode, sql_array_to_list
+from .textplan import ConstituentSet, Message, linearize_textplan
+from .hlds import Diamond, create_diamond, add_mode_suffix
+from .util import ensure_unicode, sql_array_to_list
 
 
 def phrase2sentence(diamond):
@@ -200,11 +200,11 @@ def lexicalize_exercises(exercises, lexicalized_title, lexeme="random"):
     agens.change_mode("AGENS")
 
     if exercises_val == 1:
-        patiens = create_diamond("PATIENS", "abstraktum", u"Übung",
+        patiens = create_diamond("PATIENS", "abstraktum", "Übung",
                                  [gen_num("plur")])
     else:
         modifier = gen_art("quantkein")
-        patiens = create_diamond("PATIENS", "abstraktum", u"Übung",
+        patiens = create_diamond("PATIENS", "abstraktum", "Übung",
                                  [gen_num("plur"), modifier])
     return create_diamond("", "durativ", lexeme, [tempus, agens, patiens])
 
@@ -259,7 +259,7 @@ def lexicalize_language(language, lexicalized_title, realize="random"):
         prkompl = create_diamond("PRKOMPL", "sorte", "Sprache",
                                  [lang_num, adjective_prep, language_mod])
 
-    return create_diamond("", u"prädikation", "sein-kop",
+    return create_diamond("", "prädikation", "sein-kop",
                           [tempus, subj, prkompl])
 
 
@@ -291,13 +291,13 @@ def lexicalize_length(length, lexicalized_title,
     """
     assert isinstance(length, FeatDict)
 
-    if isinstance(length, FeatDict) and "magnitude" in length.keys():
+    if isinstance(length, FeatDict) and "magnitude" in list(length.keys()):
     # length is part of a 'lastbook_nomatch'
         return gen_length_lastbook_nomatch(length, lexicalized_title,
                                              lexicalized_lastbooktitle)
     else:
-        print "length: ", length
-        print "type: ", type(length)
+        print("length: ", length)
+        print("type: ", type(length))
         raise Exception("can't parse length FeatDict")
 
 def gen_length_lastbook_nomatch(length, lexicalized_title,
@@ -337,7 +337,7 @@ def gen_length_lastbook_nomatch(length, lexicalized_title,
     prkompl = create_diamond("PRKOMPL", "adjunktion", "adjunktor",
                              [mod, kompar])
 
-    return create_diamond("", u"prädikation", "sein-kop",
+    return create_diamond("", "prädikation", "sein-kop",
                           [tempus, subj, prkompl])
 
 
@@ -508,7 +508,7 @@ def gen_pages_id(pages_int, lexicalized_title, lexeme="random"):
         lexeme = random.choice(["umfang", "umfassen", "länge"])
 
     if lexeme == "umfang":
-        preposition = gen_prep("von", u"zugehörigkeit")
+        preposition = gen_prep("von", "zugehörigkeit")
         attrib = create_diamond("ATTRIB", pages_nom, pages_prop,
                                 [pages_num, preposition, pages_mod])
 
@@ -531,7 +531,7 @@ def gen_pages_id(pages_int, lexicalized_title, lexeme="random"):
                                   [gen_komp("pos")])
         prkompl = create_diamond("PRKOMPL", pages_nom, pages_prop,
                                  [pages_num, pages_mod, komp_mod])
-        return create_diamond("", u"prädikation", "sein-kop",
+        return create_diamond("", "prädikation", "sein-kop",
                               [tempus, title, prkompl])
     
 
@@ -552,9 +552,9 @@ def gen_pages_extra(length_description, lexicalized_title):
                          [gen_komp("pos"), gen_spez("sehr", "intensivierung")])
     elif length_description == "very short":
         prkompl = create_diamond("PRKOMPL", "eigenschaft", "kurz",
-                         [gen_komp("pos"), gen_spez("etwas", u"abschwächung")])
+                         [gen_komp("pos"), gen_spez("etwas", "abschwächung")])
 
-    return create_diamond("", u"prädikation", "sein-kop",
+    return create_diamond("", "prädikation", "sein-kop",
                           [tempus, subj, prkompl])
 
 
@@ -673,7 +673,7 @@ def lexicalize_target(target, lexicalized_title):
 
     if target_val == 1: # add "mit Grundkenntnissen" to "Einsteiger"
         attrib_num = gen_num("plur")
-        attrib_prep = gen_prep("mit", u"zugehörigkeit")
+        attrib_prep = gen_prep("mit", "zugehörigkeit")
         attrib = create_diamond("ATTRIB", "abstraktum", "Grundkenntnis",
                                 [attrib_num, attrib_prep])
         patiens.append_subdiamond(attrib)
@@ -736,7 +736,7 @@ def gen_recency_lastbook_nomatch(recency, lexicalized_title,
     if recency["direction"] == "+": # book is more recent than its predecessor
         comp_adjective = "neuer"
     else: # book is older than its predecessor
-        comp_adjective = u"älter"
+        comp_adjective = "älter"
 
     years = recency["magnitude"]["number"]
     years_mod = gen_mod(str(years), "kardinal")
@@ -752,7 +752,7 @@ def gen_recency_lastbook_nomatch(recency, lexicalized_title,
 
     prkompl = create_diamond("PRKOMPL", "adjunktion", "adjunktor",
                              [mod, kompar])
-    return create_diamond("", u"prädikation", "sein-kop",
+    return create_diamond("", "prädikation", "sein-kop",
                          [tempus, subj, prkompl])
 
 
@@ -777,7 +777,7 @@ def gen_recency_extra(recency_description, lexicalized_title):
 
     prkompl = create_diamond("PRKOMPL", "eigenschaft", recency_adverb,
                              [gen_komp("pos"), spez])
-    return create_diamond("", u"prädikation", "sein-kop",
+    return create_diamond("", "prädikation", "sein-kop",
                           [tempus, subj, prkompl])
 
 
@@ -879,7 +879,7 @@ def lexicalize_title(title_tuple, lexicalized_authors=None, realize="complete",
             article = re.compile("\d+__ART")
             # remove ARTicle from title:
             # Chomskys das Buch --> Chomskys Buch
-            for key in title_diamond.keys():
+            for key in list(title_diamond.keys()):
                 if isinstance(key, str) and article.match(key):
                     article_key = article.match(key).group()
                     title_diamond.pop(article_key)
@@ -911,7 +911,7 @@ def lexicalize_title_description(title_tuple, authors_tuple, year_tuple=None):
     """
     lexicalized_title = lexicalize_title(title_tuple, realize="complete")
     attrib = lexicalize_authors(authors_tuple, realize="complete")
-    attrib.prepend_subdiamond(gen_prep("von", u"zugehörigkeit"))
+    attrib.prepend_subdiamond(gen_prep("von", "zugehörigkeit"))
     attrib.change_mode("ATTRIB")
 
     if year_tuple:
@@ -939,7 +939,7 @@ def lexicalize_title_description(title_tuple, authors_tuple, year_tuple=None):
 
         prkompl = create_diamond("PRKOMPL", "artefaktum", "Buch",
                                  [num, art, attrib])
-        return create_diamond("", u"prädikation", "sein-kop",
+        return create_diamond("", "prädikation", "sein-kop",
                               [tempus, subj, prkompl])
 
 
@@ -992,11 +992,11 @@ def gen_enumeration(diamonds_list, mode=""):
     :return: a Diamond instance (containing zero or more nested Diamond
     instances)
     """
-    if len(diamonds_list) is 0:
+    if len(diamonds_list) == 0:
         return []
-    if len(diamonds_list) is 1:
+    if len(diamonds_list) == 1:
         return diamonds_list[0]
-    if len(diamonds_list) is 2:
+    if len(diamonds_list) == 2:
         return create_diamond(mode, "konjunktion", "und", diamonds_list)
     if len(diamonds_list) > 2:
         nested_komma_enum = gen_komma_enumeration(diamonds_list[:-1], mode)
@@ -1199,11 +1199,11 @@ def gen_title(book_title):
     :rtype: ``Diamond``
     """
     book_title = ensure_unicode(book_title)
-    book_title = book_title.replace(u" ", u"_")
+    book_title = book_title.replace(" ", "_")
 
-    opening_bracket = create_diamond('99', u'anf\xfchrung\xf6ffnen',
-                                     u'anf\xf6ffn', [])
-    closing_bracket = create_diamond('66', u'anf\xfchrungschlie\xdfen',
+    opening_bracket = create_diamond('99', 'anf\xfchrung\xf6ffnen',
+                                     'anf\xf6ffn', [])
+    closing_bracket = create_diamond('66', 'anf\xfchrungschlie\xdfen',
                                      'anfschl', [])
 
     return create_diamond('NP', 'buchtitel', book_title,
@@ -1235,7 +1235,7 @@ def gen_abstract_autor(num_of_authors):
     art = gen_art("def")
     gen = gen_gender("mask")
     num = gen_num(num_of_authors)
-    return create_diamond("", u"bel-phys-körper", "Autor", [art, gen, num])
+    return create_diamond("", "bel-phys-körper", "Autor", [art, gen, num])
 
 
 
@@ -1369,6 +1369,6 @@ def __sing_or_plur(lexicalized_authors):
 
 if __name__ == "__main__":
     import doctest
-    from realization import OpenCCG
+    from .realization import OpenCCG
     openccg = OpenCCG()
     doctest.testmod()

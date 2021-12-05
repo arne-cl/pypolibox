@@ -7,7 +7,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()
 NEWS = open(os.path.join(here, 'NEWS.rst')).read()
 
-version = '1.0.2'
+version = '1.0.3'
 
 if platform.system() == 'Windows':
     install_requires = ["lxml", "nltk", "winpexpect", "pyaml"]
@@ -55,7 +55,7 @@ setup(name='pypolibox',
         Development Status :: 4 - Beta
         License :: OSI Approved :: GNU General Public License v3 (GPLv3)
         Operating System :: OS Independent
-        Programming Language :: Python :: 2.7
+        Programming Language :: Python :: 3.9
         Topic :: Text Processing :: Linguistic
     """.split('\n') if c.strip()],
     keywords='linguistics nlp nlg',
